@@ -1,0 +1,59 @@
+# Docker Compose configuration for local Prasine Index development.
+# Starts PostgreSQL 16 with the pgvector extension pre-installed.
+#
+# Usage:
+#   docker compose up -d          # start the database
+#   docker compose down           # stop and remove containers
+#   docker compose down -v        # stop and remove containers + data volume
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL 16 with pgvector
+  # ---------------------------------------------------------------------------
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: prasine_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prasine
+      POSTGRES_PASSWORD: prasine
+      POSTGRES_DB: prasine_index
+    ports:
+      - "5432:5432"
+    volumes:
+      - prasine_pgdata:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prasine -d prasine_index"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Test database — separate instance for the test suite
+  # ---------------------------------------------------------------------------
+  db_test:
+    image: pgvector/pgvector:pg16
+    container_name: prasine_db_test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: prasine
+      POSTGRES_PASSWORD: prasine
+      POSTGRES_DB: prasine_index_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - prasine_pgdata_test:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prasine -d prasine_index_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  prasine_pgdata:
+    driver: local
+  prasine_pgdata_test:
+    driver: local

@@ -1,0 +1,321 @@
+"""Async PostgreSQL connection layer for the Prasine Index pipeline.
+
+Owns the SQLAlchemy async engine, session factory, and declarative base used by
+all ORM models. The pgvector extension is enabled at startup and the Vector
+column type is registered with asyncpg so that embedding operations work
+transparently through the ORM. All database I/O across the pipeline flows
+through get_session().
+"""
+
+from __future__ import annotations
+
+import os
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import Any
+
+from dotenv import load_dotenv
+from pgvector.sqlalchemy import Vector
+from sqlalchemy import event, text
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
+
+from core.logger import get_logger
+
+__all__ = [
+    "Base",
+    "Vector",
+    "get_engine",
+    "get_session",
+    "healthcheck",
+    "init_db",
+    "teardown_db",
+]
+
+load_dotenv()
+
+logger = get_logger(__name__)
+
+# ---------------------------------------------------------------------------
+# Engine configuration
+# ---------------------------------------------------------------------------
+
+# DATABASE_URL must use the asyncpg driver scheme:
+#   postgresql+asyncpg://user:password@host:port/dbname
+_DATABASE_URL: str = os.environ.get(
+    "DATABASE_URL",
+    "postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index",
+)
+
+# Pool sizing: 5 base connections, up to 10 overflow. Overflow connections are
+# returned immediately when released rather than being held open. This is suitable
+# for both the async pipeline and the FastAPI process; adjust via environment
+# variables for production deployments with higher concurrency.
+_POOL_SIZE: int = int(os.environ.get("DB_POOL_SIZE", "5"))
+_MAX_OVERFLOW: int = int(os.environ.get("DB_MAX_OVERFLOW", "10"))
+_POOL_TIMEOUT: int = int(os.environ.get("DB_POOL_TIMEOUT", "30"))
+
+# NullPool is used in test environments (detected via TESTING=true) to prevent
+# connection pool state from leaking across test cases.
+_TESTING: bool = os.environ.get("TESTING", "false").lower() == "true"
+
+_engine: AsyncEngine | None = None
+
+
+def _build_engine() -> AsyncEngine:
+    """Construct the SQLAlchemy async engine with appropriate pool settings.
+
+    Uses NullPool when TESTING=true so that test cases that call teardown_db()
+    can fully dispose of all connections without pool interference.
+
+    Returns:
+        A configured :py:class:`sqlalchemy.ext.asyncio.AsyncEngine` instance.
+    """
+    pool_kwargs: dict[str, Any] = (
+        {"poolclass": NullPool}
+        if _TESTING
+        else {
+            "pool_size": _POOL_SIZE,
+            "max_overflow": _MAX_OVERFLOW,
+            "pool_timeout": _POOL_TIMEOUT,
+            "pool_pre_ping": True,
+            "pool_recycle": 1800,  # recycle connections after 30 minutes
+        }
+    )
+    engine = create_async_engine(
+        _DATABASE_URL,
+        echo=os.environ.get("DB_ECHO", "false").lower() == "true",
+        **pool_kwargs,
+    )
+    _register_pgvector_codec(engine)
+    return engine
+
+
+def _register_pgvector_codec(engine: AsyncEngine) -> None:
+    """Register the pgvector asyncpg codec on every new connection.
+
+    asyncpg does not automatically know how to serialise and deserialise the
+    PostgreSQL ``vector`` type. The ``pgvector.asyncpg`` codec must be registered
+    on the raw asyncpg connection object, which SQLAlchemy exposes via the
+    ``connect`` event on the sync-level driver connection.
+
+    Args:
+        engine: The async engine whose connection pool will have the codec
+            registered on each new connection checkout.
+    """
+    try:
+        import pgvector.asyncpg as pgvector_asyncpg  # type: ignore[import-untyped]
+
+        @event.listens_for(engine.sync_engine, "connect")
+        def _on_connect(dbapi_connection: Any, _connection_record: Any) -> None:
+            """Register the pgvector codec on the raw asyncpg connection.
+
+            Args:
+                dbapi_connection: The raw asyncpg connection wrapper provided
+                    by SQLAlchemy's asyncpg dialect.
+                _connection_record: SQLAlchemy connection record (unused).
+            """
+            dbapi_connection.run_async(pgvector_asyncpg.register_vector)
+
+    except ImportError:
+        logger.warning(
+            "pgvector.asyncpg not available; vector operations will not function. "
+            "Install with: pip install pgvector",
+            extra={"operation": "pgvector_codec_registration_skipped"},
+        )
+
+
+def get_engine() -> AsyncEngine:
+    """Return the process-wide async engine, creating it on first call.
+
+    The engine is a module-level singleton. Calling this function multiple
+    times returns the same instance. Use :py:func:`teardown_db` to dispose
+    of the engine and its connection pool.
+
+    Returns:
+        The singleton :py:class:`~sqlalchemy.ext.asyncio.AsyncEngine`.
+    """
+    global _engine
+    if _engine is None:
+        _engine = _build_engine()
+    return _engine
+
+
+# ---------------------------------------------------------------------------
+# Session factory
+# ---------------------------------------------------------------------------
+
+def _get_session_factory() -> async_sessionmaker[AsyncSession]:
+    """Create a session factory bound to the current engine.
+
+    Returns:
+        An :py:class:`~sqlalchemy.ext.asyncio.async_sessionmaker` instance.
+    """
+    return async_sessionmaker(
+        bind=get_engine(),
+        class_=AsyncSession,
+        expire_on_commit=False,
+        autoflush=False,
+        autocommit=False,
+    )
+
+
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """Async context manager that yields a database session with automatic cleanup.
+
+    Commits the transaction on clean exit and rolls back on any exception,
+    ensuring the connection is always returned to the pool in a clean state.
+    Sessions are not shared across concurrent pipeline runs; each agent call
+    that needs database access should open its own session.
+
+    Yields:
+        An :py:class:`~sqlalchemy.ext.asyncio.AsyncSession` ready for use.
+
+    Raises:
+        Re-raises any exception after rolling back the transaction.
+
+    Example::
+
+        from core.database import get_session
+
+        async with get_session() as session:
+            result = await session.execute(select(Claim).where(Claim.id == claim_id))
+            claim = result.scalar_one_or_none()
+    """
+    factory = _get_session_factory()
+    async with factory() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+
+# ---------------------------------------------------------------------------
+# Declarative base
+# ---------------------------------------------------------------------------
+
+class Base(DeclarativeBase):
+    """Shared declarative base for all Prasine Index ORM models.
+
+    All SQLAlchemy ORM table classes must inherit from this base so that
+    :py:func:`init_db` can discover them via ``Base.metadata.create_all``.
+
+    Import this class alongside the ORM model definition::
+
+        from core.database import Base
+
+        class ClaimRow(Base):
+            __tablename__ = "claims"
+            ...
+    """
+
+
+# ---------------------------------------------------------------------------
+# Lifecycle helpers
+# ---------------------------------------------------------------------------
+
+async def init_db() -> None:
+    """Initialise the database schema on application startup.
+
+    Performs three operations in order:
+
+    1. Enables the ``vector`` PostgreSQL extension (requires PostgreSQL 15+
+       with pgvector installed; no-op if already enabled).
+    2. Enables the ``uuid-ossp`` extension for server-side UUID generation
+       in raw SQL statements.
+    3. Creates all tables registered with :py:class:`Base` that do not yet
+       exist. This is an additive operation and will never drop or alter
+       existing tables — schema migrations are managed separately via Alembic.
+
+    This function is idempotent and safe to call on every application startup.
+
+    Raises:
+        sqlalchemy.exc.OperationalError: If the database is unreachable or
+            the current user lacks CREATE EXTENSION privileges.
+    """
+    engine = get_engine()
+    async with engine.begin() as conn:
+        await _enable_extensions(conn)
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info(
+        "Database schema initialised",
+        extra={"operation": "db_init_complete"},
+    )
+
+
+async def _enable_extensions(conn: AsyncConnection) -> None:
+    """Enable required PostgreSQL extensions if not already active.
+
+    Args:
+        conn: An open async connection within a transaction.
+    """
+    for extension in ("vector", "uuid-ossp"):
+        await conn.execute(
+            text(f'CREATE EXTENSION IF NOT EXISTS "{extension}"')
+        )
+        logger.info(
+            f"PostgreSQL extension enabled: {extension}",
+            extra={"operation": "pg_extension_enabled", "error_type": None},
+        )
+
+
+async def teardown_db() -> None:
+    """Dispose of the engine and its connection pool.
+
+    Should be called during application shutdown (e.g. in FastAPI's
+    ``lifespan`` shutdown handler) and in test teardown to ensure all
+    connections are cleanly closed.
+
+    Subsequent calls to :py:func:`get_engine` or :py:func:`get_session`
+    after ``teardown_db`` will create a new engine instance.
+    """
+    global _engine
+    if _engine is not None:
+        await _engine.dispose()
+        _engine = None
+        logger.info(
+            "Database engine disposed",
+            extra={"operation": "db_teardown_complete"},
+        )
+
+
+async def healthcheck() -> dict[str, str]:
+    """Execute a minimal query to verify database connectivity.
+
+    Intended for use in the FastAPI ``/health`` endpoint and pre-flight
+    checks in the pipeline. Returns a status dict rather than raising, so
+    the caller can decide how to surface connectivity failures.
+
+    Returns:
+        A dict with keys ``"status"`` (``"ok"`` or ``"error"``) and
+        ``"detail"`` (empty string on success, error message on failure).
+
+    Example::
+
+        from core.database import healthcheck
+
+        status = await healthcheck()
+        if status["status"] != "ok":
+            logger.error("Database unreachable", extra={"error_type": status["detail"]})
+    """
+    try:
+        async with get_session() as session:
+            await session.execute(text("SELECT 1"))
+        return {"status": "ok", "detail": ""}
+    except Exception as exc:
+        logger.error(
+            "Database healthcheck failed",
+            exc_info=True,
+            extra={"operation": "db_healthcheck", "error_type": type(exc).__name__},
+        )
+        return {"status": "error", "detail": str(exc)}
