@@ -1,0 +1,64 @@
+# Prasine Index — Golden Dataset Eval
+#
+# Runs the 20-case golden eval against the full pipeline.
+# Requires:
+#   - ANTHROPIC_API_KEY secret set in the repository
+#   - A running PostgreSQL + pgvector instance (provided by the service container)
+#
+# Triggers:
+#   - Manually via workflow_dispatch
+#   - Automatically on pushes to main (acts as a quality gate)
+#
+# Fails if pass rate drops below 80% (exit code 1 from golden_dataset.py).
+
+name: Eval
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+
+  golden-eval:
+    name: Golden Dataset Eval
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: prasine
+          POSTGRES_PASSWORD: prasine
+          POSTGRES_DB: prasine_index_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Initialise test database
+        env:
+          DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
+        run: python -c "import asyncio; from core.database import init_db; asyncio.run(init_db())"
+
+      - name: Run golden dataset eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
+          TESTING: "true"
+          LOG_LEVEL: "WARNING"
+        run: python -m eval.golden_dataset
