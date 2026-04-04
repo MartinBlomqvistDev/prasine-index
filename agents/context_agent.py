@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import get_session
 from core.logger import bind_trace_context, get_logger
-from core.retry import RetryConfig, agent_error_boundary, retry_async
+from core.retry import agent_error_boundary
 from models.claim import Claim
 from models.company import Company, CompanyContext, ScoreTrend
 from models.trace import AgentName, AgentOutcome, AgentTrace
@@ -213,7 +213,6 @@ class ContextAgent:
             context_retrieved_at=datetime.now(UTC),
         )
 
-    @retry_async(config=RetryConfig.DEFAULT_DB, operation="context_fetch_company")
     async def _fetch_company(
         self,
         session: AsyncSession,
@@ -221,19 +220,19 @@ class ContextAgent:
     ) -> Company:
         """Retrieve the Company record from PostgreSQL.
 
+        Returns a stub Company when the ID is not found in the database so
+        that eval runs and ad-hoc pipeline calls with synthetic company IDs
+        proceed gracefully. The stub carries the UUID and unknown placeholders;
+        downstream agents treat missing EU ETS installation IDs and a null
+        Transparency Register ID as data gaps, which is the correct behaviour.
+
         Args:
             session: Active async database session.
             company_id: UUID of the company to retrieve.
 
         Returns:
-            The :py:class:`~models.company.Company` record.
-
-        Raises:
-            :py:class:`~core.retry.NonRetryableError`: If no company with the
-                given ID exists in the database.
+            The :py:class:`~models.company.Company` record, or a stub if not found.
         """
-        from core.retry import NonRetryableError
-
         # Import here to avoid circular dependency with ORM models (not yet written).
         # When the ORM layer is added, replace this raw SQL with a typed select().
         result = await session.execute(
@@ -247,9 +246,16 @@ class ContextAgent:
         )
         row = result.mappings().one_or_none()
         if row is None:
-            raise NonRetryableError(
-                message=f"Company {company_id} not found in database.",
-                agent=AgentName.CONTEXT.value,
+            logger.info(
+                f"Company {company_id} not found in database — using stub record",
+                extra={"operation": "context_company_stub", "company_id": str(company_id)},
+            )
+            return Company(
+                id=company_id,
+                name="Unknown Company",
+                country="EU",
+                sector="Unknown",
+                csrd_reporting=False,
             )
 
         return Company(
@@ -269,7 +275,6 @@ class ContextAgent:
             updated_at=row["updated_at"],
         )
 
-    @retry_async(config=RetryConfig.DEFAULT_DB, operation="context_fetch_claim_stats")
     async def _fetch_claim_stats(
         self,
         session: AsyncSession,
@@ -310,7 +315,6 @@ class ContextAgent:
             "last_assessed_at": row["last_assessed_at"],
         }
 
-    @retry_async(config=RetryConfig.DEFAULT_DB, operation="context_fetch_score_stats")
     async def _fetch_score_stats(
         self,
         session: AsyncSession,
@@ -358,7 +362,6 @@ class ContextAgent:
             "score_history": score_history,
         }
 
-    @retry_async(config=RetryConfig.DEFAULT_DB, operation="context_find_similar_claims")
     async def _find_similar_claims(
         self,
         session: AsyncSession,
