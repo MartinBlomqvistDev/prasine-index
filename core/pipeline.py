@@ -56,9 +56,9 @@ class PipelineConfig(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    extraction_model: str = Field(default="claude-opus-4-6")
-    judge_model: str = Field(default="claude-opus-4-6")
-    report_model: str = Field(default="claude-opus-4-6")
+    extraction_model: str = Field(default="claude-haiku-4-5-20251001")
+    judge_model: str = Field(default="claude-haiku-4-5-20251001")
+    report_model: str = Field(default="claude-haiku-4-5-20251001")
     persist_traces: bool = Field(default=True)
     persist_claims: bool = Field(default=True)
 
@@ -379,7 +379,7 @@ class Pipeline:
                         "(:id, :trace_id, :claim_id, :agent, :outcome, :started_at, "
                         " :completed_at, :duration_ms, :input_schema, :output_schema, "
                         " :error_type, :error_message, :retry_count, :llm_model_id, "
-                        " :tokens_used, :metadata::jsonb)"
+                        " :tokens_used, :metadata)"
                     ),
                     _trace_to_params(trace),
                 )
@@ -440,7 +440,7 @@ class Pipeline:
                         " verdict, reasoning, confidence, scored_at, judge_model_id) "
                         "VALUES "
                         "(:id, :claim_id, :company_id, :trace_id, :score, "
-                        " :score_breakdown::jsonb, :verdict, :reasoning, :confidence, "
+                        " :score_breakdown, :verdict, :reasoning, :confidence, "
                         " :scored_at, :judge_model_id)"
                     ),
                     {

@@ -221,7 +221,7 @@ EU ETS data is verified by accredited independent third parties under EU Regulat
 ### Installation
 
 ```bash
-git clone https://github.com/your-username/prasine-index.git
+git clone https://github.com/MartinBlomqvistDev/prasine-index.git
 cd prasine-index
 
 python -m venv .venv

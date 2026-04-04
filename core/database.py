@@ -122,7 +122,14 @@ def _register_pgvector_codec(engine: AsyncEngine) -> None:
                     by SQLAlchemy's asyncpg dialect.
                 _connection_record: SQLAlchemy connection record (unused).
             """
-            dbapi_connection.run_async(pgvector_asyncpg.register_vector)
+            async def _register(conn: Any) -> None:
+                try:
+                    await pgvector_asyncpg.register_vector(conn)
+                except ValueError:
+                    # Supabase installs pgvector in the 'extensions' schema.
+                    await pgvector_asyncpg.register_vector(conn, schema="extensions")
+
+            dbapi_connection.run_async(_register)
 
     except ImportError:
         logger.warning(
@@ -246,7 +253,7 @@ async def init_db() -> None:
     engine = get_engine()
     async with engine.begin() as conn:
         await _enable_extensions(conn)
-        await conn.run_sync(Base.metadata.create_all)
+        await _create_schema(conn)
     logger.info(
         "Database schema initialised",
         extra={"operation": "db_init_complete"},
@@ -267,6 +274,128 @@ async def _enable_extensions(conn: AsyncConnection) -> None:
             f"PostgreSQL extension enabled: {extension}",
             extra={"operation": "pg_extension_enabled", "error_type": None},
         )
+
+
+async def _create_schema(conn: AsyncConnection) -> None:
+    """Create all Prasine Index tables if they do not already exist.
+
+    All statements use ``CREATE TABLE IF NOT EXISTS`` so the function is
+    idempotent and safe to call on every startup. No existing data is
+    modified or dropped.
+
+    Args:
+        conn: An open async connection within a transaction.
+    """
+    statements = [
+        # Companies — stable EU company registry data
+        """
+        CREATE TABLE IF NOT EXISTS companies (
+            id                       UUID PRIMARY KEY,
+            name                     TEXT NOT NULL,
+            lei                      TEXT,
+            isin                     TEXT,
+            ticker                   TEXT,
+            country                  TEXT NOT NULL,
+            sector                   TEXT NOT NULL,
+            sub_sector               TEXT,
+            eu_ets_installation_ids  JSONB NOT NULL DEFAULT '[]',
+            transparency_register_id TEXT,
+            ir_page_url              TEXT,
+            csrd_reporting           BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        """,
+        # Claims — atomic unit of work: one row per extracted green claim
+        """
+        CREATE TABLE IF NOT EXISTS claims (
+            id                      UUID PRIMARY KEY,
+            trace_id                UUID NOT NULL,
+            company_id              UUID NOT NULL REFERENCES companies(id),
+            source_url              TEXT NOT NULL,
+            source_type             TEXT NOT NULL,
+            raw_text                TEXT NOT NULL,
+            normalised_text         TEXT,
+            claim_category          TEXT NOT NULL,
+            page_reference          TEXT,
+            publication_date        TIMESTAMPTZ,
+            detected_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            status                  TEXT NOT NULL DEFAULT 'DETECTED',
+            is_repeat               BOOLEAN NOT NULL DEFAULT FALSE,
+            previous_claim_id       UUID,
+            modified_after_scoring  BOOLEAN NOT NULL DEFAULT FALSE,
+            original_scored_text    TEXT,
+            embedding               vector(1536)
+        )
+        """,
+        # Claim lifecycle — immutable status transition log
+        """
+        CREATE TABLE IF NOT EXISTS claim_lifecycle (
+            id               UUID PRIMARY KEY,
+            claim_id         UUID NOT NULL REFERENCES claims(id),
+            from_status      TEXT,
+            to_status        TEXT NOT NULL,
+            transitioned_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            transitioned_by  TEXT NOT NULL
+        )
+        """,
+        # Greenwashing scores — Judge Agent verdicts
+        """
+        CREATE TABLE IF NOT EXISTS greenwashing_scores (
+            id              UUID PRIMARY KEY,
+            claim_id        UUID NOT NULL REFERENCES claims(id),
+            company_id      UUID NOT NULL REFERENCES companies(id),
+            trace_id        UUID NOT NULL,
+            score           FLOAT NOT NULL,
+            score_breakdown JSONB NOT NULL DEFAULT '{}',
+            verdict         TEXT NOT NULL,
+            reasoning       TEXT NOT NULL,
+            confidence      FLOAT NOT NULL,
+            scored_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            judge_model_id  TEXT NOT NULL
+        )
+        """,
+        # Reports — publication-ready Markdown output
+        """
+        CREATE TABLE IF NOT EXISTS reports (
+            claim_id         UUID PRIMARY KEY REFERENCES claims(id),
+            trace_id         UUID NOT NULL,
+            report_markdown  TEXT NOT NULL,
+            published_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        """,
+        # Trace log — structured execution log per agent step
+        """
+        CREATE TABLE IF NOT EXISTS trace_log (
+            id            UUID PRIMARY KEY,
+            trace_id      UUID NOT NULL,
+            claim_id      UUID,
+            agent         TEXT NOT NULL,
+            outcome       TEXT NOT NULL,
+            started_at    TIMESTAMPTZ NOT NULL,
+            completed_at  TIMESTAMPTZ,
+            duration_ms   INTEGER,
+            input_schema  TEXT NOT NULL,
+            output_schema TEXT,
+            error_type    TEXT,
+            error_message TEXT,
+            retry_count   INTEGER NOT NULL DEFAULT 0,
+            llm_model_id  TEXT,
+            tokens_used   INTEGER,
+            metadata      JSONB NOT NULL DEFAULT '{}'
+        )
+        """,
+        # Discovery state — content hash per monitored URL for change detection
+        """
+        CREATE TABLE IF NOT EXISTS discovery_state (
+            source_url      TEXT PRIMARY KEY,
+            content_hash    TEXT NOT NULL,
+            last_checked_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+        """,
+    ]
+    for stmt in statements:
+        await conn.execute(text(stmt))
 
 
 async def teardown_db() -> None:
