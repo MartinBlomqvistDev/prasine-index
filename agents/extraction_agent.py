@@ -54,6 +54,7 @@ _EXTRACT_TOOL: anthropic.types.ToolParam = {
         "Call this tool exactly once with the complete list of all claims found. "
         "If the document contains no green claims, call the tool with an empty list."
     ),
+    "cache_control": {"type": "ephemeral"},
     "input_schema": {
         "type": "object",
         "properties": {
@@ -371,7 +372,13 @@ class ExtractionAgent:
             response = await self._client.messages.create(
                 model=self._model_id,
                 max_tokens=self._max_tokens,
-                system=_SYSTEM_PROMPT,
+                system=[
+                    {
+                        "type": "text",
+                        "text": _SYSTEM_PROMPT,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
                 tools=[_EXTRACT_TOOL],
                 tool_choice=anthropic.types.ToolChoiceToolParam(type="tool", name=_EXTRACT_TOOL_NAME),
                 messages=[

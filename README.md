@@ -28,7 +28,7 @@ Target audience: Greenpeace, WWF, ClientEarth, EU investigative journalists, The
 
 ### The 7-Agent Pipeline
 
-```
+```text
 Discovery Agent
       │
       ▼
@@ -56,7 +56,7 @@ Report Agent              ← raw Anthropic SDK
 
 **Context Agent** — queries PostgreSQL for the company's claim history, aggregate scores, score trend, and semantically similar prior claims via pgvector cosine similarity before verification begins.
 
-**Verification Agent** — queries EU ETS EUTL, CDP open data, and EUR-Lex simultaneously, aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
+**Verification Agent** — queries ten parallel sources: EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, and EUR-Lex, aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
 
 **Lobbying Agent** — retrieves the company's Transparency Register record and classifies whether its lobbying activity contradicts its green claims.
 
@@ -72,7 +72,7 @@ This is the most important architectural decision in the codebase, and it is del
 
 **The case for LangGraph at the Verification Agent:**
 
-The Verification Agent queries four independent external APIs — EU ETS, CDP, EUR-Lex, and the Transparency Register — and must:
+The Verification Agent queries ten independent data sources — EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, and EUR-Lex — and must:
 
 - Execute all four queries concurrently (never sequentially — latency would compound)
 - Accumulate results from each branch as they complete
@@ -92,6 +92,7 @@ The other six agents are single-step operations:
 - Report: one LLM call, return the text
 
 For single-step agents, introducing a framework means:
+
 - The prompt and response handling are obscured behind framework abstractions
 - Debugging requires understanding the framework's state machine in addition to the business logic
 - The model's exact inputs and outputs are harder to inspect and log
@@ -108,7 +109,7 @@ The Judge Agent is the most sensitive step in the pipeline — its output may be
 Every agent communicates exclusively through Pydantic v2 models. No raw strings or untyped dicts cross agent boundaries.
 
 | Model | Description |
-|-------|-------------|
+| ----- | ----------- |
 | `Claim` | Atomic unit of work: a single green claim with full provenance |
 | `ClaimLifecycle` | Immutable status transition record; one row per status change |
 | `Evidence` | A single data point from one EU open data source |
@@ -121,7 +122,7 @@ Every agent communicates exclusively through Pydantic v2 models. No raw strings 
 
 ### Claim Lifecycle
 
-```
+```text
 DETECTED → VERIFIED → SCORED → PUBLISHED → MONITORING
 ```
 
@@ -175,7 +176,7 @@ This is LLMOps: prompt changes, model upgrades, and architectural changes must n
 
 Every claim is assigned a `trace_id` at creation. It flows through all seven agents unchanged and is written to every `AgentTrace` row, every `Evidence` record, and every log line. To reconstruct the full execution history of any claim:
 
-```
+```text
 GET /trace/{trace_id}
 ```
 
@@ -186,7 +187,7 @@ Returns every agent step in chronological order with duration, token count, outc
 ## Tech Stack
 
 | Component | Technology | Justification |
-|-----------|-----------|---------------|
+| --------- | ---------- | ------------- |
 | Pipeline agents | Python 3.12 + asyncio | Async-first throughout; parallel verification requires it |
 | LLM agents (extraction, judge, report) | Raw Anthropic SDK | Full prompt control; no framework abstraction over legally sensitive LLM calls |
 | Verification orchestration | LangGraph | Multi-tool parallel fan-out with partial failure tolerance — the specific problem LangGraph solves well |
@@ -199,14 +200,37 @@ Returns every agent step in chronological order with duration, token count, outc
 
 ## Data Sources
 
-| Source | What It Provides | Access |
-|--------|-----------------|--------|
-| EU ETS EUTL | **Verified** annual emissions per installation — the highest-quality evidence source | Open, no auth required |
-| CDP Open Data | Self-reported climate data, targets, governance | Open download |
-| EUR-Lex | CSRD reports, Green Claims Directive text, legislative context | REST API, open |
-| EU Transparency Register | Lobbying activities and fields of interest | Open, no auth required |
+| Source | What It Provides | Status |
+| ------ | ---------------- | ------ |
+| EU ETS EUTL | **Verified** annual CO2 emissions per installation, 2005–present | **Active** — daily snapshot from union-registry-data.ec.europa.eu |
+| CDP Open Data | Self-reported scores, targets, governance | **Paywalled** — `data.cdp.net` is cities/regions only; corporate scores require investor signatory or paid access |
+| SBTi Companies Taking Action | Validated/removed near-term and net-zero targets | **Active** — local bulk CSV via `scripts/refresh_sbti.py` |
+| E-PRTR (EEA) | Verified non-CO2 GHG releases per facility (CH4, N2O, HFCs) | **Active** — local bulk CSV via `scripts/refresh_eprtr.py` |
+| InfluenceMap | Corporate climate lobbying scores (A+ to F) | **Active** — local bulk CSV via `scripts/refresh_influencemap.py` |
+| Enforcement rulings | ASA, ACM, AGCM, CMA, EC, court judgments against greenwashing claims | **Active** — static curated database (no refresh needed) |
+| Climate Action 100+ | Net-zero benchmark for 170 largest emitters (700+ investors, $68tn AUM) | **Active** — local bulk CSV via `scripts/refresh_ca100.py` |
+| Banking on Climate Chaos | Fossil fuel financing by 60 largest banks, 2016–present | **Active** — local bulk CSV via `scripts/refresh_fossil_finance.py` |
+| Global Coal Exit List (GCEL) | ~1,000 companies active in coal mining or power | **Active** — local bulk CSV via `scripts/refresh_gcel.py` |
+| EUR-Lex | Green Claims Directive, CSRD, and EU ETS legislation as regulatory baseline | **Active** — static standards (legislation does not change) |
+| EU Transparency Register | Lobbying activities and fields of interest | Planned — Lobbying Agent |
 
-EU ETS data is verified by accredited independent third parties under EU Regulation 601/2012. It is the ground truth for emissions claims. CDP data is self-reported and weighted as secondary evidence. Discrepancies between CDP self-reports and EU ETS verified data are themselves a greenwashing signal.
+**EU ETS** data is verified by accredited independent third parties under EU Regulation 601/2012. It is the highest-quality ground truth for CO2 emission claims — a company claiming reductions that do not appear in EUTL verified data is the most direct greenwashing signal available.
+
+**E-PRTR** extends the emissions picture to non-CO2 GHGs (methane, nitrous oxide, HFCs, etc.) and industrial pollutants not covered by the EU carbon market. Published annually by the EEA under E-PRTR Regulation (EC) No 166/2006.
+
+**SBTi** targets are externally validated by the Science Based Targets initiative. A removed or expired target — while the company continues to claim science-based alignment — is a CONFIRMED_GREENWASHING signal.
+
+**InfluenceMap** independently scores corporate climate policy engagement A+ (strongly supportive) to F (obstructive). A company scoring D or worse while making green claims is engaging in textbook greenwashing: publicly claiming climate leadership while privately lobbying against climate legislation.
+
+**Enforcement rulings** is a curated static database of confirmed regulatory bans, fines, misleading-claim rulings, and active investigations from ASA (UK), ACM (Netherlands), AGCM (Italy), CMA (UK), the European Commission, and national courts. A prior regulatory ruling against a company's green claims is the strongest possible evidence category — an independent authority has already determined the claim was unsubstantiated. No refresh script is needed; rulings are permanent and embedded directly in the module.
+
+**Climate Action 100+ (CA100+)** is the world's largest investor-led initiative, assessing the 170 highest-emitting listed companies against a standardised net-zero benchmark (net-zero ambition, decarbonisation targets, capex alignment). Backed by 700+ investors representing $68 trillion AUM. A company claiming net-zero ambition while rated "Not Aligned" by CA100+ is contradicted by the consensus of the world's largest institutional investors.
+
+**Banking on Climate Chaos** tracks fossil fuel financing by the world's 60 largest banks from 2016 onwards, published annually by RAN, Sierra Club, and Oil Change International. A bank claiming net-zero leadership while financing hundreds of billions in fossil fuel expansion — the HSBC pattern — is the canonical financial sector greenwashing case.
+
+**Global Coal Exit List (GCEL)** by Urgewald tracks ~1,000 companies across the coal value chain. A company listed as actively expanding coal capacity while claiming a clean-energy transition fails the standard coal screen used by 400+ financial institutions under GFANZ and PAII.
+
+The EUR-Lex ingest returns the applicable legislative standards (Green Claims Directive Article 3, CSRD ESRS E1, EU ETS Article 15) as structured evidence per claim category. No API call is made — the legislation is stable and embedded directly in the module.
 
 ---
 
@@ -241,6 +265,95 @@ cp .env.example .env
 # To run manually:
 python -c "import asyncio; from core.database import init_db; asyncio.run(init_db())"
 ```
+
+### Seeding Evaluation Companies
+
+```bash
+# Inserts all 20 golden dataset companies with deterministic UUIDs.
+# Safe to re-run — uses INSERT ... ON CONFLICT DO NOTHING.
+# Reads EU ETS installation IDs from EUTL24/operators_daily.csv automatically.
+python scripts/seed_eval_companies.py
+```
+
+### Refreshing EU ETS Data
+
+The EUTL daily snapshot is downloaded from the EU Union Registry and stored locally. Run monthly or on demand:
+
+```bash
+python scripts/refresh_eutl.py
+```
+
+On Windows, `scripts/refresh_eutl.bat` is provided for Windows Task Scheduler.
+
+### Refreshing SBTi Data
+
+SBTi publishes a bulk CSV of all companies with active, committed, or removed targets. No account required:
+
+```bash
+python scripts/refresh_sbti.py
+```
+
+Saves to `data/sbti_companies.csv`. Run when a new SBTi data release is announced (typically quarterly).
+
+### Refreshing CDP Data
+
+CDP requires a free account for bulk downloads. Run the script to see manual instructions:
+
+```bash
+python scripts/refresh_cdp.py
+```
+
+Saves to `data/cdp_companies.csv`. Download the latest survey year from data.cdp.net and place it there.
+
+### Refreshing E-PRTR Data
+
+E-PRTR non-CO2 GHG release data from the EEA (all industrial facilities, all pollutants):
+
+```bash
+python scripts/refresh_eprtr.py
+```
+
+Saves to `data/eprtr_releases.csv`. No account required.
+
+### Refreshing InfluenceMap Data
+
+InfluenceMap corporate climate lobbying scores:
+
+```bash
+python scripts/refresh_influencemap.py
+```
+
+Saves to `data/influencemap_companies.csv`. No account required.
+
+### Refreshing CA100+ Data
+
+Climate Action 100+ net-zero benchmark (170 largest emitters, updated annually):
+
+```bash
+python scripts/refresh_ca100.py
+```
+
+Saves to `data/ca100_companies.csv`. No account required.
+
+### Refreshing Banking on Climate Chaos Data
+
+Fossil fuel financing by the 60 largest banks (updated annually in May):
+
+```bash
+python scripts/refresh_fossil_finance.py
+```
+
+Saves to `data/fossil_finance_banks.csv`. No account required.
+
+### Refreshing the Global Coal Exit List
+
+Urgewald GCEL — ~1,000 companies across the coal value chain (updated at COP):
+
+```bash
+python scripts/refresh_gcel.py
+```
+
+Saves to `data/gcel_companies.csv`. No account required.
 
 ### Running the API
 
@@ -286,7 +399,7 @@ pytest tests/ -v
 
 ## Project Structure
 
-```
+```text
 prasine-index/
 ├── agents/
 │   ├── discovery_agent.py      # Monitors company sources for new content
@@ -309,15 +422,46 @@ prasine-index/
 │   ├── logger.py               # Structured JSON logging + ContextVar trace_id
 │   └── retry.py                # Typed exceptions, retry decorator, error boundary
 ├── ingest/
-│   ├── eu_ets.py               # EU ETS EUTL verified emissions
-│   ├── cdp.py                  # CDP open data self-reported disclosures
-│   └── eurlex.py               # EUR-Lex legislative context
+│   ├── eu_ets.py               # EU ETS EUTL verified emissions (local CSV)
+│   ├── cdp.py                  # CDP self-reported scores (local CSV)
+│   ├── sbti.py                 # SBTi validated/removed targets (local CSV)
+│   ├── eprtr.py                # E-PRTR non-CO2 GHG releases (local CSV)
+│   ├── influence_map.py        # InfluenceMap lobbying scores (local CSV)
+│   ├── enforcement.py          # ASA/ACM/AGCM/CMA/EC rulings (static, embedded)
+│   ├── ca100.py                # CA100+ net-zero benchmark (local CSV)
+│   ├── fossil_finance.py       # Banking on Climate Chaos fossil financing (local CSV)
+│   ├── coal_exit.py            # Urgewald GCEL coal exposure (local CSV)
+│   └── eurlex.py               # EUR-Lex legislative context (static, embedded)
 ├── api/
 │   └── main.py                 # FastAPI REST API
 ├── eval/
 │   └── golden_dataset.py       # 20 known greenwashing cases + eval runner
+├── scripts/
+│   ├── refresh_eutl.py         # Download latest EU ETS daily snapshot
+│   ├── refresh_eutl.bat        # Windows Task Scheduler wrapper
+│   ├── refresh_sbti.py         # Download SBTi Companies Taking Action CSV
+│   ├── refresh_cdp.py          # Instructions for CDP bulk CSV (requires free account)
+│   ├── refresh_eprtr.py        # Download EEA E-PRTR pollutant releases CSV
+│   ├── refresh_influencemap.py # Download InfluenceMap company scores CSV
+│   ├── refresh_ca100.py        # Download CA100+ benchmark CSV
+│   ├── refresh_fossil_finance.py  # Download Banking on Climate Chaos CSV
+│   ├── refresh_gcel.py         # Download Urgewald Global Coal Exit List CSV
+│   └── seed_eval_companies.py  # Insert all 20 eval companies with deterministic UUIDs
+├── data/                       # Local bulk datasets (not committed — download via refresh scripts)
+│   ├── sbti_companies.csv      # SBTi target data
+│   ├── cdp_companies.csv       # CDP self-reported data
+│   ├── eprtr_releases.csv      # E-PRTR non-CO2 GHG releases
+│   ├── influencemap_companies.csv  # InfluenceMap lobbying scores
+│   ├── ca100_companies.csv     # CA100+ net-zero benchmark
+│   ├── fossil_finance_banks.csv   # Banking on Climate Chaos
+│   └── gcel_companies.csv      # Global Coal Exit List
 ├── tests/
 │   └── test_models.py          # Pydantic model unit tests
+├── EUTL24/                     # EU ETS daily snapshot (not committed — download via refresh_eutl.py)
+│   ├── operators_yearly_activity_daily.csv  # Verified emissions per installation per year
+│   ├── operators_daily.csv                  # Installation names and account holder names
+│   ├── accounts_daily.csv                   # Account metadata
+│   └── registry_holdings_daily.csv          # Allowance holdings
 ├── .env.example
 └── requirements.txt
 ```
@@ -331,7 +475,7 @@ Every pipeline run produces structured JSON log records to stdout. All records c
 Key operations logged:
 
 | Operation | When |
-|-----------|------|
+| --------- | ---- |
 | `extraction_start` / `extraction_complete` | Extraction Agent entry and exit |
 | `verification_aggregate` | Verification Agent post-fan-out summary |
 | `judge_complete` | Judge verdict with score and verdict fields |
