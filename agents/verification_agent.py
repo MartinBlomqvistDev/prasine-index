@@ -1,12 +1,13 @@
 """Verification Agent for the Prasine Index pipeline.
 
-Queries four EU open data sources — EU ETS, CDP, EUR-Lex, and Eurostat — in
-parallel and aggregates the results into a VerificationResult passed to the
-Judge Agent. This is the one agent in the pipeline that uses LangGraph for
-orchestration: the parallel fan-out to four independent external APIs, combined
-with per-source retry and the need to aggregate partial results when one or more
-sources fail, is exactly the class of problem that benefits from a state machine
-framework.
+Queries ten open data sources — EU ETS, CDP, SBTi, E-PRTR, InfluenceMap,
+enforcement rulings, CA100+, Banking on Climate Chaos, Global Coal Exit List,
+and EUR-Lex — in parallel and aggregates results into a VerificationResult
+passed to the Judge Agent.
+This is the one agent in the pipeline that uses LangGraph for orchestration:
+the parallel fan-out to independent external APIs, combined with per-source
+retry and the need to aggregate partial results when one or more sources fail,
+is exactly the class of problem that benefits from a state machine framework.
 """
 
 from __future__ import annotations
@@ -21,9 +22,16 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from core.logger import bind_trace_context, get_logger
 from core.retry import DataSourceError, agent_error_boundary
+from ingest.ca100 import fetch_ca100_data
 from ingest.cdp import fetch_cdp_data
+from ingest.coal_exit import fetch_coal_exit_data
+from ingest.enforcement import fetch_enforcement_data
+from ingest.eprtr import fetch_eprtr_data
 from ingest.eu_ets import fetch_eu_ets_data
 from ingest.eurlex import fetch_eurlex_data
+from ingest.fossil_finance import fetch_fossil_finance_data
+from ingest.influence_map import fetch_influence_map_data
+from ingest.sbti import fetch_sbti_data
 from models.claim import Claim
 from models.company import CompanyContext
 from models.evidence import Evidence, EvidenceSource, VerificationResult
@@ -246,6 +254,285 @@ async def _node_fetch_eurlex(state: VerificationState) -> dict[str, Any]:
         }
 
 
+async def _node_fetch_sbti(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch SBTi target validation data from the local bulk dataset.
+
+    Queries the Science Based Targets initiative Companies Taking Action dataset
+    for validated, committed, or removed near-term and net-zero targets. A removed
+    target while the company continues to claim science-based alignment is a direct
+    CONFIRMED_GREENWASHING indicator and is given high confidence.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_sbti_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except DataSourceError as exc:
+        logger.warning(
+            f"SBTi fetch failed: {exc.message}",
+            extra={
+                "operation": "fetch_sbti_failed",
+                "error_type": type(exc).__name__,
+                "source": EvidenceSource.SBTI.value,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.SBTI}: {exc.message}"],
+        }
+    except Exception as exc:
+        logger.error(
+            f"SBTi fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_sbti_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.SBTI}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_eprtr(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch E-PRTR non-CO2 GHG release data from the local bulk dataset.
+
+    Queries the EEA European Pollutant Release and Transfer Register for the
+    company's non-CO2 GHG releases to air (CH4, N2O, HFCs, etc.). This data
+    complements EU ETS verified CO2 figures and catches industrial emissions
+    not covered by the EU carbon market. Rising non-CO2 GHGs while claiming
+    environmental leadership directly contradicts that claim.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_eprtr_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except DataSourceError as exc:
+        logger.warning(
+            f"E-PRTR fetch failed: {exc.message}",
+            extra={
+                "operation": "fetch_eprtr_failed",
+                "error_type": type(exc).__name__,
+                "source": EvidenceSource.EPRTR.value,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.EPRTR}: {exc.message}"],
+        }
+    except Exception as exc:
+        logger.error(
+            f"E-PRTR fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_eprtr_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.EPRTR}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_ca100(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch CA100+ net-zero benchmark assessment.
+
+    Queries the Climate Action 100+ company benchmark, the world's largest
+    investor-led assessment of the 170 highest-emitting listed companies.
+    A company claiming net-zero ambition while rated "Not Aligned" by CA100+
+    is contradicted by the consensus of 700+ investors representing $68tn AUM.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+    try:
+        evidence = await fetch_ca100_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+    except Exception as exc:
+        logger.error(
+            f"CA100+ fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_ca100_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.CA100}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Banking on Climate Chaos fossil financing record.
+
+    Queries the fossil fuel financing database for banks and financial institutions.
+    A bank providing hundreds of billions in fossil fuel financing while making
+    net-zero or climate-positive claims is the canonical financial sector greenwashing
+    pattern — exemplified by the landmark ASA 2022 HSBC ruling.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+    try:
+        evidence = await fetch_fossil_finance_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+    except Exception as exc:
+        logger.error(
+            f"Fossil finance fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_fossil_finance_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.FOSSIL_FINANCE}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_coal_exit(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: check the Urgewald Global Coal Exit List (GCEL).
+
+    Queries the GCEL for companies actively expanding coal capacity.
+    A company listed as a coal expander while claiming a clean-energy
+    transition or Paris-aligned strategy is a documented greenwashing case.
+    The GCEL is the standard coal screen used by 400+ financial institutions.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+    try:
+        evidence = await fetch_coal_exit_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+    except Exception as exc:
+        logger.error(
+            f"GCEL fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_coal_exit_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.COAL_EXIT}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: look up national and EU enforcement rulings for the company.
+
+    Queries the static enforcement rulings database for confirmed bans, fines,
+    misleading-claim rulings, and active investigations from ASA, ACM, AGCM, CMA,
+    courts, and the European Commission. A confirmed ruling from a regulator is the
+    strongest possible evidence — it means an authority has already independently
+    determined that the company's green claims were unsubstantiated.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_enforcement_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"Enforcement lookup raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_enforcement_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.ENFORCEMENT}: unexpected error — {type(exc).__name__}"],
+        }
+
+
+async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch InfluenceMap climate lobbying scores from the local dataset.
+
+    Queries the InfluenceMap Company Climate Policy Engagement database for the
+    company's lobbying alignment score (A+ to F). A company scoring in the
+    obstructive range (D/E/F) while making green claims is a primary greenwashing
+    indicator — its lobbying activity actively undermines the climate policies it
+    publicly claims to support.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_influence_map_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except DataSourceError as exc:
+        logger.warning(
+            f"InfluenceMap fetch failed: {exc.message}",
+            extra={
+                "operation": "fetch_influencemap_failed",
+                "error_type": type(exc).__name__,
+                "source": EvidenceSource.INFLUENCE_MAP.value,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.INFLUENCE_MAP}: {exc.message}"],
+        }
+    except Exception as exc:
+        logger.error(
+            f"InfluenceMap fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_influencemap_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.INFLUENCE_MAP}: unexpected error — {type(exc).__name__}"],
+        }
+
+
 async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: synthesise all evidence into an overall assessment.
 
@@ -295,8 +582,8 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
 def _build_verification_graph() -> StateGraph:
     """Construct the LangGraph StateGraph for parallel source verification.
 
-    The graph fans out from START to four independent fetch nodes, each
-    querying a different EU open data source. All four nodes converge at
+    The graph fans out from START to six independent fetch nodes, each
+    querying a different open data source. All six nodes converge at
     the ``aggregate`` node before reaching END.
 
     Because each fetch node returns a *partial* state update to the
@@ -304,13 +591,13 @@ def _build_verification_graph() -> StateGraph:
     LangGraph merges the partial results automatically as the parallel
     branches complete. No explicit synchronisation is required.
 
-                START
-              ↙   ↓   ↓   ↘
-        EU_ETS CDP EUR-LEX EUROSTAT (future)
-              ↘   ↓   ↓   ↙
-              aggregate
-                 ↓
-               END
+                              START
+        ↙  ↙  ↙  ↓  ↓  ↓  ↓  ↘  ↘  ↘
+    ETS CDP SBTI EPRTR IM ENF CA100 FF GCEL EUR-LEX
+        ↘  ↘  ↘  ↓  ↓  ↓  ↓  ↙  ↙  ↙
+                    aggregate
+                        ↓
+                       END
 
     Returns:
         An uncompiled :py:class:`~langgraph.graph.StateGraph` instance.
@@ -319,17 +606,38 @@ def _build_verification_graph() -> StateGraph:
 
     graph.add_node("fetch_eu_ets", _node_fetch_eu_ets)
     graph.add_node("fetch_cdp", _node_fetch_cdp)
+    graph.add_node("fetch_sbti", _node_fetch_sbti)
+    graph.add_node("fetch_eprtr", _node_fetch_eprtr)
+    graph.add_node("fetch_influence_map", _node_fetch_influence_map)
+    graph.add_node("fetch_enforcement", _node_fetch_enforcement)
+    graph.add_node("fetch_ca100", _node_fetch_ca100)
+    graph.add_node("fetch_fossil_finance", _node_fetch_fossil_finance)
+    graph.add_node("fetch_coal_exit", _node_fetch_coal_exit)
     graph.add_node("fetch_eurlex", _node_fetch_eurlex)
     graph.add_node("aggregate", _node_aggregate)
 
     # Fan out from START to all fetch nodes — LangGraph runs these in parallel
     graph.add_edge(START, "fetch_eu_ets")
     graph.add_edge(START, "fetch_cdp")
+    graph.add_edge(START, "fetch_sbti")
+    graph.add_edge(START, "fetch_eprtr")
+    graph.add_edge(START, "fetch_influence_map")
+    graph.add_edge(START, "fetch_enforcement")
+    graph.add_edge(START, "fetch_ca100")
+    graph.add_edge(START, "fetch_fossil_finance")
+    graph.add_edge(START, "fetch_coal_exit")
     graph.add_edge(START, "fetch_eurlex")
 
     # All fetch nodes converge at aggregate
     graph.add_edge("fetch_eu_ets", "aggregate")
     graph.add_edge("fetch_cdp", "aggregate")
+    graph.add_edge("fetch_sbti", "aggregate")
+    graph.add_edge("fetch_eprtr", "aggregate")
+    graph.add_edge("fetch_influence_map", "aggregate")
+    graph.add_edge("fetch_enforcement", "aggregate")
+    graph.add_edge("fetch_ca100", "aggregate")
+    graph.add_edge("fetch_fossil_finance", "aggregate")
+    graph.add_edge("fetch_coal_exit", "aggregate")
     graph.add_edge("fetch_eurlex", "aggregate")
 
     graph.add_edge("aggregate", END)
@@ -453,7 +761,10 @@ class VerificationAgent:
             metadata={
                 "evidence_count": len(result.evidence) if result else 0,
                 "data_gap_count": len(result.data_gaps) if result else 0,
-                "sources_queried": ["EU_ETS", "CDP", "EUR_LEX"],
+                "sources_queried": [
+                    "EU_ETS", "CDP", "SBTI", "EPRTR", "INFLUENCE_MAP",
+                    "ENFORCEMENT", "CA100", "FOSSIL_FINANCE", "COAL_EXIT", "EUR_LEX",
+                ],
             },
         )
 

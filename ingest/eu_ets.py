@@ -1,186 +1,301 @@
 """EU ETS ingest module for the Prasine Index Verification Agent.
 
-Queries the European Union Transaction Log (EUTL) for verified annual emissions
-data for a company's registered installation IDs. EU ETS data is the
-highest-quality evidence source in the pipeline: it is verified by accredited
-independent third parties, mandated by EU Regulation 601/2012, and published
-annually. A company claiming emissions reductions that are not reflected in EUTL
-data is the most straightforward form of greenwashing.
+Loads verified annual emissions from the official EU Union Registry daily CSV
+snapshot (EUTL24/operators_yearly_activity_daily.csv), which is sourced from
+union-registry-data.ec.europa.eu and updated daily. Falls back to the euets.info
+CSV snapshot (eutl_2024_202410/compliance.csv) if the daily file is absent.
+
+EU ETS data is the highest-quality evidence in the pipeline: verified by
+accredited third parties, mandated by EU Regulation 601/2012, and published
+annually. Rising verified emissions while a company claims reductions is the
+most direct greenwashing signal available.
+
+Installation IDs stored in the database use the euets.info convention
+(e.g. "IE_201078"). The official registry CSV uses numeric-only IDs (201078).
+This module handles both formats transparently.
 """
 
 from __future__ import annotations
 
+import csv
 import os
-from typing import Any
-
-import httpx
+from pathlib import Path
 
 from core.logger import get_logger
-from core.retry import DataSourceError, RetryConfig, retry_async
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_eu_ets_data"]
+__all__ = ["fetch_eu_ets_data", "refresh_cache"]
 
 logger = get_logger(__name__)
 
-_EU_ETS_BASE_URL: str = os.environ.get(
-    "EU_ETS_BASE_URL",
-    "https://ec.europa.eu/clima/ets",
+_PROJECT_ROOT = Path(__file__).parent.parent
+
+# Primary: official EU Union Registry daily snapshot
+_EUTL_DAILY_CSV: Path = Path(
+    os.environ.get(
+        "EUTL_DAILY_CSV",
+        str(_PROJECT_ROOT / "EUTL24" / "operators_yearly_activity_daily.csv"),
+    )
 )
 
-# EUTL API endpoint for installation-level verified emissions.
-# Returns annual verified emissions in tonnes CO2-equivalent per installation.
-_EUTL_VERIFIED_EMISSIONS_PATH = "/api/installations/{installation_id}/verified-emissions"
+# Fallback: euets.info static snapshot (October 2024, covers up to 2023)
+_EUTL_LEGACY_CSV: Path = Path(
+    os.environ.get(
+        "EUTL_LEGACY_CSV",
+        str(_PROJECT_ROOT / "eutl_2024_202410" / "compliance.csv"),
+    )
+)
 
-# EU ETS data is published annually with approximately a 3-month lag.
-# We retrieve the 5 most recent years to provide a trend for the Judge Agent.
+# Number of most recent years to include in the trend summary.
 _YEARS_TO_RETRIEVE: int = 5
+
+# Module-level cache: {numeric_installation_id: [(year, emissions_tco2e), ...]} asc by year.
+_emissions_cache: dict[int, list[tuple[int, float]]] | None = None
+
+
+def _parse_installation_id(raw_id: str) -> int | None:
+    """Convert an installation ID in any supported format to its numeric form.
+
+    Accepts:
+    - Numeric string: "201078" → 201078
+    - euets.info prefixed: "IE_201078" → 201078
+
+    Args:
+        raw_id: Installation ID as stored in Company.eu_ets_installation_ids.
+
+    Returns:
+        Integer numeric ID, or None if unparseable.
+    """
+    raw_id = raw_id.strip()
+    if "_" in raw_id:
+        raw_id = raw_id.split("_", 1)[1]
+    try:
+        return int(raw_id)
+    except ValueError:
+        return None
+
+
+def _load_daily_cache() -> dict[int, list[tuple[int, float]]]:
+    """Parse operators_yearly_activity_daily.csv into the emissions lookup.
+
+    Skips rows where VERIFIED_EMISSIONS is -1 (no data / not in scope for
+    that year). Returns a mapping from numeric installation ID to a list of
+    (year, tCO2e) tuples sorted ascending by year.
+    """
+    path = _EUTL_DAILY_CSV
+    if not path.exists():
+        return {}
+
+    data: dict[int, list[tuple[int, float]]] = {}
+    with path.open(encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            raw_verified = row.get("VERIFIED_EMISSIONS", "").strip()
+            if not raw_verified:
+                continue
+            try:
+                emissions = float(raw_verified)
+            except ValueError:
+                continue
+            if emissions < 0:
+                continue  # -1 sentinel means no data
+            try:
+                inst_id = int(row["INSTALLATION_IDENTIFIER"])
+                year = int(row["PERIOD_YEAR"])
+            except (ValueError, KeyError):
+                continue
+            data.setdefault(inst_id, []).append((year, emissions))
+
+    for inst_id in data:
+        data[inst_id].sort(key=lambda t: t[0])
+
+    return data
+
+
+def _load_legacy_cache() -> dict[int, list[tuple[int, float]]]:
+    """Parse compliance.csv (euets.info format) into the emissions lookup.
+
+    Filters to reportedInSystem_id == 'euets' and converts the prefixed
+    installation IDs (e.g. IE_201078) to numeric form for a uniform cache key.
+    """
+    path = _EUTL_LEGACY_CSV
+    if not path.exists():
+        return {}
+
+    data: dict[int, list[tuple[int, float]]] = {}
+    with path.open(encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            if row.get("reportedInSystem_id") != "euets":
+                continue
+            raw_verified = row.get("verified", "").strip()
+            if not raw_verified:
+                continue
+            try:
+                emissions = float(raw_verified)
+                year = int(row["year"])
+            except (ValueError, KeyError):
+                continue
+            numeric_id = _parse_installation_id(row.get("installation_id", ""))
+            if numeric_id is None:
+                continue
+            data.setdefault(numeric_id, []).append((year, emissions))
+
+    for inst_id in data:
+        data[inst_id].sort(key=lambda t: t[0])
+
+    return data
+
+
+def refresh_cache() -> None:
+    """Reset the module-level emissions cache so the next call reloads from disk.
+
+    Call this after running scripts/refresh_eutl.py to ensure the pipeline
+    picks up newly downloaded data without restarting the process.
+    """
+    global _emissions_cache
+    _emissions_cache = None
+    logger.info("EU ETS cache cleared; will reload on next call.", extra={"operation": "eu_ets_cache_reset"})
+
+
+def _get_cache() -> dict[int, list[tuple[int, float]]]:
+    """Return the module-level emissions cache, loading it on first call.
+
+    Prefers the daily official registry snapshot; falls back to the legacy
+    euets.info CSV if the daily file is absent.
+    """
+    global _emissions_cache
+    if _emissions_cache is not None:
+        return _emissions_cache
+
+    if _EUTL_DAILY_CSV.exists():
+        _emissions_cache = _load_daily_cache()
+        logger.info(
+            f"EU ETS cache loaded from daily snapshot: {len(_emissions_cache)} installations",
+            extra={"operation": "eu_ets_cache_loaded", "source": "daily"},
+        )
+    else:
+        _emissions_cache = _load_legacy_cache()
+        logger.info(
+            f"EU ETS cache loaded from legacy snapshot: {len(_emissions_cache)} installations",
+            extra={"operation": "eu_ets_cache_loaded", "source": "legacy"},
+        )
+
+    return _emissions_cache
 
 
 async def fetch_eu_ets_data(
     claim: Claim,
     installation_ids: list[str],
 ) -> list[Evidence]:
-    """Fetch verified annual emissions from the EU ETS EUTL for a company.
+    """Return verified annual emissions evidence for a company's EU ETS installations.
 
-    Queries the EUTL for each of the company's registered EU ETS installation
-    IDs and returns an Evidence record per installation with the verified
-    annual emissions trend. Installations are queried sequentially to avoid
-    overloading the EUTL public API; the Verification Agent's LangGraph graph
-    calls this function in parallel with other ingest modules.
+    Looks up each installation in the local emissions cache (no network I/O).
+    Installations with no data in the snapshot are skipped with an info log.
 
     Args:
         claim: The claim under assessment. Provides trace_id and claim_id
             for constructing Evidence records.
-        installation_ids: List of EU ETS installation identifiers for the
-            company. Retrieved from the Company.eu_ets_installation_ids field.
+        installation_ids: EU ETS installation identifiers from
+            Company.eu_ets_installation_ids (euets.info format e.g. "IE_201078"
+            or plain numeric "201078").
 
     Returns:
-        List of :py:class:`~models.evidence.Evidence` records, one per
-        installation for which data was successfully retrieved.
-
-    Raises:
-        :py:class:`~core.retry.DataSourceError`: If all installation queries
-            fail. If some succeed, the successful records are returned and
-            failures are logged as warnings.
+        List of Evidence records, one per installation with data.
     """
-    async with httpx.AsyncClient(
-        base_url=_EU_ETS_BASE_URL,
-        timeout=httpx.Timeout(30.0),
-        headers={"Accept": "application/json"},
-    ) as client:
-        evidence_records: list[Evidence] = []
-        failures: list[str] = []
+    if not installation_ids:
+        logger.info(
+            "No EU ETS installation IDs provided; skipping.",
+            extra={"operation": "eu_ets_no_ids"},
+        )
+        return []
 
-        for installation_id in installation_ids:
-            try:
-                record = await _fetch_installation(
-                    client=client,
-                    claim=claim,
-                    installation_id=installation_id,
-                )
-                if record is not None:
-                    evidence_records.append(record)
-            except DataSourceError as exc:
-                logger.warning(
-                    f"EU ETS fetch failed for installation {installation_id}: {exc.message}",
-                    extra={
-                        "operation": "eu_ets_installation_failed",
-                        "error_type": type(exc).__name__,
-                        "http_status": exc.status_code,
-                    },
-                )
-                failures.append(installation_id)
+    cache = _get_cache()
+    evidence_records: list[Evidence] = []
 
-        if not evidence_records and failures:
-            raise DataSourceError(
-                message=(
-                    f"All {len(failures)} EU ETS installation queries failed: "
-                    f"{', '.join(failures)}"
-                ),
-                source=EvidenceSource.EU_ETS.value,
-                retryable=True,
-            )
-
-        if failures:
+    for raw_id in installation_ids:
+        numeric_id = _parse_installation_id(raw_id)
+        if numeric_id is None:
             logger.warning(
-                f"{len(failures)} EU ETS installation(s) failed; "
-                f"{len(evidence_records)} succeeded.",
-                extra={"operation": "eu_ets_partial"},
+                f"Could not parse installation ID: {raw_id}",
+                extra={"operation": "eu_ets_bad_id"},
             )
+            continue
+        record = _build_evidence(
+            claim=claim,
+            display_id=raw_id,
+            history=cache.get(numeric_id, []),
+        )
+        if record is not None:
+            evidence_records.append(record)
 
-        return evidence_records
+    if not evidence_records:
+        logger.warning(
+            f"No EU ETS data found for installations: {installation_ids}",
+            extra={"operation": "eu_ets_no_data_any"},
+        )
+
+    return evidence_records
 
 
-@retry_async(config=RetryConfig.DEFAULT_HTTP, operation="eu_ets_installation_fetch")
-async def _fetch_installation(
-    client: httpx.AsyncClient,
+def _build_evidence(
     claim: Claim,
-    installation_id: str,
+    display_id: str,
+    history: list[tuple[int, float]],
 ) -> Evidence | None:
-    """Fetch verified emissions for a single EU ETS installation.
+    """Build an Evidence record from a single installation's emissions history.
 
     Args:
-        client: Configured async httpx client with the EUTL base URL.
         claim: The claim under assessment.
-        installation_id: The EU ETS installation identifier.
+        display_id: Installation ID as it appears in the company record.
+        history: (year, tCO2e) tuples sorted ascending by year.
 
     Returns:
-        An :py:class:`~models.evidence.Evidence` record, or None if the
-        installation exists but has no data for the target period.
-
-    Raises:
-        :py:class:`~core.retry.DataSourceError`: On HTTP errors.
+        An Evidence record, or None if history is empty.
     """
-    url = _EUTL_VERIFIED_EMISSIONS_PATH.format(installation_id=installation_id)
-
-    try:
-        response = await client.get(url)
-        response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        from core.retry import classify_http_error
-        raise classify_http_error(
-            exc,
-            source=EvidenceSource.EU_ETS.value,
-        ) from exc
-
-    data: dict[str, Any] = response.json()
-    yearly_emissions: list[dict[str, Any]] = data.get("verifiedEmissions", [])
-
-    if not yearly_emissions:
+    if not history:
         logger.info(
-            f"EU ETS: no verified emissions data for installation {installation_id}",
-            extra={"operation": "eu_ets_no_data"},
+            f"EU ETS: no data for installation {display_id}",
+            extra={"operation": "eu_ets_install_no_data"},
         )
         return None
 
-    # Take the most recent year as the primary data point
-    latest = max(yearly_emissions, key=lambda r: r.get("year", 0))
-    most_recent_year: int = latest.get("year", 0)
-    most_recent_emissions: float = latest.get("verifiedEmissions", 0.0)
+    most_recent_year, most_recent_emissions = history[-1]
+    oldest_year, oldest_emissions = history[0]
 
-    # Build a trend summary from all available years for the Judge Agent
-    trend_lines = [
-        f"{r['year']}: {r['verifiedEmissions']:,.0f} tCO2e"
-        for r in sorted(yearly_emissions, key=lambda r: r.get("year", 0))
-        if r.get("verifiedEmissions") is not None
-    ]
-    trend_summary = " | ".join(trend_lines[-_YEARS_TO_RETRIEVE:])
+    # Full history for Judge — critical for long-period claims ("since 2006").
+    # Show all years if ≤12, otherwise show oldest + most recent N years.
+    if len(history) <= 12:
+        display_history = history
+    else:
+        display_history = history[:2] + [(-1, -1)] + history[-(_YEARS_TO_RETRIEVE):]
 
-    # Assess whether the data supports the claim.
-    # EU ETS verified emissions increasing while the company claims reductions
-    # is a contradiction. We use a simple heuristic here; the Judge Agent
-    # performs the nuanced interpretation.
+    trend_lines: list[str] = []
+    for yr, em in display_history:
+        if yr == -1:
+            trend_lines.append("...")
+        else:
+            trend_lines.append(f"{yr}: {em:,.0f} tCO2e")
+    trend_summary = " | ".join(trend_lines)
+
     supports_claim, confidence = _assess_emissions_vs_claim(
         claim_text=claim.raw_text,
-        yearly_emissions=yearly_emissions,
+        history=history,
     )
 
+    # Directional framing for the Judge.
+    if len(history) >= 2:
+        pct_change = ((most_recent_emissions - oldest_emissions) / oldest_emissions * 100) if oldest_emissions else 0
+        direction = f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% from {oldest_year} to {most_recent_year}"
+    else:
+        direction = "insufficient data for trend"
+
     summary = (
-        f"EU ETS EUTL verified emissions for installation {installation_id}: "
-        f"{most_recent_emissions:,.0f} tCO2e in {most_recent_year}. "
-        f"Trend ({_YEARS_TO_RETRIEVE} years): {trend_summary}."
+        f"EU ETS verified emissions for installation {display_id}: "
+        f"{most_recent_emissions:,.0f} tCO2e in {most_recent_year} "
+        f"(trend: {direction}). "
+        f"Full history: {trend_summary}."
     )
 
     return Evidence(
@@ -188,15 +303,17 @@ async def _fetch_installation(
         trace_id=claim.trace_id,
         source=EvidenceSource.EU_ETS,
         evidence_type=EvidenceType.VERIFIED_EMISSIONS,
-        source_url=f"{_EU_ETS_BASE_URL}{url}",
+        source_url=f"https://union-registry-data.ec.europa.eu/report/welcome",
         raw_data={
-            "installation_id": installation_id,
-            "verified_emissions": yearly_emissions,
-            "installation_name": data.get("installationName"),
-            "permit_id": data.get("permitId"),
+            "installation_id": display_id,
+            "verified_emissions": [
+                {"year": yr, "verifiedEmissions": em} for yr, em in history
+            ],
+            "data_source": "EU Union Registry daily snapshot",
+            "most_recent_year": most_recent_year,
         },
         summary=summary,
-        data_year=most_recent_year if most_recent_year else None,
+        data_year=most_recent_year,
         supports_claim=supports_claim,
         confidence=confidence,
     )
@@ -204,43 +321,38 @@ async def _fetch_installation(
 
 def _assess_emissions_vs_claim(
     claim_text: str,
-    yearly_emissions: list[dict[str, Any]],
+    history: list[tuple[int, float]],
 ) -> tuple[bool | None, float]:
-    """Heuristically assess whether EU ETS data supports the claim.
-
-    This is a lightweight signal for the Evidence record. The Judge Agent
-    performs the authoritative interpretation. A heuristic that detects
-    obvious contradictions (rising emissions against reduction claims) is
-    better than returning None for every record.
+    """Heuristically assess whether EU ETS emissions data supports the claim.
 
     Args:
         claim_text: The verbatim claim text.
-        yearly_emissions: List of annual verified emissions dicts.
+        history: (year, tCO2e) tuples sorted ascending.
 
     Returns:
-        A tuple of (supports_claim, confidence). Confidence is reduced when
-        the heuristic cannot be applied (e.g. claim is about future targets).
+        Tuple of (supports_claim, confidence).
     """
     claim_lower = claim_text.lower()
-
     reduction_keywords = (
         "reduc", "decreas", "lower", "cut", "decarboni", "net zero", "carbon neutral",
     )
-
     is_reduction_claim = any(kw in claim_lower for kw in reduction_keywords)
 
-    if len(yearly_emissions) < 2:
-        # Insufficient data to determine trend
+    if len(history) < 2:
         return None, 0.5
 
-    sorted_by_year = sorted(yearly_emissions, key=lambda r: r.get("year", 0))
-    recent = [r["verifiedEmissions"] for r in sorted_by_year[-3:] if r.get("verifiedEmissions")]
+    # For reduction/decarbonisation claims, use the FULL history to detect
+    # long-period trends (e.g. "reduced 87% since 2006"). Recent 3-year window
+    # is only used if the full history is short (≤4 years).
+    if len(history) > 4:
+        oldest_em = history[0][1]
+        newest_em = history[-1][1]
+    else:
+        oldest_em = history[0][1]
+        newest_em = history[-1][1]
 
-    if len(recent) < 2:
-        return None, 0.5
-
-    trend_up = recent[-1] > recent[0]
-    trend_down = recent[-1] < recent[0]
+    trend_up = newest_em > oldest_em * 1.05    # >5% increase = meaningful up
+    trend_down = newest_em < oldest_em * 0.95  # >5% decrease = meaningful down
 
     if is_reduction_claim:
         if trend_down:
@@ -249,6 +361,4 @@ def _assess_emissions_vs_claim(
             return False, 0.75
         return None, 0.6
 
-    # For non-reduction claims, EU ETS data is contextual rather than directly
-    # supporting or contradicting
     return None, 0.5

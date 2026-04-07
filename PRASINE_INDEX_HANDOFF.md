@@ -280,6 +280,215 @@ Do not start with the pipeline. Do not start with FastAPI. Models first.
 
 ---
 
+## Current Implementation State (updated 2026-04-05)
+
+### Pipeline status: WORKING end-to-end
+
+Entry point: `Pipeline().run_from_document(ExtractionInput(...))`
+
+```python
+from agents.extraction_agent import ExtractionInput
+from core.pipeline import Pipeline
+import uuid
+
+extraction_input = ExtractionInput(
+    trace_id=uuid.uuid4(),
+    company_id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
+    source_url="https://example.com/sustainability",
+    source_type="IR_PAGE",   # one of: CSRD_REPORT, ANNUAL_REPORT, PRESS_RELEASE, IR_PAGE, WEBSITE, SOCIAL_MEDIA
+    raw_content="Full document text here...",
+)
+results = await Pipeline().run_from_document(extraction_input)
+```
+
+### Real data source: EU ETS
+
+`ingest/eu_ets.py` loads `EUTL24/operators_yearly_activity_daily.csv` into memory
+on first call (lazy-loaded, module-level cache). Primary source is the official EU
+Union Registry daily snapshot (snapshot_date=2026-04-05). Falls back to
+`eutl_2024_202410/compliance.csv` if the daily file is absent.
+
+No HTTP calls at runtime — pure CSV lookup.
+
+**Installation ID formats:**
+
+- DB stores numeric strings: `["201078", "216762", "210498"]`
+- `_parse_installation_id()` accepts both `"201078"` and `"IE_201078"` → numeric int
+- The EUTL daily CSV uses numeric-only IDs in `INSTALLATION_IDENTIFIER`
+
+**Refreshing EUTL data** (run monthly):
+
+```bash
+python scripts/refresh_eutl.py
+```
+
+Or use `scripts/refresh_eutl.bat` in Windows Task Scheduler.
+
+**Finding a company's installation IDs** (needed when seeding a new company):
+
+```bash
+# Search EUTL24/operators_daily.csv for ACCOUNT_HOLDER_NAME matching the company
+grep -i "shell" EUTL24/operators_daily.csv | cut -d, -f1
+# Then add matching name_filters to scripts/seed_eval_companies.py and re-run
+```
+
+**Ryanair in DB:**
+
+- Company ID: `00000000-0000-0000-0000-000000000001`
+- EU ETS installations: `["201078", "216762", "210498"]` (numeric, no country prefix)
+- Test result: "Europe's greenest airline" → GREENWASHING 72/100
+
+### All 20 eval companies seeded
+
+Run `python scripts/seed_eval_companies.py` to (re-)seed. Uses deterministic UUIDs
+`00000000-0000-0000-0000-000000000001` through `...000019`. Ryanair is skipped
+(already present). The GW-020 slot is a VW duplicate — also skipped.
+
+Installation counts after seeding (approximate, from operators_daily.csv name search):
+VW=10, Shell=30, Eni=18, Nestlé=24, Lufthansa=7, HeidelbergMaterials=69,
+TotalEnergies=35, HSBC=0 (bank), Ørsted=14, BP=14, ArcelorMittal=83, Maersk=4,
+Glencore=0 (holding co.), Airbus=15, Unilever=8, easyJet=3, Vestas=0, Holcim=35.
+
+### Ingest modules: status
+
+| Module | Status | Notes |
+| --- | --- | --- |
+| `ingest/eu_ets.py` | ✅ Working | Daily snapshot, 2005–2024 actuals, ~10,879 installations |
+| `ingest/eurlex.py` | ✅ Working | Static regulatory standards (Green Claims Dir, CSRD, EU ETS Dir) |
+| `ingest/cdp.py` | ✅ Working | Local bulk CSV — `data/cdp_companies.csv` (free account download from data.cdp.net) |
+| `ingest/sbti.py` | ✅ Working | Local bulk CSV — `data/sbti_companies.csv` (auto-download via `scripts/refresh_sbti.py`) |
+
+**SBTi data** — `python scripts/refresh_sbti.py`. No account required.
+Saves to `data/sbti_companies.csv`. Removed targets = CONFIRMED_GREENWASHING signal at 0.95 confidence.
+
+**CDP data** — free account required. `python scripts/refresh_cdp.py` for instructions.
+Saves to `data/cdp_companies.csv`. Self-reported; confidence capped at 0.65.
+
+**E-PRTR data** — `python scripts/refresh_eprtr.py`. No account required.
+Saves to `data/eprtr_releases.csv`. Non-CO2 GHGs (CH4, N2O, HFCs) per industrial facility.
+- Rising GHGs (≥20%) → contradicts claim, confidence 0.75
+- Falling GHGs (≤-30%) → supports claim, confidence 0.75
+- Flat trend → inconclusive, confidence 0.55
+
+**InfluenceMap data** — `python scripts/refresh_influencemap.py`. No account required.
+Saves to `data/influencemap_companies.csv`. Lobbying alignment A+ to F.
+- D/E/F (obstructive) → contradicts green claims, confidence 0.85
+- A+/A/A-/B+ (supportive) → supports green claims, confidence 0.75
+- B-/C bands → inconclusive, confidence 0.50
+
+**Verification graph** now has 6 parallel nodes: `fetch_eu_ets`, `fetch_cdp`, `fetch_sbti`,
+`fetch_eprtr`, `fetch_influence_map`, `fetch_eurlex`.
+`sources_queried` metadata: `["EU_ETS", "CDP", "SBTI", "EPRTR", "INFLUENCE_MAP", "EUR_LEX"]`.
+
+**E-PRTR data** — `python scripts/refresh_eprtr.py`. No account required.
+Saves to `data/eprtr_releases.csv`. Tries EEA industrial portal URL first; falls back with manual instructions if download fails.
+
+**InfluenceMap data** — `python scripts/refresh_influencemap.py`. No account required.
+Saves to `data/influencemap_companies.csv`.
+
+**Enforcement rulings** — static database embedded in `ingest/enforcement.py`. No refresh needed.
+Covers: ASA, ACM, AGCM, CMA, EC, Dutch courts. 15 rulings across 11 companies.
+Companies with rulings in the database: Ryanair, HSBC, Shell, KLM/Air France-KLM, Lufthansa,
+easyJet, Eni, ArcelorMittal, BP, TotalEnergies, Volkswagen, Glencore.
+Confidence: FINED=0.95, BANNED/CONFIRMED_MISLEADING=0.90, WARNING=0.80, INVESTIGATION=0.70.
+Returns one Evidence record per ruling — a company with three rulings generates three Evidence items.
+
+**CA100+ data** — `python scripts/refresh_ca100.py`. No account required.
+Saves to `data/ca100_companies.csv`. Covers 170 highest-emitting listed companies.
+- NOT_ALIGNED + NOT_ALIGNED capex → False, 0.85
+- NOT_ALIGNED → False, 0.80
+- ALIGNED → True, 0.65–0.75
+
+**Banking on Climate Chaos** — `python scripts/refresh_fossil_finance.py`. No account required.
+Saves to `data/fossil_finance_banks.csv`. Covers ~60 largest private-sector banks.
+- >$100bn total + net-zero pledge → False, 0.88 (hypocrisy signal)
+- >$100bn total → False, 0.80
+- >$30bn total → False, 0.65–0.75
+
+**Global Coal Exit List (GCEL)** — `python scripts/refresh_gcel.py`. No account required.
+Saves to `data/gcel_companies.csv`. Covers ~1,000 coal-chain companies.
+- Expanding → False, 0.90
+- Listed but phase-out plan → None, 0.55
+- Listed, status unclear → False, 0.65
+
+**Verification graph** now has 10 parallel nodes: `fetch_eu_ets`, `fetch_cdp`, `fetch_sbti`,
+`fetch_eprtr`, `fetch_influence_map`, `fetch_enforcement`, `fetch_ca100`,
+`fetch_fossil_finance`, `fetch_coal_exit`, `fetch_eurlex`.
+`sources_queried`: see `sources_queried` list in `verification_agent.py`.
+
+**New enum values** in `models/evidence.py`:
+- `EvidenceSource.CA100 = "CA100"`
+- `EvidenceSource.FOSSIL_FINANCE = "FOSSIL_FINANCE"`
+- `EvidenceSource.COAL_EXIT = "COAL_EXIT"`
+- `EvidenceType.BENCHMARK_ASSESSMENT = "BENCHMARK_ASSESSMENT"` (for CA100+)
+- `EvidenceType.FINANCING_RECORD = "FINANCING_RECORD"` (for fossil finance)
+
+**New enum values** in `models/evidence.py`:
+- `EvidenceSource.EPRTR = "EPRTR"`
+- `EvidenceSource.INFLUENCE_MAP = "INFLUENCE_MAP"`
+- `EvidenceSource.ENFORCEMENT = "ENFORCEMENT"`
+- `EvidenceType.POLLUTION_RECORD = "POLLUTION_RECORD"` (for E-PRTR)
+- `EvidenceType.ENFORCEMENT_RULING = "ENFORCEMENT_RULING"` (for enforcement)
+
+### Judge Agent calibration
+
+`agents/judge_agent.py` system prompt includes explicit score-to-verdict bands:
+
+```
+0–20   → SUBSTANTIATED
+21–45  → INSUFFICIENT_EVIDENCE
+46–60  → MISLEADING
+61–80  → GREENWASHING
+81–100 → CONFIRMED_GREENWASHING
+```
+
+CONFIRMED_GREENWASHING requires lobbying evidence (Lobbying Agent not yet wired with
+live data). Claims that would require this verdict are currently capped at GREENWASHING.
+
+### Eval dataset: golden_dataset.py
+
+20 cases in `eval/golden_dataset.py`. Each `EvalCase` has a `company_id` field
+(deterministic UUID) so the pipeline fetches real company data from the DB.
+
+Current accuracy on 5-case quick subset: **4/5 (80%)**. Known failures:
+
+- GW-010 Ørsted: getting GREENWASHING/68-72, expected SUBSTANTIATED (0–25). Root cause:
+  claim text contains "87% reduction since 2006" (historical, substantiated) AND "carbon
+  neutral by 2025" (expired forward-looking target). Judge penalises the expired forward-
+  looking element. Eval expectation may need revision — the mixed claim is legitimately
+  harder to score as SUBSTANTIATED.
+- GW-014 Glencore: now passing (GREENWASHING 65, within 65–95 expected range).
+
+SBTi integration will improve scoring on claims that reference science-based targets,
+net zero, or 1.5°C alignment — these are common greenwashing markers with externally
+validated ground truth from SBTi.
+
+### Database
+
+Supabase (hosted PostgreSQL + pgvector). **Must use Session pooler URL** — direct DB
+DNS fails on IPv6. URL is in `.env` as `DATABASE_URL`.
+
+Schema is created by `core/database.py:init_db()` → `_create_schema()` using raw DDL
+(`Base.metadata.create_all` is a no-op with no ORM models).
+
+### Critical asyncpg gotcha
+
+Named bind params (`:param`) and PostgreSQL `::` cast syntax conflict in asyncpg.
+**Never write** `:value::jsonb`. Pass the value as a plain `:value` param; PostgreSQL
+infers the type. This affected `_persist_trace` and `_persist_score` in `pipeline.py`.
+
+### Key bugs already fixed (do not re-introduce)
+
+- `::jsonb` casts in asyncpg named params → removed from `pipeline.py`
+- `Base.metadata.create_all` with no ORM models → `_create_schema()` raw DDL
+- `@retry_async` on SQLAlchemy session-bound methods → `InFailedSQLTransactionError` on retry → removed from `context_agent.py`
+- `PipelineConfig` model defaults were Opus → fixed to Haiku
+- `eu_ets.py` trend assessment used 3-year window → fixed to full-history oldest vs newest
+- `eu_ets.py` evidence summary only showed last 5 years → fixed to show full history (oldest 2 + … + recent 5 if >12 years, otherwise all)
+- Judge defaulting to 72/GREENWASHING for all uncertain cases → fixed by adding explicit score bands to system prompt
+
+---
+
 ## What This Project Must Demonstrate for Hiring Managers
 
 1. LangGraph usage with motivated architectural decision (not just "I used LangGraph")

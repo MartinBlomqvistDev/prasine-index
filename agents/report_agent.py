@@ -168,7 +168,7 @@ class ReportAgent:
 
         Args:
             client: Configured async Anthropic client.
-            model_id: Model identifier. Defaults to ``claude-opus-4-6``.
+            model_id: Model identifier. Defaults to ``claude-haiku-4-5-20251001``.
             max_tokens: Maximum tokens for the generated report.
         """
         self._client = client
@@ -266,7 +266,13 @@ class ReportAgent:
             response = await self._client.messages.create(
                 model=self._model_id,
                 max_tokens=self._max_tokens,
-                system=_SYSTEM_PROMPT,
+                system=[
+                    {
+                        "type": "text",
+                        "text": _SYSTEM_PROMPT,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
                 messages=[{"role": "user", "content": user_message}],
             )
         except anthropic.APIStatusError as exc:

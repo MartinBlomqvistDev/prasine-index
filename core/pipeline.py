@@ -10,6 +10,7 @@ trail of everything that succeeded.
 from __future__ import annotations
 
 import asyncio
+import json
 from datetime import UTC, datetime
 from typing import Any
 
@@ -431,7 +432,6 @@ class Pipeline:
         if not self._config.persist_claims:
             return
         try:
-            import json
             async with get_session() as session:
                 await session.execute(
                     text(
@@ -557,7 +557,6 @@ def _trace_to_params(trace: AgentTrace) -> dict[str, Any]:
     Returns:
         Dict suitable for use as SQLAlchemy text() bind parameters.
     """
-    import json
     return {
         "id": str(trace.id),
         "trace_id": str(trace.trace_id),

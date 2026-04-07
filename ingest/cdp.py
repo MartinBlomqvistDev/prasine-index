@@ -1,250 +1,347 @@
-"""CDP (Carbon Disclosure Project) open data ingest module for the Prasine Index Verification Agent.
+"""CDP (Carbon Disclosure Project) open data ingest module for the Prasine Index.
 
-Retrieves a company's self-reported climate data from the CDP open dataset,
-including reported emissions, reduction targets, and climate governance
-disclosures. CDP data is self-reported and therefore weighted as secondary
-evidence compared to EU ETS verified data — but it is the primary source for
-companies without mandatory EU ETS installations, and for assessing claims about
-scope 3 emissions and supply chain decarbonisation.
+Loads the CDP annual bulk dataset from a local CSV file downloaded via
+scripts/refresh_cdp.py. Falls back to empty evidence if the file is absent —
+CDP data requires a one-time download from data.cdp.net.
+
+CDP data is self-reported and weighted as secondary evidence. It is the primary
+source for:
+  - Companies without EU ETS installations (banks, retail, services, shipping)
+  - Scope 3 and value-chain emissions claims
+  - Climate governance and board oversight claims
+  - Emissions reduction target disclosures
+
+A discrepancy between CDP self-reported data and EU ETS verified data is itself
+a greenwashing signal — the company told CDP one thing and the regulator records
+another.
+
+Data source: data.cdp.net (annual open data download, free registration required)
+Refresh: python scripts/refresh_cdp.py
 """
 
 from __future__ import annotations
 
+import csv
 import os
+from pathlib import Path
 from typing import Any
 
-import httpx
-
 from core.logger import get_logger
-from core.retry import RetryConfig, retry_async
 from models.claim import Claim
 from models.company import Company
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_cdp_data"]
+__all__ = ["fetch_cdp_data", "refresh_cache"]
 
 logger = get_logger(__name__)
 
-# CDP Open Data portal — bulk CSV available at no cost for the open dataset.
-# The search API allows filtering by company name and ISIN.
-_CDP_BASE_URL: str = os.environ.get(
-    "CDP_OPEN_DATA_URL",
-    "https://data.cdp.net",
+_PROJECT_ROOT = Path(__file__).parent.parent
+
+# Primary CDP bulk CSV — downloaded by scripts/refresh_cdp.py.
+_CDP_CSV: Path = Path(
+    os.environ.get(
+        "CDP_CSV",
+        str(_PROJECT_ROOT / "data" / "cdp_companies.csv"),
+    )
 )
 
-_CDP_SEARCH_PATH = "/api/v0/search"
+# CDP score meanings for the Judge Agent.
+_SCORE_DESCRIPTIONS: dict[str, str] = {
+    "A": "Leadership — company discloses comprehensively and takes best-practice action",
+    "A-": "Leadership — near-best-practice disclosure and action",
+    "B": "Management — taking coordinated action on climate issues",
+    "B-": "Management — coordinated action with some gaps",
+    "C": "Awareness — some climate disclosure but limited action",
+    "C-": "Awareness — minimal disclosure",
+    "D": "Disclosure — responding to CDP but not disclosing meaningfully",
+    "D-": "Disclosure — minimum response only",
+    "F": "Non-disclosure — failed to respond or responded insufficiently",
+    "N/A": "Not applicable or data not available",
+}
+
+# CDP column names vary across annual releases and dataset types.
+# Column names confirmed from the actual CDP open data portal CSV exports.
+#
+# The dataset to download is:
+#   data.cdp.net → filter Category: "Companies" → search "climate change scores"
+#   → download the most recent year's "Climate Change Scores" CSV.
+#
+# Known column variants by year:
+#   2023/2024: "Account Name", "Country/Area", "Primary Sector", "Score"
+#   2021/2022: "Organization", "Country", "Sector", "Climate Change Score"
+#   2019/2020: "Company Name", "Country", "Industry", "2020 Score"
+#   Older Global 500 datasets: "Company", "Country", "Sector", "Score"
+_COL_ORG = (
+    "Account Name",          # 2023/2024 format (current)
+    "Organization",          # 2021/2022 format
+    "Company Name",          # 2019/2020 format
+    "Company",               # older Global 500 format
+    "company_name",
+)
+_COL_ISIN = ("ISIN", "isin", "Primary ISIN", "ISIN Code")
+_COL_LEI = ("LEI", "lei", "Primary LEI", "LEI Code")
+_COL_SCORE = (
+    "Score",                 # 2023/2024 — current standard column name
+    "Climate Change Score",  # 2021/2022 format
+    "2024 Score",
+    "2023 Score",
+    "2022 Score",
+    "2021 Score",
+    "2020 Score",
+    "CDP Score",
+    "score",
+)
+_COL_YEAR = ("Reporting Year", "Year", "Survey Year", "year", "Disclosure Year")
+_COL_SECTOR = (
+    "Primary Sector",        # 2023/2024 — current
+    "Sector",                # older formats
+    "Industry Sector",
+    "sector",
+    "Industry",
+)
+_COL_COUNTRY = (
+    "Country/Area",          # 2023/2024 — current
+    "Country",               # older formats
+    "HQ Country",
+    "country",
+)
 
 
-async def fetch_cdp_data(
-    claim: Claim,
-    company: Company,
-) -> list[Evidence]:
-    """Fetch self-reported climate data from the CDP open dataset.
+class _CDPRecord:
+    """Internal representation of one CDP company record."""
 
-    Searches CDP for the company by LEI or name and retrieves the most recent
-    disclosed climate data relevant to the claim category. Returns Evidence
-    records for each significant CDP disclosure that bears on the claim.
+    __slots__ = ("name", "isin", "lei", "score", "year", "sector", "country")
 
-    CDP data is self-reported and weighted accordingly: it reveals what the
-    company told CDP, which may itself differ from what the company told the
-    public — a discrepancy that is itself a greenwashing signal.
+    def __init__(
+        self,
+        name: str,
+        isin: str | None,
+        lei: str | None,
+        score: str,
+        year: int | None,
+        sector: str,
+        country: str,
+    ) -> None:
+        self.name = name
+        self.isin = isin
+        self.lei = lei
+        self.score = score
+        self.year = year
+        self.sector = sector
+        self.country = country
+
+
+# Module-level caches.
+_cache_by_isin: dict[str, _CDPRecord] | None = None
+_cache_by_lei: dict[str, _CDPRecord] | None = None
+_cache_by_name: dict[str, _CDPRecord] | None = None
+
+
+def refresh_cache() -> None:
+    """Reset the CDP cache so the next call reloads from disk."""
+    global _cache_by_isin, _cache_by_lei, _cache_by_name
+    _cache_by_isin = None
+    _cache_by_lei = None
+    _cache_by_name = None
+    logger.info("CDP cache cleared.", extra={"operation": "cdp_cache_reset"})
+
+
+def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
+    for key in candidates:
+        if key in row:
+            return row[key].strip()
+    return ""
+
+
+def _normalise_name(name: str) -> str:
+    name = name.lower().strip()
+    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
+                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
+                   " holding", " holdings"):
+        if name.endswith(suffix):
+            name = name[: -len(suffix)].strip()
+    return name
+
+
+def _get_cache() -> tuple[
+    dict[str, _CDPRecord],
+    dict[str, _CDPRecord],
+    dict[str, _CDPRecord],
+]:
+    """Return module-level caches, loading from disk on first call."""
+    global _cache_by_isin, _cache_by_lei, _cache_by_name
+
+    if _cache_by_isin is not None:
+        return _cache_by_isin, _cache_by_lei, _cache_by_name  # type: ignore[return-value]
+
+    if not _CDP_CSV.exists():
+        _cache_by_isin, _cache_by_lei, _cache_by_name = {}, {}, {}
+        logger.info(
+            "CDP bulk CSV not found — run scripts/refresh_cdp.py to download. "
+            f"Expected at: {_CDP_CSV}",
+            extra={"operation": "cdp_cache_missing"},
+        )
+        return _cache_by_isin, _cache_by_lei, _cache_by_name
+
+    by_isin: dict[str, _CDPRecord] = {}
+    by_lei: dict[str, _CDPRecord] = {}
+    by_name: dict[str, _CDPRecord] = {}
+
+    with _CDP_CSV.open(encoding="utf-8-sig") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            name = _pick(row, _COL_ORG)
+            if not name:
+                continue
+
+            year_raw = _pick(row, _COL_YEAR)
+            try:
+                year = int(str(year_raw)[:4]) if year_raw else None
+            except ValueError:
+                year = None
+
+            record = _CDPRecord(
+                name=name,
+                isin=_pick(row, _COL_ISIN) or None,
+                lei=_pick(row, _COL_LEI) or None,
+                score=_pick(row, _COL_SCORE) or "N/A",
+                year=year,
+                sector=_pick(row, _COL_SECTOR),
+                country=_pick(row, _COL_COUNTRY),
+            )
+
+            # Keep most recent year per identifier.
+            normalised = _normalise_name(name)
+            existing = by_name.get(normalised)
+            if existing is None or (record.year or 0) >= (existing.year or 0):
+                if record.isin:
+                    by_isin[record.isin.upper()] = record
+                if record.lei:
+                    by_lei[record.lei.upper()] = record
+                by_name[normalised] = record
+
+    _cache_by_isin, _cache_by_lei, _cache_by_name = by_isin, by_lei, by_name
+
+    logger.info(
+        f"CDP cache loaded: {len(by_isin)} by ISIN, {len(by_lei)} by LEI, "
+        f"{len(by_name)} by name",
+        extra={"operation": "cdp_cache_loaded"},
+    )
+    return _cache_by_isin, _cache_by_lei, _cache_by_name
+
+
+def _lookup(company: Company) -> _CDPRecord | None:
+    """Find a CDP record for the company. Tries ISIN → LEI → normalised name."""
+    by_isin, by_lei, by_name = _get_cache()
+
+    if company.isin and company.isin.upper() in by_isin:
+        return by_isin[company.isin.upper()]
+    if company.lei and company.lei.upper() in by_lei:
+        return by_lei[company.lei.upper()]
+    return by_name.get(_normalise_name(company.name))
+
+
+async def fetch_cdp_data(claim: Claim, company: Company) -> list[Evidence]:
+    """Fetch self-reported climate data from the local CDP bulk dataset.
+
+    Looks up the company by ISIN, LEI, or normalised name against the
+    locally cached CDP annual bulk CSV. Returns an Evidence record with
+    CDP score, year, and a plain-language assessment of what the score
+    means in relation to the claim.
+
+    CDP data is self-reported and confidence is capped at 0.70. Discrepancies
+    between CDP disclosures and EU ETS verified data are noted by the Judge.
 
     Args:
         claim: The claim under assessment.
         company: The company that made the claim.
 
     Returns:
-        List of :py:class:`~models.evidence.Evidence` records from CDP.
-        May be empty if the company has not responded to CDP or has not
-        disclosed data relevant to the claim category.
-
-    Raises:
-        :py:class:`~core.retry.DataSourceError`: On HTTP errors that persist
-            after retries.
+        A single-element list with the CDP Evidence record, or empty list
+        if the company is not in the CDP dataset.
     """
-    search_identifier = company.lei or company.name
+    record = _lookup(company)
 
-    async with httpx.AsyncClient(
-        base_url=_CDP_BASE_URL,
-        timeout=httpx.Timeout(30.0),
-        headers={"Accept": "application/json"},
-    ) as client:
-        raw_records = await _search_cdp(client, search_identifier, company.name)
-
-    if not raw_records:
+    if record is None:
         logger.info(
-            f"CDP: no data found for {company.name!r}",
-            extra={"operation": "cdp_no_data", "company_id": str(company.id)},
+            f"CDP: no record found for {company.name!r} "
+            f"(ISIN={company.isin!r}, LEI={company.lei!r})",
+            extra={"operation": "cdp_not_found", "company_id": str(company.id)},
         )
         return []
 
-    return _build_evidence_records(claim, company, raw_records)
+    supports, confidence = _assess_record(record, claim)
+    summary = _build_summary(company.name, record)
+
+    logger.info(
+        f"CDP: {company.name!r} found — score={record.score!r}, year={record.year}",
+        extra={"operation": "cdp_found", "company_id": str(company.id)},
+    )
+
+    return [
+        Evidence(
+            claim_id=claim.id,
+            trace_id=claim.trace_id,
+            source=EvidenceSource.CDP,
+            evidence_type=EvidenceType.SELF_REPORTED_EMISSIONS,
+            source_url="https://data.cdp.net",
+            raw_data={
+                "company": record.name,
+                "isin": record.isin,
+                "lei": record.lei,
+                "score": record.score,
+                "year": record.year,
+                "sector": record.sector,
+                "country": record.country,
+            },
+            summary=summary,
+            data_year=record.year,
+            supports_claim=supports,
+            confidence=confidence,
+        )
+    ]
 
 
-@retry_async(config=RetryConfig.DEFAULT_HTTP, operation="cdp_search")
-async def _search_cdp(
-    client: httpx.AsyncClient,
-    identifier: str,
-    company_name: str,
-) -> list[dict[str, Any]]:
-    """Search CDP for a company's climate disclosures.
-
-    Args:
-        client: Configured async httpx client with the CDP base URL.
-        identifier: LEI or company name to search.
-        company_name: Company name for fallback search.
-
-    Returns:
-        List of raw CDP disclosure records.
-
-    Raises:
-        :py:class:`~core.retry.DataSourceError`: On HTTP errors.
-    """
-    params = {
-        "q": identifier,
-        "type": "organization",
-        "size": 5,
-    }
-
-    try:
-        response = await client.get(_CDP_SEARCH_PATH, params=params)
-        response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        from core.retry import classify_http_error
-        raise classify_http_error(exc, source=EvidenceSource.CDP.value) from exc
-
-    results = response.json().get("results", [])
-
-    # If LEI search returned nothing, fall back to name search
-    if not results and identifier != company_name:
-        params["q"] = company_name
-        try:
-            response = await client.get(_CDP_SEARCH_PATH, params=params)
-            response.raise_for_status()
-            results = response.json().get("results", [])
-        except httpx.HTTPStatusError:
-            pass  # Return empty — name search failure is non-fatal
-
-    return results
-
-
-def _build_evidence_records(
-    claim: Claim,
-    company: Company,
-    raw_records: list[dict[str, Any]],
-) -> list[Evidence]:
-    """Construct Evidence records from raw CDP API responses.
-
-    Filters and maps CDP disclosure records to Evidence objects. Only
-    records relevant to the claim category are included. Disclosures from
-    the most recent reporting year are prioritised.
+def _assess_record(record: _CDPRecord, claim: Claim) -> tuple[bool | None, float]:
+    """Assess whether the CDP score supports or contradicts the claim.
 
     Args:
+        record: The CDP record for the company.
         claim: The claim under assessment.
-        company: The company that made the claim.
-        raw_records: Raw CDP search results.
 
     Returns:
-        List of :py:class:`~models.evidence.Evidence` records.
+        Tuple of (supports_claim, confidence).
     """
-    evidence: list[Evidence] = []
-
-    for record in raw_records[:3]:  # cap at 3 most relevant results
-        try:
-            data_year = _extract_year(record)
-            supports, confidence = _assess_cdp_record(claim, record)
-            summary = _summarise_cdp_record(company.name, record)
-
-            evidence.append(
-                Evidence(
-                    claim_id=claim.id,
-                    trace_id=claim.trace_id,
-                    source=EvidenceSource.CDP,
-                    evidence_type=EvidenceType.SELF_REPORTED_EMISSIONS,
-                    source_url=record.get("url") or f"{_CDP_BASE_URL}/en/{record.get('id', '')}",
-                    raw_data=record,
-                    summary=summary,
-                    data_year=data_year,
-                    supports_claim=supports,
-                    confidence=confidence,
-                )
-            )
-        except Exception as exc:
-            logger.warning(
-                f"Failed to build CDP evidence record: {exc}",
-                extra={"operation": "cdp_record_build_failed", "error_type": type(exc).__name__},
-            )
-
-    return evidence
-
-
-def _extract_year(record: dict[str, Any]) -> int | None:
-    """Extract the reporting year from a CDP record.
-
-    Args:
-        record: Raw CDP record.
-
-    Returns:
-        The integer reporting year, or None if not determinable.
-    """
-    for key in ("reportingYear", "year", "questionnaire_year"):
-        raw = record.get(key)
-        if raw is not None:
-            try:
-                return int(str(raw)[:4])
-            except (ValueError, TypeError):
-                pass
-    return None
-
-
-def _assess_cdp_record(
-    claim: Claim,
-    record: dict[str, Any],
-) -> tuple[bool | None, float]:
-    """Assess whether a CDP record supports or contradicts the claim.
-
-    CDP data is self-reported, so confidence is capped at 0.7 regardless
-    of apparent alignment. Discrepancies between CDP disclosures and public
-    claims are flagged by comparing the CDP target text against the claim.
-
-    Args:
-        claim: The claim under assessment.
-        record: Raw CDP record.
-
-    Returns:
-        A tuple of (supports_claim, confidence).
-    """
-    # CDP self-reported data: moderate confidence ceiling
-    confidence = 0.65
-
-    score = record.get("score", "").upper()
+    score = record.score.upper().strip()
+    # CDP data is self-reported; cap confidence at 0.70.
     if score in ("A", "A-"):
-        # High CDP score — company is engaged and disclosing; slight positive signal
-        return True, confidence
+        return True, 0.65
     if score in ("D", "D-", "F"):
-        # Low CDP score — company is not disclosing meaningfully
-        return False, confidence
+        return False, 0.65
+    if score in ("N/A", "", "NOT APPLICABLE"):
+        return None, 0.4
+    # B, C range — neutral signal
+    return None, 0.55
 
-    return None, confidence
 
-
-def _summarise_cdp_record(company_name: str, record: dict[str, Any]) -> str:
-    """Produce a natural-language summary of a CDP record for the Judge Agent.
+def _build_summary(company_name: str, record: _CDPRecord) -> str:
+    """Build a human-readable summary for the Judge Agent.
 
     Args:
-        company_name: The company name.
-        record: Raw CDP record.
+        company_name: Display name of the company.
+        record: The CDP record.
 
     Returns:
-        A human-readable summary string.
+        A plain-text summary string.
     """
-    year = _extract_year(record)
-    score = record.get("score", "not disclosed")
-    status = record.get("status", "")
-    year_str = str(year) if year else "most recent year"
+    score = record.score or "N/A"
+    year_str = str(record.year) if record.year else "most recent year"
+    description = _SCORE_DESCRIPTIONS.get(score, "Score description unavailable.")
 
     return (
-        f"CDP self-reported disclosure for {company_name} ({year_str}): "
-        f"CDP score {score}. {status}. "
-        "This is self-reported data and weighted as secondary evidence."
+        f"CDP self-reported climate disclosure for {company_name} ({year_str}): "
+        f"CDP score {score}. {description}. "
+        "Note: CDP data is self-reported by the company and weighted as secondary "
+        "evidence. Significant discrepancies with EU ETS verified data indicate "
+        "inconsistent reporting."
     )

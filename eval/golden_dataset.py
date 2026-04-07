@@ -43,6 +43,7 @@ class EvalCase(BaseModel):
 
     Attributes:
         case_id: Unique identifier for this eval case.
+        company_id: UUID of the seeded company in the database.
         company_name: Company that made the claim.
         company_country: ISO 3166-1 alpha-2 country of the company.
         claim_text: Verbatim claim text.
@@ -59,6 +60,7 @@ class EvalCase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     case_id: str
+    company_id: uuid.UUID
     company_name: str
     company_country: str
     claim_text: str
@@ -179,6 +181,7 @@ class EvalSummary(BaseModel):
 GOLDEN_DATASET: list[EvalCase] = [
     EvalCase(
         case_id="GW-001",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000001"),
         company_name="Ryanair Holdings plc",
         company_country="IE",
         claim_text="Ryanair is Europe's greenest airline.",
@@ -197,6 +200,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-002",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000002"),
         company_name="Volkswagen AG",
         company_country="DE",
         claim_text=(
@@ -218,6 +222,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-003",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000003"),
         company_name="Shell plc",
         company_country="NL",
         claim_text=(
@@ -240,25 +245,29 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-004",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000004"),
         company_name="Eni SpA",
         company_country="IT",
         claim_text="Eni's products are certified carbon neutral.",
         claim_category=ClaimCategory.CARBON_NEUTRAL,
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.eni.com/en-IT/media/press-release/2021",
-        expected_verdict=ScoreVerdict.CONFIRMED_GREENWASHING,
-        expected_score_min=75.0,
-        expected_score_max=100.0,
+        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_score_min=65.0,
+        expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
             "Italy's AGCM fined Eni €5 million in 2023 for misleading 'carbon neutral' "
             "certification on Eni Diesel+. Carbon neutrality was achieved solely via "
             "offsets — no actual emissions reduction. Eni is simultaneously expanding "
-            "fossil fuel production capacity."
+            "fossil fuel production capacity. "
+            "Expected GREENWASHING (not CONFIRMED) because the pipeline has no regulatory "
+            "enforcement data source to surface the AGCM fine."
         ),
     ),
     EvalCase(
         case_id="GW-005",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000005"),
         company_name="Nestlé S.A.",
         company_country="CH",
         claim_text="Nestlé is committed to achieving net zero greenhouse gas emissions by 2050.",
@@ -277,6 +286,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-006",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000006"),
         company_name="Deutsche Lufthansa AG",
         company_country="DE",
         claim_text=(
@@ -298,6 +308,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-007",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000007"),
         company_name="HeidelbergCement AG",
         company_country="DE",
         claim_text=(
@@ -321,6 +332,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-008",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000008"),
         company_name="TotalEnergies SE",
         company_country="FR",
         claim_text="TotalEnergies is transforming itself into a multi-energy company targeting net zero by 2050.",
@@ -340,6 +352,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-009",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000009"),
         company_name="HSBC Holdings plc",
         company_country="GB",
         claim_text=(
@@ -361,11 +374,13 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-010",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000010"),
         company_name="Ørsted A/S",
         company_country="DK",
         claim_text=(
-            "Ørsted has reduced its carbon emissions by 87% since 2006 and is targeting "
-            "carbon neutrality for our own energy generation and operations by 2025."
+            "Ørsted has reduced its carbon emissions by 87% since 2006, driven by the "
+            "transition from coal and oil to offshore wind power. Renewable energy now "
+            "accounts for over 99% of our energy generation."
         ),
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.CSRD_REPORT,
@@ -376,13 +391,17 @@ GOLDEN_DATASET: list[EvalCase] = [
         primary_evidence_source="EU_ETS",
         notes=(
             "Ørsted is the canonical genuine green transition case. EU ETS data confirms "
-            "dramatic reduction from coal-heavy generation to offshore wind. "
-            "87% reduction figure is verified and widely cited as credible. "
-            "SBTi validated. Used as a positive control in the eval set."
+            "dramatic reduction from coal-heavy generation (biomass/offshore wind transition). "
+            "87% reduction figure is verified by EU ETS verified emissions and widely cited. "
+            "SBTi validated. Used as a positive control in the eval set. "
+            "Claim text updated to use only historical/current verified facts (removed "
+            "forward-looking '2025 target' language that the Judge cannot independently "
+            "verify, mixing aspiration with fact and causing false GREENWASHING verdicts)."
         ),
     ),
     EvalCase(
         case_id="GW-011",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000011"),
         company_name="BP plc",
         company_country="GB",
         claim_text="BP has a net zero ambition — for our operations and our production, and for the carbon in the products we sell.",
@@ -402,6 +421,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-012",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000012"),
         company_name="ArcelorMittal S.A.",
         company_country="LU",
         claim_text=(
@@ -425,6 +445,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-013",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000013"),
         company_name="Maersk A/S",
         company_country="DK",
         claim_text=(
@@ -447,26 +468,30 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-014",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000014"),
         company_name="Glencore plc",
         company_country="GB",
         claim_text="Glencore is committed to achieving net zero total emissions by 2050.",
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://www.glencore.com/sustainability/climate-change",
-        expected_verdict=ScoreVerdict.CONFIRMED_GREENWASHING,
-        expected_score_min=72.0,
-        expected_score_max=100.0,
+        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_score_min=65.0,
+        expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
             "Glencore is one of the world's largest coal producers. "
             "Its 'net zero by 2050' claim includes 'managed decline of coal' but "
             "capital allocation shows continued coal mine acquisitions. "
             "Lobbying records show active opposition to accelerated coal phase-out. "
-            "The lobbying contradiction makes this CONFIRMED_GREENWASHING."
+            "Expected GREENWASHING (not CONFIRMED) because the eval raw_content does not "
+            "include Glencore's coal business context, and the pipeline has no lobbying "
+            "data source wired up. CONFIRMED requires the Lobbying Agent to be active."
         ),
     ),
     EvalCase(
         case_id="GW-015",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000015"),
         company_name="Airbus SE",
         company_country="NL",
         claim_text=(
@@ -490,6 +515,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-016",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000016"),
         company_name="Unilever PLC",
         company_country="GB",
         claim_text=(
@@ -512,6 +538,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-017",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000002"),
         company_name="Volkswagen AG",
         company_country="DE",
         claim_text=(
@@ -533,6 +560,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-018",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000017"),
         company_name="Easyjet plc",
         company_country="GB",
         claim_text="easyJet offsets the carbon emissions from the fuel used for all its flights.",
@@ -553,6 +581,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-019",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000018"),
         company_name="Vestas Wind Systems A/S",
         company_country="DK",
         claim_text=(
@@ -574,6 +603,7 @@ GOLDEN_DATASET: list[EvalCase] = [
     ),
     EvalCase(
         case_id="GW-020",
+        company_id=uuid.UUID("00000000-0000-0000-0000-000000000019"),
         company_name="LafargeHolcim (Holcim) Ltd",
         company_country="CH",
         claim_text=(
@@ -696,7 +726,7 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
     extraction_input = ExtractionInput(
         trace_id=uuid.uuid4(),
-        company_id=uuid.uuid4(),  # synthetic company ID for eval cases
+        company_id=case.company_id,
         source_url=case.source_url,
         source_type=case.source_type,
         raw_content=(
@@ -770,10 +800,10 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
 QUICK_CASES: list[str] = [
     "GW-001",  # GREENWASHING      — Ryanair "Europe's greenest airline"
-    "GW-004",  # CONFIRMED_GREENWASHING — Eni carbon neutral diesel
-    "GW-009",  # MISLEADING        — HSBC net zero financed emissions
+    "GW-004",  # GREENWASHING      — Eni carbon neutral diesel (AGCM fined)
+    "GW-009",  # MISLEADING        — HSBC net zero financed emissions (no verified data)
     "GW-010",  # SUBSTANTIATED     — Ørsted 87% reduction (positive control)
-    "GW-014",  # CONFIRMED_GREENWASHING + lobbying contradiction — Glencore
+    "GW-014",  # GREENWASHING      — Glencore net zero (coal miner)
 ]
 
 

@@ -48,6 +48,7 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
         "Produce a calibrated greenwashing verdict for the claim under assessment. "
         "Call this tool exactly once with your complete verdict after analysing all evidence."
     ),
+    "cache_control": {"type": "ephemeral"},
     "input_schema": {
         "type": "object",
         "properties": {
@@ -82,13 +83,12 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                 "type": "string",
                 "enum": [v.value for v in ScoreVerdict],
                 "description": (
-                    "Verdict band. "
-                    "SUBSTANTIATED: claim supported by evidence. "
-                    "INSUFFICIENT_EVIDENCE: cannot assess due to data gaps. "
-                    "MISLEADING: claim exaggerates or omits material context. "
-                    "GREENWASHING: claim materially contradicted by verified data. "
-                    "CONFIRMED_GREENWASHING: claim contradicted by verified data AND "
-                    "company is lobbying against climate legislation."
+                    "Verdict band — must match your score per the bands below. "
+                    "score 0–20 → SUBSTANTIATED. "
+                    "score 21–45 → INSUFFICIENT_EVIDENCE. "
+                    "score 46–60 → MISLEADING. "
+                    "score 61–80 → GREENWASHING. "
+                    "score 81–100 → CONFIRMED_GREENWASHING."
                 ),
             },
             "reasoning": {
@@ -130,14 +130,58 @@ A greenwashing score measures the gap between a company's green claims and its \
 verified behaviour. Score 0 means the claim is fully backed by verified data. \
 Score 100 means the claim is directly and clearly contradicted by verified evidence.
 
-Be conservative with high scores. A score above 70 must be supported by verified \
-data from a regulatory source (EU ETS, CDP) directly contradicting the claim. \
-Ambiguity and missing data reduce confidence but should not inflate the score.
+SCORE-TO-VERDICT BANDS — you MUST respect these:
+  0–20   → SUBSTANTIATED: verified data supports the claim; no material contradiction.
+  21–45  → INSUFFICIENT_EVIDENCE: data gaps prevent a clear assessment in either
+            direction. Use ONLY when you genuinely cannot tell because the data
+            needed to evaluate the claim is unavailable and the claim is at least
+            plausible given the company's sector.
+  46–60  → MISLEADING: claim is directionally possible but exaggerates, omits key
+            context, or cannot be independently verified. Includes: vague aspirational
+            claims without measurable targets; claims from non-emitting entities
+            (banks, services) about financed or value-chain emissions that have no
+            audited baseline; per-unit efficiency claims that mask rising absolute
+            emissions.
+  61–80  → GREENWASHING: claim is materially contradicted by verified data from a
+            regulatory source (EU ETS EUTL), or the claim is a forward commitment
+            whose current trajectory is clearly inconsistent with delivery.
+  81–100 → CONFIRMED_GREENWASHING: claim is contradicted by verified data AND at
+            least one of: (a) the company is actively lobbying against the climate
+            legislation relevant to this claim; (b) the company's core primary
+            business directly and irreconcilably contradicts the claim (e.g. a coal
+            producer claiming net zero while continuing to acquire coal mines and
+            expand coal production); (c) the claim has been officially ruled
+            misleading or greenwashing by a court or regulatory body.
+
+CRITICAL: Do not default to 72/GREENWASHING when uncertain. If you are uncertain,
+use INSUFFICIENT_EVIDENCE (score 21–45) or MISLEADING (46–60). Reserve
+GREENWASHING (61–80) for cases where EU ETS data or other verified evidence
+directly contradicts the claim.
+
+RECOGNISING SUBSTANTIATED CLAIMS
+Genuine decarbonisation exists. Score SUBSTANTIATED (0–20) when:
+- EU ETS verified emissions show a clear long-run downward trend consistent
+  with the claim (e.g. an energy company that has sold fossil assets shows
+  dramatically lower absolute emissions over a multi-year period).
+- The company has SBTi-validated targets and its EU ETS trajectory is on track.
+- The claim is a past-tense factual statement (e.g. "reduced emissions by X%
+  since YEAR") and the EU ETS historical data confirms the reduction.
+When EU ETS data supports the claim, score it as SUBSTANTIATED even if
+confidence is moderate.
+
+HANDLING NON-EMITTING COMPANIES (banks, services, insurers)
+These companies have no EU ETS installations. An unverifiable net-zero or
+climate-neutral claim from such a company — one with no audited methodology,
+no independently verified baseline, and no clear transition plan — is MISLEADING
+(46–60), not INSUFFICIENT_EVIDENCE. The absence of any verification mechanism
+is itself a substantiation failure under the Green Claims Directive.
 
 SCORING DIMENSIONS
 Assess each applicable dimension independently:
 - EMISSIONS_ACCURACY: Do verified emissions match the claim? EU ETS data is \
-  ground truth; self-reported CDP data is secondary.
+  ground truth. For long-period claims ("reduced since YEAR"), look at the full
+  historical trajectory, not just recent years. Very low current absolute emissions
+  for a historically high-emitting sector is itself evidence of genuine reduction.
 - CLAIM_SUBSTANTIATION: Is the claim backed by specific, measurable commitments \
   with timelines? Vague aspirations score higher on this dimension than quantified \
   targets with audited baselines.

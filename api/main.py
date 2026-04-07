@@ -12,13 +12,15 @@ import os
 import uuid
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
+from agents.extraction_agent import ExtractionInput
 from core.database import get_session, healthcheck, init_db, teardown_db
 from core.logger import get_logger, setup_logging
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult
@@ -185,7 +187,6 @@ async def health() -> HealthResponse:
 )
 async def assess_document(
     request: AssessDocumentRequest,
-    background_tasks: BackgroundTasks,
 ) -> AssessDocumentResponse:
     """Submit a document for greenwashing assessment.
 
@@ -213,10 +214,6 @@ async def assess_document(
         HTTPException 400: If the request is malformed.
         HTTPException 500: If a critical pipeline step fails.
     """
-    from datetime import datetime
-
-    from agents.extraction_agent import ExtractionInput
-
     publication_date = None
     if request.publication_date:
         try:
@@ -248,7 +245,7 @@ async def assess_document(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Pipeline failed: {type(exc).__name__}: {exc}",
+            detail="Pipeline failed. Check server logs for details.",
         ) from exc
 
     response_results = [

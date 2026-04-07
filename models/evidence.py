@@ -24,7 +24,7 @@ __all__ = [
 
 
 class EvidenceSource(StrEnum):
-    """EU open data sources queried by the Verification Agent.
+    """Open data sources queried by the Verification Agent.
 
     Each value corresponds to a dedicated ingest module under ``ingest/``.
     The Verification Agent queries all applicable sources in parallel via
@@ -36,6 +36,13 @@ class EvidenceSource(StrEnum):
     EUROSTAT = "EUROSTAT"
     EUR_LEX = "EUR_LEX"
     EU_TRANSPARENCY_REGISTER = "EU_TRANSPARENCY_REGISTER"
+    SBTI = "SBTI"
+    EPRTR = "EPRTR"
+    INFLUENCE_MAP = "INFLUENCE_MAP"
+    ENFORCEMENT = "ENFORCEMENT"
+    CA100 = "CA100"
+    FOSSIL_FINANCE = "FOSSIL_FINANCE"
+    COAL_EXIT = "COAL_EXIT"
 
 
 class EvidenceType(StrEnum):
@@ -50,6 +57,11 @@ class EvidenceType(StrEnum):
     LEGISLATIVE_RECORD = "LEGISLATIVE_RECORD"
     LOBBYING_RECORD = "LOBBYING_RECORD"
     STATISTICAL = "STATISTICAL"
+    TARGET_RECORD = "TARGET_RECORD"
+    POLLUTION_RECORD = "POLLUTION_RECORD"
+    ENFORCEMENT_RULING = "ENFORCEMENT_RULING"
+    BENCHMARK_ASSESSMENT = "BENCHMARK_ASSESSMENT"
+    FINANCING_RECORD = "FINANCING_RECORD"
 
 
 def _utc_now() -> datetime:
