@@ -92,7 +92,7 @@ def download_eprtr_csv() -> None:
     print()
     print("Alternative (EEA Datahub):")
     print("  https://www.eea.europa.eu/data-and-maps/data/industrial-reporting-under-the-industrial-7")
-    print("  Download: 'EPRTR data' → CSV format")
+    print("  Download: 'EPRTR data' -> CSV format")
     sys.exit(1)
 
 
