@@ -46,9 +46,9 @@ _CA100_CSV: Path = Path(
 # Column name variants across CA100+ benchmark CSV vintages
 # ---------------------------------------------------------------------------
 
-_COL_COMPANY = ("Company", "company", "Company Name", "Name", "Issuer")
+_COL_COMPANY = ("Company", "company", "Company Name", "Company name", "Name", "Issuer")
 _COL_SECTOR = ("Sector", "sector", "Industry", "GICS Sector")
-_COL_COUNTRY = ("Country", "country", "HQ Country", "Headquarters Country")
+_COL_COUNTRY = ("Country", "country", "HQ Country", "HQ location", "Headquarters Country")
 _COL_ISIN = ("ISIN", "isin", "Primary ISIN")
 _COL_TICKER = ("Ticker", "ticker", "Bloomberg Ticker")
 

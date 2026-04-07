@@ -68,8 +68,8 @@ _COL_FACILITY = ("facilityName", "FacilityName", "facility_name", "Facility Name
 _COL_PARENT = ("parentCompanyName", "ParentCompanyName", "parent_company", "Parent Company", "FacilityReport_ParentCompanyName")
 _COL_YEAR = ("reportingYear", "ReportingYear", "year", "Year", "FacilityReport_ReportingYear")
 _COL_POLLUTANT = ("pollutantName", "PollutantName", "pollutant_name", "Pollutant", "PollutantRelease_PollutantName")
-_COL_QUANTITY = ("totalPollutantQuantityKg", "TotalQuantity", "quantity_kg", "QuantityKg", "PollutantRelease_TotalPollutantQuantityKg", "PollutantRelease_TotalQuantity")
-_COL_MEDIUM = ("mediumCode", "MediumCode", "medium", "Medium", "PollutantRelease_MediumCode")
+_COL_QUANTITY = ("totalPollutantQuantityKg", "TotalQuantity", "quantity_kg", "QuantityKg", "PollutantRelease_TotalPollutantQuantityKg", "PollutantRelease_TotalQuantity", "Releases")
+_COL_MEDIUM = ("mediumCode", "MediumCode", "medium", "Medium", "PollutantRelease_MediumCode", "TargetRelease")
 _COL_COUNTRY = ("countryCode", "CountryCode", "country_code", "Country", "FacilityReport_CountryCode")
 
 
