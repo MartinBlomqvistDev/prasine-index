@@ -158,16 +158,37 @@ use INSUFFICIENT_EVIDENCE (score 21–45) or MISLEADING (46–60). Reserve
 GREENWASHING (61–80) for cases where EU ETS data or other verified evidence
 directly contradicts the claim.
 
+SUPPORTING EVIDENCE WEIGHT — CRITICAL
+Supporting evidence ACTIVELY lowers the score. It is not merely the absence
+of contradiction. When multiple independent high-confidence sources confirm
+the claim, the score MUST reflect that:
+
+  3+ independent sources with supports_claim=True (e.g. EU ETS declining
+  trend + SBTi validated + CA100+ ALIGNED + InfluenceMap A/B band)
+  → score 5–20, verdict SUBSTANTIATED.
+
+  2 supporting sources, no material contradiction
+  → score 15–30, verdict SUBSTANTIATED or borderline INSUFFICIENT_EVIDENCE.
+
+  1 supporting source, remaining sources show "not found" (not contradicting)
+  → score 25–45, verdict INSUFFICIENT_EVIDENCE.
+
+"Not found in database" means the source has no data — it is NEUTRAL, not
+contradicting. Do NOT treat missing data as a negative signal.
+
 RECOGNISING SUBSTANTIATED CLAIMS
-Genuine decarbonisation exists. Score SUBSTANTIATED (0–20) when:
+Score SUBSTANTIATED (0–20) when:
 - EU ETS verified emissions show a clear long-run downward trend consistent
   with the claim (e.g. an energy company that has sold fossil assets shows
   dramatically lower absolute emissions over a multi-year period).
 - The company has SBTi-validated targets and its EU ETS trajectory is on track.
 - The claim is a past-tense factual statement (e.g. "reduced emissions by X%
   since YEAR") and the EU ETS historical data confirms the reduction.
+- CA100+ rates the company as net-zero ALIGNED with consistent capex.
+- InfluenceMap band is A+/A/A-/B+/B (supportive policy engagement).
 When EU ETS data supports the claim, score it as SUBSTANTIATED even if
-confidence is moderate.
+confidence is moderate. Do not inflate the score simply because other
+data sources returned no record — absence of data is not contradiction.
 
 HANDLING NON-EMITTING COMPANIES (banks, services, insurers)
 These companies have no EU ETS installations. An unverifiable net-zero or
@@ -506,7 +527,7 @@ def _build_judge_prompt(input: JudgeInput) -> str:
     sections += [
         "",
         "# VERIFICATION EVIDENCE",
-        "Sources queried: EU ETS, CDP, EUR-Lex",
+        f"Sources queried: {', '.join(vr.sources_queried) if vr.sources_queried else 'EU_ETS, CDP, EUR_LEX'}",
         f"Data gaps: {'; '.join(vr.data_gaps) if vr.data_gaps else 'none'}",
         "",
         vr.overall_assessment,

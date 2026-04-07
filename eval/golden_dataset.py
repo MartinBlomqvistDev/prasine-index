@@ -188,14 +188,17 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.WEBSITE,
         source_url="https://www.ryanair.com/gb/en/plan-trip/environment",
-        expected_verdict=ScoreVerdict.GREENWASHING,
-        expected_score_min=65.0,
+        expected_verdict=ScoreVerdict.CONFIRMED_GREENWASHING,
+        expected_score_min=75.0,
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "UK ASA ruled this misleading in 2022. Ryanair's EU ETS verified emissions "
-            "are among the highest of any European airline on a per-passenger basis. "
-            "The claim 'greenest' has no substantiated baseline."
+            "UK ASA ruled this misleading in 2022 — a regulatory ruling that triggers "
+            "CONFIRMED_GREENWASHING per the scoring criteria. Ryanair's EU ETS verified "
+            "emissions are among the highest of any European airline on a per-passenger "
+            "basis. The claim 'greenest' has no substantiated baseline. "
+            "InfluenceMap D+ band confirms obstructive climate lobbying. "
+            "Enforcement module surfaces the ASA ban, pushing verdict to CONFIRMED."
         ),
     ),
     EvalCase(
@@ -297,13 +300,15 @@ GOLDEN_DATASET: list[EvalCase] = [
         source_type=SourceType.IR_PAGE,
         source_url="https://investor-relations.lufthansagroup.com/en/responsibility/environment",
         expected_verdict=ScoreVerdict.MISLEADING,
-        expected_score_min=50.0,
-        expected_score_max=78.0,
+        expected_score_min=46.0,
+        expected_score_max=60.0,
         primary_evidence_source="EU_ETS",
         notes=(
             "SAF currently constitutes less than 1% of Lufthansa's fuel mix. "
             "EU ETS verified emissions show no reduction trajectory. "
-            "'Will allow' is speculative; no binding interim target is set."
+            "'Will allow' is speculative; no binding interim target is set. "
+            "MISLEADING (not GREENWASHING) because the claim is aspirational and "
+            "vague — there is no specific measurable commitment to contradict."
         ),
     ),
     EvalCase(
@@ -363,13 +368,16 @@ GOLDEN_DATASET: list[EvalCase] = [
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.hsbc.com/news-and-views/news/hsbc-news/2020/hsbc-sets-out-ambition-to-be-net-zero",
         expected_verdict=ScoreVerdict.MISLEADING,
-        expected_score_min=45.0,
-        expected_score_max=75.0,
+        expected_score_min=46.0,
+        expected_score_max=60.0,
         primary_evidence_source="CDP",
         notes=(
             "UK FCA investigated HSBC in 2023 over misleading green claims in advertising. "
             "HSBC simultaneously financed $87bn in fossil fuel expansion (2016–2022). "
-            "Financed emissions reporting methodology is self-selected and not independently verified."
+            "Financed emissions reporting methodology is self-selected and not independently verified. "
+            "MISLEADING (not GREENWASHING): HSBC has no EU ETS installations — the financed "
+            "emissions claim cannot be verified from EU open data, which makes it MISLEADING "
+            "per the non-emitting company guidance, not GREENWASHING."
         ),
     ),
     EvalCase(
@@ -502,15 +510,17 @@ GOLDEN_DATASET: list[EvalCase] = [
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.airbus.com/en/innovation/zero-emission/hydrogen",
         expected_verdict=ScoreVerdict.MISLEADING,
-        expected_score_min=45.0,
-        expected_score_max=72.0,
+        expected_score_min=46.0,
+        expected_score_max=60.0,
         primary_evidence_source="EUR_LEX",
         notes=(
             "The 2035 hydrogen aircraft is a research programme, not a committed "
             "commercial product. Independent aviation engineers assess TRL as too low "
             "for 2035 entry into service. EUR-Lex shows no regulatory certification "
             "pathway for hydrogen aircraft at this timeline. The claim presents a "
-            "research ambition as a firm commercial commitment."
+            "research ambition as a firm commercial commitment. "
+            "MISLEADING (not GREENWASHING): no verified emissions data directly "
+            "contradicts this forward-looking R&D claim — it is unverifiable aspirational."
         ),
     ),
     EvalCase(
@@ -568,15 +578,18 @@ GOLDEN_DATASET: list[EvalCase] = [
         source_type=SourceType.WEBSITE,
         source_url="https://www.easyjet.com/en/sustainability",
         expected_verdict=ScoreVerdict.MISLEADING,
-        expected_score_min=55.0,
-        expected_score_max=80.0,
+        expected_score_min=46.0,
+        expected_score_max=60.0,
         primary_evidence_source="EU_ETS",
         notes=(
             "EasyJet ended its offset programme in 2022 after criticism. "
             "The claim of full offset coverage was based on REDD+ projects "
             "that have since been widely discredited. EU ETS data confirms "
             "full scope of actual emissions. Offset-only carbon neutrality "
-            "without operational reduction is classified as MISLEADING."
+            "without operational reduction is classified as MISLEADING. "
+            "MISLEADING (not GREENWASHING): easyJet's EU ETS emissions exist but "
+            "the claim is about offsets, not emissions trajectory — the issue is "
+            "methodology quality, not a direct trajectory contradiction."
         ),
     ),
     EvalCase(
@@ -820,6 +833,8 @@ if __name__ == "__main__":
         python -m eval.golden_dataset GW-001 GW-002     # specific cases
     """
     import sys
+    from dotenv import load_dotenv
+    load_dotenv()
 
     setup_logging(level="INFO")
 

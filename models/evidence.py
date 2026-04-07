@@ -229,3 +229,7 @@ class VerificationResult(BaseModel):
             "Surfaced explicitly so the Judge Agent can weight its confidence accordingly."
         ),
     )
+    sources_queried: list[str] = Field(
+        default_factory=list,
+        description="Names of all data sources queried during this verification pass.",
+    )

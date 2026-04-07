@@ -743,6 +743,10 @@ class VerificationAgent:
                 evidence=evidence,
                 overall_assessment=overall_assessment,
                 data_gaps=data_gaps,
+                sources_queried=[
+                    "EU_ETS", "CDP", "SBTI", "EPRTR", "INFLUENCE_MAP",
+                    "ENFORCEMENT", "CA100", "FOSSIL_FINANCE", "COAL_EXIT", "EUR_LEX",
+                ],
             )
 
         completed_at = datetime.now(UTC)
