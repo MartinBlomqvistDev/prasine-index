@@ -468,7 +468,7 @@ class JudgeAgent:
                 score_breakdown={k: float(v) for k, v in verdict.get("score_breakdown", {}).items()},
                 verdict=ScoreVerdict(verdict["verdict"]),
                 reasoning=verdict["reasoning"],
-                confidence=float(verdict["confidence"]),
+                confidence=float(verdict.get("confidence", 0.7)),
                 judge_model_id=self._model_id,
                 evidence_ids=[e.id for e in input.verification.evidence],
             )
