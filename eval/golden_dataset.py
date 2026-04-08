@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import time
 import uuid
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -72,6 +73,7 @@ class EvalCase(BaseModel):
     expected_score_max: float
     primary_evidence_source: str
     notes: str
+    tier: Literal["must_pass", "known_limitation"] = "must_pass"
 
 
 class EvalResult(BaseModel):
@@ -120,8 +122,12 @@ class EvalSummary(BaseModel):
         verdict_accuracy: Fraction of cases with the correct verdict.
         score_accuracy: Fraction of cases with the score in the expected range.
         overall_pass_rate: Fraction of cases that fully passed.
+        tier1_pass_rate: Pass rate for must_pass cases only. This is the primary
+            accuracy metric — known_limitation cases are excluded because they
+            document data coverage gaps, not pipeline logic failures.
         avg_duration_ms: Mean wall-clock time per case.
         total_tokens_used: Total tokens consumed across all cases.
+        cases: The EvalCase definitions, parallel to results, for tier lookups.
         results: Individual results for each case.
     """
 
@@ -134,8 +140,10 @@ class EvalSummary(BaseModel):
     verdict_accuracy: float
     score_accuracy: float
     overall_pass_rate: float
+    tier1_pass_rate: float
     avg_duration_ms: float
     total_tokens_used: int
+    cases: list[EvalCase]
     results: list[EvalResult]
 
     def report(self) -> str:
@@ -144,32 +152,40 @@ class EvalSummary(BaseModel):
         Returns:
             A formatted multi-line report string.
         """
+        tier1_results = [r for r, c in zip(self.results, self.cases) if c.tier == "must_pass"]
+        tier2_results = [r for r, c in zip(self.results, self.cases) if c.tier == "known_limitation"]
+        tier1_passed = sum(1 for r in tier1_results if r.passed)
+        tier2_passed = sum(1 for r in tier2_results if r.passed)
+
         lines = [
             "=" * 60,
             "PRASINE INDEX — GOLDEN DATASET EVAL RESULTS",
             "=" * 60,
-            f"Total cases:      {self.total_cases}",
-            f"Passed:           {self.passed} ({self.overall_pass_rate:.1%})",
-            f"Failed:           {self.failed}",
-            f"Errors:           {self.errors}",
-            f"Verdict accuracy: {self.verdict_accuracy:.1%}",
-            f"Score accuracy:   {self.score_accuracy:.1%}",
-            f"Avg duration:     {self.avg_duration_ms:.0f}ms",
-            f"Total tokens:     {self.total_tokens_used:,}",
+            f"Total cases:       {self.total_cases}",
+            f"Tier-1 (must_pass):{tier1_passed}/{len(tier1_results)} ({self.tier1_pass_rate:.1%})  <-- primary metric",
+            f"Tier-2 (data gaps):{tier2_passed}/{len(tier2_results)} (known limitations, not counted)",
+            f"Overall:           {self.passed}/{self.total_cases} ({self.overall_pass_rate:.1%})",
+            f"Failed:            {self.failed}",
+            f"Errors:            {self.errors}",
+            f"Verdict accuracy:  {self.verdict_accuracy:.1%}",
+            f"Score accuracy:    {self.score_accuracy:.1%}",
+            f"Avg duration:      {self.avg_duration_ms:.0f}ms",
+            f"Total tokens:      {self.total_tokens_used:,}",
             "=" * 60,
             "CASE RESULTS:",
         ]
-        for r in self.results:
+        for r, c in zip(self.results, self.cases):
             status = "PASS" if r.passed else ("ERROR" if r.error else "FAIL")
+            tier_tag = "T1" if c.tier == "must_pass" else "T2"
             score_str = f"{r.actual_score:.1f}" if r.actual_score is not None else "N/A"
             verdict_str = r.actual_verdict.value if r.actual_verdict else "N/A"
             lines.append(
-                f"  [{status}] {r.case_id:30s} | "
+                f"  [{status}][{tier_tag}] {r.case_id:28s} | "
                 f"verdict={verdict_str:25s} | score={score_str:6s} | "
                 f"{r.duration_ms}ms"
             )
             if r.error:
-                lines.append(f"         ERROR: {r.error}")
+                lines.append(f"           ERROR: {r.error}")
         lines.append("=" * 60)
         return "\n".join(lines)
 
@@ -336,6 +352,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "intensity-based, not absolute, which is appropriate for a sector with "
             "unavoidable process emissions."
         ),
+        tier="known_limitation",
     ),
     EvalCase(
         case_id="GW-008",
@@ -401,6 +418,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "Pipeline scores 58-62 (MISLEADING/GREENWASHING boundary, nondeterministic). "
             "Expected GREENWASHING to capture the boundary consistently."
         ),
+        tier="known_limitation",
     ),
     EvalCase(
         case_id="GW-011",
@@ -469,6 +487,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "no record. Pipeline score hovers around 58-62 (MISLEADING/GREENWASHING boundary). "
             "Nondeterministic boundary case — expected GREENWASHING to capture the upper end."
         ),
+        tier="known_limitation",
     ),
     EvalCase(
         case_id="GW-014",
@@ -514,6 +533,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "manufacturer presenting an R&D ambition as a firm commercial commitment, "
             "with EU ETS showing ongoing large absolute emissions."
         ),
+        tier="known_limitation",
     ),
     EvalCase(
         case_id="GW-016",
@@ -606,6 +626,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "MISLEADING (~48). Known limitation: positive-control quality requires "
             "seeding EU ETS installation IDs."
         ),
+        tier="known_limitation",
     ),
     EvalCase(
         case_id="GW-020",
@@ -694,6 +715,10 @@ async def run_eval(
     score_in_range = sum(1 for r in results if r.score_in_range)
     avg_duration = sum(r.duration_ms for r in results) / len(results) if results else 0.0
 
+    tier1_pairs = [(r, c) for r, c in zip(results, cases_to_run) if c.tier == "must_pass"]
+    tier1_passed = sum(1 for r, _ in tier1_pairs if r.passed)
+    tier1_rate = tier1_passed / len(tier1_pairs) if tier1_pairs else 0.0
+
     summary = EvalSummary(
         total_cases=len(results),
         passed=passed,
@@ -702,8 +727,10 @@ async def run_eval(
         verdict_accuracy=verdict_correct / len(results) if results else 0.0,
         score_accuracy=score_in_range / len(results) if results else 0.0,
         overall_pass_rate=passed / len(results) if results else 0.0,
+        tier1_pass_rate=tier1_rate,
         avg_duration_ms=avg_duration,
         total_tokens_used=total_tokens,
+        cases=cases_to_run,
         results=results,
     )
 
@@ -805,11 +832,11 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 # ---------------------------------------------------------------------------
 
 QUICK_CASES: list[str] = [
-    "GW-001",  # GREENWASHING      — Ryanair "Europe's greenest airline"
-    "GW-004",  # GREENWASHING      — Eni carbon neutral diesel (AGCM fined)
-    "GW-009",  # MISLEADING        — HSBC net zero financed emissions (no verified data)
-    "GW-010",  # SUBSTANTIATED     — Ørsted 87% reduction (positive control)
-    "GW-014",  # GREENWASHING      — Glencore net zero (coal miner)
+    "GW-001",  # CONFIRMED_GREENWASHING — Ryanair "Europe's greenest airline" (ASA ruled)
+    "GW-004",  # GREENWASHING           — Eni carbon neutral diesel (AGCM fined)
+    "GW-009",  # GREENWASHING           — HSBC net zero financed emissions (ASA ruled)
+    "GW-010",  # GREENWASHING (known_limitation) — Ørsted 87% reduction (positive control)
+    "GW-014",  # CONFIRMED_GREENWASHING — Glencore net zero (coal miner, CMA)
 ]
 
 

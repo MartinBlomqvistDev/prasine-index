@@ -397,6 +397,23 @@ async def _create_schema(conn: AsyncConnection) -> None:
     for stmt in statements:
         await conn.execute(text(stmt))
 
+    # Enable Row-Level Security on every table. This blocks anonymous access
+    # via the Supabase PostgREST REST API (anon key) while leaving direct
+    # database connections (postgres superuser) and service-role API calls
+    # completely unaffected — both bypass RLS by design.
+    # ALTER TABLE ... ENABLE ROW LEVEL SECURITY is idempotent.
+    rls_tables = [
+        "companies",
+        "claims",
+        "claim_lifecycle",
+        "greenwashing_scores",
+        "reports",
+        "trace_log",
+        "discovery_state",
+    ]
+    for table in rls_tables:
+        await conn.execute(text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY"))
+
 
 async def teardown_db() -> None:
     """Dispose of the engine and its connection pool.

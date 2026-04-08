@@ -737,16 +737,20 @@ class VerificationAgent:
 
             overall_assessment = _build_assessment_summary(evidence, data_gaps)
 
+            # Derive sources_queried from evidence that arrived + data_gaps that
+            # mention a source name. This is honest: if EU ETS was skipped because
+            # the company has no registered installations, it won't appear here.
+            sources_with_evidence = {ev.source.value for ev in evidence}
+            sources_with_gaps = {gap.split(":")[0].strip() for gap in data_gaps}
+            sources_queried = sorted(sources_with_evidence | sources_with_gaps)
+
             result = VerificationResult(
                 claim_id=input.claim.id,
                 trace_id=input.claim.trace_id,
                 evidence=evidence,
                 overall_assessment=overall_assessment,
                 data_gaps=data_gaps,
-                sources_queried=[
-                    "EU_ETS", "CDP", "SBTI", "EPRTR", "INFLUENCE_MAP",
-                    "ENFORCEMENT", "CA100", "FOSSIL_FINANCE", "COAL_EXIT", "EUR_LEX",
-                ],
+                sources_queried=sources_queried,
             )
 
         completed_at = datetime.now(UTC)
