@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prasine Index — EU Corporate Greenwashing Monitor</title>
+  <meta name="description" content="Every green claim made by EU-listed companies, verified against real emissions data and regulatory records, with a full evidence chain citable in court." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #09090b;
+      --surface:    #111113;
+      --card:       #18181b;
+      --border:     #27272a;
+      --border-2:   #3f3f46;
+      --text:       #fafafa;
+      --muted:      #a1a1aa;
+      --faint:      #52525b;
+      --green:      #16a34a;
+      --green-dim:  #14532d;
+      --green-text: #4ade80;
+      --red:        #dc2626;
+      --red-dim:    #450a0a;
+      --red-text:   #fca5a5;
+      --amber:      #d97706;
+      --amber-dim:  #431407;
+      --amber-text: #fcd34d;
+      --blue-text:  #93c5fd;
+      --radius:     8px;
+      --radius-lg:  12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--green-text); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 80px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,9,11,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    nav .inner {
+      max-width: 900px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .logo span { color: var(--green-text); }
+    nav a.gh-link {
+      display: flex; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 14px; font-weight: 500;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 6px 14px; transition: color 0.15s, border-color 0.15s;
+    }
+    nav a.gh-link:hover { color: var(--text); border-color: var(--border-2); text-decoration: none; }
+
+    /* ── Hero ── */
+    #hero { padding: 100px 0 80px; text-align: center; }
+    .eyebrow {
+      display: inline-block;
+      background: var(--green-dim); color: var(--green-text);
+      font-size: 13px; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 4px 12px;
+      border-radius: 999px; border: 1px solid var(--green);
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.25rem);
+      font-weight: 800; letter-spacing: -0.04em; line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    .hero-sub {
+      font-size: 1.125rem; color: var(--muted); max-width: 600px;
+      margin: 0 auto 40px; line-height: 1.7;
+    }
+    .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: var(--radius);
+      font-size: 15px; font-weight: 600;
+      transition: opacity 0.15s, transform 0.1s; cursor: pointer;
+      border: none;
+    }
+    .btn:hover { opacity: 0.88; text-decoration: none; transform: translateY(-1px); }
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border-2);
+    }
+    .btn-secondary:hover { border-color: var(--muted); }
+
+    /* ── Stats strip ── */
+    .stats {
+      display: flex; gap: 0; margin-top: 64px;
+      border: 1px solid var(--border); border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .stat {
+      flex: 1; padding: 24px 20px; text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat:last-child { border-right: none; }
+    .stat-value {
+      font-size: 1.875rem; font-weight: 800; color: var(--text);
+      letter-spacing: -0.03em; line-height: 1;
+    }
+    .stat-value.green { color: var(--green-text); }
+    .stat-value.red   { color: var(--red-text); }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+    /* ── Pipeline ── */
+    #pipeline { }
+    .section-label {
+      font-size: 13px; font-weight: 600; color: var(--green-text);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+    }
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700; letter-spacing: -0.03em; margin-bottom: 16px;
+    }
+    .section-desc { color: var(--muted); max-width: 560px; margin-bottom: 48px; }
+
+    .pipeline-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .step {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 20px;
+      transition: border-color 0.15s;
+    }
+    .step:hover { border-color: var(--border-2); }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .step-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .step-tag {
+      display: inline-block; margin-top: 10px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .tag-langgraph { background: #1e3a5f; color: #93c5fd; }
+    .tag-sdk       { background: #1c2a1c; color: #86efac; }
+    .tag-pg        { background: #1e1b4b; color: #c4b5fd; }
+
+    .verification-note {
+      margin-top: 24px; padding: 16px 20px;
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: var(--radius); font-size: 14px; color: var(--muted);
+    }
+    .verification-note strong { color: var(--text); }
+
+    /* ── Verdict card ── */
+    #example { }
+    .verdict-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .verdict-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+    .company-info { }
+    .company-name { font-size: 18px; font-weight: 700; }
+    .company-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .verdict-badge {
+      padding: 6px 16px; border-radius: 999px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .verdict-confirmed { background: var(--red-dim); color: var(--red-text); border: 1px solid var(--red); }
+    .verdict-greenwashing { background: #431407; color: #fdba74; border: 1px solid #c2410c; }
+    .verdict-misleading { background: var(--amber-dim); color: var(--amber-text); border: 1px solid var(--amber); }
+    .verdict-substantiated { background: var(--green-dim); color: var(--green-text); border: 1px solid var(--green); }
+
+    .verdict-body { padding: 24px; }
+    .claim-block {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px;
+      font-size: 15px; font-style: italic; color: var(--text);
+      margin-bottom: 24px; line-height: 1.6;
+    }
+    .claim-source { font-size: 12px; color: var(--faint); margin-top: 8px; font-style: normal; }
+
+    .score-section { margin-bottom: 24px; }
+    .score-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .score-label { font-size: 13px; color: var(--muted); }
+    .score-number { font-size: 28px; font-weight: 800; color: var(--red-text); letter-spacing: -0.03em; }
+    .score-bar-track {
+      height: 6px; background: var(--border); border-radius: 999px; overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%; border-radius: 999px;
+      background: linear-gradient(90deg, var(--amber) 0%, var(--red) 60%);
+      transition: width 1s ease;
+    }
+    .score-legend {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--faint); margin-top: 6px;
+    }
+
+    .evidence-list { display: flex; flex-direction: column; gap: 10px; }
+    .evidence-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 12px; align-items: start;
+    }
+    .ev-icon {
+      width: 32px; height: 32px; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .ev-icon.ruling  { background: var(--red-dim); }
+    .ev-icon.ets     { background: #172554; }
+    .ev-icon.lobby   { background: var(--amber-dim); }
+    .ev-icon.absent  { background: #1c1c1e; }
+    .ev-body { min-width: 0; }
+    .ev-source { font-size: 13px; font-weight: 600; color: var(--text); }
+    .ev-detail { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.4; }
+    .ev-verdict {
+      font-size: 12px; font-weight: 600; white-space: nowrap;
+      padding: 3px 8px; border-radius: 4px; flex-shrink: 0;
+    }
+    .ev-contra { background: var(--red-dim); color: var(--red-text); }
+    .ev-support { background: var(--green-dim); color: var(--green-text); }
+    .ev-neutral { background: #1c1c1e; color: var(--faint); }
+
+    /* ── Data sources ── */
+    #sources { }
+    .sources-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .source-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 18px;
+    }
+    .source-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+    .source-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .source-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 500; margin-top: 10px;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot.active { background: var(--green-text); }
+    .dot.partial { background: var(--amber-text); }
+
+    /* ── Tech ── */
+    #tech { }
+    .tech-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .tech-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .tech-icon {
+      width: 36px; height: 36px; border-radius: var(--radius);
+      background: var(--surface); border: 1px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .tech-name { font-size: 14px; font-weight: 600; }
+    .tech-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0; color: var(--faint); font-size: 14px;
+    }
+    footer .inner {
+      max-width: 900px; margin: 0 auto; padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer a { color: var(--faint); }
+    footer a:hover { color: var(--muted); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .stats { flex-direction: column; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat:last-child { border-bottom: none; }
+      .verdict-header { flex-direction: column; align-items: flex-start; }
+      .evidence-item { grid-template-columns: auto 1fr; }
+      .ev-verdict { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="inner">
+    <div class="logo"><span>Prasine</span> Index</div>
+    <a href="https://github.com/MartinBlomqvistDev/prasine-index" class="gh-link" target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.341-3.369-1.341-.454-1.154-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section id="hero">
+  <div class="container">
+    <div class="eyebrow">Open Source · EU Open Data · Live Pipeline</div>
+    <h1>Every green claim.<br>Verified against reality.</h1>
+    <p class="hero-sub">
+      Prasine Index is an AI pipeline that monitors EU corporate sustainability claims,
+      cross-references them against ten EU open data sources, and publishes a scored
+      evidence chain citable by journalists, NGOs, and courts.
+    </p>
+    <div class="cta-group">
+      <a href="https://github.com/MartinBlomqvistDev/prasine-index" class="btn btn-primary" target="_blank" rel="noopener">
+        View the code
+      </a>
+      <a href="#example" class="btn btn-secondary">
+        See a real verdict ↓
+      </a>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">10</div>
+        <div class="stat-label">Parallel data sources</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value green">7</div>
+        <div class="stat-label">Agent pipeline stages</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">20</div>
+        <div class="stat-label">Golden eval cases</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value red">100%</div>
+        <div class="stat-label">Tier-1 eval accuracy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pipeline ── -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-label">Architecture</div>
+    <h2>Seven agents. One evidence chain.</h2>
+    <p class="section-desc">
+      Each agent has a single responsibility. Data flows through typed Pydantic models
+      at every boundary — no raw strings, no untyped dicts between steps.
+    </p>
+
+    <div class="pipeline-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-name">Discovery Agent</div>
+        <div class="step-desc">Monitors EU company IR pages, press releases, and CSRD reports for new content via SHA-256 change detection.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-name">Extraction Agent</div>
+        <div class="step-desc">Extracts every green claim verbatim with forced tool use. Returns structured <code>List[Claim]</code>.</div>
+        <span class="step-tag tag-sdk">Raw Anthropic SDK</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-name">Context Agent</div>
+        <div class="step-desc">Queries PostgreSQL for historical claims, aggregate scores, and semantically similar prior claims via pgvector.</div>
+        <span class="step-tag tag-pg">PostgreSQL + pgvector</span>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-name">Verification Agent</div>
+        <div class="step-desc">Queries ten EU open data sources in parallel. Partial failures are tolerated — if one source is down, the pipeline continues with what was retrieved.</div>
+        <span class="step-tag tag-langgraph">LangGraph</span>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-name">Lobbying Agent</div>
+        <div class="step-desc">Cross-references the company against the EU Transparency Register. A company lobbying against climate legislation while claiming green leadership is flagged explicitly.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-name">Judge Agent</div>
+        <div class="step-desc">LLM-as-judge. Produces a calibrated 0–100 score with per-dimension breakdown and full chain-of-thought reasoning preserved verbatim for audit.</div>
+        <span class="step-tag tag-sdk">Raw Anthropic SDK</span>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-name">Report Agent</div>
+        <div class="step-desc">Generates a publication-ready Markdown report. Every factual assertion is cited. Every data gap is disclosed.</div>
+        <span class="step-tag tag-sdk">Raw Anthropic SDK</span>
+      </div>
+    </div>
+
+    <div class="verification-note">
+      <strong>Why LangGraph only at step 4?</strong>
+      The Verification Agent queries ten independent data sources concurrently and must
+      handle partial failures gracefully — exactly the fan-out / partial-state-merge problem
+      LangGraph's <code>StateGraph</code> with <code>operator.add</code> reducers solves.
+      The other six agents are single-step operations where raw SDK gives better
+      prompt control and cleaner code. This is <em>when</em> to use a framework, not just
+      <em>that</em> frameworks exist.
+    </div>
+  </div>
+</section>
+
+<!-- ── Example verdict ── -->
+<section id="example">
+  <div class="container">
+    <div class="section-label">Real Output</div>
+    <h2>A real pipeline verdict.</h2>
+    <p class="section-desc">
+      This is actual pipeline output for Ryanair's "Europe's greenest airline" claim —
+      the same claim the UK ASA ruled misleading in 2022.
+    </p>
+
+    <div class="verdict-card">
+      <div class="verdict-header">
+        <div class="company-info">
+          <div class="company-name">Ryanair Holdings plc</div>
+          <div class="company-meta">IE · Aviation · CSRD obligated</div>
+        </div>
+        <span class="verdict-badge verdict-confirmed">Confirmed Greenwashing</span>
+      </div>
+
+      <div class="verdict-body">
+        <div class="claim-block">
+          "Ryanair is Europe's greenest airline."
+          <div class="claim-source">Source: ryanair.com/gb/en/plan-trip/environment · Published 2020</div>
+        </div>
+
+        <div class="score-section">
+          <div class="score-row">
+            <span class="score-label">Greenwashing score</span>
+            <span class="score-number">82 <span style="font-size:16px;font-weight:500;color:var(--muted)">/100</span></span>
+          </div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width: 82%"></div>
+          </div>
+          <div class="score-legend">
+            <span>Substantiated</span>
+            <span>Insufficient evidence</span>
+            <span>Misleading</span>
+            <span>Greenwashing</span>
+            <span style="color:var(--red-text);font-weight:600">Confirmed ▲</span>
+          </div>
+        </div>
+
+        <div class="evidence-list">
+          <div class="evidence-item">
+            <div class="ev-icon ruling">⚖️</div>
+            <div class="ev-body">
+              <div class="ev-source">Enforcement — UK ASA Ruling A21-1195448</div>
+              <div class="ev-detail">ASA banned this claim in March 2022. Ruled misleading and unsubstantiated. Ryanair could not demonstrate it was Europe's "greenest" airline.</div>
+            </div>
+            <span class="ev-verdict ev-contra">Contradicts · 0.90</span>
+          </div>
+
+          <div class="evidence-item">
+            <div class="ev-icon ets">📊</div>
+            <div class="ev-body">
+              <div class="ev-source">EU ETS Verified Emissions — 3 installations</div>
+              <div class="ev-detail">9,821,432 tCO₂e verified in 2023. Trend: +128% from 2005 baseline. Among the highest absolute emissions of any European airline operator.</div>
+            </div>
+            <span class="ev-verdict ev-contra">Contradicts · 0.75</span>
+          </div>
+
+          <div class="evidence-item">
+            <div class="ev-icon lobby">🏛</div>
+            <div class="ev-body">
+              <div class="ev-source">InfluenceMap — Corporate Climate Lobbying</div>
+              <div class="ev-detail">Score: D+ (Obstructive). Ryanair has opposed aviation fuel taxation and lobbied against EU ETS scope expansion for aviation.</div>
+            </div>
+            <span class="ev-verdict ev-contra">Contradicts · 0.85</span>
+          </div>
+
+          <div class="evidence-item">
+            <div class="ev-icon absent">○</div>
+            <div class="ev-body">
+              <div class="ev-source">SBTi — Science Based Targets</div>
+              <div class="ev-detail">No record found. Ryanair has not committed to or validated science-based targets as of the most recent publication.</div>
+            </div>
+            <span class="ev-verdict ev-neutral">No data</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin-top:16px;font-size:13px;color:var(--faint);">
+      Full report →
+      <a href="https://github.com/MartinBlomqvistDev/prasine-index/blob/main/examples/ryanair_greenest_airline.md">
+        examples/ryanair_greenest_airline.md
+      </a>
+    </p>
+  </div>
+</section>
+
+<!-- ── Data sources ── -->
+<section id="sources">
+  <div class="container">
+    <div class="section-label">Data Sources</div>
+    <h2>Ten EU open data sources.</h2>
+    <p class="section-desc">
+      All EU open data. No proprietary APIs. Every source is independently authoritative.
+    </p>
+    <div class="sources-grid">
+      <div class="source-card">
+        <div class="source-name">EU ETS / EUTL</div>
+        <div class="source-desc">Verified annual CO₂ emissions per installation, 2005–present. Third-party verified under EU Regulation 601/2012.</div>
+        <div class="source-status"><span class="dot active"></span> Active — daily snapshot</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">SBTi</div>
+        <div class="source-desc">Science-based targets — validated, committed, and removed. A removed target is a CONFIRMED_GREENWASHING signal at 0.95 confidence.</div>
+        <div class="source-status"><span class="dot active"></span> Active — quarterly</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">InfluenceMap</div>
+        <div class="source-desc">Corporate climate policy engagement scores A+ to F. A D/E/F company claiming climate leadership is textbook greenwashing.</div>
+        <div class="source-status"><span class="dot active"></span> Active — bulk CSV</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Enforcement Rulings</div>
+        <div class="source-desc">ASA, ACM, AGCM, CMA, EC rulings and court judgments. A prior ruling is the strongest possible evidence — an authority has already decided.</div>
+        <div class="source-status"><span class="dot active"></span> Active — curated static</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">CA100+</div>
+        <div class="source-desc">Net-zero benchmark from 700+ investors ($68tn AUM) for the 170 largest emitters. "Not Aligned" contradicts net-zero claims.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">E-PRTR</div>
+        <div class="source-desc">EEA-verified non-CO₂ GHG releases (CH₄, N₂O, HFCs) per facility — emissions not covered by EU ETS.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Banking on Climate Chaos</div>
+        <div class="source-desc">Fossil fuel financing by the 60 largest banks, 2016–present. Banks claiming net zero while financing hundreds of billions in fossil expansion.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Global Coal Exit List</div>
+        <div class="source-desc">~1,000 companies active in the coal value chain. Expanding coal capacity while claiming clean energy transition.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">CDP</div>
+        <div class="source-desc">Self-reported emissions, targets, and governance. Treated as supporting evidence at lower confidence than verified sources.</div>
+        <div class="source-status"><span class="dot partial"></span> Partial — free account</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">EUR-Lex</div>
+        <div class="source-desc">Green Claims Directive, CSRD ESRS E1, and EU ETS legislation as the regulatory baseline for every verdict.</div>
+        <div class="source-status"><span class="dot active"></span> Active — static standards</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Tech ── -->
+<section id="tech">
+  <div class="container">
+    <div class="section-label">Stack</div>
+    <h2>Production-grade from day one.</h2>
+    <p class="section-desc">
+      Structured logging with trace IDs. Typed exceptions with retry logic.
+      A 20-case golden eval dataset. LLMOps, not just building.
+    </p>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-icon">🐍</div>
+        <div><div class="tech-name">Python 3.12</div><div class="tech-role">Async-first throughout</div></div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔗</div>
+        <div><div class="tech-name">LangGraph</div><div class="tech-role">Parallel verification fan-out</div></div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🤖</div>
+        <div><div class="tech-name">Anthropic SDK</div><div class="tech-role">Extraction, Judge, Report</div></div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">⚡</div>
+        <div><div class="tech-name">FastAPI</div><div class="tech-role">Async REST API</div></div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🗄</div>
+        <div><div class="tech-name">PostgreSQL + pgvector</div><div class="tech-role">Relational + vector search</div></div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">✅</div>
+        <div><div class="tech-name">Pydantic v2</div><div class="tech-role">All agent contracts</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="inner">
+    <span><span style="color:var(--green-text)">Prasine</span> Index — EU open data, open source</span>
+    <span>
+      <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
+      &nbsp;·&nbsp;
+      MIT Licence
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
