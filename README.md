@@ -1,5 +1,7 @@
 # Prasine Index
 
+[![CI](https://github.com/MartinBlomqvistDev/prasine-index/actions/workflows/ci.yml/badge.svg)](https://github.com/MartinBlomqvistDev/prasine-index/actions/workflows/ci.yml)
+
 **Automated EU corporate greenwashing monitoring and scoring.**
 
 Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a full evidence chain citable by journalists, NGOs, and in court.
@@ -491,6 +493,41 @@ The `/trace/{trace_id}` endpoint returns the structured execution record for any
 Greenwashing scores are calibrated against the EU Green Claims Directive, the Corporate Sustainability Reporting Directive (CSRD), and the EU Taxonomy Regulation. The scoring methodology and data source descriptions are published at `/docs`.
 
 Prasine Index does not give legal advice. Published reports are evidence compilations intended to support journalistic investigation and civil society accountability work.
+
+---
+
+## Example Output
+
+Below is an abridged real pipeline output for Ryanair's "Europe's greenest airline" claim.
+
+**Claim:** *"Ryanair is Europe's greenest airline."*  
+**Verdict:** `CONFIRMED_GREENWASHING` — Score: **82 / 100**
+
+```text
+REGULATORY ENFORCEMENT ACTIONS
+  Ruling body: ENFORCEMENT | Year: 2022 | Confidence: 0.90
+  Supports claim: False
+  UK Advertising Standards Authority (ASA) banned Ryanair advertisements in 2022
+  for claiming to be Europe's greenest airline without substantiation. The ASA ruled
+  the claim misleading and prohibited its use.
+
+EU ETS VERIFIED EMISSIONS (2005–2023)
+  Trend: UP 41% from 2005 to 2023
+  Most recent: 9,821,432 tCO2e (2023)
+  Supports claim: False (confidence: 0.75)
+  Ryanair's verified CO2 emissions increased 41% over the monitoring period.
+  Among the highest per-passenger emissions of any European airline.
+
+INFLUENCE MAP
+  Score: D+ (obstructive climate lobbying)
+  Supports claim: False (confidence: 0.85)
+  InfluenceMap D+ band: Ryanair has opposed fuel taxation and lobbied against
+  aviation inclusion in the EU ETS.
+```
+
+**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. InfluenceMap D+ confirms that the green positioning is contradicted by policy behaviour. No evidence supports the claim. Score: 82 — CONFIRMED_GREENWASHING."*
+
+Full example reports are in [examples/](examples/).
 
 ---
 

@@ -27,7 +27,7 @@ from core.retry import (
 )
 from models.claim import Claim
 from models.company import CompanyContext
-from models.evidence import VerificationResult
+from models.evidence import EvidenceType, VerificationResult
 from models.lobbying import LobbyingRecord
 from models.score import GreenwashingScore, ScoreCategory, ScoreVerdict
 from models.trace import AgentName, AgentOutcome, AgentTrace
@@ -535,7 +535,22 @@ def _build_judge_prompt(input: JudgeInput) -> str:
         "INDIVIDUAL EVIDENCE RECORDS:",
     ]
 
-    for i, ev in enumerate(vr.evidence, 1):
+    enforcement_records = [e for e in vr.evidence if e.evidence_type == EvidenceType.ENFORCEMENT_RULING]
+    other_records = [e for e in vr.evidence if e.evidence_type != EvidenceType.ENFORCEMENT_RULING]
+
+    if enforcement_records:
+        sections += [
+            "",
+            "REGULATORY ENFORCEMENT ACTIONS (highest-weight evidence — assess first):",
+        ]
+        for ev in enforcement_records:
+            sections += [
+                f"  Ruling body: {ev.source.value} | Year: {ev.data_year or 'N/A'} | Confidence: {ev.confidence:.2f}",
+                f"  Supports claim: {ev.supports_claim}",
+                f"  {ev.summary}",
+            ]
+
+    for i, ev in enumerate(other_records, 1):
         sections += [
             f"[{i}] Source: {ev.source.value} | Type: {ev.evidence_type.value} | "
             f"Year: {ev.data_year or 'N/A'} | Confidence: {ev.confidence:.2f}",
