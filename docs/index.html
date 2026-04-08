@@ -311,6 +311,62 @@
     footer a { color: var(--faint); }
     footer a:hover { color: var(--muted); }
 
+    /* ── More verdicts grid ── */
+    .verdicts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 16px;
+    }
+    .mini-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .mini-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .mini-company { font-size: 15px; font-weight: 700; }
+    .mini-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .mini-body { padding: 16px 20px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .mini-claim {
+      font-size: 13px; font-style: italic; color: var(--muted);
+      line-height: 1.55; padding: 10px 14px;
+      background: var(--surface); border-radius: var(--radius);
+      border-left: 2px solid var(--border-2);
+    }
+    .mini-score-row {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .mini-score-num {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.03em; min-width: 44px;
+    }
+    .mini-score-wrap { flex: 1; }
+    .mini-bar-track {
+      height: 5px; background: var(--border); border-radius: 999px; overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .mini-bar-fill { height: 100%; border-radius: 999px; }
+    .bar-red    { background: linear-gradient(90deg, var(--amber), var(--red)); }
+    .bar-orange { background: linear-gradient(90deg, #f59e0b, #ea580c); }
+    .bar-amber  { background: var(--amber); }
+    .bar-green  { background: var(--green); }
+    .mini-verdict-label { font-size: 11px; color: var(--faint); }
+    .mini-evidence { display: flex; flex-direction: column; gap: 6px; }
+    .mini-ev {
+      display: flex; align-items: baseline; gap: 8px;
+      font-size: 13px; color: var(--muted); line-height: 1.4;
+    }
+    .mini-ev-dot {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .dot-red    { background: var(--red-text); }
+    .dot-amber  { background: var(--amber-text); }
+    .dot-green  { background: var(--green-text); }
+    .dot-gray   { background: var(--faint); }
+    .mini-ev strong { color: var(--text); font-weight: 600; }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .stats { flex-direction: column; }
@@ -528,6 +584,174 @@
         examples/ryanair_greenest_airline.md
       </a>
     </p>
+  </div>
+</section>
+
+<!-- ── More verdicts ── -->
+<section id="more-verdicts">
+  <div class="container">
+    <div class="section-label">More Assessments</div>
+    <h2>Across sectors and claim types.</h2>
+    <p class="section-desc">
+      Oil majors, banks, miners, and genuine transition cases — different sectors,
+      different evidence profiles, different verdicts.
+    </p>
+
+    <div class="verdicts-grid">
+
+      <!-- Shell -->
+      <div class="mini-card">
+        <div class="mini-header">
+          <div>
+            <div class="mini-company">Shell plc</div>
+            <div class="mini-meta">NL · Oil &amp; Gas · CSRD obligated</div>
+          </div>
+          <span class="verdict-badge verdict-greenwashing">Greenwashing</span>
+        </div>
+        <div class="mini-body">
+          <div class="mini-claim">
+            "Shell aims to be a net-zero emissions energy business by 2050, in step with society."
+          </div>
+          <div class="mini-score-row">
+            <div class="mini-score-num" style="color:var(--red-text)">78</div>
+            <div class="mini-score-wrap">
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-red" style="width:78%"></div></div>
+              <div class="mini-verdict-label">GREENWASHING · 61–80</div>
+            </div>
+          </div>
+          <div class="mini-evidence">
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>Dutch courts, 2021</strong> — Friends of the Earth Netherlands won a ruling requiring Shell to cut absolute emissions 45% by 2030. Shell is appealing while continuing fossil fuel expansion.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>EU ETS</strong> — 30+ installations. Absolute emissions trajectory inconsistent with net zero by 2050 on current capital allocation.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>CA100+</strong> — Not Aligned on net-zero ambition and capex alignment per 700+ investor consensus ($68tn AUM).</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-amber"></span>
+              <span><strong>InfluenceMap C–</strong> — Partially obstructive climate lobbying via industry associations.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Glencore -->
+      <div class="mini-card">
+        <div class="mini-header">
+          <div>
+            <div class="mini-company">Glencore plc</div>
+            <div class="mini-meta">GB · Mining · CSRD obligated</div>
+          </div>
+          <span class="verdict-badge verdict-confirmed">Confirmed Greenwashing</span>
+        </div>
+        <div class="mini-body">
+          <div class="mini-claim">
+            "Glencore is committed to achieving net zero total emissions by 2050."
+          </div>
+          <div class="mini-score-row">
+            <div class="mini-score-num" style="color:var(--red-text)">82</div>
+            <div class="mini-score-wrap">
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-red" style="width:82%"></div></div>
+              <div class="mini-verdict-label">CONFIRMED GREENWASHING · 81–100</div>
+            </div>
+          </div>
+          <div class="mini-evidence">
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>UK CMA investigation</strong> — Competition and Markets Authority opened a greenwashing investigation into Glencore's climate claims.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>Global Coal Exit List</strong> — One of the world's largest coal producers. Capital allocation shows continued coal mine acquisitions post-net-zero pledge.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>EU ETS</strong> — Large absolute emissions from European mining operations. No trajectory consistent with 2050 net zero.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HSBC -->
+      <div class="mini-card">
+        <div class="mini-header">
+          <div>
+            <div class="mini-company">HSBC Holdings plc</div>
+            <div class="mini-meta">GB · Banking · CSRD obligated</div>
+          </div>
+          <span class="verdict-badge verdict-greenwashing">Greenwashing</span>
+        </div>
+        <div class="mini-body">
+          <div class="mini-claim">
+            "HSBC will align its portfolio of financed emissions to net zero by 2050 or sooner."
+          </div>
+          <div class="mini-score-row">
+            <div class="mini-score-num" style="color:var(--red-text)">71</div>
+            <div class="mini-score-wrap">
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:71%"></div></div>
+              <div class="mini-verdict-label">GREENWASHING · 61–80</div>
+            </div>
+          </div>
+          <div class="mini-evidence">
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>UK ASA ruling, 2022</strong> — Two HSBC newspaper advertisements banned for misleading green claims. The same year HSBC made this net-zero commitment.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>Banking on Climate Chaos</strong> — $87 billion in fossil fuel financing 2016–2022, making HSBC one of the largest financiers of fossil fuel expansion globally.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-amber"></span>
+              <span><strong>InfluenceMap C–</strong> — Partially obstructive on climate finance regulation through banking industry associations.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ørsted -->
+      <div class="mini-card">
+        <div class="mini-header">
+          <div>
+            <div class="mini-company">Ørsted A/S</div>
+            <div class="mini-meta">DK · Energy · CSRD obligated</div>
+          </div>
+          <span class="verdict-badge verdict-greenwashing">Greenwashing</span>
+        </div>
+        <div class="mini-body">
+          <div class="mini-claim">
+            "Ørsted has reduced its carbon emissions by 87% since 2006."
+          </div>
+          <div class="mini-score-row">
+            <div class="mini-score-num" style="color:var(--amber-text)">62</div>
+            <div class="mini-score-wrap">
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:62%"></div></div>
+              <div class="mini-verdict-label">GREENWASHING · 61–80</div>
+            </div>
+          </div>
+          <div class="mini-evidence">
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-green"></span>
+              <span><strong>EU ETS — majority supporting</strong> — 10 of 14 installations show the dramatic absolute reduction from coal to offshore wind. The 87% figure is consistent with verified data.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-amber"></span>
+              <span><strong>EU ETS — remaining gas peakers</strong> — 4 installations (biomass and gas backup) still show active emissions, creating mixed signal in the absolute data.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-gray"></span>
+              <span><strong>Note:</strong> This is a genuine energy transition case. The GREENWASHING verdict reflects data coverage limits on remaining installations, not fabricated claims. The pipeline flags this as a known data gap.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
