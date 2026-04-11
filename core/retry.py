@@ -14,7 +14,7 @@ import functools
 import random
 import time
 from collections.abc import Callable, Coroutine
-from typing import Any, TypeVar
+from typing import Any, ClassVar, TypeVar
 
 import anthropic
 import httpx
@@ -43,6 +43,7 @@ T = TypeVar("T")
 # ---------------------------------------------------------------------------
 # Exception hierarchy
 # ---------------------------------------------------------------------------
+
 
 class PrasineError(Exception):
     """Base exception for all Prasine Index pipeline failures.
@@ -229,6 +230,7 @@ class RetryExhaustedError(PrasineError):
 # Retry configuration
 # ---------------------------------------------------------------------------
 
+
 class RetryConfig:
     """Immutable configuration for a retry policy.
 
@@ -252,9 +254,9 @@ class RetryConfig:
     """
 
     # Sensible defaults for LLM and external API calls
-    DEFAULT_LLM = None        # set as class var after definition
-    DEFAULT_HTTP = None       # set as class var after definition
-    DEFAULT_DB = None         # set as class var after definition
+    DEFAULT_LLM: ClassVar[RetryConfig | None] = None  # set after definition
+    DEFAULT_HTTP: ClassVar[RetryConfig | None] = None  # set after definition
+    DEFAULT_DB: ClassVar[RetryConfig | None] = None  # set after definition
 
     def __init__(
         self,
@@ -357,6 +359,7 @@ would hold up the pipeline unnecessarily.
 # Core retry primitive
 # ---------------------------------------------------------------------------
 
+
 def retry_async(
     config: RetryConfig | None = None,
     operation: str = "operation",
@@ -390,6 +393,7 @@ def retry_async(
             ...
     """
     effective_config = config or RetryConfig.DEFAULT_LLM
+    assert effective_config is not None, "RetryConfig.DEFAULT_LLM not initialised"
 
     def decorator(
         func: Callable[..., Coroutine[Any, Any, T]],
@@ -402,6 +406,7 @@ def retry_async(
         Returns:
             A wrapped async function that retries on transient failures.
         """
+
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
             last_exception: Exception | None = None
@@ -447,12 +452,14 @@ def retry_async(
             ) from last_exception
 
         return wrapper
+
     return decorator
 
 
 # ---------------------------------------------------------------------------
 # Agent error boundary
 # ---------------------------------------------------------------------------
+
 
 class agent_error_boundary:
     """Async context manager that provides a structured error boundary for agent steps.

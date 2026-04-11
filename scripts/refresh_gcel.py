@@ -33,14 +33,14 @@ _DEST = _DATA_DIR / "gcel_companies.csv"
 # URL updated each year (typically November, at COP).
 # If this 404s check: https://coalexit.org/ or https://www.urgewald.org/gcel
 _GCEL_CSV_URL = (
-    "https://coalexit.org/sites/default/files/download_public/"
-    "GCEL2023_PublicDownload_Nov2023.csv"
+    "https://coalexit.org/sites/default/files/download_public/GCEL2023_PublicDownload_Nov2023.csv"
 )
 
 
 def check_existing() -> None:
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _DEST.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1
@@ -55,7 +55,7 @@ def download_gcel_csv() -> None:
     """Attempt to download the GCEL CSV from coalexit.org."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Downloading Global Coal Exit List CSV...")
+    print("Downloading Global Coal Exit List CSV...")
     print(f"  URL: {_GCEL_CSV_URL}")
     print(f"  Destination: {_DEST}")
 

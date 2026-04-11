@@ -192,13 +192,9 @@ class AgentTrace(BaseModel):
                 ``duration_ms`` is provided without ``completed_at``.
         """
         if self.completed_at is not None and self.completed_at < self.started_at:
-            raise ValueError(
-                "completed_at cannot precede started_at."
-            )
+            raise ValueError("completed_at cannot precede started_at.")
         if self.duration_ms is not None and self.completed_at is None:
-            raise ValueError(
-                "duration_ms requires completed_at to be set."
-            )
+            raise ValueError("duration_ms requires completed_at to be set.")
         return self
 
     @model_validator(mode="after")
@@ -212,7 +208,11 @@ class AgentTrace(BaseModel):
             ValueError: If ``outcome`` is FAILURE but neither ``error_type``
                 nor ``error_message`` is provided.
         """
-        if self.outcome == AgentOutcome.FAILURE and self.error_type is None and self.error_message is None:
+        if (
+            self.outcome == AgentOutcome.FAILURE
+            and self.error_type is None
+            and self.error_message is None
+        ):
             raise ValueError(
                 "AgentTrace with outcome FAILURE must set at least one of "
                 "error_type or error_message."

@@ -19,7 +19,7 @@ Authorities included:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from core.logger import get_logger
 from models.claim import Claim
@@ -33,6 +33,7 @@ logger = get_logger(__name__)
 # ---------------------------------------------------------------------------
 # Internal data model
 # ---------------------------------------------------------------------------
+
 
 @dataclass(frozen=True, slots=True)
 class _Ruling:
@@ -66,12 +67,32 @@ class _Ruling:
 # Lookup table built at import time
 # ---------------------------------------------------------------------------
 
+
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy matching."""
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings", " a/s", " as", " ab"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+        " a/s",
+        " as",
+        " ab",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -115,7 +136,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057",
     ),
-
     # HSBC -------------------------------------------------------------------
     _Ruling(
         companies=("HSBC", "HSBC Holdings", "HSBC Holdings plc", "HSBC Bank", "HSBC UK"),
@@ -134,11 +154,16 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.asa.org.uk/rulings/hsbc-uk-bank-plc-g22-1183960.html",
     ),
-
     # Shell ------------------------------------------------------------------
     _Ruling(
-        companies=("Shell", "Shell plc", "Shell International", "Royal Dutch Shell",
-                   "Shell UK", "Shell Netherlands"),
+        companies=(
+            "Shell",
+            "Shell plc",
+            "Shell International",
+            "Royal Dutch Shell",
+            "Shell UK",
+            "Shell Netherlands",
+        ),
         authority="ASA",
         country="UK",
         year=2023,
@@ -169,7 +194,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.acm.nl/en/publications/acm-warns-companies-about-misleading-green-claims",
     ),
-
     # KLM / Air France-KLM --------------------------------------------------
     _Ruling(
         companies=("KLM", "KLM Royal Dutch Airlines", "Air France-KLM", "Air France KLM"),
@@ -218,11 +242,15 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057",
     ),
-
     # Lufthansa --------------------------------------------------------------
     _Ruling(
-        companies=("Lufthansa", "Deutsche Lufthansa", "Lufthansa Group",
-                   "Lufthansa AG", "Deutsche Lufthansa AG"),
+        companies=(
+            "Lufthansa",
+            "Deutsche Lufthansa",
+            "Lufthansa Group",
+            "Lufthansa AG",
+            "Deutsche Lufthansa AG",
+        ),
         authority="ASA",
         country="UK",
         year=2022,
@@ -252,7 +280,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057",
     ),
-
     # easyJet ---------------------------------------------------------------
     _Ruling(
         companies=("easyJet", "easyJet plc", "EasyJet"),
@@ -271,7 +298,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.gov.uk/government/news/airlines-face-scrutiny-over-green-claims",
     ),
-
     # Eni -------------------------------------------------------------------
     _Ruling(
         companies=("Eni", "Eni SpA", "Eni S.p.A.", "Eni spa"),
@@ -291,7 +317,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.agcm.it/dotcmsdoc/allegati-news/PS12469%20provvedimento.pdf",
     ),
-
     # ArcelorMittal ---------------------------------------------------------
     _Ruling(
         companies=("ArcelorMittal", "ArcelorMittal SE", "ArcelorMittal SA"),
@@ -310,7 +335,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.asa.org.uk/rulings/arcelormittal-sa-a23-1357781.html",
     ),
-
     # BP --------------------------------------------------------------------
     _Ruling(
         companies=("BP", "BP plc", "BP Global", "BP Group"),
@@ -329,7 +353,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.asa.org.uk/rulings/bp-plc-g19-1020800.html",
     ),
-
     # TotalEnergies ---------------------------------------------------------
     _Ruling(
         companies=("TotalEnergies", "TotalEnergies SE", "Total SE", "Total SA", "Total S.A."),
@@ -347,11 +370,15 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://www.acm.nl/en/publications/acm-warns-companies-about-misleading-green-claims",
     ),
-
     # Volkswagen ------------------------------------------------------------
     _Ruling(
-        companies=("Volkswagen", "VW", "Volkswagen AG", "Volkswagen Group",
-                   "Volkswagen Group of America"),
+        companies=(
+            "Volkswagen",
+            "VW",
+            "Volkswagen AG",
+            "Volkswagen Group",
+            "Volkswagen Group of America",
+        ),
         authority="MULTIPLE",
         country="EU",
         year=2016,
@@ -368,7 +395,6 @@ _RULINGS: list[_Ruling] = [
         ),
         source_url="https://ec.europa.eu/commission/presscorner/detail/en/STATEMENT_15_5654",
     ),
-
     # Glencore --------------------------------------------------------------
     _Ruling(
         companies=("Glencore", "Glencore plc", "Glencore International"),
@@ -425,6 +451,7 @@ _RULING_SUPPORTS: dict[str, bool | None] = {
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence]:
     """Return regulatory enforcement rulings against a company as evidence.

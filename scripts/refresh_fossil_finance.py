@@ -38,6 +38,7 @@ _BOCC_CSV_URL = (
 def check_existing() -> None:
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _DEST.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1
@@ -52,7 +53,7 @@ def download_bocc_csv() -> None:
     """Attempt to download the Banking on Climate Chaos CSV."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Downloading Banking on Climate Chaos data...")
+    print("Downloading Banking on Climate Chaos data...")
     print(f"  URL: {_BOCC_CSV_URL}")
     print(f"  Destination: {_DEST}")
 

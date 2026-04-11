@@ -82,6 +82,8 @@ data/*.xlsx
 data/*.xls
 data/*.pdf
 data/*.txt
+data/*.accdb
+data/eea_t_*/
 
 # ---------------------------------------------------------------------------
 # Database

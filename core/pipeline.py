@@ -527,7 +527,9 @@ class Pipeline:
                     {
                         "id": str(lifecycle.id),
                         "claim_id": str(lifecycle.claim_id),
-                        "from_status": lifecycle.from_status.value if lifecycle.from_status else None,
+                        "from_status": lifecycle.from_status.value
+                        if lifecycle.from_status
+                        else None,
                         "to_status": lifecycle.to_status.value,
                         "transitioned_at": lifecycle.transitioned_at,
                         "transitioned_by": lifecycle.transitioned_by,
@@ -547,6 +549,7 @@ class Pipeline:
 # ---------------------------------------------------------------------------
 # Parameter helpers
 # ---------------------------------------------------------------------------
+
 
 def _trace_to_params(trace: AgentTrace) -> dict[str, Any]:
     """Serialise an AgentTrace to a SQL parameter dict.

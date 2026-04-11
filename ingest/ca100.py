@@ -21,6 +21,7 @@ Refresh: python scripts/refresh_ca100.py
 
 from __future__ import annotations
 
+import contextlib
 import csv
 import os
 from pathlib import Path
@@ -98,27 +99,59 @@ _COL_YEAR = ("Year", "year", "Assessment Year", "Benchmark Year")
 # Assessment value normalisation
 # ---------------------------------------------------------------------------
 
-_ALIGNED_VALUES = frozenset({
-    "yes", "aligned", "met", "achieved", "1.5°c aligned", "paris aligned",
-    "net zero aligned", "on track",
-})
-_PARTIAL_VALUES = frozenset({
-    "partial", "partially met", "some elements", "below 2°c", "below 2c",
-    "moderate ambition", "limited",
-})
-_NOT_ALIGNED_VALUES = frozenset({
-    "no", "not aligned", "not met", "not set", "no target", "insufficient",
-    "far from aligned", "misaligned", "obstructive",
-})
+_ALIGNED_VALUES = frozenset(
+    {
+        "yes",
+        "aligned",
+        "met",
+        "achieved",
+        "1.5°c aligned",
+        "paris aligned",
+        "net zero aligned",
+        "on track",
+    }
+)
+_PARTIAL_VALUES = frozenset(
+    {
+        "partial",
+        "partially met",
+        "some elements",
+        "below 2°c",
+        "below 2c",
+        "moderate ambition",
+        "limited",
+    }
+)
+_NOT_ALIGNED_VALUES = frozenset(
+    {
+        "no",
+        "not aligned",
+        "not met",
+        "not set",
+        "no target",
+        "insufficient",
+        "far from aligned",
+        "misaligned",
+        "obstructive",
+    }
+)
 
 
 class _CA100Record:
     """Internal representation of one CA100+ benchmark result."""
 
     __slots__ = (
-        "company", "sector", "country", "isin", "ticker",
-        "nz_ambition", "short_term_target", "long_term_target",
-        "capex_alignment", "climate_lobbying", "year",
+        "capex_alignment",
+        "climate_lobbying",
+        "company",
+        "country",
+        "isin",
+        "long_term_target",
+        "nz_ambition",
+        "sector",
+        "short_term_target",
+        "ticker",
+        "year",
     )
 
     def __init__(
@@ -195,9 +228,28 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 
 def _normalise_name(name: str) -> str:
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings", " a/s", " as", " ab"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+        " a/s",
+        " as",
+        " ab",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -218,8 +270,7 @@ def _get_cache() -> tuple[
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            "CA100+ data file not found — run scripts/refresh_ca100.py. "
-            f"Expected at: {_CA100_CSV}",
+            f"CA100+ data file not found — run scripts/refresh_ca100.py. Expected at: {_CA100_CSV}",
             extra={"operation": "ca100_cache_missing"},
         )
         return _cache_by_isin, _cache_by_name, _cache_by_ticker
@@ -237,10 +288,8 @@ def _get_cache() -> tuple[
 
             year_str = _pick(row, _COL_YEAR)
             year: int | None = None
-            try:
+            with contextlib.suppress(ValueError):
                 year = int(year_str) if year_str else None
-            except ValueError:
-                pass
 
             record = _CA100Record(
                 company=company,
@@ -386,7 +435,6 @@ def _assess_record(record: _CA100Record) -> tuple[bool | None, float]:
 def _build_summary(company_name: str, record: _CA100Record) -> str:
     year_str = f" ({record.year} benchmark)" if record.year else ""
     nz_class = record.nz_ambition_class
-    capex_class = record.capex_class
 
     if nz_class == "NOT_ALIGNED":
         return (

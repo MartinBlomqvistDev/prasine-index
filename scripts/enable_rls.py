@@ -38,9 +38,7 @@ _TABLES = [
 async def enable_rls() -> None:
     async with get_session() as session:
         for table in _TABLES:
-            await session.execute(
-                text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY")
-            )
+            await session.execute(text(f"ALTER TABLE {table} ENABLE ROW LEVEL SECURITY"))
             print(f"  RLS enabled: {table}")
     print(f"\nDone — RLS enabled on {len(_TABLES)} tables.")
     print(

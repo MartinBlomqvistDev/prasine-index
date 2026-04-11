@@ -100,8 +100,12 @@ class GreenwashingScore(BaseModel):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     claim_id: uuid.UUID = Field(..., description="Foreign key to the judged Claim.")
-    company_id: uuid.UUID = Field(..., description="Denormalised company reference for portfolio-level queries.")
-    trace_id: uuid.UUID = Field(..., description="Pipeline trace identifier, inherited from the Claim.")
+    company_id: uuid.UUID = Field(
+        ..., description="Denormalised company reference for portfolio-level queries."
+    )
+    trace_id: uuid.UUID = Field(
+        ..., description="Pipeline trace identifier, inherited from the Claim."
+    )
     score: float = Field(
         ...,
         ge=0.0,

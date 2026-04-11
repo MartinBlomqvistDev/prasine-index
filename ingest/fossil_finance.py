@@ -79,8 +79,15 @@ _COL_YEAR_RANGE = ("Period", "year_range", "Years Covered", "Data Years")
 class _FossilFinanceRecord:
     """Internal representation of one bank's fossil fuel financing record."""
 
-    __slots__ = ("bank", "country", "total_bn", "coal_bn", "oil_gas_bn",
-                 "nz_pledge", "year_range")
+    __slots__ = (
+        "bank",
+        "coal_bn",
+        "country",
+        "nz_pledge",
+        "oil_gas_bn",
+        "total_bn",
+        "year_range",
+    )
 
     def __init__(
         self,
@@ -132,9 +139,26 @@ def _parse_float(value: str) -> float | None:
 
 def _normalise_name(name: str) -> str:
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " nv", " bv",
-                   " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " bank", " financial group", " holdings", " holding"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " bank",
+        " financial group",
+        " holdings",
+        " holding",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -226,8 +250,7 @@ async def fetch_fossil_finance_data(claim: Claim, company: object) -> list[Evide
     summary = _build_summary(name, record)
 
     logger.info(
-        f"Fossil finance: {name!r} — total={record.total_bn}bn, "
-        f"nz_pledge={record.has_nz_pledge}",
+        f"Fossil finance: {name!r} — total={record.total_bn}bn, nz_pledge={record.has_nz_pledge}",
         extra={
             "operation": "fossil_finance_found",
             "company": name,
@@ -261,7 +284,7 @@ async def fetch_fossil_finance_data(claim: Claim, company: object) -> list[Evide
 
 
 # Thresholds (USD billion) for classifying financing magnitude
-_HIGH_FINANCING_THRESHOLD = 100.0   # >$100bn total = very high
+_HIGH_FINANCING_THRESHOLD = 100.0  # >$100bn total = very high
 _MODERATE_FINANCING_THRESHOLD = 30.0  # >$30bn total = moderate
 
 
@@ -293,11 +316,7 @@ def _build_summary(company_name: str, record: _FossilFinanceRecord) -> str:
     coal_str = f"${record.coal_bn:.1f}bn coal" if record.coal_bn else ""
     og_str = f"${record.oil_gas_bn:.1f}bn oil & gas" if record.oil_gas_bn else ""
     breakdown = ", ".join(x for x in [coal_str, og_str] if x)
-    nz_str = (
-        "Despite having a net-zero pledge, this bank"
-        if record.has_nz_pledge
-        else "This bank"
-    )
+    nz_str = "Despite having a net-zero pledge, this bank" if record.has_nz_pledge else "This bank"
 
     return (
         f"Banking on Climate Chaos: {company_name} provided {total_str} in fossil fuel "

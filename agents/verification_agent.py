@@ -15,7 +15,7 @@ from __future__ import annotations
 import operator
 import time
 from datetime import UTC, datetime
-from typing import Annotated, Any, TypedDict
+from typing import Annotated, Any, TypedDict, cast
 
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, ConfigDict, Field
@@ -49,6 +49,7 @@ logger = get_logger(__name__)
 # LangGraph state
 # ---------------------------------------------------------------------------
 
+
 class VerificationState(TypedDict):
     """Mutable state threaded through the LangGraph verification graph.
 
@@ -76,6 +77,7 @@ class VerificationState(TypedDict):
 # I/O models
 # ---------------------------------------------------------------------------
 
+
 class VerificationInput(BaseModel):
     """Input contract for the Verification Agent.
 
@@ -89,12 +91,15 @@ class VerificationInput(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     claim: Claim = Field(..., description="The claim to verify against EU open data sources.")
-    context: CompanyContext = Field(..., description="Company context assembled by the Context Agent.")
+    context: CompanyContext = Field(
+        ..., description="Company context assembled by the Context Agent."
+    )
 
 
 # ---------------------------------------------------------------------------
 # Graph node functions
 # ---------------------------------------------------------------------------
+
 
 async def _node_fetch_eu_ets(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch verified emissions data from the EU ETS EUTL.
@@ -411,7 +416,9 @@ async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.FOSSIL_FINANCE}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [
+                f"{EvidenceSource.FOSSIL_FINANCE}: unexpected error — {type(exc).__name__}"
+            ],
         }
 
 
@@ -529,7 +536,9 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.INFLUENCE_MAP}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [
+                f"{EvidenceSource.INFLUENCE_MAP}: unexpected error — {type(exc).__name__}"
+            ],
         }
 
 
@@ -579,7 +588,8 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
 # Graph construction
 # ---------------------------------------------------------------------------
 
-def _build_verification_graph() -> StateGraph:
+
+def _build_verification_graph() -> StateGraph[VerificationState]:
     """Construct the LangGraph StateGraph for parallel source verification.
 
     The graph fans out from START to six independent fetch nodes, each
@@ -648,6 +658,7 @@ def _build_verification_graph() -> StateGraph:
 # ---------------------------------------------------------------------------
 # Agent
 # ---------------------------------------------------------------------------
+
 
 class VerificationAgent:
     """Verifies green claims against EU open data sources using a LangGraph graph.
@@ -727,7 +738,7 @@ class VerificationAgent:
                 "data_gaps": [],
             }
 
-            final_state: VerificationState = await self._graph.ainvoke(initial_state)
+            final_state = cast("VerificationState", await self._graph.ainvoke(initial_state))
 
             evidence = final_state["evidence"]
             data_gaps = final_state["data_gaps"]
@@ -770,18 +781,28 @@ class VerificationAgent:
                 "evidence_count": len(result.evidence) if result else 0,
                 "data_gap_count": len(result.data_gaps) if result else 0,
                 "sources_queried": [
-                    "EU_ETS", "CDP", "SBTI", "EPRTR", "INFLUENCE_MAP",
-                    "ENFORCEMENT", "CA100", "FOSSIL_FINANCE", "COAL_EXIT", "EUR_LEX",
+                    "EU_ETS",
+                    "CDP",
+                    "SBTI",
+                    "EPRTR",
+                    "INFLUENCE_MAP",
+                    "ENFORCEMENT",
+                    "CA100",
+                    "FOSSIL_FINANCE",
+                    "COAL_EXIT",
+                    "EUR_LEX",
                 ],
             },
         )
 
+        assert result is not None
         return result, trace
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _build_assessment_summary(
     evidence: list[Evidence],

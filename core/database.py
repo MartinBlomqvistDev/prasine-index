@@ -9,6 +9,7 @@ through get_session().
 
 from __future__ import annotations
 
+import contextlib
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -111,7 +112,7 @@ def _register_pgvector_codec(engine: AsyncEngine) -> None:
             registered on each new connection checkout.
     """
     try:
-        import pgvector.asyncpg as pgvector_asyncpg  # type: ignore[import-untyped]
+        import pgvector.asyncpg as pgvector_asyncpg
 
         @event.listens_for(engine.sync_engine, "connect")
         def _on_connect(dbapi_connection: Any, _connection_record: Any) -> None:
@@ -122,12 +123,15 @@ def _register_pgvector_codec(engine: AsyncEngine) -> None:
                     by SQLAlchemy's asyncpg dialect.
                 _connection_record: SQLAlchemy connection record (unused).
             """
+
             async def _register(conn: Any) -> None:
                 try:
                     await pgvector_asyncpg.register_vector(conn)
                 except ValueError:
                     # Supabase installs pgvector in the 'extensions' schema.
-                    await pgvector_asyncpg.register_vector(conn, schema="extensions")
+                    # If that also fails, the extension is simply not installed.
+                    with contextlib.suppress(ValueError):
+                        await pgvector_asyncpg.register_vector(conn, schema="extensions")
 
             dbapi_connection.run_async(_register)
 
@@ -158,6 +162,7 @@ def get_engine() -> AsyncEngine:
 # ---------------------------------------------------------------------------
 # Session factory
 # ---------------------------------------------------------------------------
+
 
 def _get_session_factory() -> async_sessionmaker[AsyncSession]:
     """Create a session factory bound to the current engine.
@@ -211,6 +216,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 # Declarative base
 # ---------------------------------------------------------------------------
 
+
 class Base(DeclarativeBase):
     """Shared declarative base for all Prasine Index ORM models.
 
@@ -230,6 +236,7 @@ class Base(DeclarativeBase):
 # ---------------------------------------------------------------------------
 # Lifecycle helpers
 # ---------------------------------------------------------------------------
+
 
 async def init_db() -> None:
     """Initialise the database schema on application startup.
@@ -267,9 +274,7 @@ async def _enable_extensions(conn: AsyncConnection) -> None:
         conn: An open async connection within a transaction.
     """
     for extension in ("vector", "uuid-ossp"):
-        await conn.execute(
-            text(f'CREATE EXTENSION IF NOT EXISTS "{extension}"')
-        )
+        await conn.execute(text(f'CREATE EXTENSION IF NOT EXISTS "{extension}"'))
         logger.info(
             f"PostgreSQL extension enabled: {extension}",
             extra={"operation": "pg_extension_enabled", "error_type": None},

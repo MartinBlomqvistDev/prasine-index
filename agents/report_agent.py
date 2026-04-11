@@ -283,9 +283,7 @@ class ReportAgent:
             ) from exc
 
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
-        report_text = "".join(
-            block.text for block in response.content if hasattr(block, "text")
-        )
+        report_text = "".join(block.text for block in response.content if hasattr(block, "text"))
 
         if not report_text.strip():
             raise LLMError(
@@ -301,6 +299,7 @@ class ReportAgent:
 # ---------------------------------------------------------------------------
 # Prompt construction
 # ---------------------------------------------------------------------------
+
 
 def _build_report_prompt(input: ReportInput) -> str:
     """Construct the user message for the report generation call.
@@ -326,7 +325,7 @@ def _build_report_prompt(input: ReportInput) -> str:
         "",
         f"COMPANY: {company.name} | {company.country} | {company.sector}",
         f"CLAIM SOURCE: {claim.source_type.value} — {claim.source_url}",
-        f"CLAIM TEXT: \"{claim.raw_text}\"",
+        f'CLAIM TEXT: "{claim.raw_text}"',
         "",
         f"VERDICT: {score.verdict.value}",
         f"SCORE: {score.score:.1f}/100",
@@ -395,11 +394,11 @@ def _markdown_to_plain(markdown: str) -> str:
     """
     import re
 
-    text = re.sub(r"#{1,6}\s+", "", markdown)         # headings
-    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)      # bold
-    text = re.sub(r"\*(.+?)\*", r"\1", text)          # italic
-    text = re.sub(r"`(.+?)`", r"\1", text)            # inline code
+    text = re.sub(r"#{1,6}\s+", "", markdown)  # headings
+    text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)  # bold
+    text = re.sub(r"\*(.+?)\*", r"\1", text)  # italic
+    text = re.sub(r"`(.+?)`", r"\1", text)  # inline code
     text = re.sub(r"^\s*[-*+]\s+", "• ", text, flags=re.MULTILINE)  # bullets
-    text = re.sub(r"\[(.+?)\]\(.+?\)", r"\1", text)   # links
-    text = re.sub(r"\n{3,}", "\n\n", text)             # excess blank lines
+    text = re.sub(r"\[(.+?)\]\(.+?\)", r"\1", text)  # links
+    text = re.sub(r"\n{3,}", "\n\n", text)  # excess blank lines
     return text.strip()

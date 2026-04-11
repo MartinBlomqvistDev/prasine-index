@@ -28,9 +28,7 @@ __all__ = [
 # Pipeline context variables — set by each agent at entry, read by formatter
 # ---------------------------------------------------------------------------
 
-trace_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "trace_id", default="-"
-)
+trace_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("trace_id", default="-")
 """Claim-level trace identifier.
 
 Set once when a Claim enters the pipeline and inherited by every agent step
@@ -43,18 +41,14 @@ Usage::
     trace_id_var.set(str(claim.trace_id))
 """
 
-claim_id_var: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "claim_id", default="-"
-)
+claim_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("claim_id", default="-")
 """Claim identifier for the active execution context.
 
 Set alongside trace_id_var at pipeline entry. Included in every log record
 to enable filtering all logs for a specific claim without a full trace scan.
 """
 
-agent_name_var: contextvars.ContextVar[str] = contextvars.ContextVar(
-    "agent_name", default="-"
-)
+agent_name_var: contextvars.ContextVar[str] = contextvars.ContextVar("agent_name", default="-")
 """Name of the currently executing agent.
 
 Set by each agent at the start of its run method. Allows per-agent log
@@ -71,6 +65,7 @@ Usage::
 # JSON formatter
 # ---------------------------------------------------------------------------
 
+
 class _JSONFormatter(logging.Formatter):
     """Serialises every LogRecord to a single-line JSON object.
 
@@ -86,21 +81,21 @@ class _JSONFormatter(logging.Formatter):
 
     # Structured fields that agents pass via extra={...}
     _EXTRA_FIELDS: tuple[str, ...] = (
-        "operation",          # logical operation name, e.g. "claim_extracted"
-        "duration_ms",        # integer milliseconds for the logged step
-        "agent",              # overrides agent_name_var when set explicitly
-        "outcome",            # AgentOutcome value
-        "tokens_used",        # LLM token count for the step
-        "llm_model_id",       # model identifier, e.g. "claude-opus-4-6"
-        "retry_count",        # number of retries attempted
-        "source",             # EvidenceSource value for Verification Agent logs
-        "claim_category",     # ClaimCategory value
-        "score",              # GreenwashingScore.score
-        "verdict",            # ScoreVerdict value
-        "http_status",        # upstream HTTP status code on external API calls
-        "error_type",         # exception class name on failures
-        "data_year",          # reference year for evidence data
-        "company_id",         # company UUID for company-level log correlation
+        "operation",  # logical operation name, e.g. "claim_extracted"
+        "duration_ms",  # integer milliseconds for the logged step
+        "agent",  # overrides agent_name_var when set explicitly
+        "outcome",  # AgentOutcome value
+        "tokens_used",  # LLM token count for the step
+        "llm_model_id",  # model identifier, e.g. "claude-opus-4-6"
+        "retry_count",  # number of retries attempted
+        "source",  # EvidenceSource value for Verification Agent logs
+        "claim_category",  # ClaimCategory value
+        "score",  # GreenwashingScore.score
+        "verdict",  # ScoreVerdict value
+        "http_status",  # upstream HTTP status code on external API calls
+        "error_type",  # exception class name on failures
+        "data_year",  # reference year for evidence data
+        "company_id",  # company UUID for company-level log correlation
     )
 
     def format(self, record: logging.LogRecord) -> str:
@@ -113,13 +108,13 @@ class _JSONFormatter(logging.Formatter):
             A single-line JSON string with all standard and extra fields.
         """
         obj: dict[str, Any] = {
-            "time":     self.formatTime(record, datefmt="%Y-%m-%dT%H:%M:%SZ"),
-            "level":    record.levelname,
-            "logger":   record.name,
+            "time": self.formatTime(record, datefmt="%Y-%m-%dT%H:%M:%SZ"),
+            "level": record.levelname,
+            "logger": record.name,
             "trace_id": trace_id_var.get(),
             "claim_id": claim_id_var.get(),
-            "agent":    record.__dict__.get("agent") or agent_name_var.get(),
-            "message":  record.getMessage(),
+            "agent": record.__dict__.get("agent") or agent_name_var.get(),
+            "message": record.getMessage(),
         }
         for field in self._EXTRA_FIELDS:
             if field == "agent":
@@ -135,6 +130,7 @@ class _JSONFormatter(logging.Formatter):
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
+
 
 def setup_logging(level: str = "INFO") -> None:
     """Configure structured JSON logging for all Prasine Index loggers.

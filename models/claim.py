@@ -120,7 +120,9 @@ class Claim(BaseModel):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     trace_id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    company_id: uuid.UUID = Field(..., description="Foreign key to the Company that made this claim.")
+    company_id: uuid.UUID = Field(
+        ..., description="Foreign key to the Company that made this claim."
+    )
     source_url: str = Field(..., description="Canonical URL of the source document.")
     source_type: SourceType = Field(..., description="Category of the source document.")
     raw_text: str = Field(..., description="Verbatim claim text as found in the source document.")
@@ -182,9 +184,7 @@ class Claim(BaseModel):
             ValueError: If ``is_repeat`` is True but ``previous_claim_id`` is None.
         """
         if self.is_repeat and self.previous_claim_id is None:
-            raise ValueError(
-                "previous_claim_id must be provided when is_repeat is True."
-            )
+            raise ValueError("previous_claim_id must be provided when is_repeat is True.")
         return self
 
     @model_validator(mode="after")

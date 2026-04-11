@@ -17,6 +17,7 @@ Refresh: python scripts/refresh_influencemap.py
 
 from __future__ import annotations
 
+import contextlib
 import csv
 import os
 from pathlib import Path
@@ -69,7 +70,7 @@ _COL_YEAR = ("Year", "year", "Assessment Year", "ReportYear")
 # ---------------------------------------------------------------------------
 
 # Bands that indicate obstructive lobbying — contradict green claims.
-_OBSTRUCTIVE_BANDS = frozenset({"d+", "d", "d-", "e+", "e", "e-", "f+", "f", "f-", "f"})
+_OBSTRUCTIVE_BANDS = frozenset({"d+", "d", "d-", "e+", "e", "e-", "f+", "f", "f-"})
 
 # Bands that indicate supportive engagement — support green claims.
 _SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
@@ -81,8 +82,16 @@ _NEUTRAL_BANDS = frozenset({"b-", "c+", "c", "c-"})
 class _InfluenceMapRecord:
     """Internal representation of one InfluenceMap company record."""
 
-    __slots__ = ("company", "ticker", "country", "sector", "score", "performance_band",
-                 "active_engagement", "year")
+    __slots__ = (
+        "active_engagement",
+        "company",
+        "country",
+        "performance_band",
+        "score",
+        "sector",
+        "ticker",
+        "year",
+    )
 
     def __init__(
         self,
@@ -146,9 +155,25 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy matching."""
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -183,10 +208,8 @@ def _get_cache() -> tuple[dict[str, _InfluenceMapRecord], dict[str, _InfluenceMa
 
             year_str = _pick(row, _COL_YEAR)
             year: int | None = None
-            try:
+            with contextlib.suppress(ValueError):
                 year = int(year_str) if year_str else None
-            except ValueError:
-                pass
 
             record = _InfluenceMapRecord(
                 company=company,

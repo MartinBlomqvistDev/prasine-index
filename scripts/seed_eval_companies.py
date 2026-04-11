@@ -15,6 +15,7 @@ import csv
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -30,7 +31,7 @@ _EUTL_OPERATORS = Path(__file__).parent.parent / "EUTL24" / "operators_daily.csv
 # Vestas has minimal installations — included with known IDs
 # ---------------------------------------------------------------------------
 
-EVAL_COMPANIES = [
+EVAL_COMPANIES: list[dict[str, Any]] = [
     {
         "id": "00000000-0000-0000-0000-000000000001",
         "name": "Ryanair Holdings plc",
@@ -62,9 +63,18 @@ EVAL_COMPANIES = [
         "isin": "GB00BP6MXD84",
         "ticker": "SHEL",
         "csrd_reporting": True,
-        "name_filters": ["shell nederland", "shell uk", "shell deutschland", "shell france",
-                         "shell italia", "shell ireland", "shell aircraft", "shell energy",
-                         "shell chemical", "shell refin"],
+        "name_filters": [
+            "shell nederland",
+            "shell uk",
+            "shell deutschland",
+            "shell france",
+            "shell italia",
+            "shell ireland",
+            "shell aircraft",
+            "shell energy",
+            "shell chemical",
+            "shell refin",
+        ],
     },
     {
         "id": "00000000-0000-0000-0000-000000000004",
@@ -152,8 +162,14 @@ EVAL_COMPANIES = [
         "isin": "GB0007980591",
         "ticker": "BP",
         "csrd_reporting": True,
-        "name_filters": ["bp exploration", "bp oil", "bp refin", "bp chemicals",
-                         "bp plc", "bp europa"],
+        "name_filters": [
+            "bp exploration",
+            "bp oil",
+            "bp refin",
+            "bp chemicals",
+            "bp plc",
+            "bp europa",
+        ],
     },
     {
         "id": "00000000-0000-0000-0000-000000000012",

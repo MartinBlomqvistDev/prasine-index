@@ -24,6 +24,7 @@ os.environ.setdefault(
 # Domain model fixtures — zero external dependencies, used by all unit tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def company_id() -> uuid.UUID:
     """Fixed company UUID for use across tests."""

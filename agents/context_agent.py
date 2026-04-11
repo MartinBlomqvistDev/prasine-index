@@ -64,7 +64,9 @@ class ContextInput(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    claim: Claim = Field(..., description="The newly extracted claim for which context is being assembled.")
+    claim: Claim = Field(
+        ..., description="The newly extracted claim for which context is being assembled."
+    )
     company_id: uuid.UUID = Field(..., description="Company that made this claim.")
 
 
@@ -84,7 +86,9 @@ class ContextResult(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    context: CompanyContext = Field(..., description="Assembled company context for the current claim.")
+    context: CompanyContext = Field(
+        ..., description="Assembled company context for the current claim."
+    )
     trace: AgentTrace = Field(..., description="Structured execution record for this agent step.")
 
 
@@ -180,7 +184,9 @@ class ContextAgent:
             },
         )
 
-        assert context is not None, "Context Agent: context must be set if error boundary did not raise"
+        assert context is not None, (
+            "Context Agent: context must be set if error boundary did not raise"
+        )
 
         return ContextResult(context=context, trace=trace)
 

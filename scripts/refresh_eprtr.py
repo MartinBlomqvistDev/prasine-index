@@ -28,9 +28,7 @@ _DEST = _DATA_DIR / "eprtr_releases.csv"
 # at industry.eea.europa.eu with downloadable CSV exports per pollutant or facility.
 # The exact URL below targets the full pollutant releases CSV (all facilities, all years).
 # If this URL changes, check: https://industry.eea.europa.eu/ → Data Downloads
-_EPRTR_CSV_URL = (
-    "https://industry.eea.europa.eu/download?format=csv"
-)
+_EPRTR_CSV_URL = "https://industry.eea.europa.eu/download?format=csv"
 
 # Alternative: EEA Datahub direct download (may require format adjustment)
 _EPRTR_DATAHUB_URL = (
@@ -56,7 +54,6 @@ def download_eprtr_csv() -> None:
         )
         try:
             with urllib.request.urlopen(req, timeout=120) as response:
-                content_type = response.headers.get("Content-Type", "")
                 data = response.read()
 
             if b"<html" in data[:200].lower():
@@ -91,7 +88,9 @@ def download_eprtr_csv() -> None:
     print(f"  4. Save to: {_DEST}")
     print()
     print("Alternative (EEA Datahub):")
-    print("  https://www.eea.europa.eu/data-and-maps/data/industrial-reporting-under-the-industrial-7")
+    print(
+        "  https://www.eea.europa.eu/data-and-maps/data/industrial-reporting-under-the-industrial-7"
+    )
     print("  Download: 'EPRTR data' -> CSV format")
     sys.exit(1)
 
