@@ -69,7 +69,9 @@ class DiscoveredDocument(BaseModel):
     source_type: SourceType = Field(..., description="Detected document category.")
     raw_content: str = Field(..., description="Extracted text content.")
     content_hash: str = Field(..., description="SHA-256 of raw_content for change detection.")
-    publication_date: datetime | None = Field(default=None, description="Detected publication date.")
+    publication_date: datetime | None = Field(
+        default=None, description="Detected publication date."
+    )
     trace_id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         description="New trace ID assigned to this discovery event.",
@@ -144,8 +146,7 @@ class DiscoveryAgent:
             timeout=httpx.Timeout(_FETCH_TIMEOUT_SECONDS),
             headers={
                 "User-Agent": (
-                    "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-                    "+https://prasine-index.eu/bot)"
+                    "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://prasine-index.eu/bot)"
                 ),
                 "Accept": "text/html,application/xhtml+xml,application/pdf",
             },
@@ -303,6 +304,7 @@ class DiscoveryAgent:
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
             from core.retry import classify_http_error
+
             raise classify_http_error(
                 exc,
                 source="DISCOVERY",
@@ -324,10 +326,7 @@ class DiscoveryAgent:
         try:
             async with get_session() as session:
                 result = await session.execute(
-                    text(
-                        "SELECT content_hash FROM discovery_state "
-                        "WHERE source_url = :url"
-                    ),
+                    text("SELECT content_hash FROM discovery_state WHERE source_url = :url"),
                     {"url": url},
                 )
                 row = result.one_or_none()
@@ -375,6 +374,7 @@ class DiscoveryAgent:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _collect_urls(company: Company) -> list[tuple[str, SourceType]]:
     """Collect all monitored URLs for a company with their source type.

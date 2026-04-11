@@ -71,29 +71,41 @@ _COL_SECTOR = ("Sector", "sector", "Industry")
 _COL_DATE = ("Date", "Commitment Date", "date_committed", "Target Set Date")
 
 # Status values that indicate a withdrawn/removed target.
-_REMOVED_STATUSES = frozenset({
-    "removed",
-    "no longer valid",
-    "expired",
-    "commitment removed",
-    "targets removed",
-    "withdrawn",
-})
+_REMOVED_STATUSES = frozenset(
+    {
+        "removed",
+        "no longer valid",
+        "expired",
+        "commitment removed",
+        "targets removed",
+        "withdrawn",
+    }
+)
 
 # Status values that indicate an active, validated target.
-_ACTIVE_STATUSES = frozenset({
-    "targets set",
-    "committed",
-    "achieved",
-    "net zero",
-    "science-based target set",
-})
+_ACTIVE_STATUSES = frozenset(
+    {
+        "targets set",
+        "committed",
+        "achieved",
+        "net zero",
+        "science-based target set",
+    }
+)
 
 
 class _SBTiRecord:
     """Internal representation of one SBTi company record."""
 
-    __slots__ = ("name", "isin", "status", "temp_classification", "net_zero_status", "sector", "date")
+    __slots__ = (
+        "date",
+        "isin",
+        "name",
+        "net_zero_status",
+        "sector",
+        "status",
+        "temp_classification",
+    )
 
     def __init__(
         self,
@@ -149,9 +161,25 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy company name matching."""
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -210,7 +238,9 @@ def _load_from_xlsx(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTi
     for row_vals in rows[1:]:
         if not any(row_vals):
             continue
-        row = {headers[i]: (str(v).strip() if v is not None else "") for i, v in enumerate(row_vals)}
+        row = {
+            headers[i]: (str(v).strip() if v is not None else "") for i, v in enumerate(row_vals)
+        }
         name = _pick(row, _COL_COMPANY)
         if not name:
             continue

@@ -39,6 +39,7 @@ logger = get_logger(__name__)
 # Data structures
 # ---------------------------------------------------------------------------
 
+
 class EvalCase(BaseModel):
     """A single golden evaluation case with the expected verdict.
 
@@ -152,8 +153,12 @@ class EvalSummary(BaseModel):
         Returns:
             A formatted multi-line report string.
         """
-        tier1_results = [r for r, c in zip(self.results, self.cases) if c.tier == "must_pass"]
-        tier2_results = [r for r, c in zip(self.results, self.cases) if c.tier == "known_limitation"]
+        tier1_results = [
+            r for r, c in zip(self.results, self.cases, strict=True) if c.tier == "must_pass"
+        ]
+        tier2_results = [
+            r for r, c in zip(self.results, self.cases, strict=True) if c.tier == "known_limitation"
+        ]
         tier1_passed = sum(1 for r in tier1_results if r.passed)
         tier2_passed = sum(1 for r in tier2_results if r.passed)
 
@@ -174,7 +179,7 @@ class EvalSummary(BaseModel):
             "=" * 60,
             "CASE RESULTS:",
         ]
-        for r, c in zip(self.results, self.cases):
+        for r, c in zip(self.results, self.cases, strict=True):
             status = "PASS" if r.passed else ("ERROR" if r.error else "FAIL")
             tier_tag = "T1" if c.tier == "must_pass" else "T2"
             score_str = f"{r.actual_score:.1f}" if r.actual_score is not None else "N/A"
@@ -245,8 +250,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         company_name="Shell plc",
         company_country="NL",
         claim_text=(
-            "Shell aims to be a net-zero emissions energy business by 2050, "
-            "in step with society."
+            "Shell aims to be a net-zero emissions energy business by 2050, in step with society."
         ),
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.CSRD_REPORT,
@@ -311,8 +315,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         company_name="Deutsche Lufthansa AG",
         company_country="DE",
         claim_text=(
-            "Sustainable Aviation Fuel will allow us to achieve CO2-neutral flying "
-            "in the future."
+            "Sustainable Aviation Fuel will allow us to achieve CO2-neutral flying in the future."
         ),
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.IR_PAGE,
@@ -380,8 +383,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         company_name="HSBC Holdings plc",
         company_country="GB",
         claim_text=(
-            "HSBC will align its portfolio of financed emissions to net zero by 2050 "
-            "or sooner."
+            "HSBC will align its portfolio of financed emissions to net zero by 2050 or sooner."
         ),
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.PRESS_RELEASE,
@@ -659,6 +661,7 @@ GOLDEN_DATASET: list[EvalCase] = [
 # Eval runner
 # ---------------------------------------------------------------------------
 
+
 async def run_eval(
     pipeline: Pipeline | None = None,
     case_ids: list[str] | None = None,
@@ -680,9 +683,7 @@ async def run_eval(
     cases_to_run = [c for c in GOLDEN_DATASET if case_ids is None or c.case_id in case_ids]
 
     if pipeline is None:
-        pipeline = Pipeline(
-            config=PipelineConfig(persist_claims=False, persist_traces=False)
-        )
+        pipeline = Pipeline(config=PipelineConfig(persist_claims=False, persist_traces=False))
 
     logger.info(
         f"Starting eval run: {len(cases_to_run)} case(s)",
@@ -715,7 +716,9 @@ async def run_eval(
     score_in_range = sum(1 for r in results if r.score_in_range)
     avg_duration = sum(r.duration_ms for r in results) / len(results) if results else 0.0
 
-    tier1_pairs = [(r, c) for r, c in zip(results, cases_to_run) if c.tier == "must_pass"]
+    tier1_pairs = [
+        (r, c) for r, c in zip(results, cases_to_run, strict=True) if c.tier == "must_pass"
+    ]
     tier1_passed = sum(1 for r, _ in tier1_pairs if r.passed)
     tier1_rate = tier1_passed / len(tier1_pairs) if tier1_pairs else 0.0
 
@@ -763,9 +766,7 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
         source_url=case.source_url,
         source_type=case.source_type,
         raw_content=(
-            f"Company: {case.company_name}\n"
-            f"Country: {case.company_country}\n\n"
-            f"{case.claim_text}"
+            f"Company: {case.company_name}\nCountry: {case.company_country}\n\n{case.claim_text}"
         ),
     )
 
@@ -790,9 +791,7 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
         actual_verdict = result.score.verdict
         actual_score = result.score.score
 
-        tokens_used = sum(
-            t.tokens_used or 0 for t in result.traces if t.tokens_used
-        )
+        tokens_used = sum(t.tokens_used or 0 for t in result.traces if t.tokens_used)
 
         verdict_correct = actual_verdict == case.expected_verdict
         score_in_range = case.expected_score_min <= actual_score <= case.expected_score_max
@@ -853,7 +852,9 @@ if __name__ == "__main__":
         python -m eval.golden_dataset GW-001 GW-002     # specific cases
     """
     import sys
+
     from dotenv import load_dotenv
+
     load_dotenv()
 
     setup_logging(level="INFO")

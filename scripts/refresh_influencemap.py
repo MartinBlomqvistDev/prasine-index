@@ -30,15 +30,14 @@ _DEST = _DATA_DIR / "influencemap_companies.csv"
 # InfluenceMap updates this annually; check the page below for the current URL.
 # The URL below is the direct link to the bulk company scores CSV as of 2024.
 # If it returns a 404, check: https://influencemap.org/company-responses
-_IM_CSV_URL = (
-    "https://influencemap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
-)
+_IM_CSV_URL = "https://influencemap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
 
 
 def check_existing() -> None:
     """Report on the current state of the local InfluenceMap CSV."""
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _DEST.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1
@@ -53,7 +52,7 @@ def download_influencemap_csv() -> None:
     """Attempt to download the InfluenceMap bulk company scores CSV."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Downloading InfluenceMap Company Scores CSV...")
+    print("Downloading InfluenceMap Company Scores CSV...")
     print(f"  URL: {_IM_CSV_URL}")
     print(f"  Destination: {_DEST}")
 

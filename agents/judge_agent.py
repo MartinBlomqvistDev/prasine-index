@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import time
 from datetime import UTC, datetime
+from typing import Any
 
 import anthropic
 from pydantic import BaseModel, ConfigDict, Field
@@ -387,7 +388,7 @@ class JudgeAgent:
         return JudgeResult(score=score, trace=trace)
 
     @retry_async(config=RetryConfig.DEFAULT_LLM, operation="judge_llm_call")
-    async def _call_llm(self, input: JudgeInput) -> tuple[dict, int]:
+    async def _call_llm(self, input: JudgeInput) -> tuple[dict[str, Any], int]:
         """Call the Anthropic API to produce the verdict.
 
         Builds a detailed user message from the full evidence package and
@@ -445,7 +446,7 @@ class JudgeAgent:
 
         return tool_block.input, tokens_used
 
-    def _build_score(self, verdict: dict, input: JudgeInput) -> GreenwashingScore:
+    def _build_score(self, verdict: dict[str, Any], input: JudgeInput) -> GreenwashingScore:
         """Construct a GreenwashingScore from the LLM tool response.
 
         Args:
@@ -465,7 +466,9 @@ class JudgeAgent:
                 company_id=input.context.company.id,
                 trace_id=input.claim.trace_id,
                 score=float(verdict["score"]),
-                score_breakdown={k: float(v) for k, v in verdict.get("score_breakdown", {}).items()},
+                score_breakdown={
+                    k: float(v) for k, v in verdict.get("score_breakdown", {}).items()
+                },
                 verdict=ScoreVerdict(verdict["verdict"]),
                 reasoning=verdict["reasoning"],
                 confidence=float(verdict.get("confidence", 0.7)),
@@ -482,6 +485,7 @@ class JudgeAgent:
 # ---------------------------------------------------------------------------
 # Prompt construction
 # ---------------------------------------------------------------------------
+
 
 def _build_judge_prompt(input: JudgeInput) -> str:
     """Construct the user message for the judge LLM call.
@@ -517,8 +521,12 @@ def _build_judge_prompt(input: JudgeInput) -> str:
         "# COMPANY HISTORICAL CONTEXT",
         f"Total prior claims assessed: {ctx.total_claims_assessed}",
         f"Prior repeat claims:         {ctx.repeat_claim_count}",
-        f"Average greenwashing score:  {ctx.average_greenwashing_score:.1f}" if ctx.average_greenwashing_score is not None else "Average greenwashing score:  no prior data",
-        f"Worst greenwashing score:    {ctx.worst_greenwashing_score:.1f}" if ctx.worst_greenwashing_score is not None else "Worst greenwashing score:    no prior data",
+        f"Average greenwashing score:  {ctx.average_greenwashing_score:.1f}"
+        if ctx.average_greenwashing_score is not None
+        else "Average greenwashing score:  no prior data",
+        f"Worst greenwashing score:    {ctx.worst_greenwashing_score:.1f}"
+        if ctx.worst_greenwashing_score is not None
+        else "Worst greenwashing score:    no prior data",
         f"Score trend:                 {ctx.score_trend.value}",
         f"Similar prior claims found:  {len(ctx.similar_historical_claim_ids)}",
         f"Is this a repeat claim:      {'YES — company has made equivalent claims before' if claim.is_repeat else 'No prior equivalent claims detected'}",
@@ -535,7 +543,9 @@ def _build_judge_prompt(input: JudgeInput) -> str:
         "INDIVIDUAL EVIDENCE RECORDS:",
     ]
 
-    enforcement_records = [e for e in vr.evidence if e.evidence_type == EvidenceType.ENFORCEMENT_RULING]
+    enforcement_records = [
+        e for e in vr.evidence if e.evidence_type == EvidenceType.ENFORCEMENT_RULING
+    ]
     other_records = [e for e in vr.evidence if e.evidence_type != EvidenceType.ENFORCEMENT_RULING]
 
     if enforcement_records:

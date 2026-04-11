@@ -22,6 +22,7 @@ from models.trace import AgentName, AgentOutcome, AgentTrace
 # Fixtures
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def company_id() -> uuid.UUID:
     """Return a fixed company UUID for use across tests."""
@@ -66,6 +67,7 @@ def minimal_company(company_id: uuid.UUID) -> Company:
 # ---------------------------------------------------------------------------
 # Claim tests
 # ---------------------------------------------------------------------------
+
 
 class TestClaim:
     """Tests for the Claim model."""
@@ -157,7 +159,7 @@ class TestClaimLifecycle:
             transitioned_by="verification_agent",
         )
         with pytest.raises(ValidationError):
-            lifecycle.to_status = ClaimStatus.SCORED  # type: ignore[misc]
+            lifecycle.to_status = ClaimStatus.SCORED
 
     def test_initial_transition_has_no_from_status(self, claim_id: uuid.UUID) -> None:
         """First lifecycle entry (DETECTED) has from_status=None."""
@@ -174,6 +176,7 @@ class TestClaimLifecycle:
 # ---------------------------------------------------------------------------
 # Company tests
 # ---------------------------------------------------------------------------
+
 
 class TestCompany:
     """Tests for the Company model."""
@@ -230,6 +233,7 @@ class TestCompany:
 # Evidence tests
 # ---------------------------------------------------------------------------
 
+
 class TestEvidence:
     """Tests for the Evidence model."""
 
@@ -243,9 +247,11 @@ class TestEvidence:
             summary="Test summary.",
         )
         with pytest.raises(ValidationError):
-            ev.summary = "modified"  # type: ignore[misc]
+            ev.summary = "modified"
 
-    def test_confidence_must_be_in_unit_range(self, claim_id: uuid.UUID, trace_id: uuid.UUID) -> None:
+    def test_confidence_must_be_in_unit_range(
+        self, claim_id: uuid.UUID, trace_id: uuid.UUID
+    ) -> None:
         """Confidence outside [0.0, 1.0] raises ValidationError."""
         with pytest.raises(ValidationError):
             Evidence(
@@ -286,6 +292,7 @@ class TestEvidence:
 # GreenwashingScore tests
 # ---------------------------------------------------------------------------
 
+
 class TestGreenwashingScore:
     """Tests for the GreenwashingScore model."""
 
@@ -307,7 +314,7 @@ class TestGreenwashingScore:
             judge_model_id="claude-opus-4-6",
         )
         with pytest.raises(ValidationError):
-            score.score = 50.0  # type: ignore[misc]
+            score.score = 50.0
 
     def test_score_must_be_in_range(
         self,
@@ -375,6 +382,7 @@ class TestGreenwashingScore:
 # ---------------------------------------------------------------------------
 # AgentTrace tests
 # ---------------------------------------------------------------------------
+
 
 class TestAgentTrace:
     """Tests for the AgentTrace model."""

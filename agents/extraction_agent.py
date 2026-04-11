@@ -13,6 +13,7 @@ import re
 import time
 import uuid
 from datetime import UTC, datetime
+from typing import Any, cast
 
 import anthropic
 from pydantic import BaseModel, ConfigDict, Field
@@ -166,7 +167,9 @@ class ExtractionInput(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    trace_id: uuid.UUID = Field(..., description="Pipeline trace identifier assigned by the Discovery Agent.")
+    trace_id: uuid.UUID = Field(
+        ..., description="Pipeline trace identifier assigned by the Discovery Agent."
+    )
     company_id: uuid.UUID = Field(..., description="Company that published this document.")
     source_url: str = Field(..., description="Canonical URL of the source document.")
     source_type: SourceType = Field(..., description="Document category.")
@@ -346,7 +349,7 @@ class ExtractionAgent:
         return ExtractionResult(claims=claims, trace=trace)
 
     @retry_async(config=RetryConfig.DEFAULT_LLM, operation="extraction_llm_call")
-    async def _call_llm(self, document: str) -> tuple[list[dict], int]:
+    async def _call_llm(self, document: str) -> tuple[list[dict[str, Any]], int]:
         """Call the Anthropic API with forced tool use to extract claims.
 
         Forces the model to call the ``extract_green_claims`` tool exactly once
@@ -380,7 +383,9 @@ class ExtractionAgent:
                     }
                 ],
                 tools=[_EXTRACT_TOOL],
-                tool_choice=anthropic.types.ToolChoiceToolParam(type="tool", name=_EXTRACT_TOOL_NAME),
+                tool_choice=anthropic.types.ToolChoiceToolParam(
+                    type="tool", name=_EXTRACT_TOOL_NAME
+                ),
                 messages=[
                     {
                         "role": "user",
@@ -416,7 +421,9 @@ class ExtractionAgent:
                 llm_model_id=self._model_id,
             )
 
-        raw_claims: list[dict] = tool_block.input.get("claims", [])
+        raw_claims: list[dict[str, Any]] = cast("dict[str, Any]", tool_block.input).get(
+            "claims", []
+        )
 
         logger.info(
             f"LLM call completed: {len(raw_claims)} raw claim(s) returned",
@@ -431,7 +438,7 @@ class ExtractionAgent:
 
     def _build_claims(
         self,
-        raw_claims: list[dict],
+        raw_claims: list[dict[str, Any]],
         input: ExtractionInput,
     ) -> list[Claim]:
         """Construct validated Claim objects from raw LLM tool output.
@@ -516,6 +523,6 @@ def _normalise_text(text: str) -> str:
     # Case-fold and collapse internal whitespace
     normalised = " ".join(text.lower().split())
     # Remove characters that add no semantic value for vector similarity
-    normalised = re.sub(r"[\"'""'']+", "", normalised)
+    normalised = re.sub(r"[\"'" "'']+", "", normalised)
     normalised = re.sub(r"\s+", " ", normalised).strip()
     return normalised

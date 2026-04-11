@@ -95,9 +95,15 @@ class LobbyingRecord(BaseModel):
     model_config = ConfigDict(frozen=True, from_attributes=True)
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    company_id: uuid.UUID = Field(..., description="Foreign key to the Company this record describes.")
-    claim_id: uuid.UUID = Field(..., description="Foreign key to the Claim this record was retrieved for.")
-    trace_id: uuid.UUID = Field(..., description="Pipeline trace identifier, inherited from the Claim.")
+    company_id: uuid.UUID = Field(
+        ..., description="Foreign key to the Company this record describes."
+    )
+    claim_id: uuid.UUID = Field(
+        ..., description="Foreign key to the Claim this record was retrieved for."
+    )
+    trace_id: uuid.UUID = Field(
+        ..., description="Pipeline trace identifier, inherited from the Claim."
+    )
     transparency_register_id: str = Field(
         ...,
         description=(

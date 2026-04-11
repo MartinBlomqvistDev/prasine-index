@@ -39,33 +39,37 @@ _TRANSPARENCY_REGISTER_BASE_URL: str = os.environ.get(
 )
 
 # Keywords in lobbying field-of-interest strings that indicate anti-climate activity.
-_ANTI_CLIMATE_KEYWORDS: frozenset[str] = frozenset({
-    "emission trading",
-    "carbon pricing",
-    "carbon tax",
-    "carbon border",
-    "climate levy",
-    "carbon leakage",
-    "green deal",
-    "fit for 55",
-    "renewable energy directive",
-    "energy efficiency directive",
-    "taxonomy regulation",
-    "corporate sustainability",
-    "csrd",
-    "green claims",
-})
+_ANTI_CLIMATE_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "emission trading",
+        "carbon pricing",
+        "carbon tax",
+        "carbon border",
+        "climate levy",
+        "carbon leakage",
+        "green deal",
+        "fit for 55",
+        "renewable energy directive",
+        "energy efficiency directive",
+        "taxonomy regulation",
+        "corporate sustainability",
+        "csrd",
+        "green claims",
+    }
+)
 
 # Keywords indicating pro-climate lobbying.
-_PRO_CLIMATE_KEYWORDS: frozenset[str] = frozenset({
-    "climate action",
-    "net zero",
-    "decarbonisation",
-    "clean energy",
-    "renewable",
-    "sustainable finance",
-    "green transition",
-})
+_PRO_CLIMATE_KEYWORDS: frozenset[str] = frozenset(
+    {
+        "climate action",
+        "net zero",
+        "decarbonisation",
+        "clean energy",
+        "renewable",
+        "sustainable finance",
+        "green transition",
+    }
+)
 
 
 class LobbyingInput(BaseModel):
@@ -232,6 +236,7 @@ class LobbyingAgent:
                 Register returns an error response.
         """
         register_id = input.company.transparency_register_id
+        assert register_id is not None  # guarded by caller
         url = f"{_TRANSPARENCY_REGISTER_BASE_URL}/api/v1/organisations/{register_id}"
 
         try:
@@ -239,6 +244,7 @@ class LobbyingAgent:
             response.raise_for_status()
         except httpx.HTTPStatusError as exc:
             from core.retry import classify_http_error
+
             raise classify_http_error(
                 exc,
                 source="EU_TRANSPARENCY_REGISTER",
@@ -277,6 +283,7 @@ class LobbyingAgent:
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _classify_stance(
     fields_of_interest: list[str],
     activities: list[str],
@@ -305,20 +312,17 @@ def _classify_stance(
     elif anti_matches:
         stance = LobbyingStance.ANTI_CLIMATE
         reasoning = (
-            f"Lobbying activity matches anti-climate keyword(s): "
-            f"{', '.join(anti_matches[:5])}."
+            f"Lobbying activity matches anti-climate keyword(s): {', '.join(anti_matches[:5])}."
         )
     elif pro_matches:
         stance = LobbyingStance.PRO_CLIMATE
         reasoning = (
-            f"Lobbying activity matches pro-climate keyword(s): "
-            f"{', '.join(pro_matches[:5])}."
+            f"Lobbying activity matches pro-climate keyword(s): {', '.join(pro_matches[:5])}."
         )
     else:
         stance = LobbyingStance.UNKNOWN
         reasoning = (
-            "No climate-related keywords identified in declared fields of interest "
-            "or activities."
+            "No climate-related keywords identified in declared fields of interest or activities."
         )
 
     return stance, reasoning
@@ -344,8 +348,14 @@ def _assess_contradiction(
         A tuple of (contradicts_claim, explanation | None).
     """
     climate_claim_keywords = (
-        "net zero", "carbon neutral", "climate", "emission", "renewable",
-        "sustainability", "green", "decarboni",
+        "net zero",
+        "carbon neutral",
+        "climate",
+        "emission",
+        "renewable",
+        "sustainability",
+        "green",
+        "decarboni",
     )
     claim_lower = claim_raw_text.lower()
     is_climate_claim = any(kw in claim_lower for kw in climate_claim_keywords)
@@ -355,8 +365,7 @@ def _assess_contradiction(
 
     if stance == LobbyingStance.ANTI_CLIMATE:
         contradicting_fields = [
-            f for f in fields_of_interest
-            if any(kw in f.lower() for kw in _ANTI_CLIMATE_KEYWORDS)
+            f for f in fields_of_interest if any(kw in f.lower() for kw in _ANTI_CLIMATE_KEYWORDS)
         ]
         explanation = (
             f"The company publicly claims {claim_raw_text[:120]!r} while simultaneously "

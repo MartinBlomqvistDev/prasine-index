@@ -24,9 +24,7 @@ _DATA_DIR = Path(__file__).parent.parent / "data"
 
 # SBTi bulk Excel download — confirmed working 2026-04-07, no auth required.
 # If this 404s, check: https://sciencebasedtargets.org/companies-taking-action
-_SBTI_XLSX_URL = (
-    "https://files.sciencebasedtargets.org/production/files/companies-excel.xlsx"
-)
+_SBTI_XLSX_URL = "https://files.sciencebasedtargets.org/production/files/companies-excel.xlsx"
 _SBTI_DEST = _DATA_DIR / "sbti_companies.xlsx"
 
 
@@ -40,9 +38,7 @@ def download_sbti() -> None:
 
     req = urllib.request.Request(
         _SBTI_XLSX_URL,
-        headers={
-            "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)"
-        },
+        headers={"User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)"},
     )
 
     try:
@@ -50,7 +46,9 @@ def download_sbti() -> None:
             data = response.read()
     except urllib.error.HTTPError as exc:
         print(f"ERROR: HTTP {exc.code} - {exc.reason}")
-        print("URL may have changed. Check: https://sciencebasedtargets.org/companies-taking-action")
+        print(
+            "URL may have changed. Check: https://sciencebasedtargets.org/companies-taking-action"
+        )
         sys.exit(1)
     except urllib.error.URLError as exc:
         print(f"ERROR: {exc.reason}")

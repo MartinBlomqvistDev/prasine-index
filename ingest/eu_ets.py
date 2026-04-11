@@ -158,7 +158,9 @@ def refresh_cache() -> None:
     """
     global _emissions_cache
     _emissions_cache = None
-    logger.info("EU ETS cache cleared; will reload on next call.", extra={"operation": "eu_ets_cache_reset"})
+    logger.info(
+        "EU ETS cache cleared; will reload on next call.", extra={"operation": "eu_ets_cache_reset"}
+    )
 
 
 def _get_cache() -> dict[int, list[tuple[int, float]]]:
@@ -271,7 +273,7 @@ def _build_evidence(
     if len(history) <= 12:
         display_history = history
     else:
-        display_history = history[:2] + [(-1, -1)] + history[-(_YEARS_TO_RETRIEVE):]
+        display_history = [*history[:2], (-1, -1), *history[-(_YEARS_TO_RETRIEVE):]]
 
     trend_lines: list[str] = []
     for yr, em in display_history:
@@ -288,7 +290,11 @@ def _build_evidence(
 
     # Directional framing for the Judge.
     if len(history) >= 2:
-        pct_change = ((most_recent_emissions - oldest_emissions) / oldest_emissions * 100) if oldest_emissions else 0
+        pct_change = (
+            ((most_recent_emissions - oldest_emissions) / oldest_emissions * 100)
+            if oldest_emissions
+            else 0
+        )
         direction = f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% from {oldest_year} to {most_recent_year}"
     else:
         direction = "insufficient data for trend"
@@ -305,12 +311,10 @@ def _build_evidence(
         trace_id=claim.trace_id,
         source=EvidenceSource.EU_ETS,
         evidence_type=EvidenceType.VERIFIED_EMISSIONS,
-        source_url=f"https://union-registry-data.ec.europa.eu/report/welcome",
+        source_url="https://union-registry-data.ec.europa.eu/report/welcome",
         raw_data={
             "installation_id": display_id,
-            "verified_emissions": [
-                {"year": yr, "verifiedEmissions": em} for yr, em in history
-            ],
+            "verified_emissions": [{"year": yr, "verifiedEmissions": em} for yr, em in history],
             "data_source": "EU Union Registry daily snapshot",
             "most_recent_year": most_recent_year,
         },
@@ -377,8 +381,15 @@ def _assess_emissions_vs_claim(
     # are assessed normally: the absolute trajectory is still relevant for the
     # net-zero component even if the intensity sub-target cannot be verified.
     intensity_keywords = (
-        "per tonne", "per unit", "per product", "per kwh", "per mwh",
-        "intensity", "specific emission", "emission factor", "carbon intensity",
+        "per tonne",
+        "per unit",
+        "per product",
+        "per kwh",
+        "per mwh",
+        "intensity",
+        "specific emission",
+        "emission factor",
+        "carbon intensity",
         "emissions intensity",
     )
     absolute_keywords = ("net zero", "carbon neutral", "climate neutral", "zero emission")
@@ -388,7 +399,13 @@ def _assess_emissions_vs_claim(
         return None, 0.5
 
     reduction_keywords = (
-        "reduc", "decreas", "lower", "cut", "decarboni", "net zero", "carbon neutral",
+        "reduc",
+        "decreas",
+        "lower",
+        "cut",
+        "decarboni",
+        "net zero",
+        "carbon neutral",
     )
     is_reduction_claim = any(kw in claim_lower for kw in reduction_keywords)
 
@@ -421,13 +438,13 @@ def _assess_emissions_vs_claim(
             # Net zero / carbon neutral claims: check if trajectory reaches ≤0
             if any(kw in claim_lower for kw in ("net zero", "carbon neutral", "zero emission")):
                 if projected_em <= most_recent_em * 0.1:
-                    return True, 0.6   # trajectory plausibly reaches near-zero
+                    return True, 0.6  # trajectory plausibly reaches near-zero
                 if projected_em > most_recent_em * 0.5:
                     return False, 0.6  # trajectory clearly not approaching zero
-                return None, 0.5       # ambiguous — insufficient slope signal
+                return None, 0.5  # ambiguous — insufficient slope signal
         # Fall through to absolute comparison if slope window too small.
 
-    trend_up = newest_em > oldest_em * 1.05    # >5% increase = meaningful up
+    trend_up = newest_em > oldest_em * 1.05  # >5% increase = meaningful up
     trend_down = newest_em < oldest_em * 0.95  # >5% decrease = meaningful down
 
     if is_reduction_claim:

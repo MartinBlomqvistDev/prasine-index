@@ -43,40 +43,89 @@ _EPRTR_CSV: Path = Path(
 # ---------------------------------------------------------------------------
 
 # E-PRTR pollutant name variants across CSV vintages.
-_GHG_POLLUTANTS = frozenset({
-    "methane (ch4)",
-    "ch4",
-    "nitrous oxide (n2o)",
-    "n2o",
-    "hydrofluorocarbons (hfcs)",
-    "hfcs",
-    "perfluorocarbons (pfcs)",
-    "pfcs",
-    "sulphur hexafluoride (sf6)",
-    "sf6",
-    "nitrogen trifluoride (nf3)",
-    "nf3",
-    # CO2 equivalents sometimes reported separately
-    "greenhouse gases",
-    "ghg",
-    "carbon dioxide equivalent",
-    "co2 equivalent",
-})
+_GHG_POLLUTANTS = frozenset(
+    {
+        "methane (ch4)",
+        "ch4",
+        "nitrous oxide (n2o)",
+        "n2o",
+        "hydrofluorocarbons (hfcs)",
+        "hfcs",
+        "perfluorocarbons (pfcs)",
+        "pfcs",
+        "sulphur hexafluoride (sf6)",
+        "sf6",
+        "nitrogen trifluoride (nf3)",
+        "nf3",
+        # CO2 equivalents sometimes reported separately
+        "greenhouse gases",
+        "ghg",
+        "carbon dioxide equivalent",
+        "co2 equivalent",
+    }
+)
 
 # Column name variants across EEA E-PRTR CSV vintages
-_COL_FACILITY = ("facilityName", "FacilityName", "facility_name", "Facility Name", "FacilityReport_FacilityName")
-_COL_PARENT = ("parentCompanyName", "ParentCompanyName", "parent_company", "Parent Company", "FacilityReport_ParentCompanyName")
+_COL_FACILITY = (
+    "facilityName",
+    "FacilityName",
+    "facility_name",
+    "Facility Name",
+    "FacilityReport_FacilityName",
+)
+_COL_PARENT = (
+    "parentCompanyName",
+    "ParentCompanyName",
+    "parent_company",
+    "Parent Company",
+    "FacilityReport_ParentCompanyName",
+)
 _COL_YEAR = ("reportingYear", "ReportingYear", "year", "Year", "FacilityReport_ReportingYear")
-_COL_POLLUTANT = ("pollutantName", "PollutantName", "pollutant_name", "Pollutant", "PollutantRelease_PollutantName")
-_COL_QUANTITY = ("totalPollutantQuantityKg", "TotalQuantity", "quantity_kg", "QuantityKg", "PollutantRelease_TotalPollutantQuantityKg", "PollutantRelease_TotalQuantity", "Releases")
-_COL_MEDIUM = ("mediumCode", "MediumCode", "medium", "Medium", "PollutantRelease_MediumCode", "TargetRelease")
-_COL_COUNTRY = ("countryCode", "CountryCode", "country_code", "Country", "FacilityReport_CountryCode")
+_COL_POLLUTANT = (
+    "pollutantName",
+    "PollutantName",
+    "pollutant_name",
+    "Pollutant",
+    "PollutantRelease_PollutantName",
+)
+_COL_QUANTITY = (
+    "totalPollutantQuantityKg",
+    "TotalQuantity",
+    "quantity_kg",
+    "QuantityKg",
+    "PollutantRelease_TotalPollutantQuantityKg",
+    "PollutantRelease_TotalQuantity",
+    "Releases",
+)
+_COL_MEDIUM = (
+    "mediumCode",
+    "MediumCode",
+    "medium",
+    "Medium",
+    "PollutantRelease_MediumCode",
+    "TargetRelease",
+)
+_COL_COUNTRY = (
+    "countryCode",
+    "CountryCode",
+    "country_code",
+    "Country",
+    "FacilityReport_CountryCode",
+)
 
 
 class _EprtrRecord:
     """One pollutant release record from the E-PRTR dataset."""
 
-    __slots__ = ("facility_name", "parent_company", "country", "year", "pollutant", "quantity_kg", "medium")
+    __slots__ = (
+        "country",
+        "facility_name",
+        "medium",
+        "parent_company",
+        "pollutant",
+        "quantity_kg",
+        "year",
+    )
 
     def __init__(
         self,
@@ -134,9 +183,25 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy matching."""
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -274,7 +339,6 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
         E-PRTR records are found for the company.
     """
     name: str = getattr(company, "name", "")
-    isin: str | None = getattr(company, "isin", None)
 
     records_by_year = _lookup(name)
 
@@ -299,10 +363,7 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     supports, confidence, trend_text = _assess_trend(ghg_by_year)
 
     # Build year-by-year summary for the Judge (last 5 years)
-    year_lines = [
-        f"{yr}: {ghg_by_year[yr]:,.1f} t GHG"
-        for yr in years[-5:]
-    ]
+    year_lines = [f"{yr}: {ghg_by_year[yr]:,.1f} t GHG" for yr in years[-5:]]
     summary = (
         f"E-PRTR non-CO2 GHG releases to air for {name}: {'; '.join(year_lines)}. "
         f"Most recent year ({latest_year}): {latest_tonnes:,.1f} tonnes. "
@@ -351,7 +412,7 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
         Tuple of (supports_claim, confidence, human-readable trend description).
     """
     if len(ghg_by_year) < 2:
-        year = list(ghg_by_year.keys())[0]
+        year = next(iter(ghg_by_year.keys()))
         return None, 0.4, f"Only one year of data ({year}) — trend cannot be assessed."
 
     years = sorted(ghg_by_year.keys())
@@ -365,21 +426,24 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
 
     if pct_change <= -30:
         return (
-            True, 0.75,
+            True,
+            0.75,
             f"GHG releases fell {abs(pct_change):.0f}% from {first_year} to {last_year} "
-            f"({first_val:,.1f} → {last_val:,.1f} t). Supports emissions reduction claims."
+            f"({first_val:,.1f} → {last_val:,.1f} t). Supports emissions reduction claims.",
         )
     if pct_change >= 20:
         return (
-            False, 0.75,
+            False,
+            0.75,
             f"GHG releases rose {pct_change:.0f}% from {first_year} to {last_year} "
-            f"({first_val:,.1f} → {last_val:,.1f} t). Contradicts emissions reduction claims."
+            f"({first_val:,.1f} → {last_val:,.1f} t). Contradicts emissions reduction claims.",
         )
 
     # Flat or modest change — inconclusive
     direction = "fell" if pct_change < 0 else "rose"
     return (
-        None, 0.55,
+        None,
+        0.55,
         f"GHG releases {direction} {abs(pct_change):.0f}% from {first_year} to {last_year} "
-        f"({first_val:,.1f} → {last_val:,.1f} t). Inconclusive."
+        f"({first_val:,.1f} → {last_val:,.1f} t). Inconclusive.",
     )

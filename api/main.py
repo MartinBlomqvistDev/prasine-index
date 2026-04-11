@@ -35,6 +35,7 @@ logger = get_logger(__name__)
 # Lifespan
 # ---------------------------------------------------------------------------
 
+
 @asynccontextmanager
 async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manage application startup and shutdown.
@@ -90,6 +91,7 @@ app = FastAPI(
 # ---------------------------------------------------------------------------
 # Request / response models
 # ---------------------------------------------------------------------------
+
 
 class AssessDocumentRequest(BaseModel):
     """Request body for the POST /assess endpoint.
@@ -163,6 +165,7 @@ class ScoreResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/health", response_model=HealthResponse, tags=["system"])
 async def health() -> HealthResponse:
@@ -330,10 +333,7 @@ async def get_report(claim_id: uuid.UUID) -> JSONResponse:
     """
     async with get_session() as session:
         result = await session.execute(
-            text(
-                "SELECT report_markdown, published_at FROM reports "
-                "WHERE claim_id = :claim_id"
-            ),
+            text("SELECT report_markdown, published_at FROM reports WHERE claim_id = :claim_id"),
             {"claim_id": str(claim_id)},
         )
         row = result.mappings().one_or_none()

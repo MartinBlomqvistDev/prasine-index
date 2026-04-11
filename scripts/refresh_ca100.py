@@ -40,7 +40,7 @@ def download_ca100_csv() -> None:
     """Attempt to download the CA100+ benchmark CSV."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Downloading CA100+ Net Zero Benchmark CSV...")
+    print("Downloading CA100+ Net Zero Benchmark CSV...")
     print(f"  URL: {_CA100_CSV_URL}")
     print(f"  Destination: {_DEST}")
 

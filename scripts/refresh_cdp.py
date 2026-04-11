@@ -69,6 +69,7 @@ _DEST = _DATA_DIR / "cdp_companies.csv"
 def check_existing() -> None:
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _DEST.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1

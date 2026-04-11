@@ -110,10 +110,18 @@ class Evidence(BaseModel):
     model_config = ConfigDict(frozen=True, from_attributes=True)
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    claim_id: uuid.UUID = Field(..., description="Foreign key to the Claim this evidence was gathered against.")
-    trace_id: uuid.UUID = Field(..., description="Pipeline trace identifier, inherited from the Claim.")
-    source: EvidenceSource = Field(..., description="EU open data source that provided this evidence.")
-    evidence_type: EvidenceType = Field(..., description="Semantic classification of the evidence type.")
+    claim_id: uuid.UUID = Field(
+        ..., description="Foreign key to the Claim this evidence was gathered against."
+    )
+    trace_id: uuid.UUID = Field(
+        ..., description="Pipeline trace identifier, inherited from the Claim."
+    )
+    source: EvidenceSource = Field(
+        ..., description="EU open data source that provided this evidence."
+    )
+    evidence_type: EvidenceType = Field(
+        ..., description="Semantic classification of the evidence type."
+    )
     source_url: str | None = Field(
         default=None,
         description="Direct URL to the specific data point or document, if resolvable.",
@@ -173,9 +181,7 @@ class Evidence(BaseModel):
                 emissions and climate data (1990–2100).
         """
         if value is not None and not (1990 <= value <= 2100):
-            raise ValueError(
-                f"data_year {value!r} is outside the plausible range [1990, 2100]."
-            )
+            raise ValueError(f"data_year {value!r} is outside the plausible range [1990, 2100].")
         return value
 
 
@@ -206,7 +212,9 @@ class VerificationResult(BaseModel):
     model_config = ConfigDict(frozen=True, from_attributes=True)
 
     claim_id: uuid.UUID = Field(..., description="Foreign key to the verified Claim.")
-    trace_id: uuid.UUID = Field(..., description="Pipeline trace identifier, inherited from the Claim.")
+    trace_id: uuid.UUID = Field(
+        ..., description="Pipeline trace identifier, inherited from the Claim."
+    )
     evidence: list[Evidence] = Field(
         default_factory=list,
         description="All evidence records gathered during the verification pass.",

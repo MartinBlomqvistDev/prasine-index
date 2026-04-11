@@ -94,24 +94,50 @@ _COL_POWER_CAPACITY = (
 )
 
 # Values indicating active coal expansion
-_EXPANDING_VALUES = frozenset({
-    "yes", "expanding", "expansion", "new capacity", "developing", "under construction",
-    "planned", "under development", "active development", "increase",
-})
+_EXPANDING_VALUES = frozenset(
+    {
+        "yes",
+        "expanding",
+        "expansion",
+        "new capacity",
+        "developing",
+        "under construction",
+        "planned",
+        "under development",
+        "active development",
+        "increase",
+    }
+)
 # Values indicating phase-out / exit
-_PHASEOUT_VALUES = frozenset({
-    "no new", "phasing out", "phase-out", "phase out", "no expansion",
-    "committed to exit", "coal free", "exiting", "no coal",
-})
+_PHASEOUT_VALUES = frozenset(
+    {
+        "no new",
+        "phasing out",
+        "phase-out",
+        "phase out",
+        "no expansion",
+        "committed to exit",
+        "coal free",
+        "exiting",
+        "no coal",
+    }
+)
 
 
 class _GCELRecord:
     """Internal representation of one GCEL company record."""
 
     __slots__ = (
-        "company", "country", "isin", "ticker", "sector",
-        "mining_expansion", "power_expansion", "phase_out_plan",
-        "mining_capacity_mtpa", "power_capacity_gw",
+        "company",
+        "country",
+        "isin",
+        "mining_capacity_mtpa",
+        "mining_expansion",
+        "phase_out_plan",
+        "power_capacity_gw",
+        "power_expansion",
+        "sector",
+        "ticker",
     )
 
     def __init__(
@@ -149,9 +175,7 @@ class _GCELRecord:
         po = self.phase_out_plan.lower().strip()
         m = self.mining_expansion.lower().strip()
         p = self.power_expansion.lower().strip()
-        return (po in _PHASEOUT_VALUES) or (
-            m in _PHASEOUT_VALUES and p in _PHASEOUT_VALUES
-        )
+        return (po in _PHASEOUT_VALUES) or (m in _PHASEOUT_VALUES and p in _PHASEOUT_VALUES)
 
 
 # Module-level cache
@@ -185,10 +209,31 @@ def _parse_float(value: str) -> float | None:
 
 def _normalise_name(name: str) -> str:
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings", " a/s", " as", " ab",
-                   " energy", " power", " resources"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+        " a/s",
+        " as",
+        " ab",
+        " energy",
+        " power",
+        " resources",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name

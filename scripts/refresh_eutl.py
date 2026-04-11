@@ -105,8 +105,10 @@ def main() -> None:
     # Reset the eu_ets module cache so the next pipeline run reads fresh data.
     try:
         import sys as _sys
+
         _sys.path.insert(0, str(Path(__file__).parent.parent))
         import ingest.eu_ets as eu_ets
+
         eu_ets.refresh_cache()
         print("EU ETS module cache reset.")
     except Exception:

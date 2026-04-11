@@ -24,7 +24,6 @@ from __future__ import annotations
 import csv
 import os
 from pathlib import Path
-from typing import Any
 
 from core.logger import get_logger
 from models.claim import Claim
@@ -72,16 +71,16 @@ _SCORE_DESCRIPTIONS: dict[str, str] = {
 #   2019/2020: "Company Name", "Country", "Industry", "2020 Score"
 #   Older Global 500 datasets: "Company", "Country", "Sector", "Score"
 _COL_ORG = (
-    "Account Name",          # 2023/2024 format (current)
-    "Organization",          # 2021/2022 format
-    "Company Name",          # 2019/2020 format
-    "Company",               # older Global 500 format
+    "Account Name",  # 2023/2024 format (current)
+    "Organization",  # 2021/2022 format
+    "Company Name",  # 2019/2020 format
+    "Company",  # older Global 500 format
     "company_name",
 )
 _COL_ISIN = ("ISIN", "isin", "Primary ISIN", "ISIN Code")
 _COL_LEI = ("LEI", "lei", "Primary LEI", "LEI Code")
 _COL_SCORE = (
-    "Score",                 # 2023/2024 — current standard column name
+    "Score",  # 2023/2024 — current standard column name
     "Climate Change Score",  # 2021/2022 format
     "2024 Score",
     "2023 Score",
@@ -93,15 +92,15 @@ _COL_SCORE = (
 )
 _COL_YEAR = ("Reporting Year", "Year", "Survey Year", "year", "Disclosure Year")
 _COL_SECTOR = (
-    "Primary Sector",        # 2023/2024 — current
-    "Sector",                # older formats
+    "Primary Sector",  # 2023/2024 — current
+    "Sector",  # older formats
     "Industry Sector",
     "sector",
     "Industry",
 )
 _COL_COUNTRY = (
-    "Country/Area",          # 2023/2024 — current
-    "Country",               # older formats
+    "Country/Area",  # 2023/2024 — current
+    "Country",  # older formats
     "HQ Country",
     "country",
 )
@@ -110,7 +109,7 @@ _COL_COUNTRY = (
 class _CDPRecord:
     """Internal representation of one CDP company record."""
 
-    __slots__ = ("name", "isin", "lei", "score", "year", "sector", "country")
+    __slots__ = ("country", "isin", "lei", "name", "score", "sector", "year")
 
     def __init__(
         self,
@@ -155,9 +154,25 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 
 def _normalise_name(name: str) -> str:
     name = name.lower().strip()
-    for suffix in (" plc", " ag", " se", " sa", " s.a.", " spa", " s.p.a.", " nv",
-                   " bv", " gmbh", " inc", " corp", " ltd", " limited", " group",
-                   " holding", " holdings"):
+    for suffix in (
+        " plc",
+        " ag",
+        " se",
+        " sa",
+        " s.a.",
+        " spa",
+        " s.p.a.",
+        " nv",
+        " bv",
+        " gmbh",
+        " inc",
+        " corp",
+        " ltd",
+        " limited",
+        " group",
+        " holding",
+        " holdings",
+    ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
     return name
@@ -223,8 +238,7 @@ def _get_cache() -> tuple[
     _cache_by_isin, _cache_by_lei, _cache_by_name = by_isin, by_lei, by_name
 
     logger.info(
-        f"CDP cache loaded: {len(by_isin)} by ISIN, {len(by_lei)} by LEI, "
-        f"{len(by_name)} by name",
+        f"CDP cache loaded: {len(by_isin)} by ISIN, {len(by_lei)} by LEI, {len(by_name)} by name",
         extra={"operation": "cdp_cache_loaded"},
     )
     return _cache_by_isin, _cache_by_lei, _cache_by_name

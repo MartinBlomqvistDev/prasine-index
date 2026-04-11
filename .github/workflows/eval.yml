@@ -50,12 +50,26 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Check for API key
+        id: check-key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "has_key=false" >> $GITHUB_OUTPUT
+            echo "::warning::ANTHROPIC_API_KEY secret not set — skipping eval"
+          else
+            echo "has_key=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Initialise test database
+        if: steps.check-key.outputs.has_key == 'true'
         env:
           DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
         run: python -c "import asyncio; from core.database import init_db; asyncio.run(init_db())"
 
       - name: Run golden dataset eval
+        if: steps.check-key.outputs.has_key == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
