@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from datetime import UTC, datetime
+from html.parser import HTMLParser
 from typing import Any
 
 import anthropic
@@ -38,6 +40,43 @@ __all__ = [
     "PipelineConfig",
     "PipelineResult",
 ]
+
+# ---------------------------------------------------------------------------
+# HTML → plain text utility (used when pipeline fetches a URL directly)
+# ---------------------------------------------------------------------------
+
+_SKIP_TAGS = frozenset(
+    {"script", "style", "nav", "footer", "header", "noscript", "iframe", "aside", "form"}
+)
+_MAX_FETCH_CHARS = 40_000
+
+
+class _TextExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._skip_depth = 0
+        self._parts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() in _SKIP_TAGS:
+            self._skip_depth += 1
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() in _SKIP_TAGS:
+            self._skip_depth = max(0, self._skip_depth - 1)
+
+    def handle_data(self, data: str) -> None:
+        if self._skip_depth == 0 and data.strip():
+            self._parts.append(data.strip())
+
+    def get_text(self) -> str:
+        return re.sub(r"\n{3,}", "\n\n", "\n".join(self._parts)).strip()
+
+
+def _html_to_text(html: str) -> str:
+    extractor = _TextExtractor()
+    extractor.feed(html)
+    return extractor.get_text()
 
 logger = get_logger(__name__)
 
@@ -198,6 +237,9 @@ class Pipeline:
             },
         )
 
+        if not extraction_input.raw_content:
+            extraction_input = await self._fetch_and_populate(extraction_input)
+
         extraction_result = await self._extraction_agent.run(extraction_input)
         await self._persist_trace(extraction_result.trace)
 
@@ -354,6 +396,67 @@ class Pipeline:
                 },
             )
             return None
+
+    async def _fetch_and_populate(self, extraction_input: ExtractionInput) -> ExtractionInput:
+        """Fetch source_url and return a new ExtractionInput with raw_content populated.
+
+        Called when an ExtractionInput arrives without raw_content — i.e. the
+        caller provided a URL but not pre-fetched text. Uses the pipeline's
+        shared httpx client so connection pools are reused.
+
+        Args:
+            extraction_input: Input with source_url set but raw_content absent.
+
+        Returns:
+            A copy of the input with raw_content set to the fetched page text.
+
+        Raises:
+            RuntimeError: If the HTTP request fails or returns a non-text response.
+        """
+        url = extraction_input.source_url
+        logger.info(
+            f"Fetching document content from {url}",
+            extra={"operation": "pipeline_fetch_document", "url": url},
+        )
+        try:
+            response = await self._http_client.get(
+                url,
+                headers={
+                    "User-Agent": (
+                        "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
+                        "+https://github.com/MartinBlomqvistDev/prasine-index)"
+                    ),
+                    "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
+                    "Accept-Language": "en-GB,en;q=0.9",
+                },
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"Failed to fetch {url}: {exc}") from exc
+
+        content_type = response.headers.get("content-type", "").lower()
+        if "pdf" in content_type or response.content[:4] == b"%PDF":
+            raise RuntimeError(
+                f"{url} returned a PDF. Download it and pass the text via --claim instead."
+            )
+
+        raw_text = _html_to_text(response.text)
+        if len(raw_text) > _MAX_FETCH_CHARS:
+            raw_text = raw_text[:_MAX_FETCH_CHARS]
+
+        logger.info(
+            f"Fetched {len(raw_text)} chars from {url}",
+            extra={"operation": "pipeline_fetch_complete", "url": url, "chars": len(raw_text)},
+        )
+
+        return ExtractionInput(
+            trace_id=extraction_input.trace_id,
+            company_id=extraction_input.company_id,
+            source_url=url,
+            source_type=extraction_input.source_type,
+            raw_content=raw_text,
+            publication_date=extraction_input.publication_date,
+        )
 
     # ---------------------------------------------------------------------------
     # Persistence helpers

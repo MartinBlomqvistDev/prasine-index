@@ -173,7 +173,13 @@ class ExtractionInput(BaseModel):
     company_id: uuid.UUID = Field(..., description="Company that published this document.")
     source_url: str = Field(..., description="Canonical URL of the source document.")
     source_type: SourceType = Field(..., description="Document category.")
-    raw_content: str = Field(..., description="Full extracted text content of the document.")
+    raw_content: str | None = Field(
+        default=None,
+        description=(
+            "Full extracted text content of the document. "
+            "If None, the pipeline fetches and extracts text from source_url automatically."
+        ),
+    )
     publication_date: datetime | None = Field(
         default=None,
         description="Publication date of the document, if determinable.",
@@ -277,6 +283,12 @@ class ExtractionAgent:
                 cannot be parsed into valid :py:class:`~models.claim.Claim`
                 objects.
         """
+        if not input.raw_content:
+            raise ValueError(
+                "ExtractionInput.raw_content is empty. "
+                "The pipeline should fetch the URL before calling ExtractionAgent."
+            )
+
         bind_trace_context(
             trace_id=input.trace_id,
             agent_name=AgentName.EXTRACTION.value,
