@@ -9,7 +9,6 @@ trail of everything that succeeded.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import re
 from datetime import UTC, datetime
@@ -77,6 +76,7 @@ def _html_to_text(html: str) -> str:
     extractor = _TextExtractor()
     extractor.feed(html)
     return extractor.get_text()
+
 
 logger = get_logger(__name__)
 
@@ -250,12 +250,13 @@ class Pipeline:
             )
             return []
 
-        results = await asyncio.gather(
-            *[self._run_claim_pipeline(claim) for claim in extraction_result.claims],
-            return_exceptions=False,
-        )
+        results: list[PipelineResult] = []
+        for claim in extraction_result.claims:
+            result = await self._run_claim_pipeline(claim)
+            if result is not None:
+                results.append(result)
 
-        return [r for r in results if r is not None]
+        return results
 
     async def run_discovery(self, company: Company) -> list[PipelineResult]:
         """Run the full pipeline including Discovery for a company.
