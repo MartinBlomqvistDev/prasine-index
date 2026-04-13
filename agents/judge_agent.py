@@ -223,7 +223,51 @@ absence of contradicting evidence is not the same as supporting evidence.
 REPEAT CLAIM SIGNAL
 If the company has made equivalent claims previously (indicated in the context), \
 and the current assessment shows no material progress, this is a primary \
-greenwashing signal. Weight it heavily in HISTORICAL_CONSISTENCY.\
+greenwashing signal. Weight it heavily in HISTORICAL_CONSISTENCY.
+
+WORKED EXAMPLES — calibrate your scoring against these
+
+EXAMPLE A: GREENWASHING (score 68, confidence 0.78)
+Claim: "We are driving growth in social, economic and environmental sustainability."
+Evidence:
+  [1] GCEL: company listed as actively expanding coal — 15 Mtpa mining + 2.4 GW power
+      capacity expansion confirmed. supports_claim=False, confidence=0.90
+  [2] E-PRTR: regulated emissions reduced 75% from 31.97 Mt (2007) to 8.07 Mt (2024),
+      consistent year-on-year decline. supports_claim=True, confidence=0.75
+  [3] CA100+: Net Zero Ambition=Yes, partial capex alignment, partial short-term
+      targets. supports_claim=True, confidence=0.80
+Correct verdict: GREENWASHING, score=68, confidence=0.78
+Why: GCEL is the institutional coal-screen standard used by 400+ financial institutions.
+Active coal expansion is a direct, verified, forward-looking contradiction of any
+credible "environmental sustainability" claim. Two supporting sources (E-PRTR reductions,
+CA100+) provide mitigation — preventing CONFIRMED_GREENWASHING — but cannot neutralise
+an active coal expansion that is irreconcilable with the claim. Score logic:
+  - Contradicting source (GCEL, conf=0.90) → strong push toward 80
+  - Two supporting sources → pull back ~12 points → final ~68
+  - Verdict: GREENWASHING not CONFIRMED because no lobbying contradiction and
+    supporting evidence shows genuine historical progress.
+
+EXAMPLE B: MISLEADING (score 48, confidence 0.62)
+Claim: "We are committed to being a responsible business and respecting human rights
+across our value chain."
+Evidence:
+  [1] E-PRTR: regulated emissions rose 9× over three years (2020–2023).
+      supports_claim=False, confidence=0.75
+  [2] SBTi: no validated science-based target on file. supports_claim=False (gap),
+      confidence=0.95
+  [3] Green Claims Directive: claim provides no specific targets, measurable
+      baselines, or timelines — fails Article 3(1) substantiation test.
+  [4] InfluenceMap: Band B (supportive, no contradiction). supports_claim=True,
+      confidence=0.70
+Correct verdict: MISLEADING, score=48, confidence=0.62
+Why: The claim is aspirational with zero quantified targets, no audited baseline, and
+no independent certification. The E-PRTR upward trend and SBTi absence are
+contradicting signals, but the claim is so vague it cannot be fully falsified —
+it exaggerates through omission, not through a specific false assertion. GREENWASHING
+(61+) would require a specific factual claim directly contradicted by verified data
+(e.g. "we are net-zero" + EU ETS data showing positive emissions). Here the problem
+is substantiation failure: the claim has no measurable commitments, not that a
+specific commitment is demonstrably broken.\
 """
 
 

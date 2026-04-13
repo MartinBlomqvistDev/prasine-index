@@ -79,8 +79,14 @@ def _refresh_data() -> None:
         try:
             spec.loader.exec_module(module)  # type: ignore[union-attr]
             # Each refresh script exposes a main download function with a predictable name.
-            for fn_name in ("download_sbti", "download_influencemap_csv", "download_ca100_csv",
-                            "main", "download_bocc_csv", "download_gcel_csv"):
+            for fn_name in (
+                "download_sbti",
+                "download_influencemap_csv",
+                "download_ca100_csv",
+                "main",
+                "download_bocc_csv",
+                "download_gcel_csv",
+            ):
                 fn = getattr(module, fn_name, None)
                 if fn is not None:
                     fn()
@@ -143,12 +149,12 @@ async def run(
             out_path = _REPORTS_DIR / f"{slug}.md"
             out_path.write_text(r.report_markdown or "No report generated.", encoding="utf-8")
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"Company : {company_name}")
             print(f"Verdict : {r.score.verdict.value}")
             print(f"Score   : {r.score.score:.0f}/100")
             print(f"Report  : {out_path}")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
 
     finally:
         await pipeline.aclose()
@@ -161,17 +167,20 @@ if __name__ == "__main__":
     )
     parser.add_argument("--company", required=True, help="Company name")
     parser.add_argument(
-        "--url", required=True,
+        "--url",
+        required=True,
         help="Source URL — fetched automatically if --claim is omitted",
     )
     parser.add_argument(
-        "--claim", default=None,
+        "--claim",
+        default=None,
         help="Claim text to assess. If omitted, the URL is fetched and its full text assessed.",
     )
     parser.add_argument(
-        "--refresh-data", action="store_true",
+        "--refresh-data",
+        action="store_true",
         help="Download fresh SBTi, InfluenceMap, CA100+, EUTL, E-PRTR, GCEL, and Fossil Finance "
-             "data before running the assessment.",
+        "data before running the assessment.",
     )
     args = parser.parse_args()
 
