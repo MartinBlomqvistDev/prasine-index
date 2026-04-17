@@ -181,12 +181,23 @@ class LobbyingAgent:
         error_message: str | None = None
 
         if not input.company.transparency_register_id:
-            outcome = AgentOutcome.SKIPPED
-            logger.info(
-                "Lobbying check skipped: no Transparency Register ID for company",
-                extra={"operation": "lobbying_skipped"},
-            )
-        else:
+            # Try to resolve the register ID by name before giving up.
+            resolved_id = await self._search_by_name(input.company.name)
+            if resolved_id:
+                input = LobbyingInput(
+                    claim=input.claim,
+                    company=input.company.model_copy(
+                        update={"transparency_register_id": resolved_id}
+                    ),
+                )
+            else:
+                outcome = AgentOutcome.SKIPPED
+                logger.info(
+                    "Lobbying check skipped: company not found in Transparency Register",
+                    extra={"operation": "lobbying_skipped"},
+                )
+
+        if input.company.transparency_register_id:
             async with agent_error_boundary(
                 agent=AgentName.LOBBYING.value,
                 operation="run",
@@ -220,6 +231,43 @@ class LobbyingAgent:
         )
 
         return LobbyingResult(record=record, trace=trace)
+
+    async def _search_by_name(self, company_name: str) -> str | None:
+        """Search the EU Transparency Register by company name.
+
+        Args:
+            company_name: The company name to search for.
+
+        Returns:
+            The register ID string if a match is found, else None.
+        """
+        try:
+            response = await self._http_client.get(
+                f"{_TRANSPARENCY_REGISTER_BASE_URL}/api/v1/organisations",
+                params={"name": company_name, "size": 5},
+            )
+            response.raise_for_status()
+            results = response.json()
+            items = results if isinstance(results, list) else results.get("content", [])
+            if not items:
+                return None
+            name_lower = company_name.lower()
+            for item in items:
+                reg_name = (item.get("name") or "").lower()
+                if name_lower in reg_name or reg_name in name_lower:
+                    reg_id = item.get("id") or item.get("registrationNumber")
+                    if reg_id:
+                        logger.info(
+                            f"Resolved '{company_name}' to register ID {reg_id}",
+                            extra={"operation": "lobbying_name_resolved"},
+                        )
+                        return str(reg_id)
+        except Exception as exc:
+            logger.debug(
+                f"Transparency Register name search failed for '{company_name}': {exc}",
+                extra={"operation": "lobbying_search_failed"},
+            )
+        return None
 
     @retry_async(config=RetryConfig.DEFAULT_HTTP, operation="lobbying_register_fetch")
     async def _fetch_and_assess(self, input: LobbyingInput) -> LobbyingRecord:
