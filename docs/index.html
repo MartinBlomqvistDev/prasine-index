@@ -417,7 +417,7 @@
     <h1>Every green claim.<br>Verified against reality.</h1>
     <p class="hero-sub">
       Prasine Index is an AI pipeline that monitors EU corporate sustainability claims,
-      cross-references them against ten EU open data sources, and publishes a scored
+      cross-references them against eleven EU open data sources, and publishes a scored
       evidence chain citable by journalists, NGOs, and courts.
     </p>
     <div class="cta-group">
@@ -484,7 +484,7 @@
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-name">Verification Agent</div>
-        <div class="step-desc">Queries ten EU open data sources in parallel. Partial failures are tolerated — if one source is down, the pipeline continues with what was retrieved.</div>
+        <div class="step-desc">Queries eleven EU open data sources in parallel. Partial failures are tolerated — if one source is down, the pipeline continues with what was retrieved.</div>
         <span class="step-tag tag-langgraph">LangGraph</span>
       </div>
       <div class="step">
@@ -508,7 +508,7 @@
 
     <div class="verification-note">
       <strong>Why LangGraph only at step 4?</strong>
-      The Verification Agent queries ten independent data sources concurrently and must
+      The Verification Agent queries eleven independent data sources concurrently and must
       handle partial failures gracefully — exactly the fan-out / partial-state-merge problem
       LangGraph's <code>StateGraph</code> with <code>operator.add</code> reducers solves.
       The other six agents are single-step operations where raw SDK gives better
@@ -942,7 +942,7 @@
 <section id="sources">
   <div class="container">
     <div class="section-label">Data Sources</div>
-    <h2>Ten EU open data sources.</h2>
+    <h2>Eleven EU open data sources.</h2>
     <p class="section-desc">
       All EU open data. No proprietary APIs. Every source is independently authoritative.
     </p>
