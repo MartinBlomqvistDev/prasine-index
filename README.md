@@ -58,9 +58,9 @@ Report Agent              ← raw Anthropic SDK
 
 **Context Agent** — queries PostgreSQL for the company's claim history, aggregate scores, score trend, and semantically similar prior claims via pgvector cosine similarity before verification begins.
 
-**Verification Agent** — queries ten parallel sources: EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, and EUR-Lex, aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
+**Verification Agent** — queries eleven parallel sources: EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, and EU Transparency Register, aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
 
-**Lobbying Agent** — retrieves the company's Transparency Register record and classifies whether its lobbying activity contradicts its green claims.
+**Lobbying Agent** — searches the EU Transparency Register by company name (no pre-seeded ID required), retrieves the company's declared lobbying activities and fields of interest, and classifies whether its lobbying stance contradicts its green claims. A company scoring D+ on InfluenceMap while lobbying in EU climate policy areas is flagged as a primary CONFIRMED_GREENWASHING signal.
 
 **Judge Agent** — LLM-as-judge. Receives the complete evidence package and produces a calibrated `GreenwashingScore` (0–100) with per-dimension breakdown and full chain-of-thought reasoning.
 
@@ -74,7 +74,7 @@ This is the most important architectural decision in the codebase, and it is del
 
 **The case for LangGraph at the Verification Agent:**
 
-The Verification Agent queries ten independent data sources — EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, and EUR-Lex — and must:
+The Verification Agent queries eleven independent data sources — EU ETS, CDP, SBTi, E-PRTR, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, and EU Transparency Register — and must:
 
 - Execute all four queries concurrently (never sequentially — latency would compound)
 - Accumulate results from each branch as they complete
@@ -214,7 +214,7 @@ Returns every agent step in chronological order with duration, token count, outc
 | Banking on Climate Chaos | Fossil fuel financing by 60 largest banks, 2016–present | **Active** — local bulk CSV via `scripts/refresh_fossil_finance.py` |
 | Global Coal Exit List (GCEL) | ~1,000 companies active in coal mining or power | **Active** — local bulk CSV via `scripts/refresh_gcel.py` |
 | EUR-Lex | Green Claims Directive, CSRD, and EU ETS legislation as regulatory baseline | **Active** — static standards (legislation does not change) |
-| EU Transparency Register | Lobbying activities and fields of interest | Planned — Lobbying Agent |
+| EU Transparency Register | Live Brussels lobbying declarations — Lobbying Agent searches by name, no pre-seeded ID required | **Active** — live public API |
 
 **EU ETS** data is verified by accredited independent third parties under EU Regulation 601/2012. It is the highest-quality ground truth for CO2 emission claims — a company claiming reductions that do not appear in EUTL verified data is the most direct greenwashing signal available.
 
@@ -357,6 +357,31 @@ python scripts/refresh_gcel.py
 
 Saves to `data/gcel_companies.csv`. No account required.
 
+### Running a One-Off Assessment
+
+`scripts/run_assessment.py` runs the full pipeline against any company and saves a Markdown report to `docs/reports/<slug>.md`.
+
+```bash
+# Auto-fetch the sustainability page and extract + assess all green claims found:
+python scripts/run_assessment.py \
+  --company "TotalEnergies SE" \
+  --url "https://totalenergies.com/sustainability"
+
+# Provide the claim text directly (faster, avoids JS-rendered pages):
+python scripts/run_assessment.py \
+  --company "Glencore plc" \
+  --url "https://www.glencore.com/sustainability" \
+  --claim "Glencore supports the Paris Agreement and is on track to achieve net zero by 2050."
+
+# Refresh all bulk data sources first, then run:
+python scripts/run_assessment.py \
+  --company "Shell plc" \
+  --url "https://shell.com/sustainability" \
+  --refresh-data
+```
+
+Cost: ~$0.05–0.15 per run on Haiku defaults (scales with number of claims extracted).
+
 ### Running the API
 
 ```bash
@@ -439,6 +464,7 @@ prasine-index/
 ├── eval/
 │   └── golden_dataset.py       # 20 known greenwashing cases + eval runner
 ├── scripts/
+│   ├── run_assessment.py       # Run full pipeline against any company URL or claim text
 │   ├── refresh_eutl.py         # Download latest EU ETS daily snapshot
 │   ├── refresh_eutl.bat        # Windows Task Scheduler wrapper
 │   ├── refresh_sbti.py         # Download SBTi Companies Taking Action CSV
@@ -449,6 +475,9 @@ prasine-index/
 │   ├── refresh_fossil_finance.py  # Download Banking on Climate Chaos CSV
 │   ├── refresh_gcel.py         # Download Urgewald Global Coal Exit List CSV
 │   └── seed_eval_companies.py  # Insert all 20 eval companies with deterministic UUIDs
+├── docs/
+│   ├── index.html              # Public landing page (GitHub Pages)
+│   └── reports/                # Published assessment reports (Markdown)
 ├── data/                       # Local bulk datasets (not committed — download via refresh scripts)
 │   ├── sbti_companies.csv      # SBTi target data
 │   ├── cdp_companies.csv       # CDP self-reported data
@@ -496,38 +525,45 @@ Prasine Index does not give legal advice. Published reports are evidence compila
 
 ---
 
-## Example Output
+## Real Assessment Results
 
-Below is an abridged real pipeline output for Ryanair's "Europe's greenest airline" claim.
+Published reports are in [docs/reports/](docs/reports/). Selected results:
 
-**Claim:** *"Ryanair is Europe's greenest airline."*  
-**Verdict:** `CONFIRMED_GREENWASHING` — Score: **82 / 100**
+| Company | Claim (excerpt) | Verdict | Score |
+| ------- | --------------- | ------- | ----- |
+| KLM Royal Dutch Airlines | "Fly Responsibly — make flying more sustainable" | `CONFIRMED_GREENWASHING` | **92** |
+| Ryanair Holdings plc | "Europe's greenest airline" | `CONFIRMED_GREENWASHING` | **89** |
+| Glencore plc | "Net zero Scope 1, 2 and 3 by 2050" | `GREENWASHING` | **78** |
+| Enel SpA | "Driving growth in environmental sustainability" | `GREENWASHING` | **68** |
+| TotalEnergies SE | "More Energy, Less Emissions" | `GREENWASHING` | **67** |
+| RWE AG | "EUR 50 billion in renewables by 2030" | `GREENWASHING` | **64** |
+| IKEA Group | "Responsible business, human rights across value chain" | `MISLEADING` | **48** |
+| Danone SA | "Collaborating with multi-stakeholder networks" | `MISLEADING` | **48** |
+
+Score bands: 0–20 Substantiated · 21–45 Insufficient evidence · 46–60 Misleading · 61–80 Greenwashing · 81–100 Confirmed greenwashing
+
+### KLM Example (CONFIRMED_GREENWASHING · 92/100)
 
 ```text
-REGULATORY ENFORCEMENT ACTIONS
-  Ruling body: ENFORCEMENT | Year: 2022 | Confidence: 0.90
-  Supports claim: False
-  UK Advertising Standards Authority (ASA) banned Ryanair advertisements in 2022
-  for claiming to be Europe's greenest airline without substantiation. The ASA ruled
-  the claim misleading and prohibited its use.
+REGULATORY ENFORCEMENT — Dutch ACM, 2021
+  Supports claim: False | Confidence: 0.95
+  ACM ruled KLM's "Fly Responsibly" campaign misleading. Carbon offset schemes
+  did not represent real, permanent emission reductions. KLM ordered to stop.
 
-EU ETS VERIFIED EMISSIONS (2005–2023)
-  Trend: UP 41% from 2005 to 2023
-  Most recent: 9,821,432 tCO2e (2023)
-  Supports claim: False (confidence: 0.75)
-  Ryanair's verified CO2 emissions increased 41% over the monitoring period.
-  Among the highest per-passenger emissions of any European airline.
+COURT RULING — Amsterdam District Court, 2023
+  Supports claim: False | Confidence: 0.90
+  Fossielvrij NL v. KLM: campaign ruled in violation of the Unfair Commercial
+  Practices Directive. KLM ordered to stop the "Fly Responsibly" campaign.
 
-INFLUENCE MAP
-  Score: D+ (obstructive climate lobbying)
-  Supports claim: False (confidence: 0.85)
-  InfluenceMap D+ band: Ryanair has opposed fuel taxation and lobbied against
-  aviation inclusion in the EU ETS.
+EU ETS VERIFIED EMISSIONS
+  Supports claim: False | Confidence: 0.75
+  Verified absolute emissions contradict "more sustainable flying" with no
+  credible decarbonisation pathway disclosed.
 ```
 
-**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. InfluenceMap D+ confirms that the green positioning is contradicted by policy behaviour. No evidence supports the claim. Score: 82 — CONFIRMED_GREENWASHING."*
+**Judge reasoning (excerpt):** *"Two concluded regulatory and court rulings directly name this campaign as misleading — the highest possible evidence weight. No plausible emissions reduction pathway exists without a published coal exit or fleet replacement timeline. Score: 92 — CONFIRMED_GREENWASHING."*
 
-Full example reports are in [examples/](examples/).
+Full example reports: [examples/](examples/) · [docs/reports/](docs/reports/)
 
 ---
 
