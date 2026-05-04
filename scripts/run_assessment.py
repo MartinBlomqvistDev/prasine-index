@@ -114,6 +114,7 @@ async def run(
     company_name: str,
     source_url: str,
     claim_text: str | None = None,
+    max_claims: int = 5,
 ) -> None:
     await init_db()
 
@@ -136,9 +137,9 @@ async def run(
         else:
             print(
                 f"No --claim provided — fetching {source_url} "
-                f"and discovering sustainability subpages (max 5)..."
+                f"and discovering sustainability subpages (max 5, claims capped at {max_claims})..."
             )
-            results = await pipeline.run_from_url(company_id, source_url)
+            results = await pipeline.run_from_url(company_id, source_url, max_claims=max_claims)
 
         if not results:
             print("No claims extracted — the page may be JS-rendered or contain no green claims.")
@@ -184,6 +185,13 @@ if __name__ == "__main__":
         help="Download fresh SBTi, InfluenceMap, CA100+, EUTL, E-PRTR, GCEL, and Fossil Finance "
         "data before running the assessment.",
     )
+    parser.add_argument(
+        "--max-claims",
+        type=int,
+        default=5,
+        help="Maximum number of claims to assess across all discovered pages. "
+        "Caps token spend. Default: 5.",
+    )
     args = parser.parse_args()
 
     if args.refresh_data:
@@ -191,4 +199,4 @@ if __name__ == "__main__":
         _refresh_data()
         print("\nData refresh complete. Running assessment...\n")
 
-    asyncio.run(run(args.company, args.url, args.claim))
+    asyncio.run(run(args.company, args.url, args.claim, args.max_claims))
