@@ -125,18 +125,20 @@ async def run(
     try:
         if claim_text:
             print(f"Using provided claim text ({len(claim_text)} chars)")
+            extraction_input = ExtractionInput(
+                trace_id=uuid.uuid4(),
+                company_id=company_id,
+                source_url=source_url,
+                source_type=SourceType.IR_PAGE,
+                raw_content=claim_text,
+            )
+            results = await pipeline.run_from_document(extraction_input)
         else:
-            print(f"No --claim provided — pipeline will fetch: {source_url}")
-
-        extraction_input = ExtractionInput(
-            trace_id=uuid.uuid4(),
-            company_id=company_id,
-            source_url=source_url,
-            source_type=SourceType.IR_PAGE,
-            raw_content=claim_text,  # None triggers auto-fetch in pipeline
-        )
-
-        results = await pipeline.run_from_document(extraction_input)
+            print(
+                f"No --claim provided — fetching {source_url} "
+                f"and discovering sustainability subpages (max 5)..."
+            )
+            results = await pipeline.run_from_url(company_id, source_url)
 
         if not results:
             print("No claims extracted — the page may be JS-rendered or contain no green claims.")

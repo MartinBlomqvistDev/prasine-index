@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+import uuid
 from datetime import UTC, datetime
 from html.parser import HTMLParser
 from typing import Any
@@ -21,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 
 from agents.context_agent import ContextAgent, ContextInput
-from agents.discovery_agent import DiscoveryAgent
+from agents.discovery_agent import DiscoveryAgent, extract_relevant_links
 from agents.extraction_agent import ExtractionAgent, ExtractionInput
 from agents.judge_agent import JudgeAgent, JudgeInput
 from agents.lobbying_agent import LobbyingAgent, LobbyingInput
@@ -29,7 +30,7 @@ from agents.report_agent import ReportAgent, ReportInput
 from agents.verification_agent import VerificationAgent, VerificationInput
 from core.database import get_session
 from core.logger import bind_trace_context, get_logger
-from models.claim import Claim, ClaimLifecycle, ClaimStatus
+from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
 from models.company import Company
 from models.score import GreenwashingScore
 from models.trace import AgentName, AgentTrace
@@ -279,6 +280,101 @@ class Pipeline:
         all_results: list[PipelineResult] = []
         for doc in discovery_result.documents_found:
             results = await self.run_from_document(doc.to_extraction_input())
+            all_results.extend(results)
+
+        return all_results
+
+    async def run_from_url(
+        self,
+        company_id: uuid.UUID,
+        source_url: str,
+        source_type: SourceType = SourceType.IR_PAGE,
+        max_subpages: int = 5,
+    ) -> list[PipelineResult]:
+        """Fetch a URL, discover relevant sustainability subpages, run pipeline on all.
+
+        Unlike ``run_from_document`` (which processes a single pre-fetched page),
+        this method fetches *source_url*, extracts internal links that score
+        positively on sustainability keywords, fetches each of those subpages
+        (one level deep), and runs the full pipeline on every page.  This ensures
+        that CCS project pages, annual-report downloads, and blog posts linked
+        from a company's main sustainability page are all assessed — not just the
+        landing page itself.
+
+        Args:
+            company_id: UUID of the company being assessed.
+            source_url: Entry-point URL — the main sustainability or IR page.
+            source_type: Source type applied to all discovered pages.
+            max_subpages: Maximum number of additional subpages to fetch beyond
+                the initial URL.  Defaults to 5.
+
+        Returns:
+            Combined list of :py:class:`PipelineResult` from all pages processed.
+        """
+        _headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
+                "+https://github.com/MartinBlomqvistDev/prasine-index)"
+            ),
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
+            "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
+        }
+
+        # Fetch entry-point page, keeping raw HTML for link extraction.
+        logger.info(
+            f"run_from_url: fetching {source_url}",
+            extra={"operation": "pipeline_run_from_url", "url": source_url},
+        )
+        try:
+            resp = await self._http_client.get(source_url, headers=_headers)
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
+
+        raw_html = resp.text
+        pages: list[tuple[str, str]] = []  # (url, extracted_text)
+        entry_text = _html_to_text(raw_html)[:_MAX_FETCH_CHARS]
+        if entry_text:
+            pages.append((source_url, entry_text))
+
+        # Discover and fetch subpages.
+        seen: set[str] = {source_url.rstrip("/")}
+        for sub_url in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
+            if sub_url in seen:
+                continue
+            seen.add(sub_url)
+            try:
+                sub_resp = await self._http_client.get(sub_url, headers=_headers)
+                sub_resp.raise_for_status()
+                sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
+                if sub_text:
+                    pages.append((sub_url, sub_text))
+                    logger.info(
+                        f"run_from_url: discovered subpage {sub_url} ({len(sub_text)} chars)",
+                        extra={"operation": "pipeline_subpage_fetched", "url": sub_url},
+                    )
+            except Exception as exc:
+                logger.warning(
+                    f"run_from_url: skipping subpage {sub_url}: {exc}",
+                    extra={"operation": "pipeline_subpage_failed", "url": sub_url},
+                )
+
+        logger.info(
+            f"run_from_url: {len(pages)} page(s) to process for {source_url}",
+            extra={"operation": "pipeline_run_from_url_pages", "count": len(pages)},
+        )
+
+        # Run full pipeline on each discovered page.
+        all_results: list[PipelineResult] = []
+        for page_url, page_content in pages:
+            extraction_input = ExtractionInput(
+                trace_id=uuid.uuid4(),
+                company_id=company_id,
+                source_url=page_url,
+                source_type=source_type,
+                raw_content=page_content,
+            )
+            results = await self.run_from_document(extraction_input)
             all_results.extend(results)
 
         return all_results

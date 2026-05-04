@@ -15,6 +15,8 @@ import os
 import time
 import uuid
 from datetime import UTC, datetime
+from html.parser import HTMLParser
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,7 +34,157 @@ __all__ = [
     "DiscoveredDocument",
     "DiscoveryAgent",
     "DiscoveryResult",
+    "extract_relevant_links",
 ]
+
+# ---------------------------------------------------------------------------
+# Subpage discovery — shared with pipeline.py
+# ---------------------------------------------------------------------------
+
+# Bilingual (Swedish + English) sustainability signal keywords.
+# Matched against URL path segments and anchor text (lowercased).
+_SUSTAINABILITY_KEYWORDS: frozenset[str] = frozenset(
+    {
+        # Swedish
+        "hallbar",
+        "hållbar",
+        "klimat",
+        "koldioxid",
+        "utsläpp",
+        "förnybar",
+        "fornybar",
+        "miljo",
+        "miljö",
+        "fossil",
+        "netnoll",
+        "nettonoll",
+        "infangning",
+        "infångning",
+        "biogas",
+        "vindkraft",
+        "solenergi",
+        "fjärrvärme",
+        "fjarrvärme",
+        "cirkulär",
+        "cirkular",
+        "atervinning",
+        "återvinning",
+        "klimatneutral",
+        "hallbarhetsarbete",
+        "hallbarhetsredovisning",
+        "hållbarhetsredovisning",
+        "ansvar",
+        # English
+        "sustainability",
+        "sustainable",
+        "climate",
+        "carbon",
+        "co2",
+        "ghg",
+        "emissions",
+        "emission",
+        "renewable",
+        "environment",
+        "environmental",
+        "net-zero",
+        "netzero",
+        "ccs",
+        "capture",
+        "storage",
+        "esg",
+        "decarbonisation",
+        "decarbonization",
+        "offset",
+        "neutrality",
+        "biodiversity",
+        "circular",
+        "recycling",
+        "hydrogen",
+        "csrd",
+        "responsibility",
+        "responsible",
+        # Short path tokens common in sustainability navigation
+        "csr",
+        "green",
+        "impact",
+    }
+)
+
+
+class _LinkExtractor(HTMLParser):
+    """Extract (href, anchor_text) pairs from an HTML document."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.links: list[tuple[str, str]] = []
+        self._href: str | None = None
+        self._buf: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag == "a":
+            self._href = dict(attrs).get("href") or None
+            self._buf = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "a" and self._href:
+            self.links.append((self._href, "".join(self._buf).strip()))
+            self._href = None
+            self._buf = []
+
+    def handle_data(self, data: str) -> None:
+        if self._href is not None:
+            self._buf.append(data)
+
+
+def _score_link(url: str, anchor: str) -> int:
+    text = urlparse(url).path.lower() + " " + anchor.lower()
+    return sum(1 for kw in _SUSTAINABILITY_KEYWORDS if kw in text)
+
+
+def extract_relevant_links(html: str, base_url: str, max_links: int = 5) -> list[str]:
+    """Extract up to *max_links* sustainability-relevant internal URLs from *html*.
+
+    Parses all ``<a href>`` links, filters to the same domain as *base_url*,
+    scores each link by how many sustainability keywords appear in its URL path
+    or anchor text, and returns the top *max_links* unique URLs sorted by score.
+
+    Args:
+        html: Raw HTML content of the source page.
+        base_url: The URL the HTML was fetched from (used for resolving relative
+            hrefs and enforcing same-domain filtering).
+        max_links: Maximum number of subpage URLs to return.
+
+    Returns:
+        List of absolute URLs ranked by sustainability keyword score, highest first.
+    """
+    base_domain = urlparse(base_url).netloc
+    parser = _LinkExtractor()
+    try:
+        parser.feed(html)
+    except Exception:
+        return []
+
+    seen: set[str] = {base_url.rstrip("/")}
+    scored: list[tuple[int, str]] = []
+
+    for href, anchor in parser.links:
+        if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
+            continue
+        full = urljoin(base_url, href)
+        parsed = urlparse(full)
+        if parsed.netloc != base_domain:
+            continue
+        clean = parsed._replace(fragment="").geturl().rstrip("/")
+        if clean in seen:
+            continue
+        score = _score_link(clean, anchor)
+        if score > 0:
+            seen.add(clean)
+            scored.append((score, clean))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [u for _, u in scored[:max_links]]
+
 
 logger = get_logger(__name__)
 
@@ -185,16 +337,33 @@ class DiscoveryAgent:
         )
 
         documents: list[DiscoveredDocument] = []
-        urls_to_check = _collect_urls(company)
+        initial_urls = _collect_urls(company)
+        # Grows as subpages are discovered; tracks all URLs queued this run.
+        queued: set[str] = {url for url, _ in initial_urls}
+        pending: list[tuple[str, SourceType]] = list(initial_urls)
         sources_checked = 0
         outcome = AgentOutcome.SUCCESS
 
         async with agent_error_boundary(agent=AgentName.DISCOVERY.value, operation="run"):
-            for url, source_type in urls_to_check:
+            for url, source_type in pending:
                 sources_checked += 1
                 doc = await self._check_url(company, url, source_type, trace_id)
                 if doc is not None:
                     documents.append(doc)
+                    # Discover sustainability-relevant subpages from raw HTML.
+                    # Only one level deep — subpages of subpages are not followed.
+                    if url in {u for u, _ in initial_urls}:
+                        for sub_url in extract_relevant_links(doc.raw_content, url, max_links=5):
+                            if sub_url not in queued:
+                                queued.add(sub_url)
+                                pending.append((sub_url, SourceType.IR_PAGE))
+                                logger.info(
+                                    f"Subpage queued for discovery: {sub_url}",
+                                    extra={
+                                        "operation": "discovery_subpage_queued",
+                                        "url": sub_url,
+                                    },
+                                )
 
         logger.info(
             f"Discovery complete: {len(documents)} new/changed document(s) found "
