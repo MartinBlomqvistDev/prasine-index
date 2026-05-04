@@ -121,21 +121,37 @@ This includes:
 - Supply chain and biodiversity commitments
 - Circular economy and waste reduction claims
 - Carbon neutrality or climate-positive claims
+- Project-specific commitments with quantified targets and timelines — THESE ARE \
+  THE HIGHEST PRIORITY. A statement like "from 2029 we will capture 200,000 tonnes \
+  of CO2 per year" or "Med start 2029 ska vi fånga in 200 000 ton koldioxid varje år" \
+  is a specific, verifiable future commitment and must always be extracted. Extract \
+  the full passage including the project name, quantity, year, and any funding context.
+- Claims made in any EU language — extract verbatim in the original language without \
+  translation.
 
 WHAT TO EXCLUDE
-- Raw emissions figures presented as disclosures without an attached claim or assertion
-- Legal boilerplate and regulatory compliance statements that make no environmental assertion
-- Product safety or quality claims unrelated to environmental performance
+- Purely historical emissions data in tabular form (e.g. an annual report table showing \
+  "Scope 1 emissions 2023: 450,000 tCO2e") without any attached forward-looking claim.
+- Legal boilerplate and regulatory compliance statements that make no environmental assertion.
+- Product safety or quality claims unrelated to environmental performance.
+- NOTE: A future-oriented figure with a year target is NEVER a raw disclosure — it is \
+  always a claim. "We will capture X tonnes by YYYY" must be extracted even if it sounds \
+  like a factual project description.
 
 EXTRACTION RULES
 1. Extract verbatim — preserve the exact wording from the document including any \
    exaggerations, vague language, or unsubstantiated assertions. The Verification \
    Agent will assess credibility; your role is accurate extraction.
 2. If a claim spans multiple sentences, include the full passage needed to understand \
-   the assertion in context.
+   the assertion in context. For project claims, include the project name, the \
+   quantified target, the timeline, and any stated funding or certification.
 3. Assign the most specific ClaimCategory that applies.
 4. Record the page number or section heading if it is identifiable in the text.
-5. Call the extract_green_claims tool exactly once with the complete list.\
+5. Prioritise specificity: extract the most concrete, quantified claims first. A \
+   vague heading like "our journey to net zero" and a specific claim like "we will \
+   capture 200,000 tonnes per year from 2029" are both claims — but the specific one \
+   is more important and must not be omitted in favour of the heading.
+6. Call the extract_green_claims tool exactly once with the complete list.\
 """
 
 # ---------------------------------------------------------------------------

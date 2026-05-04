@@ -114,16 +114,31 @@ _SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
 ]
 
 
+_HAS_LARGE_NUMBER = re.compile(r"\d{1,3}[,\s]?\d{3}")
+_HAS_YEAR = re.compile(r"20[2-9]\d")
+_HAS_TECHNOLOGY = re.compile(
+    r"\bccs\b|\bcapture\b|\binfångning\b|\binfangning\b|\bhydrogen\b|\bvätgas\b"
+    r"|\bfånga\b|\bfanga\b|\bnettonoll\b|\bnet.zero\b",
+    re.I,
+)
+
+
 def _claim_priority_score(claim: Claim) -> int:
     """Return a priority score for a claim — higher means more worth verifying.
 
-    Combines category weight with text specificity heuristics so that a
-    quantified CCS or net-zero claim always outranks vague responsibility copy.
+    Combines category weight with text specificity heuristics. A compound
+    bonus (+5) is awarded when a claim has both a specific quantity AND a year
+    target — this combination (e.g. "capture 200,000 tonnes from 2029") marks
+    the most concretely verifiable claims and must beat vague headings.
     """
     category_score = _CATEGORY_WEIGHT.get(claim.claim_category.value, 1)
     text = (claim.raw_text or "") + " " + (claim.normalised_text or "")
     specificity = sum(1 for p in _SPECIFICITY_PATTERNS if p.search(text))
-    return category_score + specificity
+    # Compound bonus: quantity + year = maximally verifiable commitment.
+    compound = 5 if (_HAS_LARGE_NUMBER.search(text) and _HAS_YEAR.search(text)) else 0
+    # Technology bonus: CCS/hydrogen/net-zero in the claim text indicates high risk.
+    tech = 3 if _HAS_TECHNOLOGY.search(text) else 0
+    return category_score + specificity + compound + tech
 
 
 class PipelineConfig(BaseModel):
