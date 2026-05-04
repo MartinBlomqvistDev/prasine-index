@@ -146,18 +146,25 @@ async def run(
             return
 
         _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        slug = _slug(company_name)
 
-        for r in results:
-            slug = _slug(company_name)
-            out_path = _REPORTS_DIR / f"{slug}.md"
+        # Print all verdicts; write each claim to its own numbered file.
+        for i, r in enumerate(results, start=1):
+            out_path = _REPORTS_DIR / f"{slug}-{i}.md"
             out_path.write_text(r.report_markdown or "No report generated.", encoding="utf-8")
-
             print(f"\n{'=' * 60}")
-            print(f"Company : {company_name}")
+            print(f"Company : {company_name}  [claim {i}/{len(results)}]")
             print(f"Verdict : {r.score.verdict.value}")
             print(f"Score   : {r.score.score:.0f}/100")
+            print(f"Claim   : {(r.claim.raw_text or '')[:120]}")
             print(f"Report  : {out_path}")
             print(f"{'=' * 60}\n")
+
+        # Write the highest-scoring claim as the canonical report.
+        best = max(results, key=lambda r: r.score.score)
+        best_path = _REPORTS_DIR / f"{slug}.md"
+        best_path.write_text(best.report_markdown or "No report generated.", encoding="utf-8")
+        print(f"Canonical report (highest score {best.score.score:.0f}/100): {best_path}")
 
     finally:
         await pipeline.aclose()
