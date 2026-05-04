@@ -82,6 +82,50 @@ def _html_to_text(html: str) -> str:
 logger = get_logger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Claim priority scoring (used by run_from_url to pick the best N claims)
+# ---------------------------------------------------------------------------
+
+# Category priority — higher = more verifiable / higher greenwashing risk.
+_CATEGORY_WEIGHT: dict[str, int] = {
+    "NET_ZERO_TARGET": 10,
+    "CARBON_NEUTRAL": 9,
+    "EMISSIONS_REDUCTION": 8,
+    "SCIENCE_BASED_TARGETS": 8,
+    "RENEWABLE_ENERGY": 6,
+    "SUSTAINABLE_SUPPLY_CHAIN": 5,
+    "CIRCULAR_ECONOMY": 4,
+    "BIODIVERSITY": 3,
+    "OTHER": 1,
+}
+
+# Regex patterns that indicate a specific, verifiable claim.
+_SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
+    re.compile(r"\d{1,3}[,\s]?\d{3}"),  # large numbers (e.g. 200,000)
+    re.compile(r"\d+\s*%"),  # percentages
+    re.compile(r"20[2-9]\d"),  # year targets (2020-2099)
+    re.compile(r"\bzero\b|\bnoll\b", re.I),  # zero-emissions language
+    re.compile(r"\b100\s*%"),  # 100% claims
+    re.compile(r"\bfirst\b|\bförst\b|\bworld.s\b", re.I),  # superlatives
+    re.compile(r"\bccs\b|\bcapture\b|\binfångning\b|\binfangning\b", re.I),  # CCS
+    re.compile(r"\bhydrogen\b|\bvätgas\b", re.I),  # hydrogen
+    re.compile(r"\bnet.zero\b|\bnetto.*noll\b|\bnettonoll\b", re.I),  # net-zero
+    re.compile(r"\bscope [123]\b", re.I),  # GHG scopes
+]
+
+
+def _claim_priority_score(claim: Claim) -> int:
+    """Return a priority score for a claim — higher means more worth verifying.
+
+    Combines category weight with text specificity heuristics so that a
+    quantified CCS or net-zero claim always outranks vague responsibility copy.
+    """
+    category_score = _CATEGORY_WEIGHT.get(claim.claim_category.value, 1)
+    text = (claim.raw_text or "") + " " + (claim.normalised_text or "")
+    specificity = sum(1 for p in _SPECIFICITY_PATTERNS if p.search(text))
+    return category_score + specificity
+
+
 class PipelineConfig(BaseModel):
     """Configuration for a Pipeline instance.
 
@@ -290,26 +334,28 @@ class Pipeline:
         source_url: str,
         source_type: SourceType = SourceType.IR_PAGE,
         max_subpages: int = 5,
+        max_claims: int = 5,
     ) -> list[PipelineResult]:
-        """Fetch a URL, discover relevant sustainability subpages, run pipeline on all.
+        """Fetch a URL, discover relevant sustainability subpages, run pipeline on top claims.
 
-        Unlike ``run_from_document`` (which processes a single pre-fetched page),
-        this method fetches *source_url*, extracts internal links that score
-        positively on sustainability keywords, fetches each of those subpages
-        (one level deep), and runs the full pipeline on every page.  This ensures
-        that CCS project pages, annual-report downloads, and blog posts linked
-        from a company's main sustainability page are all assessed — not just the
-        landing page itself.
+        Strategy: extraction is cheap (one LLM call per page); verification +
+        judge + report are expensive.  This method therefore runs extraction
+        across *all* discovered pages first, ranks every extracted claim by
+        category priority and text specificity, then runs the full expensive
+        pipeline on only the top *max_claims* claims.  This guarantees that a
+        CCS target page or net-zero blog post — even if linked two levels deep —
+        beats vague "responsible business" copy from the landing page.
 
         Args:
             company_id: UUID of the company being assessed.
             source_url: Entry-point URL — the main sustainability or IR page.
             source_type: Source type applied to all discovered pages.
-            max_subpages: Maximum number of additional subpages to fetch beyond
-                the initial URL.  Defaults to 5.
+            max_subpages: Maximum number of additional subpages to fetch.
+            max_claims: Maximum number of claims to run through the full
+                verification + judge + report pipeline.  Controls token spend.
 
         Returns:
-            Combined list of :py:class:`PipelineResult` from all pages processed.
+            List of :py:class:`PipelineResult` for the top *max_claims* claims.
         """
         _headers = {
             "User-Agent": (
@@ -320,7 +366,7 @@ class Pipeline:
             "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
         }
 
-        # Fetch entry-point page, keeping raw HTML for link extraction.
+        # --- Phase 1: fetch all pages (cheap) ---
         logger.info(
             f"run_from_url: fetching {source_url}",
             extra={"operation": "pipeline_run_from_url", "url": source_url},
@@ -337,7 +383,6 @@ class Pipeline:
         if entry_text:
             pages.append((source_url, entry_text))
 
-        # Discover and fetch subpages.
         seen: set[str] = {source_url.rstrip("/")}
         for sub_url in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
             if sub_url in seen:
@@ -350,7 +395,7 @@ class Pipeline:
                 if sub_text:
                     pages.append((sub_url, sub_text))
                     logger.info(
-                        f"run_from_url: discovered subpage {sub_url} ({len(sub_text)} chars)",
+                        f"run_from_url: discovered subpage {sub_url}",
                         extra={"operation": "pipeline_subpage_fetched", "url": sub_url},
                     )
             except Exception as exc:
@@ -360,12 +405,12 @@ class Pipeline:
                 )
 
         logger.info(
-            f"run_from_url: {len(pages)} page(s) to process for {source_url}",
+            f"run_from_url: {len(pages)} page(s) fetched for {source_url}",
             extra={"operation": "pipeline_run_from_url_pages", "count": len(pages)},
         )
 
-        # Run full pipeline on each discovered page.
-        all_results: list[PipelineResult] = []
+        # --- Phase 2: extract claims from all pages (cheap) ---
+        all_claims: list[Claim] = []
         for page_url, page_content in pages:
             extraction_input = ExtractionInput(
                 trace_id=uuid.uuid4(),
@@ -374,8 +419,33 @@ class Pipeline:
                 source_type=source_type,
                 raw_content=page_content,
             )
-            results = await self.run_from_document(extraction_input)
-            all_results.extend(results)
+            extraction_result = await self._extraction_agent.run(extraction_input)
+            await self._persist_trace(extraction_result.trace)
+            all_claims.extend(extraction_result.claims)
+
+        if not all_claims:
+            return []
+
+        # --- Phase 3: rank claims, keep top N ---
+        ranked = sorted(all_claims, key=_claim_priority_score, reverse=True)
+        selected = ranked[:max_claims]
+
+        logger.info(
+            f"run_from_url: {len(all_claims)} claims extracted, "
+            f"running top {len(selected)} through full pipeline",
+            extra={
+                "operation": "pipeline_claims_selected",
+                "total": len(all_claims),
+                "selected": len(selected),
+            },
+        )
+
+        # --- Phase 4: full pipeline on top claims (expensive) ---
+        all_results: list[PipelineResult] = []
+        for claim in selected:
+            result = await self._run_claim_pipeline(claim)
+            if result is not None:
+                all_results.append(result)
 
         return all_results
 

@@ -511,7 +511,9 @@ class JudgeAgent:
                 trace_id=input.claim.trace_id,
                 score=float(verdict["score"]),
                 score_breakdown={
-                    k: float(v) for k, v in verdict.get("score_breakdown", {}).items()
+                    k: float(v)
+                    for k, v in verdict.get("score_breakdown", {}).items()
+                    if v is not None
                 },
                 verdict=ScoreVerdict(verdict["verdict"]),
                 reasoning=verdict["reasoning"],
