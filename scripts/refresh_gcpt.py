@@ -36,6 +36,7 @@ def check_existing() -> None:
         print(f"GCPT file present: {_DEST} ({size_kb} KB)")
         try:
             import openpyxl
+
             wb = openpyxl.load_workbook(_DEST, read_only=True, data_only=True)
             if _SHEET in wb.sheetnames:
                 ws = wb[_SHEET]

@@ -280,12 +280,9 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
 
     if exiting:
         exiting_names = "; ".join(
-            f"{u.unit_name or u.plant_name} ({u.status.title()})"
-            for u in exiting[:3]
+            f"{u.unit_name or u.plant_name} ({u.status.title()})" for u in exiting[:3]
         )
-        lines.append(
-            f"RETIRING/CANCELLED: {len(exiting)} unit(s) — {exiting_names}."
-        )
+        lines.append(f"RETIRING/CANCELLED: {len(exiting)} unit(s) — {exiting_names}.")
 
     summary = " ".join(lines)
 

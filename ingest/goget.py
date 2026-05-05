@@ -49,7 +49,9 @@ __all__ = ["fetch_goget_data"]
 
 logger = get_logger(__name__)
 
-_XLSX_PATH = Path(__file__).parent.parent / "data" / "Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx"
+_XLSX_PATH = (
+    Path(__file__).parent.parent / "data" / "Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx"
+)
 
 _DEVELOPING_STATUSES = {"in-development"}
 _DISCOVERED_STATUSES = {"discovered"}
@@ -133,7 +135,11 @@ def _load() -> list[_GOGETField]:
 
     try:
         wb = openpyxl.load_workbook(_XLSX_PATH, read_only=True, data_only=True)
-        sheet_name = "Field-level main data" if "Field-level main data" in wb.sheetnames else wb.sheetnames[0]
+        sheet_name = (
+            "Field-level main data"
+            if "Field-level main data" in wb.sheetnames
+            else wb.sheetnames[0]
+        )
         ws = wb[sheet_name]
 
         rows = ws.iter_rows(values_only=True)
@@ -242,10 +248,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     ]
 
     if developing:
-        dev_names = "; ".join(
-            f"{f.name} ({f.country}, {f.fuel_type})"
-            for f in developing[:5]
-        )
+        dev_names = "; ".join(f"{f.name} ({f.country}, {f.fuel_type})" for f in developing[:5])
         lines.append(
             f"IN DEVELOPMENT: {len(developing)} field(s) with FID — capital committed "
             f"to new fossil fuel extraction. Examples: {dev_names}. "

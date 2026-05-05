@@ -54,8 +54,14 @@ _XLSX_PATH = Path(__file__).parent.parent / "data" / "Europe-Gas-Tracker-2026-03
 
 _EXPANDING_STATUSES = {"proposed", "announced", "pre-construction", "construction"}
 _OPERATING_STATUSES = {"operating"}
-_EXITING_STATUSES = {"shelved", "cancelled", "retired", "mothballed",
-                     "shelved - inferred 2 y", "cancelled - inferred 4 y"}
+_EXITING_STATUSES = {
+    "shelved",
+    "cancelled",
+    "retired",
+    "mothballed",
+    "shelved - inferred 2 y",
+    "cancelled - inferred 4 y",
+}
 
 
 class _EGTAsset:
@@ -157,15 +163,17 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("PipelineName", "") or "").strip()
                 if not name:
                     continue
-                assets.append(_EGTAsset(
-                    name=name,
-                    country=str(r.get("CountriesOrAreas", "") or ""),
-                    status=str(r.get("Status", "") or ""),
-                    owner_raw=str(r.get("Owner", "") or ""),
-                    parent_raw=str(r.get("Parent", "") or ""),
-                    capacity="",
-                    asset_type="gas_pipeline",
-                ))
+                assets.append(
+                    _EGTAsset(
+                        name=name,
+                        country=str(r.get("CountriesOrAreas", "") or ""),
+                        status=str(r.get("Status", "") or ""),
+                        owner_raw=str(r.get("Owner", "") or ""),
+                        parent_raw=str(r.get("Parent", "") or ""),
+                        capacity="",
+                        asset_type="gas_pipeline",
+                    )
+                )
 
         # --- LNG Terminals ---
         if "LNG Terminals" in wb.sheetnames:
@@ -179,15 +187,17 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("TerminalName", "") or "").strip()
                 if not name:
                     continue
-                assets.append(_EGTAsset(
-                    name=name,
-                    country=str(r.get("Country/Area", "") or ""),
-                    status=str(r.get("Status", "") or ""),
-                    owner_raw=str(r.get("Owner", "") or ""),
-                    parent_raw=str(r.get("Parent", "") or ""),
-                    capacity=str(r.get("Capacity", "") or ""),
-                    asset_type="lng_terminal",
-                ))
+                assets.append(
+                    _EGTAsset(
+                        name=name,
+                        country=str(r.get("Country/Area", "") or ""),
+                        status=str(r.get("Status", "") or ""),
+                        owner_raw=str(r.get("Owner", "") or ""),
+                        parent_raw=str(r.get("Parent", "") or ""),
+                        capacity=str(r.get("Capacity", "") or ""),
+                        asset_type="lng_terminal",
+                    )
+                )
 
         # --- Oil & Gas Plants ---
         if "Oil & Gas Plants" in wb.sheetnames:
@@ -203,15 +213,17 @@ def _load() -> list[_EGTAsset]:
                     continue
                 # Owner column may vary — try common names
                 owner = str(r.get("Owner", "") or r.get("Parent", "") or "")
-                assets.append(_EGTAsset(
-                    name=name,
-                    country=str(r.get("Country/Area", "") or ""),
-                    status=str(r.get("Status", "") or ""),
-                    owner_raw=owner,
-                    parent_raw=str(r.get("Parent", "") or ""),
-                    capacity=str(r.get("Capacity (MW)", "") or ""),
-                    asset_type="gas_plant",
-                ))
+                assets.append(
+                    _EGTAsset(
+                        name=name,
+                        country=str(r.get("Country/Area", "") or ""),
+                        status=str(r.get("Status", "") or ""),
+                        owner_raw=owner,
+                        parent_raw=str(r.get("Parent", "") or ""),
+                        capacity=str(r.get("Capacity (MW)", "") or ""),
+                        asset_type="gas_plant",
+                    )
+                )
 
         wb.close()
 

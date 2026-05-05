@@ -31,18 +31,12 @@ import zipfile
 from pathlib import Path
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
-_EXPECTED_CSV = (
-    _DATA_DIR
-    / "eea_t_national-emissions-reported_p_2025_v03_r00"
-    / "UNFCCC_v28.csv"
-)
+_EXPECTED_CSV = _DATA_DIR / "eea_t_national-emissions-reported_p_2025_v03_r00" / "UNFCCC_v28.csv"
 
 # EEA data hub bulk download URL for the national emissions dataset.
 # If this URL changes, find the latest at:
 #   https://www.eea.europa.eu/en/datahub/datahubitem-view/3b313f97-7730-4b57-9ef4-4d4c38a82cfa
-_EEA_ZIP_URL = (
-    "https://sdi.eea.europa.eu/data/3b313f97-7730-4b57-9ef4-4d4c38a82cfa"
-)
+_EEA_ZIP_URL = "https://sdi.eea.europa.eu/data/3b313f97-7730-4b57-9ef4-4d4c38a82cfa"
 
 _EEA_ZIP_URL_DIRECT = (
     "https://www.eea.europa.eu/en/datahub/datahubitem-view/"
@@ -132,6 +126,7 @@ def main() -> None:
         print("\nExisting data found — skipping download. Use --force to re-download.")
         print("(Pass --force as argument to override)")
         import sys
+
         if "--force" not in sys.argv:
             return
     download_eea_national()

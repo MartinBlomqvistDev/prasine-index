@@ -153,8 +153,7 @@ def _get_cache() -> dict[str, _TRRecord]:
     except ImportError:
         _cache_by_name = {}
         logger.warning(
-            "openpyxl not installed — cannot load EU TR XLSX. "
-            "Run: pip install openpyxl",
+            "openpyxl not installed — cannot load EU TR XLSX. Run: pip install openpyxl",
             extra={"operation": "eu_tr_cache_no_openpyxl"},
         )
         return _cache_by_name

@@ -637,9 +637,7 @@ async def _node_fetch_gogel(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.GOGEL}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.GOGEL}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -674,9 +672,7 @@ async def _node_fetch_eurostat(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.EUROSTAT}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.EUROSTAT}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -782,9 +778,7 @@ async def _node_fetch_edgar(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.EDGAR}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.EDGAR}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -816,9 +810,7 @@ async def _node_fetch_egt(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.EGT}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.EGT}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -850,9 +842,7 @@ async def _node_fetch_goget(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.GOGET}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.GOGET}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -884,9 +874,7 @@ async def _node_fetch_gcpt(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.GCPT}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.GCPT}: unexpected error — {type(exc).__name__}"],
         }
 
 
@@ -918,9 +906,7 @@ async def _node_fetch_tpi(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.TPI}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.TPI}: unexpected error — {type(exc).__name__}"],
         }
 
 

@@ -56,8 +56,13 @@ _MQ_WEAK = {"0", "1"}
 _MQ_STRONG = {"4", "4STAR"}
 
 # CP alignment tiers
-_CP_PARIS_ALIGNED = {"1.5 Degrees", "Below 2 Degrees", "2 Degrees",
-                     "2 Degrees (High Efficiency)", "2 Degrees (Shift-Improve)"}
+_CP_PARIS_ALIGNED = {
+    "1.5 Degrees",
+    "Below 2 Degrees",
+    "2 Degrees",
+    "2 Degrees (High Efficiency)",
+    "2 Degrees (Shift-Improve)",
+}
 _CP_WEAK_ALIGNED = {"National Pledges", "International Pledges", "Paris Pledges"}
 _CP_NOT_ALIGNED = {"Not Aligned"}
 _CP_NO_DISCLOSURE = {"No or unsuitable disclosure", "Not Assessed"}
@@ -93,7 +98,9 @@ class _TPIRecord:
             "4": "Strategic",
             "4STAR": "Strategic+",
         }
-        return labels.get(self.mq_level, f"Level {self.mq_level}" if self.mq_level else "Not assessed")
+        return labels.get(
+            self.mq_level, f"Level {self.mq_level}" if self.mq_level else "Not assessed"
+        )
 
     @property
     def is_not_aligned_2050(self) -> bool:

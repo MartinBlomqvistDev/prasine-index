@@ -206,8 +206,19 @@ async def fetch_eea_national_data(claim: Claim, company: object) -> list[Evidenc
     if not country_code:
         # Try to infer from claim or company name for Swedish companies
         claim_text = (getattr(claim, "raw_text", "") or "").lower()
-        if any(kw in claim_text for kw in ("sweden", "sverige", "svensk", "helsingborg",
-                                            "stockholm", "malmö", "gothenburg", "göteborg")):
+        if any(
+            kw in claim_text
+            for kw in (
+                "sweden",
+                "sverige",
+                "svensk",
+                "helsingborg",
+                "stockholm",
+                "malmö",
+                "gothenburg",
+                "göteborg",
+            )
+        ):
             country_code = "SE"
         elif any(kw in claim_text for kw in ("norway", "norge", "norsk")):
             country_code = "NO"
@@ -244,7 +255,7 @@ async def fetch_eea_national_data(claim: Claim, company: object) -> list[Evidenc
         trend_str = (
             f" {country_name}'s total GHG emissions have {direction} "
             f"by {abs(change_pct):.1f}% since 1990 "
-            f"(from {baseline_1990/1000:.1f} Mt CO2e in 1990 to "
+            f"(from {baseline_1990 / 1000:.1f} Mt CO2e in 1990 to "
             f"{latest_total_mt:.1f} Mt CO2e in {latest_year})."
         )
 

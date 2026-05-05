@@ -226,8 +226,7 @@ def _get_cache() -> tuple[
 
     total = sum(len(v) for v in by_promoter.values())
     logger.info(
-        f"EU Innovation Fund cache loaded: {total} projects from "
-        f"{len(by_promoter)} promoters",
+        f"EU Innovation Fund cache loaded: {total} projects from {len(by_promoter)} promoters",
         extra={"operation": "eif_cache_loaded"},
     )
     return _cache_by_name, _cache_by_promoter
@@ -288,9 +287,7 @@ async def fetch_eu_innovation_fund_data(claim: Claim, company: object) -> list[E
 
     results = []
     for project in projects:
-        grant_str = (
-            f"EUR {project.grant_eur:,.0f}" if project.grant_eur else "amount not disclosed"
-        )
+        grant_str = f"EUR {project.grant_eur:,.0f}" if project.grant_eur else "amount not disclosed"
         year_str = str(project.year) if project.year else "year not recorded"
         summary = (
             f"EU Innovation Fund: {name!r} (promoter: {project.promoter!r}) received "

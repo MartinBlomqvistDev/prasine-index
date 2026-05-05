@@ -52,21 +52,59 @@ _HEADERS = {
 
 # ISO alpha-3 codes Climate TRACE uses for gadmId (country level)
 _ISO2_TO_ISO3: dict[str, str] = {
-    "AT": "AUT", "BE": "BEL", "BG": "BGR", "CY": "CYP", "CZ": "CZE",
-    "DE": "DEU", "DK": "DNK", "EE": "EST", "ES": "ESP", "FI": "FIN",
-    "FR": "FRA", "GR": "GRC", "HR": "HRV", "HU": "HUN", "IE": "IRL",
-    "IT": "ITA", "LT": "LTU", "LU": "LUX", "LV": "LVA", "MT": "MLT",
-    "NL": "NLD", "PL": "POL", "PT": "PRT", "RO": "ROU", "SE": "SWE",
-    "SI": "SVN", "SK": "SVK", "NO": "NOR", "IS": "ISL", "CH": "CHE",
-    "GB": "GBR", "UK": "GBR",
+    "AT": "AUT",
+    "BE": "BEL",
+    "BG": "BGR",
+    "CY": "CYP",
+    "CZ": "CZE",
+    "DE": "DEU",
+    "DK": "DNK",
+    "EE": "EST",
+    "ES": "ESP",
+    "FI": "FIN",
+    "FR": "FRA",
+    "GR": "GRC",
+    "HR": "HRV",
+    "HU": "HUN",
+    "IE": "IRL",
+    "IT": "ITA",
+    "LT": "LTU",
+    "LU": "LUX",
+    "LV": "LVA",
+    "MT": "MLT",
+    "NL": "NLD",
+    "PL": "POL",
+    "PT": "PRT",
+    "RO": "ROU",
+    "SE": "SWE",
+    "SI": "SVN",
+    "SK": "SVK",
+    "NO": "NOR",
+    "IS": "ISL",
+    "CH": "CHE",
+    "GB": "GBR",
+    "UK": "GBR",
 }
 
 _COUNTRY_NAMES_LOWER: dict[str, str] = {
-    "sweden": "SWE", "germany": "DEU", "france": "FRA", "norway": "NOR",
-    "denmark": "DNK", "finland": "FIN", "netherlands": "NLD", "poland": "POL",
-    "spain": "ESP", "italy": "ITA", "austria": "AUT", "belgium": "BEL",
-    "united kingdom": "GBR", "uk": "GBR", "switzerland": "CHE",
-    "czechia": "CZE", "czech republic": "CZE", "portugal": "PRT",
+    "sweden": "SWE",
+    "germany": "DEU",
+    "france": "FRA",
+    "norway": "NOR",
+    "denmark": "DNK",
+    "finland": "FIN",
+    "netherlands": "NLD",
+    "poland": "POL",
+    "spain": "ESP",
+    "italy": "ITA",
+    "austria": "AUT",
+    "belgium": "BEL",
+    "united kingdom": "GBR",
+    "uk": "GBR",
+    "switzerland": "CHE",
+    "czechia": "CZE",
+    "czech republic": "CZE",
+    "portugal": "PRT",
 }
 
 # In-process cache: (gadm_id, company_norm) -> list[dict]
@@ -111,12 +149,14 @@ def _name_matches(company_norm: str, source_name: str) -> bool:
 
 def _fetch_sources_sync(gadm_id: str, company_norm: str) -> list[dict[str, Any]]:
     """Fetch top sources for a country and filter by company name."""
-    params = urllib.parse.urlencode([
-        ("year", "2023"),
-        ("gas", "co2e_100yr"),
-        ("gadmId", gadm_id),
-        ("limit", str(_MAX_SOURCES)),
-    ])
+    params = urllib.parse.urlencode(
+        [
+            ("year", "2023"),
+            ("gas", "co2e_100yr"),
+            ("gadmId", gadm_id),
+            ("limit", str(_MAX_SOURCES)),
+        ]
+    )
     url = f"{_BASE}/sources?{params}"
 
     try:
@@ -138,12 +178,14 @@ def _fetch_sources_sync(gadm_id: str, company_norm: str) -> list[dict[str, Any]]
 
 def _fetch_aggregate_sync(gadm_id: str) -> dict[str, Any]:
     """Fetch country-level aggregate emissions."""
-    params = urllib.parse.urlencode([
-        ("year", "2023"),
-        ("gas", "co2e_100yr"),
-        ("gadmId", gadm_id),
-        ("sectors", "all_no_forest"),
-    ])
+    params = urllib.parse.urlencode(
+        [
+            ("year", "2023"),
+            ("gas", "co2e_100yr"),
+            ("gadmId", gadm_id),
+            ("sectors", "all_no_forest"),
+        ]
+    )
     url = f"{_BASE}/sources/emissions?{params}"
 
     try:
@@ -205,7 +247,7 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
 
         installations_str = "; ".join(
             f"{s['name']} ({s.get('subsector', s.get('sector', '?'))}: "
-            f"{s.get('emissionsQuantity', 0)/1000:.0f} kt CO2e)"
+            f"{s.get('emissionsQuantity', 0) / 1000:.0f} kt CO2e)"
             for s in matched[:5]
         )
         summary = (

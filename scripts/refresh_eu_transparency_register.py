@@ -34,6 +34,7 @@ def check_existing() -> None:
         print(f"Existing EU TR export: {_DEST} ({size_kb} KB)")
         try:
             import openpyxl
+
             wb = openpyxl.load_workbook(_DEST, read_only=True, data_only=True)
             ws = wb.active
             row_count = ws.max_row - 1 if ws.max_row else "unknown"

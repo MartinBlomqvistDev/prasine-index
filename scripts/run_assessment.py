@@ -47,6 +47,7 @@ _SCRIPTS_DIR = Path(__file__).parent
 
 def _slug(name: str) -> str:
     import unicodedata
+
     normalized = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
     return re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
 
