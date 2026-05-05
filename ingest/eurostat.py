@@ -55,23 +55,77 @@ _SECTORS: dict[str, str] = {
 }
 
 # ISO 3166-1 alpha-2 codes Eurostat accepts
-_COUNTRY_CODES = frozenset({
-    "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI",
-    "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT",
-    "NL", "PL", "PT", "RO", "SE", "SI", "SK", "NO", "IS", "CH",
-    "UK", "GB",
-})
+_COUNTRY_CODES = frozenset(
+    {
+        "AT",
+        "BE",
+        "BG",
+        "CY",
+        "CZ",
+        "DE",
+        "DK",
+        "EE",
+        "ES",
+        "FI",
+        "FR",
+        "GR",
+        "HR",
+        "HU",
+        "IE",
+        "IT",
+        "LT",
+        "LU",
+        "LV",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SE",
+        "SI",
+        "SK",
+        "NO",
+        "IS",
+        "CH",
+        "UK",
+        "GB",
+    }
+)
 
 _COUNTRY_NAMES_LOWER: dict[str, str] = {
-    "austria": "AT", "belgium": "BE", "bulgaria": "BG", "croatia": "HR",
-    "cyprus": "CY", "czechia": "CZ", "czech republic": "CZ", "denmark": "DK",
-    "estonia": "EE", "finland": "FI", "france": "FR", "germany": "DE",
-    "greece": "GR", "hungary": "HU", "ireland": "IE", "italy": "IT",
-    "latvia": "LV", "lithuania": "LT", "luxembourg": "LU", "malta": "MT",
-    "netherlands": "NL", "poland": "PL", "portugal": "PT", "romania": "RO",
-    "slovakia": "SK", "slovenia": "SI", "spain": "ES", "sweden": "SE",
-    "norway": "NO", "iceland": "IS", "switzerland": "CH",
-    "united kingdom": "GB", "uk": "GB",
+    "austria": "AT",
+    "belgium": "BE",
+    "bulgaria": "BG",
+    "croatia": "HR",
+    "cyprus": "CY",
+    "czechia": "CZ",
+    "czech republic": "CZ",
+    "denmark": "DK",
+    "estonia": "EE",
+    "finland": "FI",
+    "france": "FR",
+    "germany": "DE",
+    "greece": "GR",
+    "hungary": "HU",
+    "ireland": "IE",
+    "italy": "IT",
+    "latvia": "LV",
+    "lithuania": "LT",
+    "luxembourg": "LU",
+    "malta": "MT",
+    "netherlands": "NL",
+    "poland": "PL",
+    "portugal": "PT",
+    "romania": "RO",
+    "slovakia": "SK",
+    "slovenia": "SI",
+    "spain": "ES",
+    "sweden": "SE",
+    "norway": "NO",
+    "iceland": "IS",
+    "switzerland": "CH",
+    "united kingdom": "GB",
+    "uk": "GB",
 }
 
 # In-process cache: country_code -> parsed sector/year data
@@ -222,8 +276,7 @@ async def fetch_eurostat_data(claim: Claim, company: object) -> list[Evidence]:
     geo = _resolve_country(company_country, claim_text)
     if not geo:
         logger.info(
-            f"Eurostat: cannot resolve country for {company_name!r} "
-            f"(country={company_country!r})",
+            f"Eurostat: cannot resolve country for {company_name!r} (country={company_country!r})",
             extra={"operation": "eurostat_no_country", "company": company_name},
         )
         return []
@@ -252,8 +305,7 @@ async def fetch_eurostat_data(claim: Claim, company: object) -> list[Evidence]:
     summary = _build_summary(geo, company_name, sector_data, latest_year, total_mt, claim_text)
 
     logger.info(
-        f"Eurostat: {geo} total {total_mt:.1f} Mt CO2e ({latest_year}), "
-        f"{len(sector_data)} sectors",
+        f"Eurostat: {geo} total {total_mt:.1f} Mt CO2e ({latest_year}), {len(sector_data)} sectors",
         extra={"operation": "eurostat_found", "geo": geo},
     )
 
@@ -263,9 +315,7 @@ async def fetch_eurostat_data(claim: Claim, company: object) -> list[Evidence]:
         sector_label = _SECTORS.get(sector_code, sector_code)
         latest = max(year_data) if year_data else None
         if latest:
-            sector_breakdown[sector_label] = {
-                str(y): v for y, v in sorted(year_data.items())
-            }
+            sector_breakdown[sector_label] = {str(y): v for y, v in sorted(year_data.items())}
 
     return [
         Evidence(
@@ -327,6 +377,7 @@ def _build_summary(
 
     # Proportion check if claim mentions a percentage
     import re
+
     m = re.search(r"(\d+(?:[.,]\d+)?)\s*%", claim_text)
     if m:
         claimed_pct = float(m.group(1).replace(",", "."))

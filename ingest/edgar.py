@@ -42,27 +42,74 @@ _XLSX_PATH = Path(__file__).parent.parent / "data" / "JRC" / "EDGAR_2025_GHG_boo
 
 # Country name → ISO alpha-3 mapping (EDGAR uses its own codes but also full names)
 _COUNTRY_NAME_LOWER: dict[str, str] = {
-    "sweden": "SWE", "germany": "DEU", "france": "FRA", "norway": "NOR",
-    "denmark": "DNK", "finland": "FIN", "netherlands": "NLD", "poland": "POL",
-    "spain": "ESP", "italy": "ITA", "austria": "AUT", "belgium": "BEL",
-    "united kingdom": "GBR", "uk": "GBR", "switzerland": "CHE",
-    "czechia": "CZE", "czech republic": "CZE", "portugal": "PRT",
-    "ireland": "IRL", "hungary": "HUN", "romania": "ROU", "bulgaria": "BGR",
-    "greece": "GRC", "croatia": "HRV", "slovakia": "SVK", "slovenia": "SVN",
-    "estonia": "EST", "latvia": "LVA", "lithuania": "LTU", "luxembourg": "LUX",
-    "malta": "MLT", "cyprus": "CYP", "iceland": "ISL",
+    "sweden": "SWE",
+    "germany": "DEU",
+    "france": "FRA",
+    "norway": "NOR",
+    "denmark": "DNK",
+    "finland": "FIN",
+    "netherlands": "NLD",
+    "poland": "POL",
+    "spain": "ESP",
+    "italy": "ITA",
+    "austria": "AUT",
+    "belgium": "BEL",
+    "united kingdom": "GBR",
+    "uk": "GBR",
+    "switzerland": "CHE",
+    "czechia": "CZE",
+    "czech republic": "CZE",
+    "portugal": "PRT",
+    "ireland": "IRL",
+    "hungary": "HUN",
+    "romania": "ROU",
+    "bulgaria": "BGR",
+    "greece": "GRC",
+    "croatia": "HRV",
+    "slovakia": "SVK",
+    "slovenia": "SVN",
+    "estonia": "EST",
+    "latvia": "LVA",
+    "lithuania": "LTU",
+    "luxembourg": "LUX",
+    "malta": "MLT",
+    "cyprus": "CYP",
+    "iceland": "ISL",
 }
 
 # ISO alpha-2 → EDGAR country name (for resolving from company.country)
 _ISO2_TO_NAME: dict[str, str] = {
-    "SE": "Sweden", "DE": "Germany", "FR": "France", "NO": "Norway",
-    "DK": "Denmark", "FI": "Finland", "NL": "Netherlands", "PL": "Poland",
-    "ES": "Spain", "IT": "Italy", "AT": "Austria", "BE": "Belgium",
-    "GB": "United Kingdom", "UK": "United Kingdom", "CH": "Switzerland",
-    "CZ": "Czechia", "PT": "Portugal", "IE": "Ireland", "HU": "Hungary",
-    "RO": "Romania", "BG": "Bulgaria", "GR": "Greece", "HR": "Croatia",
-    "SK": "Slovakia", "SI": "Slovenia", "EE": "Estonia", "LV": "Latvia",
-    "LT": "Lithuania", "LU": "Luxembourg", "MT": "Malta", "CY": "Cyprus",
+    "SE": "Sweden",
+    "DE": "Germany",
+    "FR": "France",
+    "NO": "Norway",
+    "DK": "Denmark",
+    "FI": "Finland",
+    "NL": "Netherlands",
+    "PL": "Poland",
+    "ES": "Spain",
+    "IT": "Italy",
+    "AT": "Austria",
+    "BE": "Belgium",
+    "GB": "United Kingdom",
+    "UK": "United Kingdom",
+    "CH": "Switzerland",
+    "CZ": "Czechia",
+    "PT": "Portugal",
+    "IE": "Ireland",
+    "HU": "Hungary",
+    "RO": "Romania",
+    "BG": "Bulgaria",
+    "GR": "Greece",
+    "HR": "Croatia",
+    "SK": "Slovakia",
+    "SI": "Slovenia",
+    "EE": "Estonia",
+    "LV": "Latvia",
+    "LT": "Lithuania",
+    "LU": "Luxembourg",
+    "MT": "Malta",
+    "CY": "Cyprus",
     "IS": "Iceland",
 }
 
@@ -140,7 +187,9 @@ def _load_sync() -> tuple[dict[str, dict[int, float]], dict[str, dict[str, dict[
     return totals, sectors
 
 
-async def _ensure_loaded() -> tuple[dict[str, dict[int, float]], dict[str, dict[str, dict[int, float]]]]:
+async def _ensure_loaded() -> tuple[
+    dict[str, dict[int, float]], dict[str, dict[str, dict[int, float]]]
+]:
     global _totals_cache, _sector_cache
     if _totals_cache is None:
         _totals_cache, _sector_cache = await asyncio.to_thread(_load_sync)
@@ -271,10 +320,11 @@ async def fetch_edgar_data(claim: Claim, company: object) -> list[Evidence]:
         "total_mt_co2e": round(latest_mt, 3),
         "trend_1990_pct": round(
             ((latest_mt - country_totals[1990]) / country_totals[1990]) * 100, 1
-        ) if 1990 in country_totals else None,
+        )
+        if 1990 in country_totals
+        else None,
         "sector_breakdown_mt": {
-            s: round(d.get(latest_year, 0), 3)
-            for s, d in country_sectors.items()
+            s: round(d.get(latest_year, 0), 3) for s, d in country_sectors.items()
         },
     }
 

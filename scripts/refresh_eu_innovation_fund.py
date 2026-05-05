@@ -40,8 +40,7 @@ _EIF_CSV_URL = (
 
 # Fallback: direct CINEA (EC agency) CSV if open data portal URL changes
 _EIF_CSV_URL_FALLBACK = (
-    "https://cinea.ec.europa.eu/sites/default/files/2024-01/"
-    "innovation_fund_awarded_projects.csv"
+    "https://cinea.ec.europa.eu/sites/default/files/2024-01/innovation_fund_awarded_projects.csv"
 )
 
 

@@ -35,6 +35,7 @@ def check_existing() -> None:
         print(f"EGT file present: {_DEST} ({size_kb} KB)")
         try:
             import openpyxl
+
             wb = openpyxl.load_workbook(_DEST, read_only=True, data_only=True)
             found = set(wb.sheetnames) & _EXPECTED_SHEETS
             missing = _EXPECTED_SHEETS - found

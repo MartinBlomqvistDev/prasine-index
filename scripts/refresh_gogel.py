@@ -34,8 +34,7 @@ _DEST = _DATA_DIR / "gogel_companies.csv"
 # Updated annually — check https://gogel.org/ if this 404s.
 # Format: GOGEL{YEAR}_PublicDownload_{MonthYear}.csv
 _GOGEL_CSV_URL = (
-    "https://gogel.org/sites/default/files/download_public/"
-    "GOGEL2024_PublicDownload_Oct2024.csv"
+    "https://gogel.org/sites/default/files/download_public/GOGEL2024_PublicDownload_Oct2024.csv"
 )
 
 
