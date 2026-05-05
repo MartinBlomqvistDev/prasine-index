@@ -144,7 +144,7 @@ async def _ensure_loaded() -> tuple[dict[str, dict[int, float]], dict[str, dict[
     global _totals_cache, _sector_cache
     if _totals_cache is None:
         _totals_cache, _sector_cache = await asyncio.to_thread(_load_sync)
-    return _totals_cache, _sector_cache or {}
+    return _totals_cache or {}, _sector_cache or {}
 
 
 def _resolve_country(company_country: str, claim_text: str) -> str | None:

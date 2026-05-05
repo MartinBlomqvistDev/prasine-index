@@ -56,7 +56,7 @@ def download_gogel_csv() -> None:
     """Attempt to download the GOGEL CSV from gogel.org."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"\nDownloading Global Oil and Gas Exit List CSV...")
+    print("\nDownloading Global Oil and Gas Exit List CSV...")
     print(f"  URL: {_GOGEL_CSV_URL}")
     print(f"  Destination: {_DEST}")
 
