@@ -43,6 +43,15 @@ class EvidenceSource(StrEnum):
     CA100 = "CA100"
     FOSSIL_FINANCE = "FOSSIL_FINANCE"
     COAL_EXIT = "COAL_EXIT"
+    EU_INNOVATION_FUND = "EU_INNOVATION_FUND"
+    GOGEL = "GOGEL"
+    EEA_NATIONAL = "EEA_NATIONAL"
+    CLIMATE_TRACE = "CLIMATE_TRACE"
+    TPI = "TPI"
+    GCPT = "GCPT"
+    EGT = "EGT"
+    GOGET = "GOGET"
+    EDGAR = "EDGAR"
 
 
 class EvidenceType(StrEnum):

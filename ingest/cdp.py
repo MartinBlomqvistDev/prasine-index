@@ -1,8 +1,7 @@
 """CDP (Carbon Disclosure Project) open data ingest module for the Prasine Index.
 
 Loads the CDP annual bulk dataset from a local CSV file downloaded via
-scripts/refresh_cdp.py. Falls back to empty evidence if the file is absent —
-CDP data requires a one-time download from data.cdp.net.
+scripts/refresh_cdp.py. Returns empty evidence if the file is absent.
 
 CDP data is self-reported and weighted as secondary evidence. It is the primary
 source for:
@@ -14,6 +13,12 @@ source for:
 A discrepancy between CDP self-reported data and EU ETS verified data is itself
 a greenwashing signal — the company told CDP one thing and the regulator records
 another.
+
+NOTE: Web scraping cdp.net is not viable. The site is a fully client-side Next.js
+app with no __NEXT_DATA__, no accessible JSON API endpoints, and no plain-HTML
+fallback. A headless browser (Playwright) would work but is not worth the
+dependency for a single letter grade. CDP bulk CSV requires free registration at
+data.cdp.net — one-time download, no paywall.
 
 Data source: data.cdp.net (annual open data download, free registration required)
 Refresh: python scripts/refresh_cdp.py

@@ -417,7 +417,7 @@
     <h1>Every green claim.<br>Verified against reality.</h1>
     <p class="hero-sub">
       Prasine Index is an AI pipeline that monitors EU corporate sustainability claims,
-      cross-references them against eleven EU open data sources, and publishes a scored
+      cross-references them against 21 open data sources, and publishes a scored
       evidence chain citable by journalists, NGOs, and courts.
     </p>
     <div class="cta-group">
@@ -434,7 +434,7 @@
 
     <div class="stats">
       <div class="stat">
-        <div class="stat-value">11</div>
+        <div class="stat-value">21</div>
         <div class="stat-label">Parallel data sources</div>
       </div>
       <div class="stat">
@@ -442,8 +442,8 @@
         <div class="stat-label">Agent pipeline stages</div>
       </div>
       <div class="stat">
-        <div class="stat-value">10</div>
-        <div class="stat-label">Companies assessed</div>
+        <div class="stat-value">11</div>
+        <div class="stat-label">Real assessments run</div>
       </div>
       <div class="stat">
         <div class="stat-value red">100%</div>
@@ -484,7 +484,7 @@
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-name">Verification Agent</div>
-        <div class="step-desc">Queries eleven EU open data sources in parallel. Partial failures are tolerated — if one source is down, the pipeline continues with what was retrieved.</div>
+        <div class="step-desc">Queries 21 open data sources in parallel. Partial failures are tolerated — if one source is down, the pipeline continues with what was retrieved.</div>
         <span class="step-tag tag-langgraph">LangGraph</span>
       </div>
       <div class="step">
@@ -508,7 +508,7 @@
 
     <div class="verification-note">
       <strong>Why LangGraph only at step 4?</strong>
-      The Verification Agent queries eleven independent data sources concurrently and must
+      The Verification Agent queries 21 independent data sources concurrently and must
       handle partial failures gracefully — exactly the fan-out / partial-state-merge problem
       LangGraph's <code>StateGraph</code> with <code>operator.add</code> reducers solves.
       The other six agents are single-step operations where raw SDK gives better
@@ -901,6 +901,43 @@
         </div>
       </div>
 
+      <!-- Öresundskraft -->
+      <div class="mini-card">
+        <div class="mini-header">
+          <div>
+            <div class="mini-company">Öresundskraft AB</div>
+            <div class="mini-meta">SE · Energy · Regional utility</div>
+          </div>
+          <span class="verdict-badge verdict-misleading">Misleading</span>
+        </div>
+        <div class="mini-body">
+          <div class="mini-claim">
+            "Vi återvinner det. Slaggruset som blir kvar försöker vi använda på bästa sätt..."
+          </div>
+          <div class="mini-score-row">
+            <div class="mini-score-num" style="color:var(--amber-text)">52</div>
+            <div class="mini-score-wrap">
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:52%"></div></div>
+              <div class="mini-verdict-label">MISLEADING · 46–60</div>
+            </div>
+          </div>
+          <div class="mini-evidence">
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>Aspiration, not commitment</strong> — "försöker vi använda" ("we try to use") lacks quantified recovery targets, tonnage baselines, or timelines. Fails Green Claims Directive Article 3(1).</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-red"></span>
+              <span><strong>Research conflated with practice</strong> — bottom ash in asphalt is explicitly research-stage. Presented alongside operational slag reuse as if equivalent.</span>
+            </div>
+            <div class="mini-ev">
+              <span class="mini-ev-dot dot-gray"></span>
+              <span><strong>EU ETS — no registration found</strong> — prevents independent verification of annual ash generation volumes and actual recovery rates.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Ørsted -->
       <div class="mini-card">
         <div class="mini-header">
@@ -942,7 +979,7 @@
 <section id="sources">
   <div class="container">
     <div class="section-label">Data Sources</div>
-    <h2>Eleven EU open data sources.</h2>
+    <h2>21 open data sources.</h2>
     <p class="section-desc">
       All EU open data. No proprietary APIs. Every source is independently authoritative.
     </p>
@@ -988,14 +1025,54 @@
         <div class="source-status"><span class="dot active"></span> Active — annual</div>
       </div>
       <div class="source-card">
-        <div class="source-name">CDP</div>
-        <div class="source-desc">Self-reported emissions, targets, and governance. Treated as supporting evidence at lower confidence than verified sources.</div>
-        <div class="source-status"><span class="dot partial"></span> Partial — free account</div>
+        <div class="source-name">EU Transparency Register</div>
+        <div class="source-desc">Brussels lobbying declarations. Companies lobbying against climate legislation while claiming green leadership is flagged explicitly.</div>
+        <div class="source-status"><span class="dot active"></span> Active — XLSX bulk export</div>
       </div>
       <div class="source-card">
-        <div class="source-name">EU Transparency Register</div>
-        <div class="source-desc">Live Brussels lobbying declarations. Companies lobbying against climate legislation while claiming green leadership is the strongest greenwashing signal.</div>
-        <div class="source-status"><span class="dot active"></span> Active — live API</div>
+        <div class="source-name">EEA National Totals</div>
+        <div class="source-desc">EEA-verified national GHG inventory totals per country, 1990-present. Official EU submission benchmarks for company percentage claims.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">EU Innovation Fund</div>
+        <div class="source-desc">EU-funded decarbonisation projects (steel, cement, chemicals, hydrogen). Context for whether claimed green investments match the scale of emissions.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Urgewald GOGEL</div>
+        <div class="source-desc">~1,000 companies active in global oil and gas expansion. The O&G equivalent of GCEL — used by 400+ financial institutions under GFANZ.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Climate TRACE</div>
+        <div class="source-desc">Independent facility-level emissions estimates from satellite imagery and remote sensing — not self-reported, not government-submitted.</div>
+        <div class="source-status"><span class="dot active"></span> Active — v7 API</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">TPI (Transition Pathway Initiative)</div>
+        <div class="source-desc">Management quality and carbon performance benchmarks for 491 listed companies. "Not Aligned" by 2050 directly contradicts net-zero claims.</div>
+        <div class="source-status"><span class="dot active"></span> Active — annual CSV</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">GEM Coal Plant Tracker</div>
+        <div class="source-desc">Every coal power plant worldwide — status, capacity, and owner. A company expanding coal while claiming clean energy transition is directly contradicted.</div>
+        <div class="source-status"><span class="dot active"></span> Active — January 2026</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">GEM Europe Gas Tracker</div>
+        <div class="source-desc">Gas pipelines, LNG terminals, and gas plants across Europe. New gas infrastructure under construction contradicts Paris-aligned transition claims.</div>
+        <div class="source-status"><span class="dot active"></span> Active — March 2026</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">GEM Oil &amp; Gas Extraction Tracker</div>
+        <div class="source-desc">Oil and gas extraction fields worldwide. Fields in active development (FID taken) mean capital committed to decades of upstream fossil fuel production.</div>
+        <div class="source-status"><span class="dot active"></span> Active — March 2026</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">EDGAR JRC</div>
+        <div class="source-desc">JRC independent GHG estimates for all countries, 1970-2024. Cross-checks Eurostat and EEA figures with the EU Commission's own atmospheric/activity data.</div>
+        <div class="source-status"><span class="dot active"></span> Active — 2025 edition</div>
       </div>
       <div class="source-card">
         <div class="source-name">EUR-Lex</div>
