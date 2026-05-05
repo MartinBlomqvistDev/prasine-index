@@ -76,7 +76,6 @@ CLAUDE.md
 # ---------------------------------------------------------------------------
 *.log
 logs/
-DEV_LOG.md
 
 # ---------------------------------------------------------------------------
 # Large data files — downloaded by refresh_*.py scripts, not in version control
