@@ -1,13 +1,26 @@
 """Verification Agent for the Prasine Index pipeline.
 
-Queries ten open data sources — EU ETS, CDP, SBTi, E-PRTR, InfluenceMap,
-enforcement rulings, CA100+, Banking on Climate Chaos, Global Coal Exit List,
-and EUR-Lex — in parallel and aggregates results into a VerificationResult
-passed to the Judge Agent.
+Queries 21 independent data sources in parallel and aggregates results into a
+VerificationResult passed to the Judge Agent.
+
+Sources queried:
+  Regulatory/verified emissions:
+    EU ETS/EUTL, E-PRTR, Climate TRACE, EDGAR (JRC), EEA National, Eurostat
+  Infrastructure expansion:
+    GCPT (coal plants), EGT (Europe gas), GOGET (O&G extraction),
+    GOGEL (O&G companies), GCEL (coal companies)
+  Ratings and benchmarks:
+    SBTi, CA100+, TPI, InfluenceMap, CDP
+  Finance and lobbying:
+    Banking on Climate Chaos, EU Transparency Register, EUR-Lex
+  Enforcement and public funding:
+    Enforcement rulings, EU Innovation Fund
+
 This is the one agent in the pipeline that uses LangGraph for orchestration:
 the parallel fan-out to independent external APIs, combined with per-source
-retry and the need to aggregate partial results when one or more sources fail,
-is exactly the class of problem that benefits from a state machine framework.
+isolation and the need to aggregate partial results when one or more sources
+fail, is exactly the class of problem that benefits from a state machine
+framework.
 """
 
 from __future__ import annotations
@@ -24,14 +37,25 @@ from core.logger import bind_trace_context, get_logger
 from core.retry import DataSourceError, agent_error_boundary
 from ingest.ca100 import fetch_ca100_data
 from ingest.cdp import fetch_cdp_data
+from ingest.climate_trace import fetch_climate_trace_data
 from ingest.coal_exit import fetch_coal_exit_data
+from ingest.edgar import fetch_edgar_data
+from ingest.eea_national import fetch_eea_national_data
+from ingest.egt import fetch_egt_data
 from ingest.enforcement import fetch_enforcement_data
 from ingest.eprtr import fetch_eprtr_data
 from ingest.eu_ets import fetch_eu_ets_data
+from ingest.eu_innovation_fund import fetch_eu_innovation_fund_data
+from ingest.eu_transparency_register import fetch_eu_transparency_register_data
 from ingest.eurlex import fetch_eurlex_data
+from ingest.eurostat import fetch_eurostat_data
 from ingest.fossil_finance import fetch_fossil_finance_data
+from ingest.gcpt import fetch_gcpt_data
+from ingest.gogel import fetch_gogel_data
+from ingest.goget import fetch_goget_data
 from ingest.influence_map import fetch_influence_map_data
 from ingest.sbti import fetch_sbti_data
+from ingest.tpi import fetch_tpi_data
 from models.claim import Claim
 from models.company import CompanyContext
 from models.evidence import Evidence, EvidenceSource, VerificationResult
@@ -542,6 +566,403 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
         }
 
 
+async def _node_fetch_eu_innovation_fund(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch EU Innovation Fund grant data.
+
+    Queries the local EU Innovation Fund projects CSV for grants awarded to
+    this company. An Innovation Fund grant indicates independent EC technical
+    evaluation — partially mitigating evidence for CCS and clean-tech claims.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_eu_innovation_fund_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"EU Innovation Fund fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={
+                "operation": "fetch_eu_innovation_fund_error",
+                "error_type": type(exc).__name__,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EU_INNOVATION_FUND}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_gogel(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Global Oil and Gas Exit List data.
+
+    Queries the local GOGEL CSV for oil and gas expansion data. A company
+    actively expanding upstream oil and gas while claiming clean-energy
+    transition or Paris alignment is a documented greenwashing signal.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_gogel_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"GOGEL fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_gogel_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.GOGEL}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_eurostat(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Eurostat GHG sector breakdown for the company's country.
+
+    Queries the Eurostat env_air_gge dataset for national and sector-level GHG
+    totals. Provides official EU statistics context for validating sector-proportion
+    and national-benchmark claims.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_eurostat_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"Eurostat fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_eurostat_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EUROSTAT}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_eu_transparency_register(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch EU Transparency Register lobbying registration.
+
+    Checks whether the company is registered as an EU lobbyist. Combined with
+    InfluenceMap positions, this allows the Judge Agent to detect companies that
+    lobby against climate policy while making green claims publicly.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_eu_transparency_register_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"EU TR fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_eu_tr_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EU_TRANSPARENCY_REGISTER}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_eea_national(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch EEA national GHG emissions context.
+
+    Queries the EEA national emissions inventory to provide country-level
+    baseline data. Used to validate country-proportion claims and to give
+    the Judge Agent context on the national emissions trajectory.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_eea_national_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"EEA national fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_eea_national_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EEA_NATIONAL}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_edgar(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch EDGAR JRC national GHG totals and sector breakdown.
+
+    Queries the JRC EDGAR 2025 dataset for the company's country. Provides
+    the most recent (2024) independent national GHG estimate as context for
+    validating sector-proportion and national-benchmark claims.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_edgar_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"EDGAR fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_edgar_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EDGAR}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_egt(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Europe Gas Tracker infrastructure data.
+
+    Checks whether the company owns European gas pipelines, LNG terminals, or
+    gas plants in active development. Expanding European gas infrastructure
+    contradicts fossil gas phase-out or net-zero transition claims.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_egt_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"EGT fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_egt_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.EGT}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_goget(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Global Oil and Gas Extraction Tracker data.
+
+    Checks whether the company owns O&G extraction fields in active development.
+    FID on a new field means capital committed to decades of upstream fossil
+    fuel production — directly contradicts net-zero or phase-out claims.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_goget_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"GOGET fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_goget_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.GOGET}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_gcpt(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Global Coal Plant Tracker facility data.
+
+    Checks whether the company owns coal units in active development
+    (Announced through Construction). A company expanding coal capacity
+    while claiming clean-energy transition is directly contradicted.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_gcpt_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"GCPT fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_gcpt_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.GCPT}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_tpi(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch TPI Management Quality and Carbon Performance assessment.
+
+    Queries the TPI dataset for the company's MQ level and CP pathway alignment.
+    A "Not Aligned" 2050 trajectory while claiming net-zero contradicts the claim
+    based on the consensus assessment of 150+ investors ($80tn AUM).
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_tpi_data(claim=claim, company=context.company)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"TPI fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_tpi_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.TPI}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
+async def _node_fetch_climate_trace(state: VerificationState) -> dict[str, Any]:
+    """LangGraph node: fetch Climate TRACE independent emissions estimates.
+
+    Queries the Climate TRACE v7 API for satellite/ML-derived emissions
+    estimates independent of company self-reporting. A significant discrepancy
+    between Climate TRACE facility estimates and company-disclosed figures is a
+    primary greenwashing signal — one of the few sources that can contradict a
+    company's own disclosure with independent evidence.
+
+    Args:
+        state: Current verification graph state.
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+    context = state["context"]
+
+    try:
+        evidence = await fetch_climate_trace_data(
+            claim=claim,
+            company=context.company,
+        )
+        return {"evidence": evidence, "data_gaps": []}
+
+    except Exception as exc:
+        logger.error(
+            f"Climate TRACE fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={"operation": "fetch_climate_trace_error", "error_type": type(exc).__name__},
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.CLIMATE_TRACE}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
 async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: synthesise all evidence into an overall assessment.
 
@@ -601,13 +1022,13 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     LangGraph merges the partial results automatically as the parallel
     branches complete. No explicit synchronisation is required.
 
-                              START
-        ↙  ↙  ↙  ↓  ↓  ↓  ↓  ↘  ↘  ↘
-    ETS CDP SBTI EPRTR IM ENF CA100 FF GCEL EUR-LEX
-        ↘  ↘  ↘  ↓  ↓  ↓  ↓  ↙  ↙  ↙
-                    aggregate
-                        ↓
-                       END
+                                         START
+        ↙  ↙  ↙  ↓  ↓  ↓  ↓  ↘  ↘  ↘  ↘  ↘  ↘  ↘  ↘
+    ETS CDP SBTI EPRTR IM ENF CA100 FF GCEL EUR-LEX EIF GOGEL EEA EUTR ESTAT CT
+        ↘  ↘  ↘  ↓  ↓  ↓  ↓  ↙  ↙  ↙  ↙  ↙  ↙  ↙  ↙
+                        aggregate
+                            ↓
+                           END
 
     Returns:
         An uncompiled :py:class:`~langgraph.graph.StateGraph` instance.
@@ -624,6 +1045,17 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_node("fetch_fossil_finance", _node_fetch_fossil_finance)
     graph.add_node("fetch_coal_exit", _node_fetch_coal_exit)
     graph.add_node("fetch_eurlex", _node_fetch_eurlex)
+    graph.add_node("fetch_eu_innovation_fund", _node_fetch_eu_innovation_fund)
+    graph.add_node("fetch_gogel", _node_fetch_gogel)
+    graph.add_node("fetch_eea_national", _node_fetch_eea_national)
+    graph.add_node("fetch_eu_transparency_register", _node_fetch_eu_transparency_register)
+    graph.add_node("fetch_eurostat", _node_fetch_eurostat)
+    graph.add_node("fetch_climate_trace", _node_fetch_climate_trace)
+    graph.add_node("fetch_tpi", _node_fetch_tpi)
+    graph.add_node("fetch_gcpt", _node_fetch_gcpt)
+    graph.add_node("fetch_egt", _node_fetch_egt)
+    graph.add_node("fetch_goget", _node_fetch_goget)
+    graph.add_node("fetch_edgar", _node_fetch_edgar)
     graph.add_node("aggregate", _node_aggregate)
 
     # Fan out from START to all fetch nodes — LangGraph runs these in parallel
@@ -637,6 +1069,17 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_edge(START, "fetch_fossil_finance")
     graph.add_edge(START, "fetch_coal_exit")
     graph.add_edge(START, "fetch_eurlex")
+    graph.add_edge(START, "fetch_eu_innovation_fund")
+    graph.add_edge(START, "fetch_gogel")
+    graph.add_edge(START, "fetch_eea_national")
+    graph.add_edge(START, "fetch_eu_transparency_register")
+    graph.add_edge(START, "fetch_eurostat")
+    graph.add_edge(START, "fetch_climate_trace")
+    graph.add_edge(START, "fetch_tpi")
+    graph.add_edge(START, "fetch_gcpt")
+    graph.add_edge(START, "fetch_egt")
+    graph.add_edge(START, "fetch_goget")
+    graph.add_edge(START, "fetch_edgar")
 
     # All fetch nodes converge at aggregate
     graph.add_edge("fetch_eu_ets", "aggregate")
@@ -649,6 +1092,17 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_edge("fetch_fossil_finance", "aggregate")
     graph.add_edge("fetch_coal_exit", "aggregate")
     graph.add_edge("fetch_eurlex", "aggregate")
+    graph.add_edge("fetch_eu_innovation_fund", "aggregate")
+    graph.add_edge("fetch_gogel", "aggregate")
+    graph.add_edge("fetch_eea_national", "aggregate")
+    graph.add_edge("fetch_eu_transparency_register", "aggregate")
+    graph.add_edge("fetch_eurostat", "aggregate")
+    graph.add_edge("fetch_climate_trace", "aggregate")
+    graph.add_edge("fetch_tpi", "aggregate")
+    graph.add_edge("fetch_gcpt", "aggregate")
+    graph.add_edge("fetch_egt", "aggregate")
+    graph.add_edge("fetch_goget", "aggregate")
+    graph.add_edge("fetch_edgar", "aggregate")
 
     graph.add_edge("aggregate", END)
 
@@ -791,6 +1245,17 @@ class VerificationAgent:
                     "FOSSIL_FINANCE",
                     "COAL_EXIT",
                     "EUR_LEX",
+                    "EU_INNOVATION_FUND",
+                    "GOGEL",
+                    "EEA_NATIONAL",
+                    "EU_TRANSPARENCY_REGISTER",
+                    "EUROSTAT",
+                    "CLIMATE_TRACE",
+                    "TPI",
+                    "GCPT",
+                    "EGT",
+                    "GOGET",
+                    "EDGAR",
                 ],
             },
         )

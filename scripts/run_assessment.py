@@ -46,7 +46,9 @@ _SCRIPTS_DIR = Path(__file__).parent
 
 
 def _slug(name: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
+    import unicodedata
+    normalized = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", "-", normalized.lower()).strip("-")
 
 
 def _refresh_data() -> None:
@@ -61,6 +63,13 @@ def _refresh_data() -> None:
         "refresh_eprtr.py",
         "refresh_gcel.py",
         "refresh_fossil_finance.py",
+        "refresh_eu_innovation_fund.py",
+        "refresh_gogel.py",
+        "refresh_eea_national.py",
+        "refresh_eu_transparency_register.py",
+        "refresh_gcpt.py",
+        "refresh_egt.py",
+        "refresh_goget.py",
     ]
 
     for script_name in refresh_scripts:
