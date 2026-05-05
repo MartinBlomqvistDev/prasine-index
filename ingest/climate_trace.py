@@ -33,7 +33,7 @@ import json
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any
+from typing import Any, cast
 
 from core.logger import get_logger
 from models.claim import Claim
@@ -149,7 +149,7 @@ def _fetch_aggregate_sync(gadm_id: str) -> dict[str, Any]:
     try:
         req = urllib.request.Request(url, headers=_HEADERS)
         with urllib.request.urlopen(req, timeout=15) as resp:
-            return json.loads(resp.read().decode("utf-8"))
+            return cast("dict[str, Any]", json.loads(resp.read().decode("utf-8")))
     except (urllib.error.URLError, OSError, json.JSONDecodeError) as exc:
         logger.warning(
             f"Climate TRACE aggregate fetch failed: {exc}",
