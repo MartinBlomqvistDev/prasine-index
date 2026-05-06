@@ -248,6 +248,64 @@ and returns a typed structure needs an explicit cast at the return site.
 
 ---
 
+## 2026-05-06 — Score-expand UI added to all 10 landing page mini-cards
+
+**Feature:** Each assessment mini-card on the landing page now has a
+`<details class="score-expand">` block showing the evidence sources with
+confidence weights (e.g. "ACM enforcement · 0.80", "GOGET FID fields · 0.87")
+and a one-sentence finding note. No JavaScript — pure HTML `<details>`/`<summary>`.
+
+**Trigger:** The Ryanair showcase card already showed evidence weights;
+the request was to surface the same breakdown on all other cards.
+
+**CSS classes:** `.score-expand`, `.sw-row`, `.sw-badge`, `.sw-contra`,
+`.sw-support`, `.sw-neutral`, `.sw-finding` — all scoped to the mini-card
+component, no global side effects.
+
+---
+
+## 2026-05-06 — Scores updated after full 21-source pipeline re-run
+
+Re-ran all 10 website companies through the 21-source pipeline. Score changes:
+
+| Company | Old score | New score | Change |
+| ------- | --------- | --------- | ------ |
+| Glencore plc | 78 GREENWASHING | 82 CONFIRMED_GREENWASHING | GOGET/GCPT confirmed additional fossil expansion |
+| TotalEnergies SE | 67 GREENWASHING | 72 GREENWASHING | GOGET FID fields + EGT LNG added |
+| Enel SpA | 68 GREENWASHING | 72 GREENWASHING | Coal + LNG + oil extraction confirmed |
+| RWE AG | 64 GREENWASHING | 56 MISLEADING | URL 404; single-claim fallback; misleading by omission, not falsification |
+| IKEA Group | 48 MISLEADING | 52 MISLEADING | GCD Art.3 + E-PRTR 902% rise confirmed |
+
+**Note on RWE:** `https://www.rwe.com/en/the-group/our-strategy/` still returns
+404. Assessment ran against a supplied `--claim` text (single run, no discovery),
+which explains the lower score vs. the prior multi-claim run. Score reflects
+a more conservative single-evidence evaluation.
+
+---
+
+## 2026-05-06 — Real cost of a full company run vs. per-claim estimate
+
+**Observation:** A 5-company re-run sweep exhausted the API credit balance.
+
+**Per-claim estimate is correct:** ~$0.05/claim on Haiku. This is the cost for
+a single claim through all 7 agents (extraction, context, 21-source verification,
+lobbying, judge, report).
+
+**Per-company run cost:** `--max-claims 5` (default) runs 5 claims, so ~$0.25/company
+minimum. The 21-source Verification Agent is the expensive step — 21 LangGraph
+nodes each make their own HTTP or LLM call per claim. Verbosity of the Report Agent
+on Haiku adds output tokens on top. Realistic per-company cost is $0.25–$0.75
+depending on page length and claim verbosity.
+
+**For a 10-company sweep:** Budget $3–$7. For a 20-case golden eval run: $1–$2
+(eval uses shorter prompts and known claims, no discovery overhead).
+
+**Practical rule:** Add $5 of credits before running a multi-company sweep.
+The per-claim $0.05 figure is the floor; the run total depends on claims per
+company, report length, and whether discovery is triggered.
+
+---
+
 ## Pipeline architecture decisions that proved correct
 
 **LangGraph only in Verification Agent.** Originally considered using it for the

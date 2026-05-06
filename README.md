@@ -281,9 +281,31 @@ python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" --max-claims 10
 ```
 
-Costs approximately $0.05 per claim on Haiku defaults. `--max-claims 5` (default) is suitable for screening; `--max-claims 10` for a full company audit.
+Costs approximately **$0.05 per claim** on Haiku defaults — this is the per-claim floor (one claim through all 7 agents, including 21-source verification). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
 
 Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (highest-scoring claim) to `docs/reports/<slug>.md`.
+
+---
+
+## Published Assessments
+
+Current results from the 21-source pipeline, as published on [prasineindex.eu](https://martinblomqvistdev.github.io/prasine-index/):
+
+| Company | Sector | Verdict | Score |
+| ------- | ------ | ------- | ----- |
+| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 82/100 |
+| KLM Royal Dutch Airlines | Aviation | CONFIRMED_GREENWASHING | 92/100 |
+| Glencore plc | Mining | CONFIRMED_GREENWASHING | 82/100 |
+| Shell plc | Oil & Gas | GREENWASHING | 78/100 |
+| TotalEnergies SE | Oil & Gas | GREENWASHING | 72/100 |
+| Enel SpA | Energy | GREENWASHING | 72/100 |
+| HSBC Holdings plc | Banking | GREENWASHING | 71/100 |
+| RWE AG | Energy | MISLEADING | 56/100 |
+| IKEA Group | Retail | MISLEADING | 52/100 |
+| Öresundskraft AB | Energy | MISLEADING | 52/100 |
+| Ørsted A/S | Energy | INSUFFICIENT_EVIDENCE | 32/100 |
+
+Reports are published to `docs/reports/` as Markdown — every factual assertion cited, every data gap disclosed.
 
 ---
 
@@ -480,10 +502,10 @@ Greenwashing scores are calibrated against the EU Green Claims Directive, the Co
 
 | Range | Verdict | Meaning |
 | ----- | ------- | ------- |
-| 0–40 | `FABRICATED` | Claim is demonstrably false; contradicted by verified data |
-| 41–60 | `MISLEADING` | Claim exaggerates through omission or lacks mandatory substantiation |
-| 61–80 | `GREENWASHING` | Claim directly contradicted by verified third-party evidence |
-| 81–100 | `CREDIBLE` | Claim independently verified against disclosed baselines |
+| 0–40 | `FABRICATED` | Claim is demonstrably false; directly contradicted by verified data |
+| 41–60 | `MISLEADING` | Claim exaggerates through omission or lacks mandatory substantiation under the Green Claims Directive |
+| 61–80 | `GREENWASHING` | Claim directly contradicted by verified third-party evidence (emissions data, enforcement rulings, lobbying records) |
+| 81–100 | `CONFIRMED_GREENWASHING` | Multiple high-confidence sources contradict the claim; and/or prior regulatory or judicial enforcement action exists |
 
 Prasine Index does not give legal advice. Published reports are evidence compilations intended to support journalistic investigation and civil society accountability work.
 
