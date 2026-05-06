@@ -1,153 +1,137 @@
-```markdown
-## RWE AG — Greenwashing Assessment
-**Verdict: MISLEADING** | Score: 56/100 | Confidence: 64%
-*Published: 2026-05-06 | Prasine Index | Trace ID: 0613fee4-cd3c-4458-9b8b-4867e28deaef*
+# RWE AG — Greenwashing Assessment
+
+**Verdict: INSUFFICIENT_EVIDENCE** | Score: 45/100 | Confidence: 58%
+*Published: 2026-05-06 | Prasine Index | Trace ID: dc79e841-ce50-4e39-b9b9-5b2347b34166*
 
 ---
 
-### The Claim
-> "We are investing EUR 50 billion in renewable energies, hydrogen and batteries by 2030."
+## The Claim
 
-*Source: Corporate website (IR_PAGE), https://www.rwe.com/en/the-group/our-strategy/, accessed 2026-05-06*
+> We are investing EUR 50 billion in renewable energies, hydrogen and batteries by 2030.
 
----
-
-### Evidence
-
-**1. Capital Expenditure Commitment — Quantified but Unverified**
-CA100+ Net Zero Company Benchmark (2025) rates RWE's capex alignment as "Partial" — meaning the company's capital allocation strategy is directionally aligned with net-zero transition but lacks comprehensive independent verification. The benchmark confirms RWE has stated a net-zero ambition and short-term targets, but does not validate the specific EUR 50 billion allocation, the breakdown between renewable energy, hydrogen, and battery technologies, or audited tracking methodology.
-
-**2. Emissions Trajectory — Significant Reduction from High Baseline**
-E-PRTR regulated emissions data (2024, confidence 0.75) shows RWE's air emissions fell 47% from 2007 (122.0 Mt CO2e) to 2024 (64.7 Mt CO2e). This represents material historical progress. However, the 2024 absolute emissions level (64.7 Mt) remains among the highest of any European industrial company. The data encompasses CO2, GHGs, NOx, and NMVOC; the claim does not disclose what proportion of these are attributable to continued fossil fuel operations versus renewable generation.
-
-**3. Coal Portfolio — Active and Substantial**
-Urgewald Global Coal Exit List (GCEL, confidence 0.65) classifies RWE AG as a major coal company: 44 Mtpa annual coal mining capacity and 5.8 GW installed coal power capacity. Global Coal Plant Tracker (GCPT, January 2026, confidence 0.60) confirms RWE operates 1 coal power unit currently generating (57 MW) and has 4 units retired or cancelled. This portfolio contradicts the narrative of exclusive focus on clean energy investment.
-
-**4. Gas and LNG Infrastructure — Substantial Operating Assets**
-Europe Gas Tracker (EGT, March 2026, confidence 0.55) records RWE operating 3 gas pipeline assets and 3 LNG terminal assets across Europe. Of these 6 assets, 3 are currently operational and 3 are retiring or cancelled. This ongoing gas infrastructure investment and operation occurs in parallel with the claimed EUR 50 billion renewable investment.
-
-**5. Oil and Gas Extraction — Operating Field**
-Global Oil-Gas Extraction Tracker (GOGET, March 2026, confidence 0.60) records RWE as operator of 1 oil and gas extraction field currently producing. This indicates ongoing upstream fossil fuel exposure.
-
-**6. Science-Based Target Validation — Absent**
-SBTi records (status: unknown, not classified) show RWE has not submitted or validated interim science-based targets through the Science Based Targets initiative. TPI (2022, confidence 0.75) rates RWE's 2050 pathway as "1.5 Degrees" — Paris-compatible — but this does not validate the 2030 capex claim or its adequacy relative to interim decarbonization milestones.
-
-**7. Regulatory Framework — Green Claims Directive Requirements**
-The Green Claims Directive (COM/2023/0166, Article 3, confidence 0.95) specifies that renewable energy claims must include: (a) the percentage of total energy consumption covered; (b) the source of renewable generation; (c) disclosure of whether renewable energy certificates (RECs) or guarantees of origin (GOs) are unbundled. RWE's claim provides only a capital investment amount with no portfolio composition disclosure, percentage renewable energy coverage, or baseline capex comparison — non-compliance with Article 3 transparency requirements.
-
-**8. Lobbying Activity — Active Registration Without Direction Disclosure**
-EU Transparency Register (confidence 0.75) confirms RWE AG is actively registered as a direct corporate lobbyist (registration number 77608353460-77, HQ: Germany). InfluenceMap (confidence 0.50) assigns RWE a climate policy engagement score of "C" (neutral/mixed), insufficient to determine lobbying alignment with or against climate legislation. No clear evidence of obstruction of climate policy, but engagement stance is inconclusive.
-
-**9. Prior Assessment History — Deteriorating Trend**
-RWE has 3 prior greenwashing assessments on record (Prasine Index archive) with an average score of 59.3 and a deteriorating trend, worst prior score 64.0. The current claim (56.0) represents continued decline. No prior claims are literal repeats, but the pattern indicates persistent gaps in substantiation or disclosure accuracy across multiple greenwashing assessments.
+*Source: Investor Relations page, https://www.rwe.com/en/the-group/our-strategy/, 2026*
 
 ---
 
-### Assessment
+## Evidence
 
-The claim that RWE will invest EUR 50 billion in renewable energies, hydrogen, and batteries by 2030 is **directionally plausible but materially incomplete and therefore misleading under the Green Claims Directive**.
+**CA100+ Net Zero Company Benchmark (2025)**
+CA100+ rates RWE's net-zero ambition as "Yes" but capex alignment as "Partial." Short-term targets also assessed as "Partial." The benchmark indicates investor confidence in RWE's Paris-compatible direction but incomplete alignment of capital expenditure to climate commitments. CA100+ assessments are based on analysis of 150+ institutional investors controlling €80 trillion in assets.
+*Source: CA100+, 2025, https://www.climateaction100.org/company-responses/*
 
-**Substantiation Gaps (Score: 48/100)**
+**E-PRTR Regulated Emissions (2024)**
+RWE's regulated industrial emissions (CO2, GHGs, NOx, NMVOC combined) fell 47% from 2007 (122.0 Mt) to 2024 (64.7 Mt). Recent trajectory shows decline from 73.4 Mt (2023) to 64.7 Mt (2024), a 12% year-on-year reduction. This supports the direction of an energy transition strategy.
+*Source: E-PRTR, 2024, https://industry.eea.europa.eu/*
 
-The claim provides a specific quantitative target (EUR 50 billion) and timeline (2030), meeting the minimum threshold for quantified commitment. However, it lacks the granularity required for legal and investor-grade substantiation:
+**Urgewald Global Coal Exit List (N/A)**
+RWE AG is listed with 44 Mtpa coal mining capacity and 5.8 GW coal power generation. The company remains classified as a significant coal operator. Any claim of renewable energy primacy requires explicit acknowledgment of coal portfolio scale and exit timelines.
+*Source: Urgewald Global Coal Exit List, https://www.urgewald.org/en/themen/global-coal-exit-list*
 
-- No breakdown of EUR 50 billion allocation between renewable energy, hydrogen, and battery technologies
-- No baseline capex comparison (total capex in 2024, or historical capex as percentage of total)
-- No independent audit or third-party verification of capex tracking methodology
-- No disclosure of whether this represents incremental capex or reallocation of existing capex
+**Global Coal Plant Tracker (2026)**
+RWE operates 1 coal unit currently generating (57 MW total capacity). Four additional units are retired or cancelled. One operating unit confirms active coal generation alongside renewable investment claims.
+*Source: GCPT, 2026, https://globalenergymonitor.org/projects/global-coal-plant-tracker/*
 
-CA100+ (2025) assigns "Partial" capex alignment, confirming the commitment is real but not fully verified. TPI (2022) validates only the 2050 pathway as "1.5 Degrees," not the 2030 capex claim itself. SBTi records show no validated interim targets. Under Green Claims Directive Article 3, which requires "specific, measurable and audited" renewable energy claims, RWE's statement falls short.
+**Europe Gas Tracker (2026)**
+RWE operates 3 gas pipelines and 3 LNG terminals. While these represent transitional infrastructure, they indicate ongoing fossil fuel asset holdings that complicate claims of renewable energy focus without explicit divestment timelines.
+*Source: EGT, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/*
 
-**Material Omission of Fossil Fuel Portfolio (Score: 45/100 — Emissions Accuracy)**
+**Global Oil & Gas Extraction Tracker (2026)**
+RWE operates 1 oil and gas extraction field currently in production. This further expands the company's active fossil fuel portfolio.
+*Source: GOGET, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/*
 
-The claim is not falsified by verified data, but it is rendered misleading through material omission. While E-PRTR (2024) documents a 47% historical emissions reduction, the current absolute emissions level (64.7 Mt) remains very high and is directly attributable to continuing operations of:
+**Green Claims Directive (2023)**
+Article 3 of the Green Claims Directive (COM/2023/0166) requires renewable energy claims to specify: (i) the percentage of total energy consumption covered, (ii) the source, and (iii) whether renewable energy certificates (RECs) or guarantees of origin (GOs) are used. Claims of 100% renewable electricity relying on unbundled certificates without physical supply contracts are considered potentially misleading.
+*Source: EUR-Lex, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
 
-- 44 Mtpa coal mining capacity (Urgewald GCEL)
-- 5.8 GW installed coal power capacity, 1 unit operating (GCPT)
-- 6 European gas assets (3 pipelines, 3 LNG terminals), 3 operating (EGT)
-- 1 operating oil and gas extraction field (GOGET)
+**EU Transparency Register (N/A)**
+RWE AG is actively registered as an EU lobbyist (registration no. 77608353460-77). Registration confirms active engagement with EU institutions but does not indicate lobbying direction (for or against climate policy stringency).
+*Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-RWE's claim to invest EUR 50 billion in clean energy does not disclose that the company **simultaneously maintains material fossil fuel assets**. Under Green Claims Directive Article 3, renewable energy claims must specify "the percentage of total energy consumption covered" by renewable generation. RWE's claim provides no such disclosure. This is a **false impression of transition scope** — the claim implies comprehensive clean energy investment without contextualizing the continued fossil fuel business.
+**InfluenceMap Climate Policy Engagement (N/A)**
+RWE receives a "C" score (neutral or mixed engagement); active engagement classification is "not assessed." This is inconclusive and does not confirm either supportive or obstructive alignment with EU climate policy.
+*Source: InfluenceMap, https://influencemap.org/company-responses*
 
-The European Energy Transition (EGT, GCPT, GOGET) data confirms these assets are operating or retiring on specific timelines; RWE is not exiting these portfolios by 2030.
+**SBTi Target Status (N/A)**
+RWE's SBTi target status is "unknown" with temperature classification "not classified" and net-zero target "none." The absence of a validated science-based target is inconsistent with credible substantiation of a EUR 50 billion climate investment claim.
+*Source: SBTi, https://sciencebasedtargets.org/companies-taking-action*
 
-**Lobbying Alignment — Inconclusive (Score: 35/100)**
-
-EU Transparency Register confirms RWE is an active corporate lobbyist. InfluenceMap assigns a "C" (neutral/mixed) score with confidence 0.50, too low for definitive greenwashing signal. However, the combination of (a) active lobbying registration, (b) inconclusive climate policy stance, and (c) substantial ongoing coal, gas, and oil/gas operations raises questions about alignment consistency. No evidence of active climate obstruction, but lack of transparency on lobbying positions prevents full scoring.
-
-**Target Credibility — Moderate (Score: 55/100)**
-
-RWE's EUR 50 billion commitment is ambitious for a company of its scale and directionally credible given the company's market position. However, credibility is undermined by:
-
-- Absence of SBTi-validated interim targets (SBTi status: unknown, not classified)
-- TPI validation applies only to 2050 pathway, not 2030 interim commitments
-- No disclosure of capex as percentage of total capex (materiality unknown)
-- Historical pattern of deteriorating greenwashing scores (average 59.3 across 3 prior assessments)
-
-**Historical Consistency — Deteriorating Pattern (Score: 60/100)**
-
-This is not a repeat claim. However, RWE's prior assessment history shows a deteriorating trend (average score 59.3, worst prior score 64.0), indicating a pattern of recurring substantiation or disclosure gaps across multiple climate commitments. The current claim follows this pattern: quantified but unaudited, with material omissions.
-
----
-
-### Key Finding
-
-RWE's EUR 50 billion renewable investment claim is not directly falsified, but it is **misleading through material omission**: the company simultaneously operates 44 Mtpa coal mining capacity, 5.8 GW coal power, 6 European gas assets (3 operating), and 1 operating oil/gas extraction field, none of which are disclosed in the claim. Under the Green Claims Directive Article 3, renewable energy claims must disclose portfolio composition and percentage of total energy; RWE's claim provides neither, creating a false impression of clean energy transition without acknowledging ongoing fossil fuel exposure.
+**Transition Pathway Initiative (2022)**
+TPI rates RWE's 2050 pathway as "1.5 Degrees" (Paris-compatible) and management quality as "Integrating" (Level 3 of 4). This supports long-term climate alignment but does not validate the 2030 EUR 50 billion capex claim or its adequacy.
+*Source: TPI, 2022, https://www.transitionpathwayinitiative.org/corporates*
 
 ---
 
-### Data Gaps
+## Assessment
 
-**EU ETS Installation Data — Not Accessible**
-RWE AG has no registered EU ETS installation IDs in the European Union Transaction Log (EUTL). This prevents independent verification of verified EU ETS historical emissions data, which would have provided high-confidence corroboration or contradiction of the claim. However, E-PRTR data (confidence 0.75) provides adequate alternative emissions trajectory evidence, and GCEL/GCPT/EGT provide verified asset portfolio evidence. This gap reduces confidence from ~75% to 64% but does not invalidate the assessment.
+The claim is a forward-looking capital commitment with a specific EUR 50 billion figure and 2030 deadline. Five critical substantiation gaps prevent independent verification:
 
-**SBTi Target Validation — Not Available**
-SBTi records show RWE's target status as "unknown" and temperature classification as "not classified." The company has not submitted or validated interim science-based targets through the SBTi framework. This is a substantiation gap (no independent validation) rather than a contradiction, and prevents corroboration of the 2030 capex claim's alignment with 1.5°C pathway. However, TPI (2022) provides alternative validation for the 2050 pathway.
+**1. No Baseline Capex Allocation or Allocation Methodology**
+RWE has not published current annual renewable energy capex, historical capex trends, or a detailed allocation plan (e.g., what percentage of the EUR 50 billion targets wind, solar, hydrogen, batteries, and which geographies). CA100+ rates capex alignment as "Partial," which is an explicit investor assessment that RWE's climate commitments lack complete capital alignment documentation.
 
-**Capex Allocation Breakdown — Undisclosed**
-RWE has not publicly disclosed the breakdown of the EUR 50 billion commitment across renewable energy, hydrogen, and battery technologies. This prevents independent verification of whether the allocation matches the stated proportions or whether one technology (e.g., hydrogen) receives disproportionate allocation relative to near-term decarbonization impact. The absence of this disclosure is itself a compliance gap under Green Claims Directive Article 3.
+**2. No Measurable Capacity or Generation Targets**
+The claim specifies EUR 50 billion but does not disclose target megawatts (MW/GW) of renewable capacity additions, terawatt-hours (TWh) of generation, or hydrogen production volumes (tonnes H2 per annum). Without these metrics, the adequacy of EUR 50 billion cannot be assessed against 1.5°C pathways.
 
-**InfluenceMap Confidence — Low**
-InfluenceMap assigns RWE a "C" (neutral/mixed) climate policy engagement score with confidence 0.50. This prevents definitive assessment of lobbying alignment with or against climate legislation. A higher-confidence source on RWE's specific lobbying positions (for/against individual EU climate regulations) would improve confidence in the lobbying dimension.
+**3. Non-Compliance with Green Claims Directive Specificity Requirements**
+Under Article 3 of the Green Claims Directive, renewable energy claims must specify the percentage of total energy consumption to be covered and whether renewable energy certificates or guarantees of origin are used. This claim provides neither, and therefore fails the EU's mandatory substantiation standard for renewable energy claims.
 
----
+**4. Unresolved Coal and Fossil Fuel Portfolio Contradiction**
+RWE operates 44 Mtpa coal mining capacity, 5.8 GW coal-fired power plants (1 unit currently generating 57 MW), 3 operating gas pipelines, 3 LNG terminals, and 1 oil and gas extraction field. The claim makes no reference to coal phase-out dates, coal asset divestment timelines, or the reconciliation of fossil fuel holdings with a renewable energy-focused investment narrative. This omission is material: E-PRTR data shows coal and gas power remain significant portions of the 64.7 Mt current emissions, and the claim does not address how fossil assets will exit during the EUR 50 billion renewable investment period.
 
-### Methodology Note
+**5. SBTi Validation Status Unknown**
+A company claiming EUR 50 billion renewable investment by 2030 should have a validated science-based target. RWE's SBTi record shows "unknown" status and "not classified" temperature rating, indicating the company has not submitted targets for independent third-party validation. This is a red flag for substantiation credibility.
 
-Prasine Index scored this claim using five dimensions:
+**Supporting Evidence Does Not Offset Substantiation Gaps**
+RWE's 47% emissions reduction from 2007 to 2024 (E-PRTR data) and TPI's "1.5 Degrees" 2050 pathway rating are genuinely positive signals. However, both are backward-looking or long-term; neither validates the specific EUR 50 billion 2030 capex claim. CA100+ net-zero ambition rating ("Yes") is also positive but explicitly paired with "Partial" capex alignment, meaning institutional investors have flagged the company's capital plans as incomplete.
 
-1. **Claim Substantiation (48/100)**: Does the claim provide sufficient quantitative, temporal, and methodological specificity for independent verification? The claim states a specific amount (EUR 50 billion) and date (2030) but lacks breakdown, baseline comparison, and audited tracking — partial credit.
+**Lobbying Alignment Status: Unclear**
+RWE is registered as an active EU lobbyist, but InfluenceMap's "C" score and "not assessed" classification prevent confirmation of either climate-supportive or climate-obstructive lobbying. No evidence of anti-climate lobbying has been identified; therefore, this dimension does not trigger a CONFIRMED_GREENWASHING verdict. However, the absence of clarity on lobbying direction introduces uncertainty.
 
-2. **Emissions Accuracy (45/100)**: Do verified emissions data support or contradict the claim? E-PRTR shows genuine historical reduction (47% from 2007–2024), but absolute emissions remain very high, and the claim omits disclosure of ongoing fossil fuel operations that generate those emissions — partial credit for reduction, major deduction for material omission.
+**Historical Consistency Context**
+RWE has 4 prior climate claims on record with an average score of 58.5 (GREENWASHING band, indicating modestly substantiated claims). No prior equivalent EUR 50 billion renewable claims detected. The prior claim pattern suggests a history of claims lacking full substantiation, but this is a weak precedent signal.
 
-3. **Historical Consistency (60/100)**: Is this claim consistent with the company's prior greenwashing assessment history? RWE shows a deteriorating trend (average 59.3, worst 64.0 across 3 prior assessments); the current claim is not a literal repeat but follows a pattern of substantiation gaps — moderate credit.
+**Verdict Reasoning**
+This claim scores 45/100 (INSUFFICIENT_EVIDENCE) because:
+- The EUR 50 billion figure is not independently verifiable against published capex plans or third-party validation.
+- Measurable targets (GW capacity, TWh generation, H2 production) are absent.
+- Coal and gas portfolio holdings remain substantial and unaddressed in the claim.
+- SBTi validation status is unknown.
+- The claim does not meet Green Claims Directive Article 3 specificity requirements.
 
-4. **Lobbying Alignment (35/100)**: Does the company's lobbying activity contradict or qualify the claim? RWE is an active registered lobbyist with inconclusive ("C") climate policy engagement (InfluenceMap confidence 0.50). No evidence of active climate obstruction, but lack of transparency on lobbying direction combined with substantial ongoing fossil fuel operations raises alignment questions — low-to-moderate credit.
-
-5. **Target Credibility (55/100)**: Are the stated targets validated by independent frameworks (SBTi, TPI, CA100+) and consistent with Paris-alignment? TPI validates 2050 as "1.5 Degrees," and CA100+ gives "Partial" capex alignment. However, SBTi does not validate interim targets, and no baseline capex disclosure limits materiality assessment — moderate credit.
-
-**Scoring Scale**: 0–25 = False/Fabricated; 26–45 = Greenwashing (major contradiction); 46–60 = Misleading (incomplete/material omission); 61–80 = Greenwashing (exaggeration without direct contradiction); 81–100 = Substantiated/Accurate.
-
-RWE's claim scores **56/100 (Misleading)** because it is directionally accurate (EUR 50 billion renewable investment is real and plausible) but exaggerates through material omission (fails to disclose simultaneous coal, gas, and oil/gas operations) and lacks the independent verification and portfolio transparency required under Green Claims Directive Article 3.
-
-**Confidence (64%)**: Reflects high confidence in E-PRTR emissions data (0.75) and GCEL/GCPT/EGT asset portfolio evidence (0.55–0.65), but moderate confidence in the interpretation of "misleading through omission" versus direct falsification. The claim's validity depends partly on regulatory interpretation (Green Claims Directive Article 3) rather than pure factual contradiction, which introduces interpretation variance. Confidence would be higher (75%+) if RWE had explicitly claimed "100% clean energy transition" or "coal exit by 2030" — such explicit falsification would be unambiguous.
-
-**Full Prasine Index methodology and scoring framework**: https://prasineindex.eu/methodology/
-
-```
+The score is not MISLEADING (46–60 range) because no verified data directly contradicts the EUR 50 billion commitment itself—it could be real. However, the absence of independent verification, measurable detail, and coal/gas exit alignment prevents a SUBSTANTIATED score (61–100 range).
 
 ---
 
-## Editor's Note (for journalists and legal teams)
+## Key Finding
 
-**Critical Findings for Publication:**
+RWE's EUR 50 billion renewable investment claim cannot be independently verified: the company has not published a detailed capex allocation plan, capacity targets (GW/MW), or coal phase-out timelines, and its SBTi target status remains unknown. The claim fails the Green Claims Directive's mandatory specificity requirement (percentage of energy consumption, REC disclosure) and does not address RWE's ongoing 44 Mtpa coal mining and 5.8 GW coal power portfolio, which generated the majority of the company's 64.7 Mt 2024 emissions.
 
-1. **Material Omission Confirmed**: RWE claims EUR 50 billion renewable investment by 2030 but operates 44 Mtpa coal mining + 5.8 GW coal power + 6 European gas assets (3 operating) + 1 oil/gas extraction field. None of these are disclosed in the claim.
+---
 
-2. **Green Claims Directive Non-Compliance**: The claim does not specify "percentage of total energy consumption covered" by renewables (required under Article 3) and provides no baseline capex comparison. This is a regulatory violation, not opinion.
+## Data Gaps
 
-3. **Deteriorating Pattern**: RWE's prior Prasine assessments show declining scores (average 59.3, trend downward). Current claim (56) continues this pattern. Suggests systemic substantiation weakness, not isolated case.
+**EU ETS Installation Data: Not Available**
+RWE is a major European utility and should be registered in the EU Emissions Trading System (EU ETS). However, no installation IDs were returned by queries. This is the single most critical data gap: without EU ETS verified emissions data, we cannot independently confirm RWE's current baseline emissions, installation-level renewable penetration, or projected impact of the EUR 50 billion investment. This gap materially limits confidence.
 
-4. **Lobbying Opacity**: RWE is a registered EU lobbyist with inconclusive climate policy engagement stance (InfluenceMap "C" rating). No evidence of obstruction, but lack of transparency problematic given fossil fuel portfolio.
+**SBTi Validation Status: Unknown**
+RWE's SBTi target status is "unknown" and temperature classification is "not classified." This indicates the company has not submitted targets for independent validation. Given the EUR 50 billion claim, SBTi validation would provide a credible third-party check; its absence reduces substantiation confidence.
 
-**Actionable for Investigative Teams**: Request RWE's detailed capex allocation spreadsheet (renewable vs. hydrogen vs. battery breakdown) and baseline capex comparison (2024 total capex as denominator). Request lobbying positions on specific EU regulations (Gas Directive, Coal Phase-Out, ETS). Both disclosures are legally required under Green Claims Directive and EU Transparency Directive.
+**Audited Capex Allocation Plan: Not Published**
+No audited or third-party-verified capex allocation plan, roadmap, or detailed budget breakdown for the EUR 50 billion investment has been identified. RWE's investor relations materials do not appear to include a detailed capex allocation schedule by technology (wind, solar, hydrogen, batteries) or geography.
+
+**Coal and Gas Exit Timeline: Not Explicitly Stated in Claim**
+The claim does not disclose specific coal power plant retirement dates, coal mining divestment timelines, or gas asset exit schedules. This omission prevents assessment of the claim's full energy transition trajectory.
+
+**Confidence Impact**
+These gaps reduce overall confidence to 58%. If RWE were to publish: (i) a detailed audited capex allocation plan with technology and geography breakdowns, (ii) specific GW and TWh targets, (iii) coal and gas asset exit timelines, and (iv) a validated SBTi target, confidence would rise to 75%+ and the score would likely move to SUBSTANTIATED (61+) or MISLEADING range depending on the content.
+
+---
+
+## Methodology Note
+
+Prasine Index scores greenwashing claims on a 0–100 scale across five dimensions: Claim Substantiation (baseline data, measurable targets, third-party validation), Emissions Accuracy (verified historical emissions, forward projections, portfolio consistency), Historical Consistency (prior claim pattern, repeat claims, trend analysis), Lobbying Alignment (registered lobbying positions cross-referenced with climate policy stance), and Target Credibility (science-based target validation, investor benchmark alignment, 1.5°C pathway consistency). 
+
+**Score bands:** 0–20 = FALSE, 21–45 = INSUFFICIENT_EVIDENCE, 46–60 = MISLEADING, 61–100 = SUBSTANTIATED. 
+
+**Confidence (0–100%)** reflects data completeness: gaps in EU ETS, SBTi, or audited capex plans reduce confidence. Confidence ≤60% indicates material verification constraints. 
+
+This assessment used verified public data from E-PRTR (EU pollution registry), CA100+ (150 institutional investor benchmark), TPI (investor-facing transition pathway standard), Urgewald (coal tracking), Global Energy Monitor (emissions infrastructure), SBTi (science-based target registry), InfluenceMap (lobbying research), and EU Transparency Register. Full methodology: https://prasine.org/methodology.

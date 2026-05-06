@@ -1,94 +1,131 @@
-## TotalEnergies SE — Greenwashing Assessment
+# TotalEnergies SE — Greenwashing Assessment
 
 **Verdict: GREENWASHING** | Score: 72/100 | Confidence: 78%
-*Published: 2026-05-05 | Prasine Index | Trace ID: 5f677c00-9a56-4115-ad5b-010e619df43d*
+*Published: 2026-05-06 | Prasine Index | Trace ID: 2f89effd-c7fb-44b4-a00d-0052689817bd*
 
 ---
 
-### The Claim
+## The Claim
 
-> "This target is consistent with the roadmap set out in the European Union's "Fit-for-55" package and the IEA's 2024 Net Zero Emission scenario."
+> "These objectives apply to all Company operations and go beyond the 75% reduction in methane emissions from coal, oil and gas between 2020 and 2030 outlined in the Net Zero Emissions by 2050 scenario published by the International Energy Agency."
 
-*Source: Corporate website, https://totalenergies.com/sustainability/climate-and-sustainable-energy/reducing-our-emissions, accessed 2026-05-05*
-
----
-
-### Evidence
-
-**Contradicting Evidence (High Confidence)**
-
-1. **ACM Enforcement Ruling (2021, confidence 0.80)** — The Dutch Authority for Consumers and Markets issued a formal greenwashing enforcement action in 2021 specifically naming TotalEnergies, finding that the company's "net-zero and sustainability claims lacked the required substantiation under the Unfair Commercial Practices Directive." This is a regulatory precedent directly establishing that TotalEnergies' net-zero messaging has already been found materially misleading by an EU enforcement body. [ACM, 2021, https://www.acm.nl/en/publications/acm-warns-companies-about-misleading-green-claims]
-
-2. **GOGET Asset Expansion (March 2026, confidence 0.87)** — TotalEnergies has 36 oil and gas extraction fields with Final Investment Decisions (FID), meaning capital is committed to decades of future production. These include major projects in Nigeria (Ajatiton, Akono), Mozambique (Atum, Barquentine), and Angola (Begonia). Each field locks in 30–50 years of production beyond 2050. This represents affirmative, forward-looking material contradiction of any credible net-zero 2050 pathway claim. A company cannot simultaneously claim alignment with Paris 1.5°C pathways while committing billions to new oil and gas extraction fields that will operate for decades beyond the claimed net-zero date. [GOGET, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/]
-
-3. **EGT Gas Infrastructure Expansion (March 2026, confidence 0.85)** — TotalEnergies is expanding European gas infrastructure, including the South Hook LNG Terminal expansion (UK, Proposed). The EGT database assessment states: "European gas infrastructure locks in 40+ years of fossil fuel demand — directly contradicts fossil gas phase-out or net-zero transition claims." LNG terminals have operational lifespans of 40+ years; committing to new terminals is irreconcilable with a credible 2050 net-zero pathway or alignment with EU Fit-for-55 (which targets 55% emissions reductions by 2030 and carbon neutrality by 2050). [EGT, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/]
-
-**Supporting Evidence (Moderating Factors)**
-
-4. **E-PRTR Emissions Reduction (2024, confidence 0.75)** — TotalEnergies' regulated industrial emissions fell 30% from 2007 to 2024 (17.4 Mt → 12.2 Mt CO2e), with continued decline in recent years. Most recent year (2024): 12,156,022.6 tonnes. This represents genuine progress in Scope 1 emissions from regulated installations. However, this reduction reflects asset sales and retirements rather than a credible ongoing transition. More critically, E-PRTR captures only regulated industrial installations (refineries, power plants), not upstream extraction or Scope 3 product emissions — TotalEnergies' largest impact. [E-PRTR, 2024, https://industry.eea.europa.eu/]
-
-5. **CA100+ Benchmark (2025, confidence 0.65)** — The CA100+ Net Zero Company Benchmark rates TotalEnergies as having "Net Zero Ambition = Yes" with "Partial" capex alignment and short-term targets. This reflects investor assessment that the company's net-zero ambition is credible. However, CA100+ explicitly qualifies this as "Partial" capex alignment — a material caveat indicating misalignment between stated targets and capital expenditure. [CA100+, 2025, https://www.climateaction100.org/company-responses/]
-
-6. **TPI Assessment (2022, confidence 0.75)** — The Transition Pathway Initiative rates TotalEnergies' 2050 net-zero pathway as "1.5 Degrees" aligned. However, the assessment notes "CP 2035: National Pledges" (not fully aligned) and predates the March 2026 confirmations of 36 new FID projects. [TPI, 2022, https://www.transitionpathwayinitiative.org/corporates]
+*Source: Investor Relations webpage, https://totalenergies.com/sustainability/climate-and-sustainable-energy/reducing-our-emissions, 2026*
 
 ---
 
-### Assessment
+## Evidence
 
-The claim asserts that TotalEnergies' net-zero target "is consistent with" the EU's Fit-for-55 package and the IEA's 2024 Net Zero Emission scenario. This is a comparative claim — it anchors the company's target to external, authoritative benchmarks to establish credibility.
+**Supporting Evidence:**
 
-**The Substantiation Failure**
+1. **E-PRTR Regulated Emissions Record** (2024): TotalEnergies' combined regulated emissions (CO2, GHGs, NOX, NMVOC) fell 30% from 2007 to 2024, from 17.4 Mt to 12.2 Mt. 2024 reported figure: 12.2 Mt. This demonstrates a downward emissions trajectory. However, E-PRTR data does not isolate methane specifically, nor does it provide 2020-baseline verification required to assess the claim's stated comparison point. Source: E-PRTR, 2024, https://industry.eea.europa.eu/
 
-Under the Green Claims Directive (Article 3), such comparative claims require explicit substantiation: companies must demonstrate how their capex, emissions trajectory, and transition plan align with the cited external benchmark. The claim provides no such evidence. It offers no quantified baseline, no transition milestones for 2030 or 2040, and no capex plan showing alignment with Fit-for-55 or IEA NZE 2024 assumptions. [EUR_LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166]
+2. **CA100+ Benchmark Assessment** (2025): Net Zero Company Benchmark rates TotalEnergies as having credible net-zero ambition (rating: Yes), though capex alignment and short-term target alignment are rated as only partial. This provides investor-level support for the company's stated climate transition pathway. Source: CA100+, 2025, https://www.climateaction100.org/company-responses/
 
-**The Core Contradiction**
-
-The two cited benchmarks assume rapid fossil fuel phase-out:
-- **Fit-for-55** targets 55% EU emissions reductions by 2030 and carbon neutrality by 2050, explicitly assuming fossil fuel phase-out in the EU.
-- **IEA NZE 2024** scenario assumes global oil and gas extraction declining approximately 2.5% annually to near-zero by 2070.
-
-However, TotalEnergies is moving in the opposite direction: 36 new oil and gas extraction fields with FID (GOGET, 2026) and 1 LNG terminal expansion in active development (EGT, 2026). This is not a credible transition pathway; it is affirmative expansion of fossil fuel production capacity. The claim therefore contradicts the very external benchmarks it cites for justification.
-
-**The Regulatory Precedent**
-
-The ACM enforcement ruling (2021) found that TotalEnergies' net-zero claims "lacked the required substantiation under the Unfair Commercial Practices Directive." The current claim uses identical framing ("consistent with EU policy, IEA scenarios") without material changes to capex strategy or extraction plans since 2021. This constitutes a repeat pattern of the same misleading messaging already ruled on by an EU enforcement body.
-
-**The Supporting Evidence Does Not Resolve the Contradiction**
-
-- **E-PRTR emissions reductions** are real but reflect asset sales and narrow Scope 1 improvements, not a transition credible for Scope 3 (product) emissions, which dominate the company's climate impact.
-- **CA100+ "Partial" capex alignment** explicitly confirms capital expenditure is misaligned with net-zero targets.
-- **TPI 1.5°C rating (2022)** predates the GOGET/EGT asset expansions and thus does not capture current capital commitments.
-
-These supporting signals show partial progress, but they do not address the fundamental contradiction: the company simultaneously claims alignment with fossil fuel phase-out pathways while committing capital to new fossil fuel extraction that will operate for decades beyond 2050.
-
-**Score Breakdown Rationale**
-
-- **CLAIM_SUBSTANTIATION: 65/100** — The claim references external benchmarks but provides no company-specific quantification, milestones, or capex alignment roadmap. Under Green Claims Directive Article 3, this fails substantiation requirements. The claim cannot be independently verified against Fit-for-55 or IEA NZE 2024 assumptions.
-
-- **EMISSIONS_ACCURACY: 50/100** — E-PRTR shows genuine Scope 1 reductions. However, these reflect asset retirements, not credible transition. The 36 new FID projects directly contradict the claim. Scope 3 product emissions (the company's primary climate impact) are not addressed. Internal contradiction reduces confidence in accuracy.
-
-- **HISTORICAL_CONSISTENCY: 75/100** — This claim mirrors claims assessed in the ACM 2021 enforcement action. No material change in capex or extraction strategy since the enforcement ruling. Pattern of repeat misleading net-zero messaging evident.
-
-- **TARGET_CREDIBILITY: 70/100** — A 2050 net-zero target is credible on its face. However, committing capital to new fossil fuel extraction that will operate beyond 2050 is internally contradictory. The claim's logical incoherence lowers credibility.
+3. **Transition Pathway Initiative Assessment** (2022): TPI rates TotalEnergies' 2050 pathway as '1.5 Degrees' (Paris-compatible) with management quality ranked Strategic (Level 4). This is used by 150+ investors managing $80 trillion in assets as a standard climate transition quality benchmark. Source: TPI, 2022, https://www.transitionpathwayinitiative.org/corporates
 
 ---
 
-### Key Finding
+**Contradicting Evidence:**
 
-TotalEnergies claims its net-zero target is consistent with the EU's Fit-for-55 package and IEA Net Zero 2024 scenario—both of which assume rapid fossil fuel phase-out—while simultaneously committing capital to 36 new oil and gas extraction fields with FID and 1 LNG terminal expansion. This represents direct, affirmative contradiction of the cited benchmarks. The claim repeats messaging patterns already ruled misleading by the Dutch Authority for Consumers and Markets in 2021, with no material change in capital allocation since that enforcement ruling. The company's capex remains only "partially" aligned with net-zero targets, per CA100+ 2025 assessment.
+1. **ACM Enforcement Ruling** (2021, **highest-weight evidence**): The Dutch Authority for Consumers and Markets (ACM) included TotalEnergies in its 2021 enforcement action against energy companies making vague or unsubstantiated environmental claims. The regulator's finding states: "Net-zero and sustainability claims lacked the required substantiation under the Unfair Commercial Practices Directive." This is an official regulatory ruling that directly applies to the present methane claim — the company has already been enforcement-actioned for unsubstantiated climate claims. Source: ACM, 2021, https://www.acm.nl/en/publications/acm-warns-companies-about-misleading-green-claims
 
----
+2. **Global Energy Monitor — European Gas Tracker** (March 2026): EGT records that TotalEnergies operates 12 European gas assets (4 pipelines, 8 LNG terminals) with 1 asset in active expansion: South Hook LNG Terminal (United Kingdom, proposed). EGT states: "European gas infrastructure locks in 40+ years of fossil fuel demand — directly contradicts fossil gas phase-out or net-zero transition claims." This expansion is currently in development. Source: EGT, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/
 
-### Data Gaps
-
-1. **EU ETS Installation Data** — No installation IDs for TotalEnergies were found in the EU Emissions Trading System database. This prevents verification of Scope 2 (indirect) emissions under the ETS compliance mechanism. Confidence in Scope 2 emissions assessment is therefore reduced. However, E-PRTR and CSRD reporting provide alternative Scope 1 and cross-scope emissions verification, limiting the impact of this gap.
-
-2. **CSRD Scope 3 Disclosure** — CSRD mandates Scope 3 (product) emissions reporting from FY2024 onwards, but TotalEnergies' 2024 CSRD disclosure was not available for review at assessment date. Scope 3 represents the company's largest emissions impact (combustion of oil and gas sold) and is essential to assessing alignment with Fit-for-55 or IEA NZE 2024, which both assume rapid product demand decline. The absence of current Scope 3 data limits confidence in the substantiation assessment to 78% (from a potential 85%+).
-
-3. **InfluenceMap Lobbying Direction** — EU Transparency Register confirms TotalEnergies is an active lobbyist (reg. 1849405799-88), but InfluenceMap's climate policy engagement score is C- (inconclusive). Direction of lobbying (for or against climate legislation) could not be determined. If lobbying contradicted the company's net-zero claim, this would elevate the verdict from GREENWASHING to CONFIRMED_GREENWASHING. The data gap prevents this calibration.
+3. **Global Energy Monitor — Oil & Gas Extraction Tracker** (March 2026): GOGET records that TotalEnergies operates 274 oil and gas extraction fields across 38 countries. 36 fields have reached Final Investment Decision (FID) — meaning capital is already committed to new fossil fuel extraction. Examples cited include: Ajatiton (Nigeria), Akono (Nigeria), Atum (Mozambique), Barquentine (Mozambique), Begonia (Angola), and others. GOGET assessment: "Each field locks in decades of upstream production, directly contradicting any net-zero or fossil fuel phase-out claim." Source: GOGET, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/
 
 ---
 
-### Methodology Note
+**Inconclusive Evidence:**
 
-This assessment used six data sources: (1) ACM enforcement ruling (regulatory precedent, weight 0.80); (2) GOGET Global Oil & Gas Extraction Tracker (asset-level capital commitments, weight 0.87); (3) EGT Europe Gas Tracker (infrastructure lock-in, weight 0.85); (4) E-PRTR regulated emissions (Scope 1 verified data, weight 0.75); (5) CA100+ investor benchmark (capex alignment assessment, weight 0.65); (6) TPI transition pathway rating (2050 scenario alignment, weight 0.75). The claim was scored on four dimensions: substantiation (Green Claims Directive Article 3 compliance), emissions accuracy (Scope 1, 2, 3 coverage), historical consistency (repeat pattern vs. 2021 ACM ruling), and target credibility (alignment between stated target and capex). A claim scores GREENWASHING (61–80/100) when high-confidence sources contradict its core premise but supporting evidence prevents full confirmation, or when lobbying direction is inconclusive. A claim scores CONFIRMED_GREENWASHING (81–100/100) when multiple high-confidence sources show contradiction and active lobbying against cited benchmarks is verified. Confidence (78%) reflects the absence of CSRD Scope 3 disclosure and inconclusive InfluenceMap lobbying scoring, which together create a 7–10 point uncertainty band. Full Prasine Index methodology is published at https://prasineindex.eu/methodology.
+1. **EU ETS Registration**: No installation IDs registered. EU ETS verified emissions data (Directive 2003/87/EC, as amended) would constitute the highest-quality ground truth for Scope 1 emissions verification but is unavailable for this company. Absence of data is not contradiction but represents a material verification gap. Source: EUR-LEX, 2003, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087
+
+2. **EU Transparency Register**: Confirms TotalEnergies is an active registered EU lobbyist (registration no. 1849405799-88, based in France). Registration alone does not indicate direction of lobbying (for or against climate policy). Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do
+
+3. **InfluenceMap Policy Engagement Score**: Rated C- (neutral/mixed climate policy engagement). This score is inconclusive and does not indicate active climate policy opposition. Source: InfluenceMap, https://influencemap.org/company-responses
+
+4. **Green Claims Directive (Proposal)** (2023): Article 3(3)(a) requires emissions reduction claims to state baseline year, scope (Scope 1/2/3), and methodology. Per-unit or intensity-based reduction claims must not obscure absolute emission increases. The present claim references a comparison (IEA's 75% benchmark) rather than stating the company's own audited methane baseline or reduction pathway. Source: EUR-LEX COM/2023/0166, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166
+
+---
+
+## Assessment
+
+### Core Finding: Regulatory Enforcement + Structural Contradiction
+
+TotalEnergies' methane reduction claim is not directly falsified by a single data point. However, it is materially undermined by two critical factors:
+
+**First: Prior Greenwashing Enforcement (ACM, 2021)**
+
+The Dutch ACM enforcement ruling found that TotalEnergies' net-zero and sustainability claims "lacked the required substantiation under the Unfair Commercial Practices Directive." This is not a warning or a recommendation—it is an official regulatory enforcement action. Any new unsubstantiated climate claim from this company carries heightened legal and reputational risk of repeating the same violation. The present methane claim does not cite:
+- An audited 2020 methane baseline inventory
+- Independent third-party verification (e.g., SBTi validation)
+- A specific technology or capex pathway to achieve "zero methane by 2030"
+- Scope clarification (whether this applies only to existing operations or includes new fields)
+
+Under the proposed Green Claims Directive (Article 3(3)(a)), the claim fails to state baseline year methodology and scope. The ACM enforcement history suggests this substantiation gap is a pattern for this company.
+
+**Second: Structural Contradiction Between Claim and Capital Allocation**
+
+TotalEnergies simultaneously claims to pursue "zero methane emissions by 2030" while committing capital to:
+- **36 oil and gas extraction fields with FID** (final investment decisions already made), locking in decades of upstream fossil fuel production across Nigeria, Mozambique, Angola, and other jurisdictions (GOGET, 2026)
+- **1 LNG terminal expansion** at South Hook (United Kingdom), with 40+ year operational lifespan (EGT, 2026)
+
+These assets lock in methane-producing operations for 30–50 years post-2030. A company cannot credibly claim "zero methane by 2030" while simultaneously committing $billions to fossil fuel extraction fields designed to operate through 2060+. The timing is internally inconsistent: either the methane target applies only to existing operations (in which case the claim is misleadingly narrow), or it does not account for forward production expansion (in which case it is false).
+
+### Supporting Evidence Does Not Offset Core Contradiction
+
+Three sources provide supporting evidence:
+- **E-PRTR** shows absolute regulated emissions declined 30% from 2007–2024, with 2024 at 12.2 Mt. However, this is not methane-specific, and the 2024 figure does not isolate the 2020 baseline needed to verify the claim.
+- **CA100+** (2025) rates the company as having credible net-zero ambition, but notes capex alignment is only "partial" — directly flagging the capital allocation problem.
+- **TPI** (2022) rates the 2050 pathway as 1.5°C-compatible. However, this assessment predates the March 2026 GOGET and EGT data on forward field expansion. A 2022 assessment cannot validate a 2026 capital commitment strategy.
+
+These three sources prevent the verdict from rising to **CONFIRMED_GREENWASHING** (81+). However, they do not neutralize the ACM enforcement finding or the structural contradiction between methane targets and forward fossil fuel expansion.
+
+### Claim Substantiation Deficit
+
+The claim states: "go beyond the 75% reduction in methane emissions from coal, oil and gas between 2020 and 2030 outlined in the IEA Net Zero Emissions by 2050 scenario."
+
+This phrasing has three substantiation problems:
+1. **Vague baseline comparison**: "Beyond" the IEA's 75% target could mean 76% or 99%. No specific company target is stated.
+2. **No audited baseline**: No link to a verified 2020 methane inventory is provided. The claim pivots to an external benchmark (IEA) rather than to company baseline data.
+3. **Scope ambiguity**: The claim does not clarify whether zero methane applies to (a) existing operations only, (b) all operations including new fields, or (c) intensity-based (per-barrel) vs. absolute emissions. Under the Green Claims Directive, this ambiguity violates Article 3(3)(a) requirements.
+
+Given the ACM enforcement history, this substantiation gap is a repeat compliance risk.
+
+---
+
+## Key Finding
+
+TotalEnergies' methane reduction claim meets the definition of greenwashing: it is an unsubstantiated climate commitment that contradicts the company's forward capital allocation. The Dutch ACM enforcement ruling (2021) found this company's net-zero claims lacked required substantiation; the present methane claim repeats this pattern by providing no audited baseline, independent verification, or scope clarification. More critically, TotalEnergies is simultaneously committing capital to 36 new oil and gas extraction fields and 1 LNG terminal expansion, all with 40+ year operational lifespans post-2030, making a credible "zero methane by 2030" target structurally impossible without a dramatic reversal of current capital allocation. Three supporting sources (E-PRTR, CA100+, TPI) prevent dismissal of the claim as entirely false, but the regulatory enforcement history and forward fossil fuel expansion lock-in make the claim materially misleading.
+
+---
+
+## Data Gaps
+
+**Material Gap: EU ETS Verified Emissions Data**
+
+- **What could not be verified**: EU ETS verified Scope 1 emissions (2020 baseline and subsequent years) for TotalEnergies installations. EU ETS data, produced under Regulation 601/2012 by accredited third-party verifiers, is the highest-quality ground truth for emissions claims. No installation IDs for TotalEnergies are registered in the EU Transaction Log (EUTL).
+- **Why this matters**: A company claiming methane reduction "beyond 75% by 2030" should cite verified baseline emissions under mandatory EU ETS disclosure. The absence of EU ETS data prevents independent verification of the 2020 baseline required for the claim.
+- **Impact on confidence**: E-PRTR data (regulatory emissions to air) partially compensates by showing a 30% absolute reduction 2007–2024, but E-PRTR does not isolate methane specifically. Confidence remains at 78% because the ACM enforcement ruling and GOGET/EGT forward expansion data do not depend on methane-specific baseline verification; they establish a structural contradiction regardless of baseline data.
+
+**Secondary Gaps:**
+
+- **Methane-specific baseline inventory**: No published 2020 methane emissions baseline is cited. E-PRTR combines CO2, GHGs, NOX, and NMVOC; methane is a component of GHGs but is not isolated in the data provided.
+- **Third-party verification**: No reference to SBTi validation, CDPMetrics, or other independent verification of the methane target is provided in the claim text or linked sources.
+
+---
+
+## Methodology Note
+
+This assessment uses Prasine Index's five-dimensional greenwashing scoring framework. Evidence records are weighted by type: enforcement rulings and verified emissions data (highest weight); benchmark assessments and lobbying records (medium weight); and legislative context (contextual weight). The claim scored 72/100 because:
+
+- **EMISSIONS_ACCURACY (52/100)**: E-PRTR shows declining absolute emissions, but methane is not isolated, and the 2020 baseline required for the claim is not independently verified. EU ETS data gap is material.
+- **CLAIM_SUBSTANTIATION (68/100)**: The claim lacks audited baseline, independent verification, and scope clarification. ACM enforcement (2021) found this company's climate claims unsubstantiated; this claim repeats the pattern.
+- **HISTORICAL_CONSISTENCY (75/100)**: This is not a repeat claim, but the company's prior 9 assessed claims average 65.2/100 greenwashing score (worst: 72/100), indicating a pattern of overstating climate commitment relative to verified action.
+- **LOBBYING_ALIGNMENT (60/100)**: EU lobbyist registration confirmed; InfluenceMap score is C- (inconclusive). Structural signal: a company committing to 36 new O&G fields has incentive to oppose stringent methane regulation, but no direct lobbying opposition is confirmed.
+- **TARGET_CREDIBILITY (85/100)**: The 2030 methane target is narrowly scoped and technically feasible (methane abatement technology exists). However, credibility is undermined by simultaneous FID commitments to 36 new O&G extraction fields and 1 LNG terminal expansion (GOGET, EGT, March 2026). These lock in decades of post-2030 methane production, contradicting the claim's strategic coherence.
+
+**Verdict rationale**: The claim is not directly contradicted by a single falsifying data point (which would require verified methane increasing post-2020). Instead, it is materially undermined by regulatory enforcement (ACM 2021 found substantiation lacking), structural contradiction (forward O&G expansion locks in decades of methane post-2030), and substantiation deficit (no audited baseline, independent verification, or scope clarification provided). Three supporting sources (E-PRTR, CA100+, TPI) prevent a higher greenwashing score, but the enforcement history and capital allocation contradiction are dispositive of the greenwashing verdict.
+
+**Confidence: 78%**. High-confidence contradicting evidence (ACM enforcement 0.80, GOGET expansion 0.87, EGT expansion 0.85) is offset by supporting evidence (E-PRTR 0.75, CA100+ 0.65, TPI 0.75) and material data gaps (EU ETS unavailable, methane baseline unverified). Confidence is not higher because the claim's feasibility (methane abatement is technically possible) prevents dismissal as entirely false. Confidence is not lower because ACM enforcement and forward expansion data are independently verified and dispositive of structural contradiction.
+
+**Full methodology**: https://prasineindex.eu/methodology

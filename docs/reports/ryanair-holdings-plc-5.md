@@ -1,104 +1,104 @@
 # Ryanair Holdings plc — Greenwashing Assessment
 
-**Verdict: GREENWASHING** | Score: 76/100 | Confidence: 82%  
-*Published: 2026-05-06 | Prasine Index | Trace ID: 8c6712cd-1fef-42ea-a504-f265862a2bda*
+**Verdict: GREENWASHING** | Score: 74/100 | Confidence: 78%
+*Published: 2026-05-06 | Prasine Index | Trace ID: 2511e645-1064-40e9-9383-47963abd0062*
 
 ---
 
-## The Claim
+### The Claim
 
-> Our goal is 12.5% SAF usage by 2030.
+> "Our goal is 12.5% SAF usage by 2030."
 
 *Source: Corporate website, https://corporate.ryanair.com/sustainability/ryanair-sustainable-aviation-research-centre*
 
 ---
 
-## Evidence
+### Evidence
 
-**[1] Active Coal Expansion**  
-Urgewald Global Coal Exit List confirms Ryanair Holdings plc is listed as actively expanding coal capacity with mining expansion status: Yes. The GCEL is the institutional standard used by 400+ financial institutions (GFANZ, PAII). This directly contradicts any credible clean energy transition claim, 2022, https://www.urgewald.org/en/themen/global-coal-exit-list
+**[1] UK Advertising Standards Authority Enforcement Ruling (2020)**
+The ASA upheld a complaint against Ryanair's claim to have the "lowest carbon emissions" (ASA A20-529462). The ruling found the claim misleading: Ryanair could not substantiate that it had lower CO₂ per passenger than other European airlines when evaluated on comparable methodology. This is direct regulatory evidence that Ryanair has failed to substantiate aviation emissions claims in the past.
+*Source: ASA (UK), 2020, https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html*
 
-**[2] 2020 Regulatory Enforcement — Unsubstantiated Emissions Claim**  
-UK Advertising Standards Authority (ASA A20-529462, 2020): Ryanair's claim to have the "lowest carbon emissions" was upheld as MISLEADING. The company could not substantiate lower CO2 per passenger than competitors on equivalent metrics. This represents a material precedent: Ryanair has failed regulatory substantiation of a specific carbon claim under direct enforcement scrutiny, https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html
+**[2] European Commission CPC Investigation (2024)**
+The European Commission and national consumer protection authorities launched a coordinated investigation into Ryanair's environmental claims about carbon emissions, offsetting, and sustainability credentials under CPC Regulation 2017/2394. This investigation is part of a 2024 airline greenwashing sweep covering Ryanair, Air France, KLM, and Lufthansa. The investigation directly targets the class of claims to which the SAF target belongs.
+*Source: European Commission, 2024, https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057*
 
-**[3] 2024 European Commission Investigation — Ongoing**  
-European Commission and national consumer protection authorities launched a coordinated investigation into Ryanair's environmental claims (CPC Regulation 2017/2394) as part of the 2024 airline greenwashing sweep. The investigation specifically targets claims about carbon emissions, offsetting, and sustainability credentials and remains ongoing, https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057
+**[3] InfluenceMap Climate Policy Engagement Score**
+InfluenceMap rates Ryanair Holdings plc as D+ for climate policy engagement, classifying the company as actively obstructive toward climate legislation. A D+ score indicates the company opposes or delays climate regulation relevant to its sector. This directly contradicts the company's stated climate goal: Ryanair claims commitment to 12.5% SAF by 2030 while simultaneously lobbying against the climate legislation that would enforce such transitions.
+*Source: InfluenceMap, https://influencemap.org/company-responses*
 
-**[4] Obstructive Climate Lobbying**  
-InfluenceMap rates Ryanair at D+, indicating obstructive engagement with climate legislation. This score reflects active opposition or delay of climate policy while making concurrent green commitments. The company is registered in the EU Transparency Register (no. 002977215945-85) as an active EU lobbyist, https://influencemap.org/company-responses and https://ec.europa.eu/transparencyregister/public/consultation/search.do
+**[4] Green Claims Directive Substantiation Requirements (2023)**
+The Green Claims Directive (COM/2023/0166) requires that renewable energy claims specify: (a) the percentage of total energy consumption covered, (b) the source, and (c) whether renewable energy certificates or guarantees of origin are used. Claims lacking these specifics are considered potentially misleading under Article 3.
+*Source: EUR-LEX 52023PC0166, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
 
-**[5] Science-Based Target Initiative Status**  
-SBTi records Ryanair as status=unknown, temperature classification=not classified, with no net-zero target submitted. The 12.5% SAF target is not validated against science-based standards, https://sciencebasedtargets.org/companies-taking-action
+**[5] Science Based Targets initiative (SBTi) Target Status**
+SBTi records show no validated target on file for Ryanair Holdings plc. Status: unknown; temperature classification: not classified; net-zero target: none. This indicates the company has not committed its SAF target to independent third-party verification.
+*Source: SBTi, https://sciencebasedtargets.org/companies-taking-action*
 
-**[6] Transition Pathway Initiative Assessment**  
-TPI (2022) rates Ryanair management quality as Level 2 (Acknowledging — the lowest active classification) and the 2050 pathway as Below 2 Degrees. While the long-term trajectory is Paris-compatible, the 2030 interim credibility assessment shows no advanced climate management and no validated sectoral benchmark for the SAF interim target, https://www.transitionpathwayinitiative.org/corporates
+**[6] EU ETS Verification Data**
+Query for Ryanair installation IDs in the EU ETS returned no results. Airlines operating intra-EEA flights fall under EU ETS regulation; the absence of installation data prevents independent verification of Ryanair's current aviation fuel carbon intensity baseline or emissions trajectory.
+*Source: EU ETS EUTL, https://ec.europa.eu/clima/ets*
 
-**[7] Green Claims Directive Substantiation Requirements**  
-The European Commission's 2023 Green Claims Directive (COM/2023/0166) requires renewable and alternative fuel claims to specify: (i) percentage of total energy covered, (ii) source of fuel, and (iii) whether renewable energy certificates or guarantees of origin are used. Ryanair's claim provides none of these details, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166
+**[7] Transition Pathway Initiative Assessment (2022)**
+TPI rates Ryanair Holdings plc's 2050 pathway as "Below 2 Degrees" — within Paris-compatible bounds — with Management Quality Level 2 (Acknowledging). This is the only independent supporting evidence for climate credibility. However, TPI assessments measure broad management-quality benchmarks, not verification of specific near-term targets. A 2050 pathway rating does not validate a 2030 SAF usage target.
+*Source: Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates*
 
-**[8] Missing EU ETS Baseline Data**  
-No EU ETS installation IDs are registered for Ryanair. This prevents independent verification of current absolute fuel consumption, year-on-year fuel type composition, or tracked progress toward the 12.5% target. For a quantified 2030 goal, EU ETS verification would normally provide ground-truth calibration.
+**[8] Urgewald Global Coal Exit List (GCEL)**
+Urgewald Global Coal Exit List records Ryanair Holdings plc as actively expanding coal capacity. The GCEL is used by 400+ financial institutions (GFANZ, PAII) as the standard coal screening tool. However, this record appears anomalous: Ryanair is a low-cost airline with no documented operational coal generation, mining, or power assets. The record likely reflects data quality issues or misclassification and has been weighted lightly in this assessment.
+*Source: Urgewald Global Coal Exit List, https://www.urgewald.org/en/themen/global-coal-exit-list*
 
----
-
-## Assessment
-
-Ryanair's 12.5% SAF target by 2030 meets the threshold for GREENWASHING classification, driven by four critical contradictions:
-
-**1. Lobbying-Claim Contradiction (Primary Greenwashing Signal)**
-
-InfluenceMap rates Ryanair at D+, indicating obstructive engagement with climate legislation. This directly contradicts the company's stated 2030 SAF commitment. The company is actively opposing or delaying the regulatory frameworks (EU ETS expansion, ReFuelEU Aviation targets, carbon pricing mechanisms) that would operationalise such a target. This is a confirmed match to established greenwashing criteria: active climate policy obstruction paired with conflicting climate claims.
-
-**2. Regulatory Enforcement History**
-
-ASA enforcement ruling (2020) found Ryanair's claim to have the "lowest carbon emissions" misleading and unsubstantiated. The company could not demonstrate lower CO2 per passenger than competitors. This is material: Ryanair has a demonstrated pattern of failing to substantiate specific carbon claims under regulatory scrutiny. The European Commission's ongoing 2024 investigation into Ryanair's environmental claims across emissions, offsetting, and sustainability credentials amplifies this concern.
-
-**3. Coal Expansion Contradiction**
-
-Urgewald's Global Coal Exit List confirms Ryanair is actively expanding coal capacity (mining expansion: Yes). While anomalous for an airline, this institutional listing disqualifies broad sustainability framing. Any credible "clean energy transition" claim fails when verified as actively expanding coal holdings by the standard used by 400+ financial institutions.
-
-**4. Substantiation Gaps Against Directive Requirements**
-
-The claim specifies 12.5% by 2030—a quantified, time-bound target that should be verifiable. However:
-- No EU ETS baseline data available to verify current fuel mix or track progress
-- No SBTi validation (status: unknown, not classified)
-- No compliance with Green Claims Directive Article 3 requirements: the claim does not specify percentage of total fuel coverage, fuel source, or renewable certificate use
-- TPI assessment (2022) rates management quality as "Acknowledging" (Level 2, lowest active), not "Advanced" or "Proactive"
-- 2050 pathway is Below 2 Degrees (Paris-compatible) but provides no credible interim 2030 pathway
-
-**Why Not CONFIRMED_GREENWASHING?**
-
-The score of 76 reflects GREENWASHING (not CONFIRMED) because: (i) TPI provides one institutional data point supporting the 2050 science alignment (Below 2 Degrees, confidence 0.75), creating residual plausibility for the long-term direction; (ii) the target is future-oriented, not yet falsified by real-world performance data; (iii) SBTi status is "unknown" rather than an explicit rejection. However, the combination of 2020 enforcement failure, ongoing 2024 EC investigation, obstructive D+ lobbying score, and coal expansion listing collectively constitute a systematic pattern of greenwashing. The 12.5% SAF claim lacks the independent baseline verification, third-party validation, and substantiation detail required to distinguish it from prior unsubstantiated claims.
+**[9] EU Transparency Register Lobbying Registration**
+Ryanair Holdings plc is registered as a direct corporate EU lobbyist (Registration no. 002977215945-85, HQ: Ireland). This confirms active engagement with EU institutions on policy matters. Cross-referenced with InfluenceMap data, the lobbying is classified as obstructive to climate legislation.
+*Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
 ---
 
-## Key Finding
+### Assessment
 
-Ryanair's 2030 SAF target is contradicted by the company's own D+ obstructive climate lobbying score (InfluenceMap), a confirmed 2020 enforcement ruling for unsubstantiated emissions claims (ASA), an ongoing 2024 European Commission investigation into its environmental substantiation practices, and active coal expansion (Urgewald GCEL). The target lacks EU ETS baseline verification, SBTi validation, and Green Claims Directive compliance detail required for independent credibility assessment. This pattern indicates systematic greenwashing rather than a credible interim climate commitment.
+Ryanair's claim of "12.5% SAF usage by 2030" receives a **GREENWASHING** verdict (74/100) on the basis of regulatory enforcement failures, documented policy contradiction, and insufficient substantiation.
+
+**Primary Finding: Regulatory Enforcement and Policy Contradiction**
+
+The ASA enforcement ruling (2020) is the foundation of this assessment. Ryanair explicitly failed to substantiate a prior aviation emissions claim when evaluated on comparable methodology with other European airlines. This establishes a documented pattern: the company makes emissions claims it cannot substantiate. The European Commission's coordinated 2024 CPC investigation directly targets Ryanair's environmental claims about carbon emissions, offsetting, and sustainability — the exact class to which the SAF target belongs. This investigation signals regulatory doubt about the credibility of Ryanair's emissions-related commitments.
+
+**Secondary Finding: Lobbying Contradiction (Hallmark of Greenwashing)**
+
+InfluenceMap classifies Ryanair as D+ — actively obstructive toward climate legislation. This is the primary greenwashing indicator: Ryanair publicly states a 12.5% SAF usage target while simultaneously lobbying against the climate regulation that would enforce such transitions. There is no ambiguity here. The company claims climate leadership while working to delay or oppose the very policies necessary to achieve it. This pattern — stated commitments contradicted by demonstrated policy positions — is the defining characteristic of greenwashing.
+
+**Tertiary Finding: Substantiation Failure Under GCD Framework**
+
+The claim lacks independent verification. The Green Claims Directive requires renewable energy claims to specify (a) percentage of total energy covered, (b) source, and (c) certificate or GO status. Ryanair's claim provides none of these. It is a bare percentage target with no baseline, no methodology, no starting point, and no audited trajectory. Under GCD substantiation standards, this claim is insufficiently substantiated. The absence of an SBTi validated target and the missing EU ETS installation data prevent independent verification of whether the company even has a measurable baseline from which to calculate a 12.5% reduction.
+
+**Mitigating Factor: TPI Paris-Aligned Pathway**
+
+TPI rates Ryanair's 2050 pathway as "Below 2 Degrees" — a supporting signal. However, TPI assessments measure management-quality benchmarks, not specific near-term target verification. A 2050 pathway rating does not validate a 2030 SAF target, particularly when the baseline is unknown. This factor reduces the score from 80 (CONFIRMED GREENWASHING) to 74 (GREENWASHING).
+
+**Data Quality Issue: Coal Expansion Record**
+
+The Urgewald GCEL lists Ryanair as actively expanding coal capacity. This record is anomalous — Ryanair has no documented coal assets. The record likely reflects data classification error and has been weighted lightly.
+
+**Historical Pattern**
+
+Ryanair's 10 prior assessed claims average 78.6 (range: 0–89), indicating a stable pattern of unsubstantiated or contradicted climate claims. This is not a one-time failure but a consistent behavior.
 
 ---
 
-## Data Gaps
+### Key Finding
 
-**EU ETS Installation Data — Critical Gap**  
-No EU ETS installation IDs returned for Ryanair. This prevents independent verification of:
-- Current absolute fuel consumption baseline (year and volume)
-- Year-on-year fuel type composition
-- Tracked SAF percentage progress toward the 12.5% target
-
-For a quantified 2030 target, EU ETS verified emissions data would normally provide ground-truth calibration against corporate claims. Absence of this data is itself a substantiation gap and reduces confidence in interim pathway credibility from ~0.90 to 0.82.
-
-**SBTi Classification — Partial Gap**  
-SBTi record shows status=unknown rather than explicit rejection or validation. This creates ambiguity: the target may be under SBTi review or outside their scope. Confidence in science-based alignment reduced from 0.85 to 0.75 as a result.
-
-**Green Claims Directive Compliance Detail — Information Gap**  
-Claim text does not specify: (i) percentage of total fuel consumption covered by SAF, (ii) geographic/feedstock source of the SAF, or (iii) certificate/guarantee of origin status. Compliance with Article 3 requirements cannot be verified from available corporate disclosures. This gap prevents full substantiation under EUR_LEX 2023/2161.
-
-**Impact on Confidence**  
-Overall confidence: 82%. Confidence is not higher because EU ETS baseline data unavailability prevents full baseline verification. Confidence remains at 82% (not lower) because enforcement sources (ASA 2020, EC 2024) and lobbying/coal data (InfluenceMap D+, GCEL listing) are high-confidence institutional sources (0.85–0.95) independent of corporate disclosures.
+Ryanair claims a 12.5% SAF usage target by 2030 while the UK Advertising Standards Authority has already ruled the company unable to substantiate aviation emissions claims (2020), the European Commission is investigating its environmental claims (2024), and InfluenceMap records the company as D+ — actively lobbying against climate legislation. This is greenwashing: stated climate commitments contradicted by demonstrated policy opposition.
 
 ---
 
-## Methodology Note
+### Data Gaps
 
-Prasine Index assessed Ryanair's 12.5% SAF target against verified regulatory, institutional, and corporate data. Sources weighted by evidentiary hierarchy: (1) enforcement rulings and ongoing regulatory investigations (ASA 2020, EC 2024, confidence 0.70–0.90); (2) third-party institutional assessments of climate policy engagement and coal holdings (InfluenceMap, Urgewald GCEL, confidence 0.85–0.90); (3) investor-facing climate benchmarks (TPI, SBTi, confidence 0.50–0.75); (4) legislative substantiation requirements (Green Claims Directive, confidence 0.95); (5) verified corporate emissions data (EU ETS, confidence 0.90 when available, N/A here). Scores reflect five dimensions: Emissions Accuracy (62/100 — Paris pathway credible at 2050 but 2030 interim lacks baseline verification); Claim Substantiation (65/100 — quantified target with timeline but no independent baseline, SBTi validation, or compliance detail); Historical Consistency (85/100 — prior enforcement failure and ongoing investigation); Lobbying Alignment (88/100 — obstructive D+ score directly contradicts stated commitment); Target Credibility (55/100 — 2050 path below 2°C but 2030 interim unvalidated). GREENWASHING threshold: 70–89. CONFIRMED_GREENWASHING threshold: 90+. Full Prasine methodology available at https://prasine-index.eu/methodology.
+**EU ETS Installation Data**: Query returned no installation IDs for Ryanair. Airlines operating intra-EEA flights fall under EU ETS; the absence of this data prevents independent verification of Ryanair's current aviation fuel carbon intensity baseline or verification that a measurable starting point exists from which to calculate the claimed 2030 target. This gap reduces confidence by ~5 percentage points but does not invalidate the greenwashing verdict, as the GCD substantiation failure and regulatory enforcement findings are independent of this gap.
+
+**SBTi Validation Status**: SBTi shows "status unknown" for Ryanair. This indicates no validated third-party commitment is on file; the company has not submitted the SAF target for independent verification. This is not a data gap but a verification gap — the company has not sought independent validation.
+
+**Baseline Data**: Ryanair has not published a current SAF usage baseline. Without this, the achievability and credibility of the 2030 target cannot be assessed. This is a substantiation failure, not a data gap in external sources.
+
+---
+
+### Methodology Note
+
+Prasine Index assessed this claim using eight evidence sources evaluated on a 0.0–1.0 confidence scale. The score combines five subscale assessments: Emissions Accuracy (72/100), Claim Substantiation (68/100), Historical Consistency (85/100), Lobbying Alignment (88/100), and Target Credibility (55/100). The GREENWASHING verdict reflects the convergence of two enforceable findings (ASA 2020 + EC 2024 investigation), one structural contradiction (InfluenceMap D+ vs. stated commitment), and one substantiation failure (GCD Article 3 standards). The TPI Paris-aligned 2050 pathway assessment was weighted at 6 points to reflect that broad management-quality ratings do not validate specific near-term targets. The coal expansion record was identified as likely erroneous data and weighted lightly. Confidence (78%) reflects high evidentiary strength on core findings (ASA 0.90, InfluenceMap 0.85, EC 0.70) offset by unavailable EU ETS baseline data and the ambiguous coal record. The full Prasine Index methodology is published at https://prasine-index.eu/methodology.
