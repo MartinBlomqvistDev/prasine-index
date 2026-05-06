@@ -386,6 +386,55 @@
     .dot-gray   { background: var(--faint); }
     .mini-ev strong { color: var(--text); font-weight: 600; }
 
+    /* ── Score expand ── */
+    .score-expand {
+      border-top: 1px solid var(--border);
+      margin-top: 4px;
+    }
+    .score-expand summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 8px 0 4px;
+      font-size: 11px; font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      user-select: none;
+    }
+    .score-expand summary::-webkit-details-marker { display: none; }
+    .score-expand summary::before {
+      content: '▸ ';
+      font-size: 9px;
+    }
+    .score-expand[open] summary::before { content: '▾ '; }
+    .score-expand summary:hover { color: var(--text); }
+    .score-expand-body {
+      display: flex; flex-direction: column; gap: 6px;
+      padding-bottom: 8px;
+    }
+    .sw-row {
+      display: flex; align-items: baseline;
+      justify-content: space-between; gap: 8px;
+      font-size: 11px;
+    }
+    .sw-source { color: var(--muted); flex: 1; }
+    .sw-badge {
+      flex-shrink: 0;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .sw-contra { background: rgba(220,60,60,0.12); color: var(--red-text); }
+    .sw-support { background: rgba(40,180,100,0.12); color: var(--green-text); }
+    .sw-neutral { background: rgba(120,120,120,0.10); color: var(--muted); }
+    .sw-finding {
+      margin-top: 4px;
+      font-size: 11px; color: var(--faint);
+      font-style: italic; line-height: 1.4;
+      border-left: 2px solid var(--border);
+      padding-left: 8px;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .stats { flex-direction: column; }
@@ -655,6 +704,16 @@
               <span><strong>EU ETS aviation emissions</strong> — Verified absolute emissions contradict the "more sustainable flying" narrative with no credible decarbonisation pathway disclosed.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 92/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">ACM Enforcement ACM/UIT/544682 (2023)</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">Amsterdam District Court ECLI:NL:RBAMS:2023:5615</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3(1) — no substantiation</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">EU Transparency Register — active lobbyist confirmed</span><span class="sw-badge sw-neutral">Context · —</span></div>
+              <p class="sw-finding">Two independent regulatory rulings from 2023 found the identical campaign framework unlawful. The claim perpetuates the same false implication with no substantive change. Confidence 92%.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -665,17 +724,17 @@
             <div class="mini-company">Glencore plc</div>
             <div class="mini-meta">GB · Mining · CSRD obligated</div>
           </div>
-          <span class="verdict-badge verdict-greenwashing">Greenwashing</span>
+          <span class="verdict-badge verdict-confirmed">Confirmed Greenwashing</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
             "Glencore supports the Paris Agreement and is on track to achieve net zero Scope 1, 2 and 3 emissions by 2050, with an interim target to reduce absolute Scope 1 and 2 emissions by 50% by 2035."
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--red-text)">78</div>
+            <div class="mini-score-num" style="color:var(--red-text)">82</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-red" style="width:78%"></div></div>
-              <div class="mini-verdict-label">GREENWASHING · 61–80</div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-red" style="width:82%"></div></div>
+              <div class="mini-verdict-label">CONFIRMED · 81–100</div>
             </div>
           </div>
           <div class="mini-evidence">
@@ -692,6 +751,16 @@
               <span><strong>UK CMA investigation, 2023</strong> — CMA flagged the contradiction between Glencore's net-zero claim and continued coal expansion. Investigation ongoing.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 82/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">Urgewald GCEL — active coal expansion</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">InfluenceMap D+ — obstructive lobbying</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">UK CMA investigation (ongoing)</span><span class="sw-badge sw-contra">Contradicts · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3 — no capex methodology</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <p class="sw-finding">Coal expansion + obstructive lobbying while claiming Paris support = CONFIRMED_GREENWASHING. Score upgraded 76→82 with 21-source pipeline (GOGET/GCPT confirmed additional fossil expansion).</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -709,9 +778,9 @@
             "More Energy, Less Emissions"
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--red-text)">67</div>
+            <div class="mini-score-num" style="color:var(--red-text)">72</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:67%"></div></div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:72%"></div></div>
               <div class="mini-verdict-label">GREENWASHING · 61–80</div>
             </div>
           </div>
@@ -729,6 +798,17 @@
               <span><strong>E-PRTR 2024</strong> — 30% emissions reduction 2007–2024 provides partial support, but a 26% spike in 2022 contradicts the steady "less emissions" narrative.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 72/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">ACM enforcement (2021) — unsubstantiated net-zero claims</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">GOGET — 36 oil &amp; gas fields with Final Investment Decision</span><span class="sw-badge sw-contra">Contradicts · 0.87</span></div>
+              <div class="sw-row"><span class="sw-source">EGT — South Hook LNG Terminal expansion (UK, proposed)</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">E-PRTR 2024 — 30% regulated emissions reduction 2007–2024</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">CA100+ 2025 — Net Zero Ambition Yes, capex Partial</span><span class="sw-badge sw-neutral">Partial · 0.65</span></div>
+              <p class="sw-finding">36 new FID fields + LNG expansion directly contradict the cited Fit-for-55 and IEA NZE benchmarks. ACM 2021 ruling found identical framing misleading. Score upgraded 67→72 with 21-source pipeline.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -746,9 +826,9 @@
             "We are directly involved in four of the UN's 17 Sustainable Development Goals. We are driving growth in social, economic and environmental sustainability."
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--red-text)">68</div>
+            <div class="mini-score-num" style="color:var(--red-text)">72</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:68%"></div></div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:72%"></div></div>
               <div class="mini-verdict-label">GREENWASHING · 61–80</div>
             </div>
           </div>
@@ -762,6 +842,17 @@
               <span><strong>E-PRTR 2024</strong> — 75% emissions reduction 2007–2024 and CA100+ Net Zero = Yes provide partial support, preventing CONFIRMED_GREENWASHING verdict.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 72/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">Urgewald GCEL — 15 Mtpa coal mining + 2.4 GW coal power expansion</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">EGT — Porto Empedocle LNG Terminal (Italy, in development)</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">GOGET — 12 oil &amp; gas fields, 11 currently producing</span><span class="sw-badge sw-contra">Contradicts · 0.72</span></div>
+              <div class="sw-row"><span class="sw-source">E-PRTR 2024 — 75% regulated emissions reduction 2007–2024</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">CA100+ 2025 — Net Zero Ambition Yes, capex Yes</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <p class="sw-finding">Classic transition-gap: retiring legacy coal plants while expanding new coal mining, LNG terminals, and oil/gas fields. Score upgraded 68→72 with 21-source pipeline.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -772,17 +863,17 @@
             <div class="mini-company">RWE AG</div>
             <div class="mini-meta">DE · Energy · CSRD obligated</div>
           </div>
-          <span class="verdict-badge verdict-greenwashing">Greenwashing</span>
+          <span class="verdict-badge verdict-misleading">Misleading</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
             "Growing the green. RWE is investing EUR 50 billion in renewable energies, hydrogen and batteries by 2030."
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--red-text)">64</div>
+            <div class="mini-score-num" style="color:var(--amber-text)">56</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:64%"></div></div>
-              <div class="mini-verdict-label">GREENWASHING · 61–80</div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:56%"></div></div>
+              <div class="mini-verdict-label">MISLEADING · 46–60</div>
             </div>
           </div>
           <div class="mini-evidence">
@@ -795,6 +886,17 @@
               <span><strong>E-PRTR 2024</strong> — 47% emissions reduction since 2007, 32% in the past four years. Genuine historical progress, but coal operations remain substantial.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 56/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">Urgewald GCEL — 44 Mtpa coal + 5.8 GW coal power capacity</span><span class="sw-badge sw-contra">Contradicts · 0.65</span></div>
+              <div class="sw-row"><span class="sw-source">EGT — 3 gas pipelines + 3 LNG terminals, 3 currently operating</span><span class="sw-badge sw-contra">Contradicts · 0.55</span></div>
+              <div class="sw-row"><span class="sw-source">GOGET — 1 operating oil &amp; gas extraction field</span><span class="sw-badge sw-contra">Contradicts · 0.60</span></div>
+              <div class="sw-row"><span class="sw-source">E-PRTR 2024 — 47% genuine reduction since 2007</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3 — no capex breakdown or baseline</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <p class="sw-finding">EUR 50bn claim is directionally real but misleading by omission: simultaneous coal, gas, and oil assets not disclosed. Verdict downgraded GREENWASHING→MISLEADING (64→56) with 21-source pipeline.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -812,9 +914,9 @@
             "We are committed to being a responsible business and contributing to resilient societies, respecting and promoting human rights across the value chain."
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--amber-text)">48</div>
+            <div class="mini-score-num" style="color:var(--amber-text)">52</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:48%"></div></div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:52%"></div></div>
               <div class="mini-verdict-label">MISLEADING · 46–60</div>
             </div>
           </div>
@@ -828,6 +930,16 @@
               <span><strong>No SBTi target</strong> — A global retailer of this scale with no validated science-based emissions reduction target. The absence itself is a substantiation failure.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 52/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">E-PRTR 2023 — regulated emissions rose 902% (2010–2023 trend)</span><span class="sw-badge sw-contra">Contradicts · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3 — no scope, baseline, or methodology</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi — no validated net-zero target on record</span><span class="sw-badge sw-neutral">Absent · 0.50</span></div>
+              <div class="sw-row"><span class="sw-source">InfluenceMap B-band — supportive lobbying, no contradiction</span><span class="sw-badge sw-support">Supports · 0.50</span></div>
+              <p class="sw-finding">902% rise in EU-reported emissions contradicts "responsible business" framing. No SBTi validation, missing scope definition. Score upgraded 48→52 with 21-source pipeline.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -865,6 +977,15 @@
               <span><strong>CA100+</strong> — Not Aligned on net-zero ambition and capex alignment per 700+ investor consensus ($68tn AUM).</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 78/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">Dutch District Court (2021) — legally ordered 45% absolute cut by 2030</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS — 30+ installations, trajectory incompatible with 2050 NZ</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">CA100+ 2025 — Not Aligned (net-zero + capex), 700+ investors</span><span class="sw-badge sw-contra">Contradicts · 0.75</span></div>
+              <p class="sw-finding">Court-ordered cuts, 30+ EU ETS installations, and CA100+ Not Aligned from institutional investors represent three independent lines of evidence that Shell's net-zero-by-2050 framing is unsubstantiated.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -898,6 +1019,14 @@
               <span><strong>Banking on Climate Chaos</strong> — $87 billion in fossil fuel financing 2016–2022, making HSBC one of the largest financiers of fossil fuel expansion globally.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 71/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">UK ASA ruling (2022) — two ads banned the same year as commitment</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">Banking on Climate Chaos — $87bn fossil financing 2016–2022</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <p class="sw-finding">UK advertising regulator banned HSBC green ads the same year the net-zero pledge was made. $87bn in fossil fuel financing directly contradicts the financed-emissions alignment claim.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -935,6 +1064,15 @@
               <span><strong>EU ETS — no registration found</strong> — prevents independent verification of annual ash generation volumes and actual recovery rates.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 52/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3 — aspiration framing, no quantified targets</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">Research vs. practice — asphalt reuse is research-stage, not operational</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS — no registered installations, no baseline for verification</span><span class="sw-badge sw-neutral">No data · —</span></div>
+              <p class="sw-finding">Slag recycling claim lacks tonnage baselines and recovery rate targets required under the Green Claims Directive. Research-stage asphalt reuse presented alongside operational practice — a material misrepresentation.</p>
+            </div>
+          </details>
         </div>
       </div>
 
@@ -945,7 +1083,7 @@
             <div class="mini-company">Ørsted A/S</div>
             <div class="mini-meta">DK · Energy · CSRD obligated</div>
           </div>
-          <span class="verdict-badge verdict-misleading">Misleading</span>
+          <span class="verdict-badge verdict-misleading">Insufficient</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
@@ -968,6 +1106,15 @@
               <span><strong>Pipeline note:</strong> Genuine transition case. Low score reflects authentic emissions reductions. The pipeline correctly distinguishes real progress from greenwashing.</span>
             </div>
           </div>
+          <details class="score-expand">
+            <summary>Why 32/100?</summary>
+            <div class="score-expand-body">
+              <div class="sw-row"><span class="sw-source">EU ETS — 10 of 14 installations support the 87% reduction trajectory</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">TPI 2022 — Management Quality Level 4, 1.5°C 2050 pathway</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Green Claims Directive Art. 3 — no baseline year or coal-to-renewable % disclosed</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <p class="sw-finding">Genuine verified transition — EU ETS data largely supports the 87% claim. Low score reflects absent baseline disclosure (no start year, no coal/renewable % conversion), not greenwashing. Pipeline is working correctly.</p>
+            </div>
+          </details>
         </div>
       </div>
 
