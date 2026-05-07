@@ -83,7 +83,8 @@ Be specific about what this means for the confidence level.]
 
 ### Methodology Note
 [One paragraph explaining how Prasine Index scored this claim — which sources were
-used, what the score scale means, and where the full methodology is published.]
+used, what the score scale means, and where the full methodology is published.
+Always end with: "Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/"]
 
 CITATION FORMAT
 When citing evidence: [Source Name], [data year], [URL if available].

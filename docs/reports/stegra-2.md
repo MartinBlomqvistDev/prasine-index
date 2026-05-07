@@ -86,4 +86,4 @@ Prasine Index assessed this claim against three standards: (1) the Green Claims 
 
 The score of 52/100 (MISLEADING range: 46–60) reflects a substantiation failure against clear regulatory law, paired with a significant verification gap (no EU ETS data). The confidence level of 62% reflects the moderate strength of the substantiation evidence (regulatory standards are clear) offset by the inability to access facility-level emissions data that would either corroborate or falsify the claim.
 
-Prasine Index scores on a scale of 0–100: 0–45 (INSUFFICIENT_EVIDENCE), 46–60 (MISLEADING), 61–80 (GREENWASHING), 81–95 (FALSE), 96–100 (CONFIRMED). Full methodology: https://prasine.index/methodology
+Prasine Index scores on a scale of 0–100: 0–45 (INSUFFICIENT_EVIDENCE), 46–60 (MISLEADING), 61–80 (GREENWASHING), 81–95 (FALSE), 96–100 (CONFIRMED). Full methodology: https://martinblomqvistdev.github.io/prasine-index/

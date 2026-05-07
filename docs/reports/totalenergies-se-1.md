@@ -128,4 +128,4 @@ This assessment uses Prasine Index's five-dimensional greenwashing scoring frame
 
 **Confidence: 78%**. High-confidence contradicting evidence (ACM enforcement 0.80, GOGET expansion 0.87, EGT expansion 0.85) is offset by supporting evidence (E-PRTR 0.75, CA100+ 0.65, TPI 0.75) and material data gaps (EU ETS unavailable, methane baseline unverified). Confidence is not higher because the claim's feasibility (methane abatement is technically possible) prevents dismissal as entirely false. Confidence is not lower because ACM enforcement and forward expansion data are independently verified and dispositive of structural contradiction.
 
-**Full methodology**: https://prasineindex.eu/methodology
+**Full methodology**: https://martinblomqvistdev.github.io/prasine-index/

@@ -149,7 +149,7 @@ This assessment uses the Prasine Index five-dimensional greenwashing framework: 
 
 **Confidence 72%** reflects the genuine tension between documented renewable progress (EPRTR, CA100+, TPI) and documented fossil fuel expansion (COAL_EXIT, GOGET, EGT). All three contradicting sources are institutional-standard databases; all supporting sources are equally credible. The lower-than-maximum confidence reflects the directional nature of the claim ("growth in renewables") rather than an absolute net-zero target, which reduces the logical falsifiability of the statement, even where verified expansion of coal and gas is evident.
 
-**Full methodology:** https://prasine.eu/methodology
+**Full methodology:** https://martinblomqvistdev.github.io/prasine-index/
 
 ---
 

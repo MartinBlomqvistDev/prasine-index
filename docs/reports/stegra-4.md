@@ -87,4 +87,4 @@ This claim scored 32/100 (Insufficient Evidence) because:
 
 The claim is not greenwashing (score would be 61+) because no verified contradicting evidence exists and the facility's non-registration in EU ETS is consistent with early-stage development, not fraud. Confidence is 58% (below the 85% standard) due to unavailability of EU ETS data and absence of independent verification mechanisms.
 
-Full methodology: [Prasine Index Technical Standard v2.1](https://prasine-index.eu/methodology)
+Full methodology: [Prasine Index Technical Standard v2.1](https://martinblomqvistdev.github.io/prasine-index/)

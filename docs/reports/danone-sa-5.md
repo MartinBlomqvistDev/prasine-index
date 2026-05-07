@@ -86,7 +86,7 @@ Prasine Index assessed this claim against the Green Claims Directive (EU 2023/01
 
 **Score scale:** 0–45 = GREENWASHING (false or highly misleading); 46–60 = MISLEADING (specific claim lacking independent substantiation); 61–75 = PARTIALLY SUBSTANTIATED (some independent evidence but gaps); 76–90 = SUBSTANTIATED (independent third-party verification provided); 91–100 = EXEMPLARY (full transparency, audited baseline, SBTi validation, third-party reporting). 
 
-This claim scored 48/100 MISLEADING because it meets the precision and specificity criteria (30.3%, 2030, Scope 3 FLAG, 2020 baseline) but fails the Green Claims Directive's substantiation test: no independent baseline audit, no published methodology, no SBTi validation, no TPI pathway. Full methodology: https://prasine.index/methodology
+This claim scored 48/100 MISLEADING because it meets the precision and specificity criteria (30.3%, 2030, Scope 3 FLAG, 2020 baseline) but fails the Green Claims Directive's substantiation test: no independent baseline audit, no published methodology, no SBTi validation, no TPI pathway. Full methodology: https://martinblomqvistdev.github.io/prasine-index/
 
 ---
 
