@@ -76,7 +76,7 @@ _EXTRACT_TOOL: anthropic.types.ToolParam = {
                             "type": "string",
                             "enum": [c.value for c in ClaimCategory],
                             "description": (
-                                "Most specific EU Green Claims Directive category that applies. "
+                                "Most specific EU environmental claim taxonomy category that applies. "
                                 "Use OTHER only if no specific category fits."
                             ),
                         },
@@ -102,7 +102,7 @@ _EXTRACT_TOOL: anthropic.types.ToolParam = {
 
 _SYSTEM_PROMPT = """\
 You are an expert analyst specialising in EU corporate sustainability reporting, \
-the EU Green Claims Directive, and the Corporate Sustainability Reporting Directive (CSRD).
+EU environmental claims law (EmpCo Directive 2024/825, UCPD, CSRD), and greenwashing enforcement.
 
 Your task is to identify and extract every green or sustainability-related claim \
 present in the provided document. You work for Prasine Index, an independent \

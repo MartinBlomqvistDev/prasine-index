@@ -39,9 +39,9 @@ RWE operates 3 gas pipelines and 3 LNG terminals. While these represent transiti
 RWE operates 1 oil and gas extraction field currently in production. This further expands the company's active fossil fuel portfolio.
 *Source: GOGET, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/*
 
-**Green Claims Directive (2023)**
-Article 3 of the Green Claims Directive (COM/2023/0166) requires renewable energy claims to specify: (i) the percentage of total energy consumption covered, (ii) the source, and (iii) whether renewable energy certificates (RECs) or guarantees of origin (GOs) are used. Claims of 100% renewable electricity relying on unbundled certificates without physical supply contracts are considered potentially misleading.
-*Source: EUR-Lex, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
+**EmpCo Directive (EU 2024/825)**
+Article 3 of the EmpCo Directive (EU 2024/825) / UCPD requires renewable energy claims to specify: (i) the percentage of total energy consumption covered, (ii) the source, and (iii) whether renewable energy certificates (RECs) or guarantees of origin (GOs) are used. Claims of 100% renewable electricity relying on unbundled certificates without physical supply contracts are considered potentially misleading.
+*Source: EUR-Lex, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
 **EU Transparency Register (N/A)**
 RWE AG is actively registered as an EU lobbyist (registration no. 77608353460-77). Registration confirms active engagement with EU institutions but does not indicate lobbying direction (for or against climate policy stringency).
@@ -71,8 +71,8 @@ RWE has not published current annual renewable energy capex, historical capex tr
 **2. No Measurable Capacity or Generation Targets**
 The claim specifies EUR 50 billion but does not disclose target megawatts (MW/GW) of renewable capacity additions, terawatt-hours (TWh) of generation, or hydrogen production volumes (tonnes H2 per annum). Without these metrics, the adequacy of EUR 50 billion cannot be assessed against 1.5°C pathways.
 
-**3. Non-Compliance with Green Claims Directive Specificity Requirements**
-Under Article 3 of the Green Claims Directive, renewable energy claims must specify the percentage of total energy consumption to be covered and whether renewable energy certificates or guarantees of origin are used. This claim provides neither, and therefore fails the EU's mandatory substantiation standard for renewable energy claims.
+**3. Non-Compliance with EmpCo Directive (EU 2024/825) Specificity Requirements**
+Under Article 3 of the EmpCo Directive (EU 2024/825), renewable energy claims must specify the percentage of total energy consumption to be covered and whether renewable energy certificates or guarantees of origin are used. This claim provides neither, and therefore fails the EU's mandatory substantiation standard for renewable energy claims.
 
 **4. Unresolved Coal and Fossil Fuel Portfolio Contradiction**
 RWE operates 44 Mtpa coal mining capacity, 5.8 GW coal-fired power plants (1 unit currently generating 57 MW), 3 operating gas pipelines, 3 LNG terminals, and 1 oil and gas extraction field. The claim makes no reference to coal phase-out dates, coal asset divestment timelines, or the reconciliation of fossil fuel holdings with a renewable energy-focused investment narrative. This omission is material: E-PRTR data shows coal and gas power remain significant portions of the 64.7 Mt current emissions, and the claim does not address how fossil assets will exit during the EUR 50 billion renewable investment period.
@@ -95,7 +95,7 @@ This claim scores 45/100 (INSUFFICIENT_EVIDENCE) because:
 - Measurable targets (GW capacity, TWh generation, H2 production) are absent.
 - Coal and gas portfolio holdings remain substantial and unaddressed in the claim.
 - SBTi validation status is unknown.
-- The claim does not meet Green Claims Directive Article 3 specificity requirements.
+- The claim does not meet EmpCo Directive (EU 2024/825) / UCPD Article 6 specificity requirements.
 
 The score is not MISLEADING (46–60 range) because no verified data directly contradicts the EUR 50 billion commitment itself—it could be real. However, the absence of independent verification, measurable detail, and coal/gas exit alignment prevents a SUBSTANTIATED score (61–100 range).
 
@@ -103,7 +103,7 @@ The score is not MISLEADING (46–60 range) because no verified data directly co
 
 ## Key Finding
 
-RWE's EUR 50 billion renewable investment claim cannot be independently verified: the company has not published a detailed capex allocation plan, capacity targets (GW/MW), or coal phase-out timelines, and its SBTi target status remains unknown. The claim fails the Green Claims Directive's mandatory specificity requirement (percentage of energy consumption, REC disclosure) and does not address RWE's ongoing 44 Mtpa coal mining and 5.8 GW coal power portfolio, which generated the majority of the company's 64.7 Mt 2024 emissions.
+RWE's EUR 50 billion renewable investment claim cannot be independently verified: the company has not published a detailed capex allocation plan, capacity targets (GW/MW), or coal phase-out timelines, and its SBTi target status remains unknown. The claim fails the EmpCo Directive (EU 2024/825)'s mandatory specificity requirement (percentage of energy consumption, REC disclosure) and does not address RWE's ongoing 44 Mtpa coal mining and 5.8 GW coal power portfolio, which generated the majority of the company's 64.7 Mt 2024 emissions.
 
 ---
 

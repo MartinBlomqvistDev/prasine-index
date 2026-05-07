@@ -23,8 +23,8 @@ E-PRTR records show LKAB's regulated industrial emissions (CO₂, GHGs, NOₓ, N
 
 Recent emissions fell sharply; absolute levels remain substantial at ~1 Mt/year. Data confidence: 0.55 (moderate, due to potential scope ambiguity in E-PRTR classification). *Source: E-PRTR (EEA), 2024, https://industry.eea.europa.eu/*
 
-**[2] Green Claims Directive (COM/2023/0166), Article 3**
-The directive requires explicit substantiation of net-zero claims. The text states: companies must demonstrate that "residual emissions will be permanently removed by certified carbon removals." Vague net-zero pledges without a credible transition plan violate the substantiation standard. Article 7 explicitly prohibits claims based solely on carbon offsetting schemes. *Source: EUR-LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
+**[2] EmpCo Directive (EU 2024/825) / UCPD, Article 3**
+The directive requires explicit substantiation of net-zero claims. The text states: companies must demonstrate that "residual emissions will be permanently removed by certified carbon removals." Vague net-zero pledges without a credible transition plan violate the substantiation standard. Article 7 explicitly prohibits claims based solely on carbon offsetting schemes. *Source: EUR-LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
 **[3] Corporate Sustainability Reporting Directive (2022/2464)**
 CSRD requires large companies (>500 employees, listed on EU-regulated markets) to disclose Scope 1, 2, and 3 GHG emissions under ESRS E1. Material inconsistencies between claims and mandatory CSRD disclosures constitute breaches. *Source: EUR-LEX, 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
@@ -36,13 +36,13 @@ CSRD requires large companies (>500 employees, listed on EU-regulated markets) t
 LKAB's claim of "carbon-free production by 2045" is a net-zero-equivalent commitment framed through vague reference to "three strategic innovation areas." It scores as **MISLEADING** for the following reasons:
 
 ### Substantiation Failure (65/100)
-The claim violates Green Claims Directive Article 3 substantiation requirements. LKAB provides:
+The claim violates EmpCo Directive (EU 2024/825) / UCPD Article 6 substantiation requirements. LKAB provides:
 - No quantified interim milestones (e.g., 50% reduction by 2030, 75% by 2035)
 - No audited emissions baseline against which the 2045 target is measured
 - No credible transition plan disclosing capex allocation, technology choices, or implementation timelines
 - No independent validation (Science Based Targets initiative, Carbon Trust, or equivalent)
 
-The phrase "three strategic innovation areas" is descriptively empty—it masks the absence of measurable, specific commitments. Under Green Claims Directive standards, this constitutes substantiation failure.
+The phrase "three strategic innovation areas" is descriptively empty—it masks the absence of measurable, specific commitments. Under EmpCo Directive (EU 2024/825) standards, this constitutes substantiation failure.
 
 ### Emissions Accuracy (45/100)
 E-PRTR data shows encouraging short-term progress (2020–2024: −25.1%) but raises credibility concerns about the 2045 endpoint:
@@ -58,7 +58,7 @@ The recent downward trend prevents outright falsification of the claim, but does
 ### Target Credibility (50/100)
 A 2045 net-zero target for a high-emitting industrial firm sits at the edge of science-based plausibility:
 - The 21-year timeline is longer than 1.5°C net-zero expectations for developed-economy companies (typically 2035–2040), offering some flexibility for energy-intensive sectors.
-- However, LKAB operates energy-intensive mining and mineral processing. Achieving "carbon-free" status requires either: (a) full electrification with zero-carbon grid coupling, (b) large-scale carbon capture and storage, or (c) offsets—which the Green Claims Directive cautions against or prohibits.
+- However, LKAB operates energy-intensive mining and mineral processing. Achieving "carbon-free" status requires either: (a) full electrification with zero-carbon grid coupling, (b) large-scale carbon capture and storage, or (c) offsets—which the EmpCo Directive (EU 2024/825) cautions against or prohibits.
 - No disclosed transition plan explains which pathway(s) LKAB has selected or how the financing will be secured.
 
 The claim is directionally plausible but lacks evidence of strategic coherence.
@@ -75,7 +75,7 @@ LKAB's prior claim history (6 prior assessments, average score 56.7, trend DETER
 
 ## Key Finding
 
-LKAB's "carbon-free production by 2045" claim violates the EU's Green Claims Directive by failing to provide explicit substantiation: no audited baseline, no interim targets, no credible transition plan, and no independent validation. While E-PRTR data shows encouraging short-term emissions reductions (2020–2024: −25%), the claim provides no evidence that this trajectory will accelerate sufficiently to reach near-zero by 2045—a 21-year horizon requiring dramatic acceleration from current rates of improvement.
+LKAB's "carbon-free production by 2045" claim violates the EU's EmpCo Directive (EU 2024/825) by failing to provide explicit substantiation: no audited baseline, no interim targets, no credible transition plan, and no independent validation. While E-PRTR data shows encouraging short-term emissions reductions (2020–2024: −25%), the claim provides no evidence that this trajectory will accelerate sufficiently to reach near-zero by 2045—a 21-year horizon requiring dramatic acceleration from current rates of improvement.
 
 ---
 
@@ -91,10 +91,10 @@ LKAB's "carbon-free production by 2045" claim violates the EU's Green Claims Dir
 
 5. **Policy engagement and lobbying record:** Not retrieved. Unable to assess whether LKAB's climate advocacy contradicts the ambition of the 2045 claim.
 
-These gaps reduce confidence to 62%. The substantiation failure under the Green Claims Directive is sufficiently clear to support a MISLEADING verdict, but the moderate E-PRTR confidence and absence of contradictory evidence (e.g., rising emissions or explicit regulatory rejection) prevent elevation to GREENWASHING.
+These gaps reduce confidence to 62%. The substantiation failure under the EmpCo Directive (EU 2024/825) is sufficiently clear to support a MISLEADING verdict, but the moderate E-PRTR confidence and absence of contradictory evidence (e.g., rising emissions or explicit regulatory rejection) prevent elevation to GREENWASHING.
 
 ---
 
 ## Methodology Note
 
-Prasine Index scored this claim across four dimensions: **Claim Substantiation** (does the company provide measurable, audited, independently validated targets?), **Emissions Accuracy** (do reported emissions support the feasibility of the claim?), **Historical Consistency** (does the company's track record of climate claims suggest reliable follow-through?), and **Target Credibility** (is the endpoint scientifically and technologically plausible?). Each dimension was scored 0–100 and weighted equally. The final score is the simple mean. MISLEADING verdicts (46–60) indicate claims that lack substantiation under the Green Claims Directive or similar frameworks but are not directly falsified by available data. Verdicts are grounded in EU regulatory standards (Green Claims Directive Article 3, CSRD, EU ETS verification rules) and supplemented with emissions data from E-PRTR and sectoral credibility assessments. Full Prasine Index methodology is available at https://martinblomqvistdev.github.io/prasine-index/.
+Prasine Index scored this claim across four dimensions: **Claim Substantiation** (does the company provide measurable, audited, independently validated targets?), **Emissions Accuracy** (do reported emissions support the feasibility of the claim?), **Historical Consistency** (does the company's track record of climate claims suggest reliable follow-through?), and **Target Credibility** (is the endpoint scientifically and technologically plausible?). Each dimension was scored 0–100 and weighted equally. The final score is the simple mean. MISLEADING verdicts (46–60) indicate claims that lack substantiation under the EmpCo Directive (EU 2024/825) or similar frameworks but are not directly falsified by available data. Verdicts are grounded in EU regulatory standards (EmpCo Directive (EU 2024/825) / UCPD Article 6, CSRD, EU ETS verification rules) and supplemented with emissions data from E-PRTR and sectoral credibility assessments. Full Prasine Index methodology is available at https://martinblomqvistdev.github.io/prasine-index/.
