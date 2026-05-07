@@ -164,7 +164,7 @@ The scoring scale: 0–40 = False claim, 41–60 = Partially substantiated, 61�
 
 TotalEnergies' hydrogen claim scores 72 because it is materially contradicted by the company's simultaneous expansion of long-lived fossil fuel infrastructure (GOGET, EGT, both >85% confidence), combined with a prior 2021 Dutch ACM enforcement finding of unsubstantiated environmental claims (80% confidence). Supporting evidence (E-PRTR, CA100+, TPI) showing genuine emissions reductions and partial investor credibility prevents escalation to 81+. Confidence is 76% (not 80+%) due to unavailable EU ETS data, lack of visible quantified hydrogen targets, and inconclusive lobbying direction.
 
-Full Prasine Index methodology: https://prasine.eu/methodology
+Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
 
 ---
 

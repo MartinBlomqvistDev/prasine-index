@@ -113,7 +113,7 @@ Prasine Index scored this claim using four dimensions: (1) **Claim Substantiatio
 
 Evidence was sourced from: the EU Green Claims Directive legislative text (COM/2023/0166, confidence 0.95); the Transition Pathway Initiative benchmark assessment (confidence 0.75); and queries to the EU ETS EUTL registry (confidence 0.90 for absence-of-data finding). 
 
-The score of 28/100 reflects a claim that is directionally plausible (supported by TPI) but substantively unverified (no disclosed baselines, no EU ETS data). Confidence of 58% reflects moderate uncertainty due to the data gap; the finding would be strengthened if EU ETS historical records were available or if the company disclosed retrospective emissions metrics. Full methodology: https://prasine-index.eu/methodology
+The score of 28/100 reflects a claim that is directionally plausible (supported by TPI) but substantively unverified (no disclosed baselines, no EU ETS data). Confidence of 58% reflects moderate uncertainty due to the data gap; the finding would be strengthened if EU ETS historical records were available or if the company disclosed retrospective emissions metrics. Full methodology: https://martinblomqvistdev.github.io/prasine-index/
 ```
 
 ---

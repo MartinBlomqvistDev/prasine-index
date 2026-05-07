@@ -298,7 +298,7 @@ class DiscoveryAgent:
             timeout=httpx.Timeout(_FETCH_TIMEOUT_SECONDS),
             headers={
                 "User-Agent": (
-                    "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://prasine-index.eu/bot)"
+                    "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://martinblomqvistdev.github.io/prasine-index/)"
                 ),
                 "Accept": "text/html,application/xhtml+xml,application/pdf",
             },
