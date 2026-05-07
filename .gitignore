@@ -70,6 +70,12 @@ Thumbs.db
 # Claude Code
 # ---------------------------------------------------------------------------
 CLAUDE.md
+.claude/
+
+# ---------------------------------------------------------------------------
+# Pipeline sub-reports — numbered artifacts, only canonicals belong in the repo
+# ---------------------------------------------------------------------------
+docs/reports/*-[0-9].md
 
 # ---------------------------------------------------------------------------
 # Logs and local data
@@ -88,7 +94,10 @@ data/*.xls
 data/*.pdf
 data/*.txt
 data/*.accdb
+data/*.zip
 data/eea_t_*/
+data/JRC/
+data/GEM-EGT-Pipelines-*/
 
 # ---------------------------------------------------------------------------
 # Database
