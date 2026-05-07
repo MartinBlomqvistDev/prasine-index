@@ -43,7 +43,7 @@
 
 3. **InfluenceMap Policy Engagement Score**: Rated C- (neutral/mixed climate policy engagement). This score is inconclusive and does not indicate active climate policy opposition. Source: InfluenceMap, https://influencemap.org/company-responses
 
-4. **Green Claims Directive (Proposal)** (2023): Article 3(3)(a) requires emissions reduction claims to state baseline year, scope (Scope 1/2/3), and methodology. Per-unit or intensity-based reduction claims must not obscure absolute emission increases. The present claim references a comparison (IEA's 75% benchmark) rather than stating the company's own audited methane baseline or reduction pathway. Source: EUR-LEX COM/2023/0166, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166
+4. **EmpCo Directive (EU 2024/825)** (2023): Article 3(3)(a) requires emissions reduction claims to state baseline year, scope (Scope 1/2/3), and methodology. Per-unit or intensity-based reduction claims must not obscure absolute emission increases. The present claim references a comparison (IEA's 75% benchmark) rather than stating the company's own audited methane baseline or reduction pathway. Source: EUR-LEX https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
 
 ---
 
@@ -61,7 +61,7 @@ The Dutch ACM enforcement ruling found that TotalEnergies' net-zero and sustaina
 - A specific technology or capex pathway to achieve "zero methane by 2030"
 - Scope clarification (whether this applies only to existing operations or includes new fields)
 
-Under the proposed Green Claims Directive (Article 3(3)(a)), the claim fails to state baseline year methodology and scope. The ACM enforcement history suggests this substantiation gap is a pattern for this company.
+Under the proposed EmpCo Directive (EU 2024/825) (Article 3(3)(a)), the claim fails to state baseline year methodology and scope. The ACM enforcement history suggests this substantiation gap is a pattern for this company.
 
 **Second: Structural Contradiction Between Claim and Capital Allocation**
 
@@ -87,7 +87,7 @@ The claim states: "go beyond the 75% reduction in methane emissions from coal, o
 This phrasing has three substantiation problems:
 1. **Vague baseline comparison**: "Beyond" the IEA's 75% target could mean 76% or 99%. No specific company target is stated.
 2. **No audited baseline**: No link to a verified 2020 methane inventory is provided. The claim pivots to an external benchmark (IEA) rather than to company baseline data.
-3. **Scope ambiguity**: The claim does not clarify whether zero methane applies to (a) existing operations only, (b) all operations including new fields, or (c) intensity-based (per-barrel) vs. absolute emissions. Under the Green Claims Directive, this ambiguity violates Article 3(3)(a) requirements.
+3. **Scope ambiguity**: The claim does not clarify whether zero methane applies to (a) existing operations only, (b) all operations including new fields, or (c) intensity-based (per-barrel) vs. absolute emissions. Under the EmpCo Directive (EU 2024/825), this ambiguity violates Article 3(3)(a) requirements.
 
 Given the ACM enforcement history, this substantiation gap is a repeat compliance risk.
 

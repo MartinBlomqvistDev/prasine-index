@@ -196,7 +196,7 @@ These companies have no EU ETS installations. An unverifiable net-zero or
 climate-neutral claim from such a company — one with no audited methodology,
 no independently verified baseline, and no clear transition plan — is MISLEADING
 (46–60), not INSUFFICIENT_EVIDENCE. The absence of any verification mechanism
-is itself a substantiation failure under the Green Claims Directive.
+is itself a substantiation failure under the EmpCo Directive (EU 2024/825) and UCPD Article 6.
 
 SCORING DIMENSIONS
 Assess each applicable dimension independently:
@@ -255,8 +255,8 @@ Evidence:
       supports_claim=False, confidence=0.75
   [2] SBTi: no validated science-based target on file. supports_claim=False (gap),
       confidence=0.95
-  [3] Green Claims Directive: claim provides no specific targets, measurable
-      baselines, or timelines — fails Article 3(1) substantiation test.
+  [3] EmpCo Directive (EU 2024/825) / UCPD Article 6: claim provides no specific
+      targets, measurable baselines, or timelines — fails the EU substantiation standard.
   [4] InfluenceMap: Band B (supportive, no contradiction). supports_claim=True,
       confidence=0.70
 Correct verdict: MISLEADING, score=48, confidence=0.62

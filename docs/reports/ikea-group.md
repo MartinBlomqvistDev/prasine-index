@@ -23,9 +23,9 @@ IKEA's reported regulated emissions show extreme volatility and an upward long-t
 IKEA Group is actively registered as an EU direct corporate lobbyist (HQ: Netherlands, reg. no. 774019931221-41). Registration confirms engagement with EU institutions but does not specify lobbying direction.  
 *EU Transparency Register, 2026, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-**[3] Green Claims Directive (COM/2023/0166), Article 3**  
+**[3] EmpCo Directive (EU 2024/825) / UCPD, Article 3**  
 The directive requires explicit substantiation of net-zero claims, including evidence of permanent carbon removal for residual emissions post-transition — not reliance on offsetting schemes alone. IKEA's claim ("on our way towards net zero by FY50") provides no detail on: (a) methodology for permanent residual emissions removal; (b) scope definition (Scope 1, 2, 3? Full value chain or selected segments?); (c) interim annual reduction milestones; or (d) independent third-party validation.  
-*EUR-Lex, COM/2023/0166, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
+*EUR-Lex, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
 **[4] Corporate Sustainability Reporting Directive (2022/2464), Article ESRS E1**  
 CSRD-obligated companies (>500 employees, likely applicable to IKEA) must report Scope 1, 2, and 3 GHG emissions baselines from FY2024. A net-zero claim inconsistent with or absent from mandatory CSRD disclosure constitutes material non-compliance. IKEA's claim references no CSRD baseline or cross-referenced disclosure.  
@@ -53,7 +53,7 @@ However, E-PRTR's narrow scope (regulated emissions only, not full Scope 1–3) 
 
 ### Claim Substantiation
 
-Under the Green Claims Directive [3], IKEA's net-zero pledge fails substantiation standards. The claim omits:
+Under the EmpCo Directive (EU 2024/825) [3], IKEA's net-zero pledge fails substantiation standards. The claim omits:
 - **Scope definition**: "Value chain" is undefined — does it include Scope 1, 2, 3? All suppliers or cherry-picked tiers?
 - **Carbon removal methodology**: How will residual emissions be permanently removed post-2050? Via direct air capture, certified removals, or offsetting (which the directive restricts)?
 - **Interim milestones**: The only measurable interim target is a 50% reduction by FY30. No annual reduction trajectory, no 2040 or 2045 milestones, no credible pathway.
@@ -78,7 +78,7 @@ The phrase "IKEA value chain" is imprecise:
 - Does the 50% reduction apply to absolute emissions or intensity (e.g., per unit sold)?
 - What is the baseline year? (Not stated in the claim.)
 
-These omissions violate the substantiation principle under the Green Claims Directive [3]: claims must be explicit, substantive, and verifiable.
+These omissions violate the substantiation principle under the EmpCo Directive (EU 2024/825) [3]: claims must be explicit, substantive, and verifiable.
 
 ### Lobbying Alignment
 
@@ -88,7 +88,7 @@ IKEA is registered as an EU lobbyist [2], and InfluenceMap classifies its engage
 
 ## Key Finding
 
-IKEA's emissions reduction claim lacks independent verification (no SBTi validation, no audited baseline), omits critical scope details required under the Green Claims Directive, and contradicts available regulatory emissions data (902% rise in EU-reported regulated emissions 2010–2023) — making the claim substantively misleading despite plausible long-term net-zero framing and non-contradictory lobbying positions.
+IKEA's emissions reduction claim lacks independent verification (no SBTi validation, no audited baseline), omits critical scope details required under the EmpCo Directive (EU 2024/825), and contradicts available regulatory emissions data (902% rise in EU-reported regulated emissions 2010–2023) — making the claim substantively misleading despite plausible long-term net-zero framing and non-contradictory lobbying positions.
 
 ---
 
@@ -110,4 +110,4 @@ E-PRTR captures only regulated industrial emissions (air pollutants, GHGs from s
 
 ## Methodology Note
 
-Prasine Index scored this claim by evaluating five dimensions: **Claim Substantiation** (65/100), **Emissions Accuracy** (50/100), **Target Credibility** (48/100), **Historical Consistency** (45/100), and **Lobbying Alignment** (25/100), weighted by materiality. The MISLEADING verdict (52/100) reflects that the claim makes specific measurable commitments but lacks audited baselines, independent third-party validation, and detailed scope definition required under the Green Claims Directive (COM/2023/0166). The contradictory E-PRTR trend (902% rise in regulated emissions 2010–2023) further undermines credibility, though its narrow scope (regulated emissions only) prevents direct falsification of the broader value-chain claim. Supporting evidence (B-band lobbying alignment, no detected anti-climate positioning) prevents escalation to GREENWASHING but cannot overcome substantiation gaps. Confidence of 68% reflects material data gaps (no EU ETS baseline, SBTi status ambiguous, CSRD baseline not accessed) but is sustained by high-confidence legislative sources (EUR-Lex 0.95) and the clarity of the claim text itself. Full Prasine Index methodology is published at https://martinblomqvistdev.github.io/prasine-index/.
+Prasine Index scored this claim by evaluating five dimensions: **Claim Substantiation** (65/100), **Emissions Accuracy** (50/100), **Target Credibility** (48/100), **Historical Consistency** (45/100), and **Lobbying Alignment** (25/100), weighted by materiality. The MISLEADING verdict (52/100) reflects that the claim makes specific measurable commitments but lacks audited baselines, independent third-party validation, and detailed scope definition required under the EmpCo Directive (EU 2024/825) / UCPD. The contradictory E-PRTR trend (902% rise in regulated emissions 2010–2023) further undermines credibility, though its narrow scope (regulated emissions only) prevents direct falsification of the broader value-chain claim. Supporting evidence (B-band lobbying alignment, no detected anti-climate positioning) prevents escalation to GREENWASHING but cannot overcome substantiation gaps. Confidence of 68% reflects material data gaps (no EU ETS baseline, SBTi status ambiguous, CSRD baseline not accessed) but is sustained by high-confidence legislative sources (EUR-Lex 0.95) and the clarity of the claim text itself. Full Prasine Index methodology is published at https://martinblomqvistdev.github.io/prasine-index/.

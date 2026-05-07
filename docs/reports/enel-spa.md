@@ -27,7 +27,7 @@
 | **GCPT Coal Retirement** | 31 coal units retired or cancelled; 7 units (863 MW) remain operating. | 2026 | 0.60 | https://globalenergymonitor.org/projects/global-coal-plant-tracker/ |
 | **InfluenceMap** | Score B- (neutral/mixed climate policy engagement). | N/A | 0.50 | https://influencemap.org/company-responses |
 | **SBTi** | Status unknown; no validated net-zero target on file. | N/A | 0.50 | https://sciencebasedtargets.org/companies-taking-action |
-| **Green Claims Directive** | Article 3(3)(a) requires baseline year, scope (1/2/3), and methodology for emissions claims. | 2023 | 0.95 | https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166 |
+| **EmpCo Directive (EU 2024/825)** | Article 3(3)(a) requires baseline year, scope (1/2/3), and methodology for emissions claims. | 2023 | 0.95 | https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825 |
 
 ---
 
@@ -57,7 +57,7 @@ Enel achieves its 75% regulated emissions reduction **in legacy thermal generati
 
 ### Substantiation Failure
 
-The claim lacks the specificity required under Article 3(3)(a) of the Green Claims Directive. It does not state:
+The claim lacks the specificity required under Article 3(3)(a) of the EmpCo Directive (EU 2024/825). It does not state:
 - Baseline year
 - Scope (Scope 1/2/3)
 - Quantified renewable production targets with timelines
@@ -97,4 +97,4 @@ Enel is simultaneously achieving genuine 75% reductions in regulated coal and th
 
 ## Methodology Note
 
-This assessment used institutional regulatory and investor data sources: EU EPRTR pollution records (regulatory baseline), Urgewald Global Coal Exit List (institutional coal screen used by 400+ financial institutions), Global Energy Monitor trackers (verified asset registry), CA100+ Benchmark (investor net-zero assessment), TPI (150+ investors, $80tn AUM), and Green Claims Directive legal standards. The 72/100 score reflects: EMISSIONS_ACCURACY 35/100 (coal/gas/oil expansion contradicts decarbonization claim); CLAIM_SUBSTANTIATION 55/100 (lacks baseline, scope, quantified targets); HISTORICAL_CONSISTENCY 68/100 (stable greenwashing pattern across 14 prior assessments); LOBBYING_ALIGNMENT 50/100 (inconclusive); TARGET_CREDIBILITY 60/100 (no SBTi validation, CA100+ misaligned with capital allocation). The GREENWASHING verdict reflects material contradiction between stated transition claims and verified forward fossil fuel expansion, insufficient to be overridden by historical regulated emissions reductions in legacy assets. Full Prasine methodology: https://martinblomqvistdev.github.io/prasine-index/.
+This assessment used institutional regulatory and investor data sources: EU EPRTR pollution records (regulatory baseline), Urgewald Global Coal Exit List (institutional coal screen used by 400+ financial institutions), Global Energy Monitor trackers (verified asset registry), CA100+ Benchmark (investor net-zero assessment), TPI (150+ investors, $80tn AUM), and EmpCo Directive (EU 2024/825) legal standards. The 72/100 score reflects: EMISSIONS_ACCURACY 35/100 (coal/gas/oil expansion contradicts decarbonization claim); CLAIM_SUBSTANTIATION 55/100 (lacks baseline, scope, quantified targets); HISTORICAL_CONSISTENCY 68/100 (stable greenwashing pattern across 14 prior assessments); LOBBYING_ALIGNMENT 50/100 (inconclusive); TARGET_CREDIBILITY 60/100 (no SBTi validation, CA100+ misaligned with capital allocation). The GREENWASHING verdict reflects material contradiction between stated transition claims and verified forward fossil fuel expansion, insufficient to be overridden by historical regulated emissions reductions in legacy assets. Full Prasine methodology: https://martinblomqvistdev.github.io/prasine-index/.

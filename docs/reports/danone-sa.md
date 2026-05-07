@@ -27,9 +27,9 @@ https://industry.eea.europa.eu/
 Danone SA is registered as an active EU lobbyist (registration no. 65744846168-89, HQ: France). The direction of lobbying engagement—whether supporting or opposing climate policy—is not disclosed in the registry record. Confidence: 0.75
 https://ec.europa.eu/transparencyregister/public/consultation/search.do
 
-**[4] Green Claims Directive (2023)**
-[52023PC0166] Article 3 requires explicit substantiation for net-zero claims: companies must demonstrate credible transition plans, quantified interim targets, and that residual emissions will be permanently removed by certified carbon removals (not offset credits). Vague 2050 pledges without near-term milestones violate this standard. Confidence: 0.95
-https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166
+**[4] EmpCo Directive (EU 2024/825)**
+[32024L0825] Article 3 requires explicit substantiation for net-zero claims: companies must demonstrate credible transition plans, quantified interim targets, and that residual emissions will be permanently removed by certified carbon removals (not offset credits). Vague 2050 pledges without near-term milestones violate this standard. Confidence: 0.95
+https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
 
 **[5] Corporate Sustainability Reporting Directive (2022)**
 [32022L2464] CSRD requires large companies (>500 employees or EU-listed) to disclose scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 onwards. Material inconsistency between a net-zero claim and mandatory emissions disclosure constitutes a greenwashing risk. Confidence: 0.95
@@ -51,7 +51,7 @@ https://www.transitionpathwayinitiative.org/corporates
 
 ### Assessment
 
-Danone's claim that it "was one of the first 100 companies in 2015 to commit to achieving Net-Zero emissions by 2050, in line with the Paris Agreement" is directionally plausible but fails to meet the substantiation standard required under the Green Claims Directive (Article 3) and investor benchmarks (CA100+, TPI, SBTi).
+Danone's claim that it "was one of the first 100 companies in 2015 to commit to achieving Net-Zero emissions by 2050, in line with the Paris Agreement" is directionally plausible but fails to meet the substantiation standard required under the EmpCo Directive (EU 2024/825) (Article 3) and investor benchmarks (CA100+, TPI, SBTi).
 
 **Claim Substantiation (Score: 65/100)**
 The historical assertion—that Danone joined an early net-zero initiative in 2015—is verifiable. CA100+ confirms that Danone holds a net-zero ambition (confidence 0.65), which provides contextual support. However, the claim omits critical substantive gaps:
@@ -61,12 +61,12 @@ The historical assertion—that Danone joined an early net-zero initiative in 20
 - No capital expenditure roadmap demonstrating transition alignment.
 - No independent third-party validation: SBTi shows status = unknown with no classified net-zero target (confidence 0.50).
 
-Under the Green Claims Directive, a net-zero claim must demonstrate that a company will reduce absolute emissions to near-zero and will address residual emissions through permanent carbon removal, not offset schemes. Danone's 2050 pledge, without near-term milestones or verified baseline data, falls short of this standard.
+Under the EmpCo Directive (EU 2024/825), a net-zero claim must demonstrate that a company will reduce absolute emissions to near-zero and will address residual emissions through permanent carbon removal, not offset schemes. Danone's 2050 pledge, without near-term milestones or verified baseline data, falls short of this standard.
 
 **Emissions Accuracy (Score: 50/100)**
 EU ETS data returns no installation IDs for Danone SA, indicating the company does not directly operate large EU-regulated industrial facilities. This is consistent with Danone's business model (food and beverage production, brand/distribution company). However, this means there is no verified, independently audited baseline of Danone's scope 1 emissions against which its net-zero claim can be measured. E-PRTR records show only a single data point from 2008 (188 tonnes), which cannot establish a trend or validate current emissions.
 
-Without a published, audited baseline, the credibility of any net-zero target cannot be independently assessed. This is a material gap under CSRD Article 1 and Green Claims Directive Article 3.
+Without a published, audited baseline, the credibility of any net-zero target cannot be independently assessed. This is a material gap under CSRD Article 1 and EmpCo Directive (EU 2024/825) / UCPD Article 6.
 
 **Target Credibility (Score: 58/100)**
 A 2050 net-zero date, while nominally Paris-compatible, lacks credibility without demonstrable near-term progress. CA100+ documents that Danone's capex alignment is only Partial and short-term targets are only Partial (confidence 0.65). TPI, a 150-investor benchmark, has not assessed Danone's 2050 pathway as credible (CP pathway: not assessed). The 25-year horizon without interim verification or investor-endorsed transition credibility is a hallmark of aspirational greenwashing—a commitment that is distant enough to avoid near-term accountability.
@@ -86,7 +86,7 @@ The claim is published on Danone's website under "driving-climate-action" with:
 - No TPI pathway endorsement.
 - No independent carbon accounting audit.
 
-Under the Green Claims Directive (Article 3), such a claim without independent substantiation violates the requirement to demonstrate environmental advantage "through the company's own efforts or through chain of custody arrangements." A 2050 net-zero pledge presented without these elements is MISLEADING: it exaggerates the credibility and nearness of climate action.
+Under the EmpCo Directive (EU 2024/825) (Article 3), such a claim without independent substantiation violates the requirement to demonstrate environmental advantage "through the company's own efforts or through chain of custody arrangements." A 2050 net-zero pledge presented without these elements is MISLEADING: it exaggerates the credibility and nearness of climate action.
 
 ---
 
@@ -116,4 +116,4 @@ EU Transparency Register does not specify the direction of Danone's lobbying. In
 
 ### Methodology Note
 
-Prasine Index assessed this claim using eight evidence sources: CA100+ benchmark assessment (2025), E-PRTR industrial emissions record (2008), EU Transparency Register lobbying registry, Green Claims Directive (2023), CSRD (2022), InfluenceMap climate engagement score, SBTi target database, and TPI corporate assessment (2022). The score of 52/100 reflects a MISLEADING verdict under the Prasine Index rubric: the claim is directionally possible (Danone does have a 2015 net-zero commitment and CA100+ recognition) but exaggerates credibility by omitting required substantiation (baseline emissions, interim targets, independent certification) under Article 3 of the Green Claims Directive. The score is not higher (61+/GREENWASHING) because CA100+ provides supporting evidence, no verified emissions data contradicts the claim, and no anti-climate lobbying is confirmed. The score is not lower (30/INSUFFICIENT_EVIDENCE) because the substantiation gap is material and documented in investor benchmarks (TPI: pathway not assessed; SBTi: status unknown). Confidence is 62% due to incomplete SBTi/TPI data and inconclusive InfluenceMap ratings, offset by high-confidence Green Claims Directive standards (0.95). Full methodology: https://martinblomqvistdev.github.io/prasine-index//
+Prasine Index assessed this claim using eight evidence sources: CA100+ benchmark assessment (2025), E-PRTR industrial emissions record (2008), EU Transparency Register lobbying registry, EmpCo Directive (EU 2024/825), CSRD (2022), InfluenceMap climate engagement score, SBTi target database, and TPI corporate assessment (2022). The score of 52/100 reflects a MISLEADING verdict under the Prasine Index rubric: the claim is directionally possible (Danone does have a 2015 net-zero commitment and CA100+ recognition) but exaggerates credibility by omitting required substantiation (baseline emissions, interim targets, independent certification) under Article 3 of the EmpCo Directive (EU 2024/825). The score is not higher (61+/GREENWASHING) because CA100+ provides supporting evidence, no verified emissions data contradicts the claim, and no anti-climate lobbying is confirmed. The score is not lower (30/INSUFFICIENT_EVIDENCE) because the substantiation gap is material and documented in investor benchmarks (TPI: pathway not assessed; SBTi: status unknown). Confidence is 62% due to incomplete SBTi/TPI data and inconclusive InfluenceMap ratings, offset by high-confidence EmpCo Directive (EU 2024/825) standards (0.95). Full methodology: https://martinblomqvistdev.github.io/prasine-index//

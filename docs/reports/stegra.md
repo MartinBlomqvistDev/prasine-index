@@ -19,9 +19,9 @@
 EU ETS verified emissions data, produced by accredited independent third-party verifiers under Regulation 601/2012, represent the highest-quality legal ground truth for actual greenhouse gas emissions. Verified figures are mandatory legal disclosures. Stegra has no registered EU ETS installation IDs in the EUTL database, meaning no verified baseline emissions data is available to validate the claimed 300 Mt CO₂ reduction against mandatory third-party verification standards.  
 *Source: EUR_LEX, 2003 (amended), https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087*
 
-**[2] Green Claims Directive (COM/2023/0166)**  
+**[2] EmpCo Directive (EU 2024/825) / UCPD**  
 Article 3(3)(a) of the directive requires that emissions reduction claims must state: (i) the baseline year; (ii) the scope (Scope 1, 2, or 3); and (iii) the calculation methodology. Article 5 prohibits aggregating reductions and increases to manufacture a net reduction figure.  
-*Source: EUR_LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52023PC0166*
+*Source: EUR_LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
 **[3] EU Transparency Register**  
 Stegra is actively registered as a direct corporate lobbyist with the EU Transparency Register (registration no. 191319744634-58, HQ: Sweden). The registration confirms engagement with EU institutions on policy matters. No contradictory lobbying positions on climate or hydrogen policy are indicated by the registration record alone.  
@@ -35,7 +35,7 @@ The claim asserts a specific emissions reduction figure (300 million tonnes of C
 
 **Substantiation Deficiencies:**
 
-The claim fails to meet Article 3(3)(a) of the Green Claims Directive on four material grounds:
+The claim fails to meet Article 3(3)(a) of the EmpCo Directive (EU 2024/825) on four material grounds:
 
 1. **No baseline year specified.** The claim does not state the baseline year (e.g., 2020, 2022) against which the 300 Mt reduction is measured. Without a baseline, the reduction figure is anchored to nothing and cannot be independently verified or falsified.
 
@@ -47,7 +47,7 @@ The claim fails to meet Article 3(3)(a) of the Green Claims Directive on four ma
    - How is the baseline production method defined?
    - What is the assumed efficiency of the hydrogen production process and the carbon intensity of the electricity used?
 
-4. **No verified baseline emissions data.** Stegra has no registered EU ETS installation IDs. Either the hydrogen plant does not yet exist (remaining speculative), or it is not a covered EU ETS installation. Either way, no verified baseline emissions can be established against which the reduction claim can be audited. For entities claiming emissions reductions in Scope 3 (financed emissions), the Green Claims Directive requires independent verification of the baseline. No such verification is cited or disclosed here.
+4. **No verified baseline emissions data.** Stegra has no registered EU ETS installation IDs. Either the hydrogen plant does not yet exist (remaining speculative), or it is not a covered EU ETS installation. Either way, no verified baseline emissions can be established against which the reduction claim can be audited. For entities claiming emissions reductions in Scope 3 (financed emissions), the EmpCo Directive (EU 2024/825) requires independent verification of the baseline. No such verification is cited or disclosed here.
 
 **Additional Deficiency:**
 
@@ -65,7 +65,7 @@ Stegra is registered as an active EU lobbyist. The EU Transparency Register does
 
 ## Key Finding
 
-Stegra's claim of "reducing 300 million tonnes of CO₂ emissions by 2040" fails Article 3(3)(a) of the Green Claims Directive because it omits the baseline year, does not specify the emissions scope (Scope 1/2/3), and discloses no calculation methodology—material omissions that render the claim unverifiable and therefore misleading. The company has no EU ETS installation IDs, meaning no verified baseline emissions data exists to audit the claim, and no third-party certification (SBTi, ISO 14064-2) is cited.
+Stegra's claim of "reducing 300 million tonnes of CO₂ emissions by 2040" fails Article 3(3)(a) of the EmpCo Directive (EU 2024/825) because it omits the baseline year, does not specify the emissions scope (Scope 1/2/3), and discloses no calculation methodology—material omissions that render the claim unverifiable and therefore misleading. The company has no EU ETS installation IDs, meaning no verified baseline emissions data exists to audit the claim, and no third-party certification (SBTi, ISO 14064-2) is cited.
 
 ---
 
@@ -83,4 +83,4 @@ Stegra's claim of "reducing 300 million tonnes of CO₂ emissions by 2040" fails
 
 ## Methodology Note
 
-Prasine Index assessed this claim using the Green Claims Directive (Article 3(3)(a)) as the primary legal standard. The claim was scored across four dimensions: (1) substantiation completeness (Article 3(3)(a) compliance), (2) emissions accuracy (verified EU ETS baseline vs. claimed reduction), (3) target credibility (2040 target realism against 1.5°C science), and (4) lobbying alignment (contradiction between public commitment and documented EU policy advocacy). The final score of 54/100 reflects a material substantiation failure (no baseline year, scope, or methodology disclosed) without contradicting verified emissions data that would lower the score further. The confidence of 58% reflects the absence of EU ETS data and third-party validation, which prevents definitive falsification but undermines verifiability. Full methodology: https://prasine.org/methodology
+Prasine Index assessed this claim using the EmpCo Directive (EU 2024/825) (Article 3(3)(a)) as the primary legal standard. The claim was scored across four dimensions: (1) substantiation completeness (Article 3(3)(a) compliance), (2) emissions accuracy (verified EU ETS baseline vs. claimed reduction), (3) target credibility (2040 target realism against 1.5°C science), and (4) lobbying alignment (contradiction between public commitment and documented EU policy advocacy). The final score of 54/100 reflects a material substantiation failure (no baseline year, scope, or methodology disclosed) without contradicting verified emissions data that would lower the score further. The confidence of 58% reflects the absence of EU ETS data and third-party validation, which prevents definitive falsification but undermines verifiability. Full methodology: https://prasine.org/methodology

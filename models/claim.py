@@ -37,7 +37,7 @@ class ClaimStatus(StrEnum):
 
 
 class ClaimCategory(StrEnum):
-    """Taxonomy of green claim types, aligned with EU Green Claims Directive categories.
+    """Taxonomy of green claim types, aligned with EU environmental claims taxonomy (EmpCo 2024/825).
 
     This classification drives how the Verification Agent selects evidence sources
     and how the Judge Agent weights contradicting data.
@@ -98,7 +98,7 @@ class Claim(BaseModel):
         raw_text: Verbatim claim text as found in the source document.
         normalised_text: Cleaned, lower-cased text used for pgvector semantic
             similarity comparison against historical claims.
-        claim_category: EU Green Claims Directive taxonomy classification.
+        claim_category: EU environmental claim taxonomy classification (EmpCo 2024/825).
         page_reference: Page number or section identifier within the source
             document, if applicable.
         publication_date: Date the source document was published, if known.
@@ -132,7 +132,7 @@ class Claim(BaseModel):
     )
     claim_category: ClaimCategory = Field(
         default=ClaimCategory.OTHER,
-        description="EU Green Claims Directive taxonomy classification.",
+        description="EU environmental claim taxonomy classification (EmpCo 2024/825).",
     )
     page_reference: str | None = Field(
         default=None,
