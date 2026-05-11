@@ -217,7 +217,8 @@ class DiscoveredDocument(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     company_id: uuid.UUID = Field(..., description="Company whose source page was checked.")
-    source_url: str = Field(..., description="URL of the discovered document.")
+    source_url: str = Field(..., description="Originally requested URL.")
+    final_url: str = Field(..., description="Resolved URL after any HTTP redirects.")
     source_type: SourceType = Field(..., description="Detected document category.")
     raw_content: str = Field(..., description="Extracted text content.")
     content_hash: str = Field(..., description="SHA-256 of raw_content for change detection.")
@@ -239,7 +240,7 @@ class DiscoveredDocument(BaseModel):
         return ExtractionInput(
             trace_id=self.trace_id,
             company_id=self.company_id,
-            source_url=self.source_url,
+            source_url=self.final_url,
             source_type=self.source_type,
             raw_content=self.raw_content,
             publication_date=self.publication_date,
@@ -422,13 +423,23 @@ class DiscoveryAgent:
             the last check, or None if the content is unchanged.
         """
         try:
-            content = await self._fetch_url(url)
+            content, final_url = await self._fetch_url(url)
         except DataSourceError as exc:
             logger.warning(
                 f"Failed to fetch {url}: {exc.message}",
                 extra={"operation": "discovery_fetch_failed", "error_type": type(exc).__name__},
             )
             return None
+
+        if final_url.rstrip("/") != url.rstrip("/"):
+            logger.warning(
+                f"Redirect: {url} -> {final_url}",
+                extra={
+                    "operation": "discovery_redirect",
+                    "requested_url": url,
+                    "final_url": final_url,
+                },
+            )
 
         content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
         last_known_hash = await self._load_last_hash(url)
@@ -449,6 +460,7 @@ class DiscoveryAgent:
         return DiscoveredDocument(
             company_id=company.id,
             source_url=url,
+            final_url=final_url,
             source_type=source_type,
             raw_content=content[:_MAX_CONTENT_CHARS],
             content_hash=content_hash,
@@ -456,7 +468,7 @@ class DiscoveryAgent:
         )
 
     @retry_async(config=RetryConfig.DEFAULT_HTTP, operation="discovery_fetch_url")
-    async def _fetch_url(self, url: str) -> str:
+    async def _fetch_url(self, url: str) -> tuple[str, str]:
         """Fetch the text content of a URL.
 
         Args:
@@ -480,7 +492,7 @@ class DiscoveryAgent:
                 agent=AgentName.DISCOVERY.value,
             ) from exc
 
-        return response.text
+        return response.text, str(response.url)
 
     async def _load_last_hash(self, url: str) -> str | None:
         """Load the last known content hash for a URL from the database.

@@ -9,6 +9,7 @@ deterministic output parsing matter more than orchestration framework features.
 
 from __future__ import annotations
 
+import html as html_module
 import re
 import time
 import uuid
@@ -153,6 +154,35 @@ EXTRACTION RULES
    is more important and must not be omitted in favour of the heading.
 6. Call the extract_green_claims tool exactly once with the complete list.\
 """
+
+# ---------------------------------------------------------------------------
+# Hallucination firewall
+# ---------------------------------------------------------------------------
+
+_MIN_TOKEN_OVERLAP: float = 0.60
+_MIN_TOKEN_LENGTH: int = 3
+
+
+def _strip_html(text: str) -> str:
+    text = html_module.unescape(text)
+    return re.sub(r"<[^>]+>", " ", text)
+
+
+def _normalize(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r"[^\w\s]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _claim_in_source(claim_text: str, source_text: str) -> bool:
+    """Return True if enough of the claim's tokens appear in the source."""
+    norm_source = _normalize(_strip_html(source_text))
+    tokens = [t for t in _normalize(claim_text).split() if len(t) >= _MIN_TOKEN_LENGTH]
+    if not tokens:
+        return True
+    matched = sum(1 for t in tokens if t in norm_source)
+    return matched / len(tokens) >= _MIN_TOKEN_OVERLAP
+
 
 # ---------------------------------------------------------------------------
 # I/O models
@@ -329,6 +359,21 @@ class ExtractionAgent:
         async with agent_error_boundary(agent=AgentName.EXTRACTION.value, operation="run"):
             raw_claims, tokens_used = await self._call_llm(input.raw_content)
             claims = self._build_claims(raw_claims, input)
+
+            verified: list[Claim] = []
+            for claim in claims:
+                if _claim_in_source(claim.raw_text, input.raw_content):
+                    verified.append(claim)
+                else:
+                    logger.warning(
+                        "claim_not_found_in_source",
+                        extra={
+                            "operation": "claim_not_found_in_source",
+                            "source_url": input.source_url,
+                            "claim_text": claim.raw_text[:120],
+                        },
+                    )
+            claims = verified
 
             if not claims:
                 outcome = AgentOutcome.PARTIAL
