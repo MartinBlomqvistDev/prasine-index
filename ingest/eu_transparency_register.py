@@ -12,9 +12,9 @@ thresholds. As of 2026, the register contains ~17,000 entries.
 For greenwashing assessment, TR registration is contextual evidence:
   - A fossil fuel company registered as an active EU lobbyist while claiming
     climate leadership is worth flagging — especially when combined with
-    InfluenceMap data showing their lobbying positions.
+    LobbyMap data showing their lobbying positions.
   - Registration alone does not indicate the direction of lobbying;
-    the Judge Agent combines this with InfluenceMap to assess whether
+    the Judge Agent combines this with LobbyMap to assess whether
     the company is lobbying against the climate policies it publicly endorses.
   - Suspended registrations are noted but carry less weight.
 
@@ -215,7 +215,7 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
     """Return EU Transparency Register evidence for a company.
 
     Checks whether the company is registered as an EU lobbyist. Registration
-    is contextual evidence — the Judge Agent weighs it alongside InfluenceMap
+    is contextual evidence — the Judge Agent weighs it alongside LobbyMap
     data to assess whether the company is lobbying against the climate policies
     it publicly claims to support.
 
@@ -282,6 +282,6 @@ def _build_summary(company_name: str, record: _TRRecord) -> str:
         f"reg. no. {record.reg_number}). "
         f"Registration confirms the organisation actively engages EU institutions "
         f"on policy matters. The direction of lobbying (for or against climate policy) "
-        f"is not indicated by registration alone — cross-reference with InfluenceMap "
+        f"is not indicated by registration alone — cross-reference with LobbyMap "
         f"data for lobbying positions."
     )

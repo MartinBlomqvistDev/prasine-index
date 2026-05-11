@@ -31,9 +31,9 @@ The directive requires explicit substantiation of net-zero claims, including evi
 CSRD-obligated companies (>500 employees, likely applicable to IKEA) must report Scope 1, 2, and 3 GHG emissions baselines from FY2024. A net-zero claim inconsistent with or absent from mandatory CSRD disclosure constitutes material non-compliance. IKEA's claim references no CSRD baseline or cross-referenced disclosure.  
 *EUR-Lex, 32022L2464, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
 
-**[5] InfluenceMap climate engagement score**  
+**[5] LobbyMap climate engagement score**  
 IKEA Group: B-band classification (supportive engagement). Score indicates IKEA's lobbying activity is internally consistent with public climate commitments — no anti-climate lobbying detected. B-band is a modest positive signal but does not validate specific emissions reductions claimed.  
-*InfluenceMap, 2026, https://influencemap.org/company-responses*
+*LobbyMap, 2026, https://LobbyMap.org/company-responses*
 
 **[6] Science-Based Targets initiative (SBTi) target record**  
 IKEA Group SBTi status: unknown | Temperature classification: not classified | Net-zero target: none recorded. This indicates either: (a) no net-zero target submitted to SBTi; (b) a submission under review; or (c) a target rejected. The claim lacks validation from the gold-standard independent target-setting framework.  
@@ -82,7 +82,7 @@ These omissions violate the substantiation principle under the EmpCo Directive (
 
 ### Lobbying Alignment
 
-IKEA is registered as an EU lobbyist [2], and InfluenceMap classifies its engagement as B-band (supportive of climate policy) [5]. No anti-climate lobbying was detected. This prevents the claim from being escalated to GREENWASHING (direct contradiction) but does not validate the specific emissions reductions claimed. A supportive lobbying posture is consistent with a climate-aligned public claim, but consistency is not substantiation.
+IKEA is registered as an EU lobbyist [2], and LobbyMap classifies its engagement as B-band (supportive of climate policy) [5]. No anti-climate lobbying was detected. This prevents the claim from being escalated to GREENWASHING (direct contradiction) but does not validate the specific emissions reductions claimed. A supportive lobbying posture is consistent with a climate-aligned public claim, but consistency is not substantiation.
 
 ---
 

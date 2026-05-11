@@ -79,18 +79,18 @@ No record found for Ryanair Holdings plc in the SBTi database. The company has n
 
 ---
 
-### InfluenceMap — Corporate Climate Policy Engagement
+### LobbyMap — Corporate Climate Policy Engagement
 
-**Source:** InfluenceMap Company Scores (bulk CSV, refreshed 2026-03-01)
+**Source:** LobbyMap Company Scores (bulk CSV, refreshed 2026-03-01)
 
 **Score:** D+ (Obstructive)  
 **Band:** Obstructive to climate policy  
 **Key findings:** Ryanair has opposed aviation fuel taxation, lobbied against aviation's inclusion in the EU ETS scope expansion, and funded trade associations that have actively campaigned against climate regulations affecting the aviation sector.
 
-**Supports claim:** No — a company rated D+ by InfluenceMap is actively working to weaken the legislation that would hold it accountable for the emissions it claims to be minimising  
+**Supports claim:** No — a company rated D+ by LobbyMap is actively working to weaken the legislation that would hold it accountable for the emissions it claims to be minimising  
 **Confidence:** 0.85
 
-The divergence between Ryanair's public "greenest airline" positioning and its D+ InfluenceMap lobbying record represents textbook greenwashing: publicly claiming environmental leadership while privately lobbying against the regulatory frameworks that would enforce that standard.
+The divergence between Ryanair's public "greenest airline" positioning and its D+ LobbyMap lobbying record represents textbook greenwashing: publicly claiming environmental leadership while privately lobbying against the regulatory frameworks that would enforce that standard.
 
 ---
 
@@ -119,7 +119,7 @@ No E-PRTR records found for Ryanair Holdings plc. Aviation emissions are tracked
 
 - **CDP self-reported data:** No CDP disclosure found for Ryanair Holdings plc. The company does not participate in CDP voluntary reporting.
 - **CA100+ benchmark:** Ryanair is not among the 170 highest-emitting companies in scope for the Climate Action 100+ initiative (CA100+ covers primarily industrial and energy companies, not aviation).
-- **Lobbying Agent (EU Transparency Register):** EU Transparency Register lookup not yet implemented. InfluenceMap lobbying data used as proxy.
+- **Lobbying Agent (EU Transparency Register):** EU Transparency Register lookup not yet implemented. LobbyMap lobbying data used as proxy.
 
 ---
 
@@ -131,7 +131,7 @@ No E-PRTR records found for Ryanair Holdings plc. Aviation emissions are tracked
 | Claim substantiation | 90 | High | No comparative basis published; ASA ruled unsubstantiated |
 | Regulatory compliance | 80 | High | Does not meet Green Claims Directive Article 3 standard |
 | Historical consistency | 75 | Medium | First assessment; no prior claims in database |
-| Lobbying alignment | 80 | Medium | InfluenceMap D+ contradicts "greenest" positioning |
+| Lobbying alignment | 80 | Medium | LobbyMap D+ contradicts "greenest" positioning |
 
 **Composite score: 82 / 100**
 
@@ -152,7 +152,7 @@ The ASA ruling is the highest-weight evidence in this assessment. An independent
 
 The EU ETS verified emissions data reinforces this conclusion with independent quantitative evidence. Ryanair's verified emissions have increased by over 127% from its 2005 baseline to 2023 (9.8 million tCO₂e). No reduction trajectory is visible. The claim to be "Europe's greenest airline" implies either (a) a meaningful reduction in absolute or relative emissions compared to peer operators, or (b) a validated comparison methodology. Neither exists in the published record.
 
-The InfluenceMap D+ rating adds a third independent signal. A company actively lobbying against aviation fuel taxation and EU ETS scope expansion while publicly claiming to be "Europe's greenest" is engaging in the precise behaviour the EU Green Claims Directive was drafted to prohibit.
+The LobbyMap D+ rating adds a third independent signal. A company actively lobbying against aviation fuel taxation and EU ETS scope expansion while publicly claiming to be "Europe's greenest" is engaging in the precise behaviour the EU Green Claims Directive was drafted to prohibit.
 
 The absence of any CDP disclosure, SBTi commitment, or published comparison methodology means there is no supporting evidence for this claim anywhere in the public record. The claim has no substantiation base at all.
 

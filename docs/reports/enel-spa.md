@@ -25,7 +25,7 @@
 | **CA100+ Benchmark** | Net Zero Ambition = Yes; Capex Alignment = Yes; Short-term target = Partial. | 2025 | 0.75 | https://www.climateaction100.org/company-responses/ |
 | **TPI Strategic Assessment** | Management Quality Level 4. 2025/2035 pathways aligned to 1.5°C; 2050 pathway "Below 2°C". | 2022 | 0.75 | https://www.transitionpathwayinitiative.org/corporates |
 | **GCPT Coal Retirement** | 31 coal units retired or cancelled; 7 units (863 MW) remain operating. | 2026 | 0.60 | https://globalenergymonitor.org/projects/global-coal-plant-tracker/ |
-| **InfluenceMap** | Score B- (neutral/mixed climate policy engagement). | N/A | 0.50 | https://influencemap.org/company-responses |
+| **LobbyMap** | Score B- (neutral/mixed climate policy engagement). | N/A | 0.50 | https://LobbyMap.org/company-responses |
 | **SBTi** | Status unknown; no validated net-zero target on file. | N/A | 0.50 | https://sciencebasedtargets.org/companies-taking-action |
 | **EmpCo Directive (EU 2024/825)** | Article 3(3)(a) requires baseline year, scope (1/2/3), and methodology for emissions claims. | 2023 | 0.95 | https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825 |
 
@@ -68,7 +68,7 @@ The claim is aspirational language without measurable baselines or methodology d
 
 ### Lobbying Alignment
 
-InfluenceMap score B- (neutral/mixed) and absence of A/A+/B+ ratings indicate the company does not hold demonstrable climate-leadership engagement positions in EU policy forums. No active climate policy obstruction was detected. This gap prevents **CONFIRMED_GREENWASHING** classification but is notable for a company claiming climate leadership.
+LobbyMap score B- (neutral/mixed) and absence of A/A+/B+ ratings indicate the company does not hold demonstrable climate-leadership engagement positions in EU policy forums. No active climate policy obstruction was detected. This gap prevents **CONFIRMED_GREENWASHING** classification but is notable for a company claiming climate leadership.
 
 ---
 
@@ -84,13 +84,13 @@ Enel is simultaneously achieving genuine 75% reductions in regulated coal and th
 |--------|-------|----------------------|
 | **EU ETS (EUTL)** | No installation IDs registered for Enel SpA | −0.05 confidence: EPRTR data (EU Regulation 166/2006) provides equivalent regulatory baseline for industrial emissions and supports 75% reduction finding. However, EU ETS verified data is legally mandated and higher-quality. Absence prevents triangulation. |
 | **CA100+ Assessment Update** | 2025 benchmark may not reflect latest COAL_EXIT/EGT data (March 2026) | −0.03 confidence: Investor benchmarks may lag real-time asset data. COAL_EXIT and EGT findings are from Global Energy Monitor (March 2026), more recent than CA100+ assessment. |
-| **InfluenceMap Lobbying Direction** | Score B- provided; actual direction of policy engagement not specified | −0.05 confidence: Unable to assess whether Enel actively opposes or supports climate policy. Absence of A/B+ ratings is suggestive but not conclusive. |
+| **LobbyMap Lobbying Direction** | Score B- provided; actual direction of policy engagement not specified | −0.05 confidence: Unable to assess whether Enel actively opposes or supports climate policy. Absence of A/B+ ratings is suggestive but not conclusive. |
 
 **Confidence justification: 72% (0.72)**
 - Coal and gas expansion contradictions are well-evidenced (0.90 and 0.85 confidence).
 - Supporting evidence (EPRTR, CA100+, TPI) is robust but predates or does not fully capture fossil expansion.
 - EU ETS data unavailable, though EPRTR is a high-quality regulatory alternative.
-- InfluenceMap score is inconclusive (0.50), preventing higher confidence in lobbying alignment assessment.
+- LobbyMap score is inconclusive (0.50), preventing higher confidence in lobbying alignment assessment.
 - No SBTi validation of net-zero targets (0.50).
 
 ---

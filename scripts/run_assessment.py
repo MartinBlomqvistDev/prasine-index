@@ -9,7 +9,7 @@ Usage — provide claim text directly:
         --claim "Shell is on track to become net-zero by 2050" \\
         --url "https://shell.com/sustainability"
 
-Usage — refresh all data sources first (downloads fresh SBTi, InfluenceMap,
+Usage — refresh all data sources first (downloads fresh SBTi, LobbyMap,
          CA100+, EUTL, E-PRTR, GCEL, Fossil Finance before running):
     python scripts/run_assessment.py --company "Shell plc" \\
         --url "https://shell.com/sustainability" --refresh-data
@@ -26,7 +26,11 @@ import asyncio
 import re
 import sys
 import uuid
+import warnings
 from pathlib import Path
+
+warnings.filterwarnings("ignore", message="Core Pydantic V1 functionality")
+warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -58,7 +62,7 @@ def _refresh_data() -> None:
 
     refresh_scripts = [
         "refresh_sbti.py",
-        "refresh_influencemap.py",
+        "refresh_LobbyMap.py",
         "refresh_ca100.py",
         "refresh_eutl.py",
         "refresh_eprtr.py",
@@ -91,7 +95,7 @@ def _refresh_data() -> None:
             # Each refresh script exposes a main download function with a predictable name.
             for fn_name in (
                 "download_sbti",
-                "download_influencemap_csv",
+                "download_LobbyMap_csv",
                 "download_ca100_csv",
                 "main",
                 "download_bocc_csv",
@@ -199,7 +203,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--refresh-data",
         action="store_true",
-        help="Download fresh SBTi, InfluenceMap, CA100+, EUTL, E-PRTR, GCEL, and Fossil Finance "
+        help="Download fresh SBTi, LobbyMap, CA100+, EUTL, E-PRTR, GCEL, and Fossil Finance "
         "data before running the assessment.",
     )
     parser.add_argument(

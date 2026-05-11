@@ -1,20 +1,20 @@
-"""Download the InfluenceMap Company Climate Policy Engagement dataset.
+"""Download the LobbyMap (formerly InfluenceMap) Company Climate Policy Engagement dataset.
 
-Run this script whenever you want fresh InfluenceMap data:
+Run this script whenever you want fresh LobbyMap data:
 
     python scripts/refresh_influencemap.py
 
-InfluenceMap publishes annual company-level climate lobbying scores (A+ to F)
-at influencemap.org. The bulk company database is available as a free download
-from their website — no account required.
+LobbyMap (rebranded from InfluenceMap in 2024) publishes annual company-level
+climate lobbying scores (A+ to F) at lobbymap.org. The bulk company database
+is available as a free download from their website — no account required.
 
 The file is saved to data/influencemap_companies.csv. The pipeline reloads
 automatically on next run. Run refresh_cache() from ingest.influence_map to
 reload without restarting.
 
 Sources:
-  https://influencemap.org/company-responses
-  https://influencemap.org/report (annual company database releases)
+  https://lobbymap.org/
+  https://lobbymap.org/report (annual company database releases)
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ _DEST = _DATA_DIR / "influencemap_companies.csv"
 # InfluenceMap updates this annually; check the page below for the current URL.
 # The URL below is the direct link to the bulk company scores CSV as of 2024.
 # If it returns a 404, check: https://influencemap.org/company-responses
-_IM_CSV_URL = "https://influencemap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
+_IM_CSV_URL = "https://lobbymap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
 
 
 def check_existing() -> None:
@@ -52,7 +52,7 @@ def download_influencemap_csv() -> None:
     """Attempt to download the InfluenceMap bulk company scores CSV."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Downloading InfluenceMap Company Scores CSV...")
+    print("Downloading LobbyMap Company Scores CSV...")
     print(f"  URL: {_IM_CSV_URL}")
     print(f"  Destination: {_DEST}")
 
@@ -96,17 +96,18 @@ def download_influencemap_csv() -> None:
     print("Done. Run ingest.influence_map.refresh_cache() or restart the API to reload.")
 
 
+
 def print_manual_instructions() -> None:
     """Print manual download instructions."""
     print()
     print("Manual download steps:")
-    print("  1. Go to https://influencemap.org/company-responses")
+    print("  1. Go to https://lobbymap.org/ (formerly influencemap.org)")
     print("  2. Look for 'Download Company Scores' or 'Bulk Data Download'")
     print("  3. Download the CSV of all companies")
     print(f"  4. Save to: {_DEST}")
     print()
     print("Alternative: annual reports with company data at:")
-    print("  https://influencemap.org/report")
+    print("  https://lobbymap.org/report")
 
 
 if __name__ == "__main__":
