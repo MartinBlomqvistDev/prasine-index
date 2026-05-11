@@ -31,6 +31,7 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore", message="Core Pydantic V1 functionality")
 warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
+warnings.filterwarnings("ignore", message="Workbook contains no default style", category=UserWarning, module="openpyxl")
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
