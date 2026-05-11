@@ -17,7 +17,7 @@
 ### Evidence
 
 **[1] EU Transparency Register — Lobbying record**  
-Öresundskraft is registered as an EU lobbyist (registration no. 883228750982-76, headquartered in Sweden). Registration confirms active engagement with EU institutions on policy matters. The register does not disclose the direction or substance of lobbying positions (pro- or anti-climate policy). Cross-referencing against InfluenceMap would be required to determine whether lobbying contradicts the stated carbon capture commitment.  
+Öresundskraft is registered as an EU lobbyist (registration no. 883228750982-76, headquartered in Sweden). Registration confirms active engagement with EU institutions on policy matters. The register does not disclose the direction or substance of lobbying positions (pro- or anti-climate policy). Cross-referencing against LobbyMap would be required to determine whether lobbying contradicts the stated carbon capture commitment.  
 Source: EU Transparency Register, 2026, https://ec.europa.eu/transparencyregister/public/consultation/search.do
 
 **[2] EU ETS Directive 2003/87/EC (as amended)**  
@@ -67,7 +67,7 @@ Confidence is moderated because we lack critical company context: (a) Öresundsk
 
 - **Company Sector Classification:** Öresundskraft's primary sector of operation is not disclosed in available sources. Without sector context, we cannot benchmark the ambition level of the target. Impact: unable to assess whether 200,000 tonnes annually represents material or token commitment.
 
-- **EU Transparency Register — Lobbying Positions:** The register confirms Öresundskraft lobbies EU institutions, but does not disclose the positions or policy areas. A cross-reference with InfluenceMap would be required to determine whether public climate lobbying contradicts the stated carbon capture commitment. Impact: potential contradiction not yet ruled in or out.
+- **EU Transparency Register — Lobbying Positions:** The register confirms Öresundskraft lobbies EU institutions, but does not disclose the positions or policy areas. A cross-reference with LobbyMap would be required to determine whether public climate lobbying contradicts the stated carbon capture commitment. Impact: potential contradiction not yet ruled in or out.
 
 - **EmpCo Directive (EU 2024/825) Substantiation Filing:** The directive requires companies to substantiate claims and maintain documentation. We have no access to Öresundskraft's formal substantiation file or third-party audit (if any). Impact: claim may be privately substantiated; confidence reflects only publicly available evidence.
 

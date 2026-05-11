@@ -26,29 +26,30 @@ import urllib.request
 from pathlib import Path
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
-_DEST = _DATA_DIR / "ca100_companies.csv"
+_DEST = _DATA_DIR / "ca100_companies.xlsx"
 
 # CA100+ publishes their benchmark data at this URL (may change annually).
 # If this returns 404, check: https://www.climateaction100.org/progress/net-zero-company-benchmark/
-_CA100_CSV_URL = (
-    "https://www.climateaction100.org/wp-content/uploads/2024/09/"
-    "CA100plus-Net-Zero-Company-Benchmark-2024.csv"
+# Updated to xlsx format (November 2025 release).
+_CA100_XLSX_URL = (
+    "https://www.climateaction100.org/wp-content/uploads/2025/12/"
+    "NZB-Downloadable-Excel2025_2026_11_02.xlsx"
 )
 
 
 def download_ca100_csv() -> None:
-    """Attempt to download the CA100+ benchmark CSV."""
+    """Attempt to download the CA100+ benchmark XLSX."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Downloading CA100+ Net Zero Benchmark CSV...")
-    print(f"  URL: {_CA100_CSV_URL}")
+    print("Downloading CA100+ Net Zero Benchmark XLSX...")
+    print(f"  URL: {_CA100_XLSX_URL}")
     print(f"  Destination: {_DEST}")
 
     req = urllib.request.Request(
-        _CA100_CSV_URL,
+        _CA100_XLSX_URL,
         headers={
             "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)",
-            "Accept": "text/csv,application/csv,*/*",
+            "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*",
         },
     )
 
@@ -72,15 +73,6 @@ def download_ca100_csv() -> None:
     _DEST.write_bytes(data)
     size_kb = len(data) // 1024
     print(f"  Downloaded {size_kb} KB -> {_DEST}")
-
-    try:
-        lines = data.decode("utf-8-sig").splitlines()
-        print(f"  Rows: {len(lines) - 1} companies (excluding header)")
-        if lines:
-            print(f"  Columns: {lines[0][:120]}")
-    except UnicodeDecodeError:
-        pass
-
     print("Done. Run ingest.ca100.refresh_cache() or restart the API to reload.")
 
 
@@ -88,7 +80,7 @@ def print_manual_instructions() -> None:
     print()
     print("Manual download steps:")
     print("  1. Go to https://www.climateaction100.org/progress/net-zero-company-benchmark/")
-    print("  2. Click 'Download the Benchmark Data' or look for a CSV export link")
+    print("  2. Click 'Download the Benchmark Data' or look for an Excel/XLSX export link")
     print(f"  3. Save to: {_DEST}")
     print()
     print("Alternative: individual company pages at https://www.climateaction100.org/companies/")

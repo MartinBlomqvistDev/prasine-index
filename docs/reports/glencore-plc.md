@@ -18,8 +18,8 @@ Glencore plc is listed as **ACTIVELY EXPANDING coal capacity**. The GCEL databas
 [Urgewald Global Coal Exit List, https://www.urgewald.org/en/themen/global-coal-exit-list]
 
 **INFLUENCE_MAP — Climate Policy Engagement Score (year N/A)**
-InfluenceMap rates Glencore plc **D+** on climate policy engagement. This score indicates obstructive engagement — the company actively opposes or delays climate legislation while making green claims. This contradicts the stated commitment to decarbonisation.
-[InfluenceMap, https://influencemap.org/company-responses]
+LobbyMap rates Glencore plc **D+** on climate policy engagement. This score indicates obstructive engagement — the company actively opposes or delays climate legislation while making green claims. This contradicts the stated commitment to decarbonisation.
+[LobbyMap, https://LobbyMap.org/company-responses]
 
 **ENFORCEMENT — UK CMA Investigation (2023)**
 The UK Competition and Markets Authority (CMA) placed Glencore under investigation as part of a broader inquiry into green claims by fossil fuel producers. The CMA specifically flagged "Glencore's net-zero commitment while continuing coal mining expansion" as potentially misleading under UK consumer protection law. Glencore is identified in CMA documentation as the world's largest coal exporter.
@@ -43,7 +43,7 @@ CA100+ Net Zero Company Benchmark (2025) rates Glencore: Net Zero Ambition = Yes
 [CA100+ Net Zero Company Benchmark, 2025, https://www.climateaction100.org/company-responses/]
 
 **EU_TRANSPARENCY_REGISTER — Lobbying Registration (N/A)**
-Glencore plc is actively registered in the EU Transparency Register as a direct corporate lobbyist (registration no. 869729025581-78, HQ: Switzerland). Registration confirms active engagement with EU institutions on policy matters. Direction of lobbying (pro-climate vs. obstructive) is interpreted through InfluenceMap data.
+Glencore plc is actively registered in the EU Transparency Register as a direct corporate lobbyist (registration no. 869729025581-78, HQ: Switzerland). Registration confirms active engagement with EU institutions on policy matters. Direction of lobbying (pro-climate vs. obstructive) is interpreted through LobbyMap data.
 [EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do]
 
 **TPI Climate Transition Assessment (2022)**
@@ -60,7 +60,7 @@ Glencore's claim of a "holistic approach to decarbonisation" is directly contrad
 
 **Secondary Contradiction: Obstructive Lobbying vs. Decarbonisation Claim**
 
-InfluenceMap rates Glencore D+ (confidence 0.85), indicating obstructive climate policy engagement — the company actively opposes or delays climate legislation. This contradicts the stated commitment to decarbonisation. When a company claims climate leadership while lobbying against climate policy, the discrepancy is material and indicative of greenwashing. This finding is supported by UK CMA enforcement scrutiny (confidence 0.70), which specifically flagged Glencore's stated net-zero commitment while continuing coal expansion as potentially misleading under consumer protection law.
+LobbyMap rates Glencore D+ (confidence 0.85), indicating obstructive climate policy engagement — the company actively opposes or delays climate legislation. This contradicts the stated commitment to decarbonisation. When a company claims climate leadership while lobbying against climate policy, the discrepancy is material and indicative of greenwashing. This finding is supported by UK CMA enforcement scrutiny (confidence 0.70), which specifically flagged Glencore's stated net-zero commitment while continuing coal expansion as potentially misleading under consumer protection law.
 
 **Substantiation Gap Under EmpCo Directive**
 
@@ -79,7 +79,7 @@ No installation IDs for Glencore appear in the EU ETS database. This is a critic
 - **EMISSIONS_ACCURACY (72/100):** Coal expansion contradicts decarbonisation claim. No EU ETS verification available.
 - **CLAIM_SUBSTANTIATION (65/100):** Lacks baseline year, percentage target, and disaggregated scope methodology. Non-compliant with EmpCo Directive.
 - **HISTORICAL_CONSISTENCY (78/100):** Prior claims from Glencore average 69.9 with peak score of 82.0. This claim follows a pattern of moderate-to-high greenwashing scores.
-- **LOBBYING_ALIGNMENT (88/100):** InfluenceMap D+ confirms active opposition to climate legislation — strongest greenwashing signal.
+- **LOBBYING_ALIGNMENT (88/100):** LobbyMap D+ confirms active opposition to climate legislation — strongest greenwashing signal.
 - **TARGET_CREDIBILITY (80/100):** No specific 2030/2035 targets disclosed. Coal expansion is incompatible with 1.5°C warming limitation pathways.
 
 **Final Composite Score: 76/100 (GREENWASHING)**
@@ -90,7 +90,7 @@ The verdict is GREENWASHING, not CONFIRMED_GREENWASHING, because CA100+ provides
 
 ### Key Finding
 
-Glencore's claim of taking a "holistic approach to decarbonisation" is directly contradicted by two material facts: (1) the company is actively expanding coal mining capacity according to the Urgewald Global Coal Exit List (used by 400+ financial institutions as the standard coal screen), and (2) InfluenceMap rates Glencore D+ for obstructive climate policy engagement, meaning it actively opposes or delays climate legislation while making green claims. The UK CMA has placed the company under investigation specifically for potentially misleading net-zero claims made while continuing coal expansion. No supporting institutional source (CA100+ alone, at confidence 0.65) is sufficient to overcome this confluence of contradictions.
+Glencore's claim of taking a "holistic approach to decarbonisation" is directly contradicted by two material facts: (1) the company is actively expanding coal mining capacity according to the Urgewald Global Coal Exit List (used by 400+ financial institutions as the standard coal screen), and (2) LobbyMap rates Glencore D+ for obstructive climate policy engagement, meaning it actively opposes or delays climate legislation while making green claims. The UK CMA has placed the company under investigation specifically for potentially misleading net-zero claims made while continuing coal expansion. No supporting institutional source (CA100+ alone, at confidence 0.65) is sufficient to overcome this confluence of contradictions.
 
 ---
 

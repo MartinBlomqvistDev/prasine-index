@@ -16,7 +16,7 @@ Prasine Index is a live-running AI workflow system that:
 
 1. **Monitors** EU company investor relations pages, press releases, and CSRD reports continuously for new green claims.
 2. **Extracts** every green claim as a structured, attributed record — verbatim text, source URL, page reference, publication date.
-3. **Verifies** each claim against 21 parallel open data sources — EU ETS, SBTi, InfluenceMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, EU Transparency Register, EEA National, Eurostat, EU Innovation Fund, GOGEL, Climate TRACE, TPI, GCPT, EGT, GOGET, EDGAR JRC, E-PRTR, and more.
+3. **Verifies** each claim against 21 parallel open data sources — EU ETS, SBTi, LobbyMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, EU Transparency Register, EEA National, Eurostat, EU Innovation Fund, GOGEL, Climate TRACE, TPI, GCPT, EGT, GOGET, EDGAR JRC, E-PRTR, and more.
 4. **Cross-references** the company against the EU Transparency Register. A company claiming climate leadership while lobbying against climate legislation in Brussels is flagged explicitly.
 5. **Scores** each claim 0–100 using an LLM-as-judge with full chain-of-thought reasoning, broken down by dimension: emissions accuracy, claim substantiation, historical consistency, lobbying alignment, target credibility.
 6. **Publishes** a source-chained report in Markdown — every factual assertion is cited, every data gap is disclosed, and the full reasoning is preserved verbatim for audit and citation.
@@ -241,8 +241,8 @@ Returns every agent step in chronological order with duration, token count, outc
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| InfluenceMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_influencemap.py` |
-| EU Transparency Register | Brussels lobbying declarations. Confirms active lobbying; direction requires cross-reference with InfluenceMap. | `refresh_eu_transparency_register.py` |
+| LobbyMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_LobbyMap.py` |
+| EU Transparency Register | Brussels lobbying declarations. Confirms active lobbying; direction requires cross-reference with LobbyMap. | `refresh_eu_transparency_register.py` |
 | Enforcement Rulings | ASA, ACM, AGCM, CMA, EC rulings and court judgments. Prior ruling = strongest evidence category. | Static (embedded in module) |
 | EUR-Lex | Green Claims Directive, CSRD ESRS E1, EU ETS legislation as regulatory baseline. | Static (legislation is stable) |
 
@@ -348,7 +348,7 @@ python scripts/run_assessment.py --company "..." --url "..." --refresh-data
 python scripts/refresh_eutl.py           # EU ETS daily snapshot
 python scripts/refresh_sbti.py           # SBTi targets
 python scripts/refresh_eprtr.py          # E-PRTR non-CO2 GHG
-python scripts/refresh_influencemap.py   # InfluenceMap lobbying scores
+python scripts/refresh_LobbyMap.py   # LobbyMap lobbying scores
 python scripts/refresh_ca100.py          # CA100+ benchmark
 python scripts/refresh_fossil_finance.py # Banking on Climate Chaos
 python scripts/refresh_gcel.py           # Global Coal Exit List
@@ -411,7 +411,7 @@ prasine-index/
 │   ├── eu_ets.py               # EU ETS EUTL verified emissions (local CSV)
 │   ├── sbti.py                 # SBTi validated/removed targets (local CSV)
 │   ├── eprtr.py                # E-PRTR non-CO2 GHG releases (local CSV)
-│   ├── influence_map.py        # InfluenceMap lobbying scores (local CSV)
+│   ├── influence_map.py        # LobbyMap lobbying scores (local CSV)
 │   ├── enforcement.py          # ASA/ACM/AGCM/CMA/EC rulings (static, embedded)
 │   ├── ca100.py                # CA100+ net-zero benchmark (local CSV)
 │   ├── fossil_finance.py       # Banking on Climate Chaos fossil financing (local CSV)
@@ -437,7 +437,7 @@ prasine-index/
 │   ├── refresh_eutl.py         # Download EU ETS daily snapshot
 │   ├── refresh_sbti.py         # Download SBTi CSV
 │   ├── refresh_eprtr.py        # Download E-PRTR CSV
-│   ├── refresh_influencemap.py # Download InfluenceMap CSV
+│   ├── refresh_LobbyMap.py # Download LobbyMap CSV
 │   ├── refresh_ca100.py        # Download CA100+ CSV
 │   ├── refresh_fossil_finance.py  # Download Banking on Climate Chaos CSV
 │   ├── refresh_gcel.py         # Download Urgewald GCEL CSV
@@ -452,7 +452,7 @@ prasine-index/
 ├── data/                       # Local bulk datasets (not committed — download via refresh scripts)
 │   ├── sbti_companies.csv
 │   ├── eprtr_releases.csv
-│   ├── influencemap_companies.csv
+│   ├── LobbyMap_companies.csv
 │   ├── ca100_companies.csv
 │   ├── fossil_finance_banks.csv
 │   ├── gcel_companies.csv
@@ -534,11 +534,11 @@ EU ETS VERIFIED EMISSIONS (2005–2023)
 INFLUENCE MAP
   Score: D+ (obstructive climate lobbying)
   Supports claim: False (confidence: 0.85)
-  InfluenceMap D+ band: Ryanair has opposed fuel taxation and lobbied against
+  LobbyMap D+ band: Ryanair has opposed fuel taxation and lobbied against
   aviation inclusion in the EU ETS.
 ```
 
-**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. InfluenceMap D+ confirms that the green positioning is contradicted by policy behaviour. Score: 82 — CONFIRMED_GREENWASHING."*
+**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. LobbyMap D+ confirms that the green positioning is contradicted by policy behaviour. Score: 82 — CONFIRMED_GREENWASHING."*
 
 Full example reports are in [examples/](examples/).
 

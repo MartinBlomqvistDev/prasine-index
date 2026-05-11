@@ -90,7 +90,7 @@ Two binding regulatory rulings in 2023 (ACM and Amsterdam District Court) found 
 **EU ETS Baseline Data — Expected Absence**
 Aviation emissions are excluded from EU ETS scope under Directive 2003/87/EC. Instead, ICAO CORSIA applies. This absence is expected and not itself contradictory, but it means KLM's claimed 2019 baseline cannot be verified against mandatory EU regulatory disclosure. For a company with a prior greenwashing pattern, this lack of independent verification significantly weakens substantiation.
 
-**InfluenceMap Lobbying Position Data — Not Queried**
+**LobbyMap Lobbying Position Data — Not Queried**
 The direction and content of KLM's EU lobbying efforts are not available in the evidence record. If KLM is simultaneously lobbying against climate legislation while claiming emissions reductions, this would constitute an active contradiction triggering a CONFIRMED_GREENWASHING verdict (81–100). Absence of this data prevents such a finding but reduces confidence from 85% to 78%.
 
 **Third-Party Validators (SBTi, CA100+, etc.) — Not Queried**

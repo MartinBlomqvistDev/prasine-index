@@ -10,7 +10,7 @@ Sources queried:
     GCPT (coal plants), EGT (Europe gas), GOGET (O&G extraction),
     GOGEL (O&G companies), GCEL (coal companies)
   Ratings and benchmarks:
-    SBTi, CA100+, TPI, InfluenceMap, CDP
+    SBTi, CA100+, TPI, LobbyMap, CDP
   Finance and lobbying:
     Banking on Climate Chaos, EU Transparency Register, EUR-Lex
   Enforcement and public funding:
@@ -515,9 +515,9 @@ async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
 
 
 async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
-    """LangGraph node: fetch InfluenceMap climate lobbying scores from the local dataset.
+    """LangGraph node: fetch LobbyMap climate lobbying scores from the local dataset.
 
-    Queries the InfluenceMap Company Climate Policy Engagement database for the
+    Queries the LobbyMap Company Climate Policy Engagement database for the
     company's lobbying alignment score (A+ to F). A company scoring in the
     obstructive range (D/E/F) while making green claims is a primary greenwashing
     indicator — its lobbying activity actively undermines the climate policies it
@@ -541,7 +541,7 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
 
     except DataSourceError as exc:
         logger.warning(
-            f"InfluenceMap fetch failed: {exc.message}",
+            f"LobbyMap fetch failed: {exc.message}",
             extra={
                 "operation": "fetch_influencemap_failed",
                 "error_type": type(exc).__name__,
@@ -554,7 +554,7 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
         }
     except Exception as exc:
         logger.error(
-            f"InfluenceMap fetch raised unexpected exception: {exc}",
+            f"LobbyMap fetch raised unexpected exception: {exc}",
             exc_info=True,
             extra={"operation": "fetch_influencemap_error", "error_type": type(exc).__name__},
         )
@@ -680,7 +680,7 @@ async def _node_fetch_eu_transparency_register(state: VerificationState) -> dict
     """LangGraph node: fetch EU Transparency Register lobbying registration.
 
     Checks whether the company is registered as an EU lobbyist. Combined with
-    InfluenceMap positions, this allows the Judge Agent to detect companies that
+    LobbyMap positions, this allows the Judge Agent to detect companies that
     lobby against climate policy while making green claims publicly.
 
     Args:

@@ -1,17 +1,17 @@
-"""InfluenceMap climate lobbying scores ingest module for the Prasine Index.
+"""LobbyMap (formerly InfluenceMap) climate lobbying scores ingest module for the Prasine Index.
 
-Loads the InfluenceMap Company Climate Policy Engagement database from
+Loads the LobbyMap Company Climate Policy Engagement database from
 data/influencemap_companies.csv, downloaded via scripts/refresh_influencemap.py.
 Provides lobbying-alignment evidence for claims from companies that simultaneously
 advocate for climate action while opposing climate legislation in Brussels or
 Washington.
 
-InfluenceMap independently assesses corporate climate policy engagement, scoring
-companies A+ (strongly supportive) to F (obstructive). A company scoring D or F
-while making green claims is a direct greenwashing signal — the company lobbies
-against the legislation it publicly claims to support.
+LobbyMap (rebranded from InfluenceMap in 2024) independently assesses corporate
+climate policy engagement, scoring companies A+ (strongly supportive) to F (obstructive).
+A company scoring D or F while making green claims is a direct greenwashing signal —
+the company lobbies against the legislation it publicly claims to support.
 
-Data source: InfluenceMap (influencemap.org/company-responses)
+Data source: LobbyMap (lobbymap.org)
 Refresh: python scripts/refresh_influencemap.py
 """
 
@@ -314,7 +314,7 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
             trace_id=claim.trace_id,
             source=EvidenceSource.INFLUENCE_MAP,
             evidence_type=EvidenceType.LOBBYING_RECORD,
-            source_url="https://influencemap.org/company-responses",
+            source_url="https://lobbymap.org/",
             raw_data={
                 "company": record.company,
                 "ticker": record.ticker,
@@ -370,7 +370,7 @@ def _build_summary(company_name: str, record: _InfluenceMapRecord) -> str:
 
     if record.is_obstructive:
         return (
-            f"InfluenceMap climate policy engagement score for {company_name}: {band}{year_str}. "
+            f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
             f"Active engagement classification: {engagement}. "
             f"This score indicates obstructive engagement — the company actively opposes or "
             f"delays climate legislation while making green claims. "
@@ -380,14 +380,14 @@ def _build_summary(company_name: str, record: _InfluenceMapRecord) -> str:
 
     if record.is_supportive:
         return (
-            f"InfluenceMap climate policy engagement score for {company_name}: {band}{year_str}. "
+            f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
             f"Active engagement classification: {engagement}. "
             f"This score indicates supportive engagement — the company's lobbying activity "
             f"is broadly consistent with its public climate commitments."
         )
 
     return (
-        f"InfluenceMap climate policy engagement score for {company_name}: {band}{year_str}. "
+        f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
         f"Active engagement classification: {engagement}. "
         f"This score indicates neutral or mixed engagement — inconclusive for greenwashing assessment."
     )

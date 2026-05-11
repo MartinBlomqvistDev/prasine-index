@@ -165,7 +165,7 @@ of contradiction. When multiple independent high-confidence sources confirm
 the claim, the score MUST reflect that:
 
   3+ independent sources with supports_claim=True (e.g. EU ETS declining
-  trend + SBTi validated + CA100+ ALIGNED + InfluenceMap A/B band)
+  trend + SBTi validated + CA100+ ALIGNED + LobbyMap A/B band)
   → score 5–20, verdict SUBSTANTIATED.
 
   2 supporting sources, no material contradiction
@@ -186,7 +186,7 @@ Score SUBSTANTIATED (0–20) when:
 - The claim is a past-tense factual statement (e.g. "reduced emissions by X%
   since YEAR") and the EU ETS historical data confirms the reduction.
 - CA100+ rates the company as net-zero ALIGNED with consistent capex.
-- InfluenceMap band is A+/A/A-/B+/B (supportive policy engagement).
+- LobbyMap band is A+/A/A-/B+/B (supportive policy engagement).
 When EU ETS data supports the claim, score it as SUBSTANTIATED even if
 confidence is moderate. Do not inflate the score simply because other
 data sources returned no record — absence of data is not contradiction.
@@ -257,7 +257,7 @@ Evidence:
       confidence=0.95
   [3] EmpCo Directive (EU 2024/825) / UCPD Article 6: claim provides no specific
       targets, measurable baselines, or timelines — fails the EU substantiation standard.
-  [4] InfluenceMap: Band B (supportive, no contradiction). supports_claim=True,
+  [4] LobbyMap: Band B (supportive, no contradiction). supports_claim=True,
       confidence=0.70
 Correct verdict: MISLEADING, score=48, confidence=0.62
 Why: The claim is aspirational with zero quantified targets, no audited baseline, and

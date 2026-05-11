@@ -35,9 +35,9 @@ https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
 [32022L2464] CSRD requires large companies (>500 employees or EU-listed) to disclose scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 onwards. Material inconsistency between a net-zero claim and mandatory emissions disclosure constitutes a greenwashing risk. Confidence: 0.95
 https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464
 
-**[6] InfluenceMap Climate Policy Engagement (Current)**
-InfluenceMap rates Danone B- (neutral/mixed engagement, not assessed for active climate leadership). This inconclusive score indicates neither verified climate advocacy nor evidence of anti-climate lobbying. Confidence: 0.50
-https://influencemap.org/company-responses
+**[6] LobbyMap Climate Policy Engagement (Current)**
+LobbyMap rates Danone B- (neutral/mixed engagement, not assessed for active climate leadership). This inconclusive score indicates neither verified climate advocacy nor evidence of anti-climate lobbying. Confidence: 0.50
+https://LobbyMap.org/company-responses
 
 **[7] Science Based Targets Initiative (Current)**
 SBTi records for Danone: status = unknown; temperature classification = not classified; net-zero target = none on record. Danone has not submitted a net-zero target for independent SBTi validation. Confidence: 0.50
@@ -75,7 +75,7 @@ A 2050 net-zero date, while nominally Paris-compatible, lacks credibility withou
 Danone's prior claim history shows a stable average greenwashing score of 47.7 (worst: 58.0), consistent with a pattern of MISLEADING claims—directionally plausible but lacking rigorous substantiation. This is not a repeat claim, but the pattern suggests Danone regularly makes environmental assertions without full verification.
 
 **Lobbying and Alignment**
-EU Transparency Register confirms Danone is an active EU lobbyist (registration no. 65744846168-89), but the direction of lobbying is unspecified. InfluenceMap rates it B- (neutral/mixed engagement, confidence 0.50), with no active climate leadership classification. This does not indicate alignment with climate-hostile lobbying, so no confirmed greenwashing contradiction is detected. However, the mixed score and lack of transparency in lobbying direction are consistent with a company that is not a vocal climate leader.
+EU Transparency Register confirms Danone is an active EU lobbyist (registration no. 65744846168-89), but the direction of lobbying is unspecified. LobbyMap rates it B- (neutral/mixed engagement, confidence 0.50), with no active climate leadership classification. This does not indicate alignment with climate-hostile lobbying, so no confirmed greenwashing contradiction is detected. However, the mixed score and lack of transparency in lobbying direction are consistent with a company that is not a vocal climate leader.
 
 **Critical Substantiation Failure**
 The claim is published on Danone's website under "driving-climate-action" with:
@@ -108,7 +108,7 @@ Danone is not currently CSRD-obligated (based on metadata), which exempts it fro
 SBTi status = unknown (confidence 0.50), and TPI has not assessed the company's 2050 pathway (confidence 0.60). Both gaps reduce confidence in the verdict but do not contradict it; rather, they confirm a lack of independent expert endorsement.
 
 **Lobbying Direction:**
-EU Transparency Register does not specify the direction of Danone's lobbying. InfluenceMap confidence is 0.50 (inconclusive). If Danone is shown to lobby against climate regulation or carbon pricing mechanisms, the verdict would escalate to GREENWASHING.
+EU Transparency Register does not specify the direction of Danone's lobbying. LobbyMap confidence is 0.50 (inconclusive). If Danone is shown to lobby against climate regulation or carbon pricing mechanisms, the verdict would escalate to GREENWASHING.
 
 **Confidence impact:** These gaps lower overall confidence to 62%. The verdict would be strengthened by CSRD-level emissions disclosure, SBTi validation, or TPI pathway endorsement.
 
@@ -116,4 +116,4 @@ EU Transparency Register does not specify the direction of Danone's lobbying. In
 
 ### Methodology Note
 
-Prasine Index assessed this claim using eight evidence sources: CA100+ benchmark assessment (2025), E-PRTR industrial emissions record (2008), EU Transparency Register lobbying registry, EmpCo Directive (EU 2024/825), CSRD (2022), InfluenceMap climate engagement score, SBTi target database, and TPI corporate assessment (2022). The score of 52/100 reflects a MISLEADING verdict under the Prasine Index rubric: the claim is directionally possible (Danone does have a 2015 net-zero commitment and CA100+ recognition) but exaggerates credibility by omitting required substantiation (baseline emissions, interim targets, independent certification) under Article 3 of the EmpCo Directive (EU 2024/825). The score is not higher (61+/GREENWASHING) because CA100+ provides supporting evidence, no verified emissions data contradicts the claim, and no anti-climate lobbying is confirmed. The score is not lower (30/INSUFFICIENT_EVIDENCE) because the substantiation gap is material and documented in investor benchmarks (TPI: pathway not assessed; SBTi: status unknown). Confidence is 62% due to incomplete SBTi/TPI data and inconclusive InfluenceMap ratings, offset by high-confidence EmpCo Directive (EU 2024/825) standards (0.95). Full methodology: https://martinblomqvistdev.github.io/prasine-index//
+Prasine Index assessed this claim using eight evidence sources: CA100+ benchmark assessment (2025), E-PRTR industrial emissions record (2008), EU Transparency Register lobbying registry, EmpCo Directive (EU 2024/825), CSRD (2022), LobbyMap climate engagement score, SBTi target database, and TPI corporate assessment (2022). The score of 52/100 reflects a MISLEADING verdict under the Prasine Index rubric: the claim is directionally possible (Danone does have a 2015 net-zero commitment and CA100+ recognition) but exaggerates credibility by omitting required substantiation (baseline emissions, interim targets, independent certification) under Article 3 of the EmpCo Directive (EU 2024/825). The score is not higher (61+/GREENWASHING) because CA100+ provides supporting evidence, no verified emissions data contradicts the claim, and no anti-climate lobbying is confirmed. The score is not lower (30/INSUFFICIENT_EVIDENCE) because the substantiation gap is material and documented in investor benchmarks (TPI: pathway not assessed; SBTi: status unknown). Confidence is 62% due to incomplete SBTi/TPI data and inconclusive LobbyMap ratings, offset by high-confidence EmpCo Directive (EU 2024/825) standards (0.95). Full methodology: https://martinblomqvistdev.github.io/prasine-index//

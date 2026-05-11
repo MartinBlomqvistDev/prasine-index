@@ -47,9 +47,9 @@ Article 3 of the EmpCo Directive (EU 2024/825) / UCPD requires renewable energy 
 RWE AG is actively registered as an EU lobbyist (registration no. 77608353460-77). Registration confirms active engagement with EU institutions but does not indicate lobbying direction (for or against climate policy stringency).
 *Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-**InfluenceMap Climate Policy Engagement (N/A)**
+**LobbyMap Climate Policy Engagement (N/A)**
 RWE receives a "C" score (neutral or mixed engagement); active engagement classification is "not assessed." This is inconclusive and does not confirm either supportive or obstructive alignment with EU climate policy.
-*Source: InfluenceMap, https://influencemap.org/company-responses*
+*Source: LobbyMap, https://LobbyMap.org/company-responses*
 
 **SBTi Target Status (N/A)**
 RWE's SBTi target status is "unknown" with temperature classification "not classified" and net-zero target "none." The absence of a validated science-based target is inconsistent with credible substantiation of a EUR 50 billion climate investment claim.
@@ -84,7 +84,7 @@ A company claiming EUR 50 billion renewable investment by 2030 should have a val
 RWE's 47% emissions reduction from 2007 to 2024 (E-PRTR data) and TPI's "1.5 Degrees" 2050 pathway rating are genuinely positive signals. However, both are backward-looking or long-term; neither validates the specific EUR 50 billion 2030 capex claim. CA100+ net-zero ambition rating ("Yes") is also positive but explicitly paired with "Partial" capex alignment, meaning institutional investors have flagged the company's capital plans as incomplete.
 
 **Lobbying Alignment Status: Unclear**
-RWE is registered as an active EU lobbyist, but InfluenceMap's "C" score and "not assessed" classification prevent confirmation of either climate-supportive or climate-obstructive lobbying. No evidence of anti-climate lobbying has been identified; therefore, this dimension does not trigger a CONFIRMED_GREENWASHING verdict. However, the absence of clarity on lobbying direction introduces uncertainty.
+RWE is registered as an active EU lobbyist, but LobbyMap's "C" score and "not assessed" classification prevent confirmation of either climate-supportive or climate-obstructive lobbying. No evidence of anti-climate lobbying has been identified; therefore, this dimension does not trigger a CONFIRMED_GREENWASHING verdict. However, the absence of clarity on lobbying direction introduces uncertainty.
 
 **Historical Consistency Context**
 RWE has 4 prior climate claims on record with an average score of 58.5 (GREENWASHING band, indicating modestly substantiated claims). No prior equivalent EUR 50 billion renewable claims detected. The prior claim pattern suggests a history of claims lacking full substantiation, but this is a weak precedent signal.
@@ -134,4 +134,4 @@ Prasine Index scores greenwashing claims on a 0–100 scale across five dimensio
 
 **Confidence (0–100%)** reflects data completeness: gaps in EU ETS, SBTi, or audited capex plans reduce confidence. Confidence ≤60% indicates material verification constraints. 
 
-This assessment used verified public data from E-PRTR (EU pollution registry), CA100+ (150 institutional investor benchmark), TPI (investor-facing transition pathway standard), Urgewald (coal tracking), Global Energy Monitor (emissions infrastructure), SBTi (science-based target registry), InfluenceMap (lobbying research), and EU Transparency Register. Full methodology: https://prasine.org/methodology.
+This assessment used verified public data from E-PRTR (EU pollution registry), CA100+ (150 institutional investor benchmark), TPI (investor-facing transition pathway standard), Urgewald (coal tracking), Global Energy Monitor (emissions infrastructure), SBTi (science-based target registry), LobbyMap (lobbying research), and EU Transparency Register. Full methodology: https://prasine.org/methodology.

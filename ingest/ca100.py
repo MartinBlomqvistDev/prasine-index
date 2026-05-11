@@ -26,6 +26,7 @@ import csv
 import os
 from pathlib import Path
 
+
 from core.logger import get_logger
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -40,6 +41,13 @@ _CA100_CSV: Path = Path(
     os.environ.get(
         "CA100_CSV",
         str(_PROJECT_ROOT / "data" / "ca100_companies.csv"),
+    )
+)
+
+_CA100_XLSX: Path = Path(
+    os.environ.get(
+        "CA100_XLSX",
+        str(_PROJECT_ROOT / "data" / "ca100_companies.xlsx"),
     )
 )
 
@@ -255,6 +263,88 @@ def _normalise_name(name: str) -> str:
     return name
 
 
+def _build_records(
+    rows: list[dict[str, str]],
+) -> tuple[dict[str, _CA100Record], dict[str, _CA100Record], dict[str, _CA100Record]]:
+    by_isin: dict[str, _CA100Record] = {}
+    by_name: dict[str, _CA100Record] = {}
+    by_ticker: dict[str, _CA100Record] = {}
+
+    for row in rows:
+        company = _pick(row, _COL_COMPANY)
+        if not company:
+            continue
+
+        year_str = _pick(row, _COL_YEAR)
+        year: int | None = None
+        with contextlib.suppress(ValueError):
+            year = int(year_str) if year_str else None
+
+        record = _CA100Record(
+            company=company,
+            sector=_pick(row, _COL_SECTOR),
+            country=_pick(row, _COL_COUNTRY),
+            isin=_pick(row, _COL_ISIN) or None,
+            ticker=_pick(row, _COL_TICKER) or None,
+            nz_ambition=_pick(row, _COL_NZ_AMBITION),
+            short_term_target=_pick(row, _COL_SHORT_TARGET),
+            long_term_target=_pick(row, _COL_LONG_TARGET),
+            capex_alignment=_pick(row, _COL_CAPEX),
+            climate_lobbying=_pick(row, _COL_LOBBYING),
+            year=year,
+        )
+
+        norm = _normalise_name(company)
+        existing = by_name.get(norm)
+        if existing is None or (year is not None and (existing.year or 0) < year):
+            by_name[norm] = record
+
+        if record.isin:
+            by_isin[record.isin.upper()] = record
+        if record.ticker:
+            by_ticker[record.ticker.upper()] = record
+
+    return by_isin, by_name, by_ticker
+
+
+def _load_from_csv(
+    path: Path,
+) -> tuple[dict[str, _CA100Record], dict[str, _CA100Record], dict[str, _CA100Record]]:
+    with path.open(encoding="utf-8-sig") as fh:
+        reader = csv.DictReader(fh)
+        rows = [dict(row) for row in reader]
+    return _build_records(rows)
+
+
+def _load_from_xlsx(
+    path: Path,
+) -> tuple[dict[str, _CA100Record], dict[str, _CA100Record], dict[str, _CA100Record]]:
+    try:
+        import openpyxl
+    except ImportError:
+        logger.warning(
+            "openpyxl not installed — cannot read CA100+ XLSX. Run: pip install openpyxl",
+            extra={"operation": "ca100_xlsx_missing_dep"},
+        )
+        return {}, {}, {}
+
+    wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
+    ws = wb.worksheets[0]
+    raw_rows = list(ws.iter_rows(values_only=True))
+    wb.close()
+
+    if not raw_rows:
+        return {}, {}, {}
+
+    headers = [str(h).strip() if h is not None else "" for h in raw_rows[0]]
+    rows = [
+        {headers[i]: (str(v).strip() if v is not None else "") for i, v in enumerate(row_vals)}
+        for row_vals in raw_rows[1:]
+        if any(v is not None for v in row_vals)
+    ]
+    return _build_records(rows)
+
+
 def _get_cache() -> tuple[
     dict[str, _CA100Record],
     dict[str, _CA100Record],
@@ -265,65 +355,28 @@ def _get_cache() -> tuple[
     if _cache_by_name is not None:
         return _cache_by_isin, _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
 
-    if not _CA100_CSV.exists():
+    if _CA100_XLSX.exists():
+        _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_xlsx(_CA100_XLSX)
+        logger.info(
+            f"CA100+ cache loaded from XLSX: {len(_cache_by_name)} companies",
+            extra={"operation": "ca100_cache_loaded", "source": "xlsx"},
+        )
+    elif _CA100_CSV.exists():
+        _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_csv(_CA100_CSV)
+        logger.info(
+            f"CA100+ cache loaded from CSV: {len(_cache_by_name)} companies",
+            extra={"operation": "ca100_cache_loaded", "source": "csv"},
+        )
+    else:
         _cache_by_isin = {}
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            f"CA100+ data file not found — run scripts/refresh_ca100.py. Expected at: {_CA100_CSV}",
+            f"CA100+ data file not found — run scripts/refresh_ca100.py. Expected at: {_CA100_XLSX}",
             extra={"operation": "ca100_cache_missing"},
         )
-        return _cache_by_isin, _cache_by_name, _cache_by_ticker
 
-    by_isin: dict[str, _CA100Record] = {}
-    by_name: dict[str, _CA100Record] = {}
-    by_ticker: dict[str, _CA100Record] = {}
-
-    with _CA100_CSV.open(encoding="utf-8-sig") as fh:
-        reader = csv.DictReader(fh)
-        for row in reader:
-            company = _pick(row, _COL_COMPANY)
-            if not company:
-                continue
-
-            year_str = _pick(row, _COL_YEAR)
-            year: int | None = None
-            with contextlib.suppress(ValueError):
-                year = int(year_str) if year_str else None
-
-            record = _CA100Record(
-                company=company,
-                sector=_pick(row, _COL_SECTOR),
-                country=_pick(row, _COL_COUNTRY),
-                isin=_pick(row, _COL_ISIN) or None,
-                ticker=_pick(row, _COL_TICKER) or None,
-                nz_ambition=_pick(row, _COL_NZ_AMBITION),
-                short_term_target=_pick(row, _COL_SHORT_TARGET),
-                long_term_target=_pick(row, _COL_LONG_TARGET),
-                capex_alignment=_pick(row, _COL_CAPEX),
-                climate_lobbying=_pick(row, _COL_LOBBYING),
-                year=year,
-            )
-
-            norm = _normalise_name(company)
-            existing = by_name.get(norm)
-            if existing is None or (year is not None and (existing.year or 0) < year):
-                by_name[norm] = record
-
-            if record.isin:
-                by_isin[record.isin.upper()] = record
-            if record.ticker:
-                by_ticker[record.ticker.upper()] = record
-
-    _cache_by_isin = by_isin
-    _cache_by_name = by_name
-    _cache_by_ticker = by_ticker
-
-    logger.info(
-        f"CA100+ cache loaded: {len(by_name)} companies",
-        extra={"operation": "ca100_cache_loaded"},
-    )
-    return _cache_by_isin, _cache_by_name, _cache_by_ticker
+    return _cache_by_isin, _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
 
 
 def _lookup(name: str, isin: str | None, ticker: str | None) -> _CA100Record | None:

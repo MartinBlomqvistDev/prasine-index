@@ -73,7 +73,7 @@ Stegra's claim of "reducing 300 million tonnes of CO₂ emissions by 2040" fails
 
 1. **EU ETS EUTL database.** No installation IDs registered for Stegra. This does not conclusively prove the hydrogen plant does not exist; it may indicate the facility is not yet operational or is not a covered installation under Article 15 of Directive 2003/87/EC. Impact on confidence: this gap prevents verification of baseline emissions, reducing confidence in the emissions accuracy assessment to 58%.
 
-2. **InfluenceMap lobbying positions.** No data retrieved on Stegra's documented lobbying positions regarding climate policy or hydrogen subsidies. This prevents assessment of whether Stegra's publicly stated green hydrogen commitment aligns with its EU policy advocacy. Impact on confidence: this gap is minor because the absence of data does not indicate contradiction; it indicates incompleteness.
+2. **LobbyMap lobbying positions.** No data retrieved on Stegra's documented lobbying positions regarding climate policy or hydrogen subsidies. This prevents assessment of whether Stegra's publicly stated green hydrogen commitment aligns with its EU policy advocacy. Impact on confidence: this gap is minor because the absence of data does not indicate contradiction; it indicates incompleteness.
 
 3. **SBTi target validation.** Stegra's targets have not been submitted to or validated by the Science Based Targets initiative. This is not a contradiction (many companies have not yet submitted), but it means the 300 Mt target has not been assessed against 1.5°C decarbonization pathways. Impact on confidence: this gap is moderate; the target's scientific rigor cannot be independently verified.
 
