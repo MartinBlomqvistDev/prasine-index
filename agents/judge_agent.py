@@ -513,7 +513,7 @@ class JudgeAgent:
                 score_breakdown={
                     k: float(v)
                     for k, v in verdict.get("score_breakdown", {}).items()
-                    if v is not None
+                    if v is not None and str(v).strip().upper() not in ("N/A", "NA", "")
                 },
                 verdict=ScoreVerdict(verdict["verdict"]),
                 reasoning=verdict["reasoning"],

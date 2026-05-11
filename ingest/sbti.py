@@ -48,6 +48,7 @@ _SBTI_XLSX: Path = Path(
 _COL_COMPANY = ("Company Name", "Organization", "company_name", "Name")
 _COL_ISIN = ("ISIN", "isin", "ISIN Code")
 _COL_STATUS = (
+    "near_term_status",
     "Status",
     "Near-term target status",
     "Near-term Targets Status",
@@ -55,6 +56,7 @@ _COL_STATUS = (
     "Commitment Status",
 )
 _COL_TEMP = (
+    "near_term_target_classification",
     "Near-term Targets Classification",
     "Near-term target classification",
     "Target Classification",
@@ -62,6 +64,7 @@ _COL_TEMP = (
     "Classification",
 )
 _COL_NET_ZERO = (
+    "long_term_status",
     "Net-Zero Target in SBTi",
     "Net-zero target status",
     "Long-term target status",
