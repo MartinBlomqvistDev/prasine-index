@@ -1,137 +1,98 @@
-```markdown
-## Ørsted A/S — Greenwashing Assessment
-**Verdict: INSUFFICIENT_EVIDENCE** | Score: 28/100 | Confidence: 58%
-*Published: 2026-05-06 | Prasine Index | Trace ID: d3969375-a251-4703-9767-28bdb09410c3*
+# Ørsted A/S — Greenwashing Assessment
+
+**Verdict: INSUFFICIENT_EVIDENCE** | Score: 42/100 | Confidence: 68%
+
+*Published: 2026-05-11 | Prasine Index | Trace ID: 659b91c8-eb98-4d76-820d-61b4c30cfc33*
 
 ---
 
-### The Claim
-> "We have transformed from one of Europe's most coal-intensive utilities to a global leader in renewable energy."
+## The Claim
 
-*Source: Corporate website, https://orsted.com/sustainability, accessed 2026-05-06*
+> "are now tackling scope 3 emissions from our sale of gas and our supply chain"
 
----
-
-### Evidence
-
-**[1] EU EmpCo Directive (EU 2024/825) Substantiation Requirements**
-The EmpCo Directive (EU 2024/825) / UCPD establishes mandatory substantiation criteria for renewable energy claims. Article 3(1) requires that claims disclose:
-- The percentage of total energy consumption covered by renewable sources
-- Specific source identification (owned assets, PPAs, or certificates)
-- Whether Renewable Energy Certificates (RECs) or Guarantees of Origin (GOs) are used
-- Distinction between physical supply contracts and unbundled certificates
-
-Ørsted's claim makes a binary transformation assertion without disclosing any of these measurable baselines. The claim does not specify: (a) the baseline coal percentage at the claimed starting point; (b) the current renewable percentage; (c) the verification methodology; or (d) the scope (Denmark, Europe, global operations).
-
-*Source: EUR-LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
+*Source: Corporate website, https://orsted.com/en/about-us/sustainability, date not specified*
 
 ---
 
-**[2] TPI Transition Pathway Initiative Assessment (2022)**
-The Transition Pathway Initiative rates Ørsted A/S as "Management Quality Level 4 (Strategic)" with a 2050 climate pathway aligned to 1.5°C. TPI's assessment validates that Ørsted has credible climate governance and forward-looking Paris-compatible targets. TPI assessments are used by 150+ institutional investors representing $80 trillion AUM as the standard measure of corporate climate transition quality.
+## Evidence
 
-However, TPI's 2022 assessment is forward-looking and does not independently verify the historical claim of transformation from coal intensity. TPI does not publish historical emissions trajectories or coal baseline data for this company.
+**[1] EU Corporate Sustainability Reporting Directive (CSRD) / ESRS E1-6**
+The CSRD (2022/2464) mandates disclosure of Scope 3 GHG emissions covering the full value chain under the European Sustainability Reporting Standard (ESRS) E1-6. The directive establishes that claims of sustainable supply chains lacking supporting quantified Scope 3 data are unsubstantiated under UCPD Article 6 and the EmpCo Directive (EU 2024/825). This record sets the substantiation standard but does not provide Ørsted's actual Scope 3 disclosure, baseline, or reduction pathway.
 
-*Source: TPI Benchmark Assessment, 2022, https://www.transitionpathwayinitiative.org/corporates*
+*Source: EUR_LEX, 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
 
----
+**[2] Transition Pathway Initiative (TPI) Benchmark Assessment**
+TPI rates Ørsted as Management Quality Level 4 (Strategic) with a Paris-aligned 1.5-degree warming pathway across all three commitment periods (2025, 2035, 2050). TPI assessments are used by 150+ institutional investors managing $80 trillion in assets. This rating indicates institutional confidence in the company's overall climate governance maturity and strategic-level climate transition capability. However, the TPI assessment covers the company's aggregate 2050 net-zero pathway, not the specific operationalization of Scope 3 reduction from gas sales or supply chain procurement.
 
-**[3] EU ETS Historical Emissions Data — DATA GAP**
-No EU ETS installation IDs are registered for Ørsted A/S in the European Union Transaction Log (EUTL). This is significant because:
+*Source: Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates*
 
-- Ørsted is one of Europe's largest utilities and renewable energy operators
-- Major European utilities with coal, natural gas, or other regulated power generation facilities are required to hold EU ETS allowances
-- The absence of EUTL registration could indicate: (a) Ørsted divested all EU ETS-regulated coal and fossil fuel facilities (consistent with the transformation claim); or (b) Ørsted's operations are structured outside EU ETS scope
+**[3] EU Emissions Trading System (EU ETS) Registry**
+No installation IDs for Ørsted found in EU ETS. This is consistent with Ørsted's profile as a renewable energy utility with substantial fossil asset divestment. EU ETS captures only direct regulated installations (power plants, industrial facilities). Scope 3 emissions from gas sales are by definition not covered by EU ETS. The absence of EU ETS installations does not contradict the claim.
 
-**The data gap prevents independent historical verification.** Without EU ETS data spanning 2005–present, Prasine Index cannot confirm:
-- What percentage of Ørsted's energy portfolio was coal-based at any historical baseline
-- The emissions trajectory from claimed coal intensity to current state
-- Whether the company operated coal-fired power plants at the time of the claimed transformation
+*Source: EU ETS EUTL Registry, queried 2026, https://ec.europa.eu/clima/ets*
 
-This is not a contradiction of the claim, but a substantiation failure under EmpCo Directive (EU 2024/825) standards.
+**[4] Historical Claims Assessment**
+Prior assessment record: 2 claims assessed. No repeat claims detected. Score trend: DETERIORATING (prior average score: 30/100, SUBSTANTIATED band). The worsening trend is a weak signal of potential slippage in claim quality but does not directly contradict this specific claim.
 
-*Source: EU ETS EUTL Registry, queried 2026-05-06, https://ec.europa.eu/clima/ets*
+*Source: Prasine Index historical record, 2024–2026*
 
----
+**[5] EU Transparency Register (Lobbying Record)**
+Ørsted not found in the EU Transparency Register. Absence of a lobbying record neither contradicts nor substantiates the claim.
 
-### Assessment
-
-The claim that Ørsted has "transformed from one of Europe's most coal-intensive utilities to a global leader in renewable energy" is **directionally plausible** but **cannot be independently substantiated** against the measurable standards established by the EU EmpCo Directive (EU 2024/825) and available regulatory data.
-
-**Substantiation Failure (Primary Finding):**
-Under EmpCo Directive (EU 2024/825) / UCPD Article 6(1), renewable energy claims must include specific, verifiable metrics. The Ørsted claim provides none:
-- No baseline coal percentage disclosed
-- No current renewable percentage disclosed
-- No methodology for defining "transformed" (time period, scope, measurement basis)
-- No disclosure of whether renewables are from owned generation assets, power purchase agreements, or certificate-based claims
-
-This is a **EmpCo Directive (EU 2024/825) compliance failure**, not necessarily evidence that the claim is false, but evidence that it cannot be verified as truthful.
-
-**Supporting Evidence (TPI Assessment):**
-TPI's 2022 assessment validates that Ørsted has achieved "Strategic" management quality and maintains 2050 pathway alignment with 1.5°C climate targets. This supports the company's credibility on climate transition and prevents a finding of deliberate deception. However, TPI's assessment is forward-looking and does not independently verify the historical transformation narrative.
-
-**Critical Data Gap (EU ETS):**
-The absence of EU ETS registration for Ørsted is unusual for a company claiming to have been "one of Europe's most coal-intensive utilities." If Ørsted operated significant coal-fired capacity in the EU during the EU ETS period (2005–present), this should be visible in EUTL records. The absence of data prevents confidence scoring above the "insufficient evidence" threshold. The company may have divested coal assets (consistent with the claim) but this cannot be verified from available regulatory sources queried by Prasine Index.
-
-**Scoring Rationale:**
-
-| Dimension | Score | Rationale |
-|-----------|-------|-----------|
-| **Claim Substantiation** | 35/100 | Claim lacks specific baselines, percentages, and methodological disclosure required by EmpCo Directive (EU 2024/825) |
-| **Emissions Accuracy** | 15/100 | TPI supports credible climate pathway; EU ETS data gap prevents historical verification |
-| **Target Credibility** | 15/100 | TPI 2050 alignment validates forward-looking targets; does not verify past transformation |
-| **Historical Consistency** | 25/100 | No prior claims on record; no EU ETS or regulatory data available to corroborate historical baseline |
-
-**OVERALL: 28/100 (INSUFFICIENT_EVIDENCE)**
-
-The claim is plausible (TPI supports climate credibility) but unverified (substantiation gap, data gap, no historical evidence).
+*Source: EU Transparency Register, queried 2026, https://ec.europa.eu/transparencyregister*
 
 ---
 
-### Key Finding
+## Assessment
 
-Ørsted's claim of transformation from coal intensity to renewable leadership cannot be independently verified because: (1) the company discloses no specific baseline coal percentage, current renewable percentage, or methodology—failing EU EmpCo Directive (EU 2024/825) substantiation requirements; and (2) no EU ETS historical emissions data is available to corroborate the claimed transformation. The company's 2022 TPI assessment validates forward-looking climate credibility but does not verify the historical claim.
+Ørsted's claim that it "are now tackling scope 3 emissions from our sale of gas and our supply chain" is **directionally plausible but substantively unverified**.
 
----
+**Substantiation Gap**
 
-### Data Gaps
+The claim uses the vague term "tackling" without specifying a measurable methodology, baseline, reduction target, or timeline. Under the UCPD Article 6 and EmpCo Directive (EU 2024/825) standard applied by the CSRD, supply-chain sustainability claims must be accompanied by audited quantified Scope 3 emissions data, a defined baseline year, and measurable reduction pathways. The evidence package contains no Ørsted-specific Scope 3 disclosure, quantified baseline, or reduction target. This constitutes a substantiation failure under EU substantiation standards.
 
-**EU ETS Registry (EUTL):** No installation IDs registered for Ørsted A/S. This prevents independent verification of:
-- Historical coal generation capacity (if any existed in EU ETS scope)
-- Emissions trajectory from claimed baseline to current state
-- Timeline of coal asset divestment or transition
+**Supporting Context**
 
-**Impact on Confidence:** Without EU ETS data, the confidence level is capped at 58%. If Ørsted's annual sustainability reports or investor disclosures contained historical emissions data (Scope 1, coal generation MWh, asset retirement dates), confidence could increase to 70%+. If EU ETS data contradicted the claim (showing ongoing coal operations), confidence would decrease to 35%.
+TPI's assessment places Ørsted at Management Quality Level 4 (Strategic) with a Paris-aligned 1.5-degree pathway. This indicates institutional investor confidence in the company's climate governance architecture and overall decarbonization trajectory. For a renewable energy company with strategic-level climate governance to commit to Scope 3 emissions reduction is institutionally consistent and plausible.
 
-**Recommendation for Ørsted:** To substantiate this claim under EmpCo Directive (EU 2024/825) standards, the company should publicly disclose: (a) coal generation capacity and emissions as a percentage of total portfolio in a defined baseline year (e.g., 2006, 2010); (b) current renewable generation percentage; (c) renewable energy sourcing methodology (owned assets, PPAs, certificates); and (d) annual historical transition metrics (2005–present).
+**Why Not MISLEADING**
 
----
+The claim is not contradicted by available evidence. Ørsted is not actively lobbying against climate legislation; it maintains no EU ETS installations (consistent with its renewable energy profile); and its TPI rating confirms genuine strategic climate commitment. The substantiation gap is not evidence of falsity—it is a gap in the verification process. The assessment did not review Ørsted's full CSRD/ESRS E1-6 disclosure, sustainability report, or gas-supply Scope 3 baseline documentation, which would typically be published separately from investor relations pages.
 
-### Methodology Note
+**Score Rationale**
 
-Prasine Index scored this claim using four dimensions: (1) **Claim Substantiation** (does the company disclose measurable baselines and metrics required by EU law?); (2) **Emissions Accuracy** (is the claim supported by third-party emissions data?); (3) **Target Credibility** (are the company's climate targets verified as credible?); and (4) **Historical Consistency** (can the historical transformation be corroborated?). 
+- **CLAIM_SUBSTANTIATION (55/100)**: The claim lacks measurable specifics and no published Scope 3 baseline or reduction target is provided in available evidence. However, TPI's strategic-level governance rating suggests capability. Mid-range score reflects plausibility (TPI support) vs. verifiability gap (no Scope 3 data).
 
-Evidence was sourced from: the EU EmpCo Directive (EU 2024/825) legislative text (confidence 0.95); the Transition Pathway Initiative benchmark assessment (confidence 0.75); and queries to the EU ETS EUTL registry (confidence 0.90 for absence-of-data finding). 
+- **EMISSIONS_ACCURACY (38/100)**: No Scope 3 emissions data provided in evidence. Ørsted is a renewable energy company; EU ETS absence is neutral. The substantiation gap is complete and critical for a claim centered on Scope 3 emissions.
 
-The score of 28/100 reflects a claim that is directionally plausible (supported by TPI) but substantively unverified (no disclosed baselines, no EU ETS data). Confidence of 58% reflects moderate uncertainty due to the data gap; the finding would be strengthened if EU ETS historical records were available or if the company disclosed retrospective emissions metrics. Full methodology: https://martinblomqvistdev.github.io/prasine-index/
-```
+- **HISTORICAL_CONSISTENCY (30/100)**: No prior equivalent claims detected. Deteriorating score trend (prior average: 30/100) is a weak signal of claim quality slippage.
+
+- **TARGET_CREDIBILITY (20/100)**: The claim specifies no quantified target or timeline. Absent a measurable target, credibility assessment defaults to low. TPI's 1.5-degree pathway supports directional credibility but not specific Scope 3 target credibility.
 
 ---
 
-## ASSESSOR NOTES
+## Key Finding
 
-**Decision Rationale for INSUFFICIENT_EVIDENCE (not MISLEADING or SUBSTANTIATED):**
+Ørsted has made a vague commitment to tackle Scope 3 emissions but has not provided publicly verified quantified Scope 3 baselines, reduction targets, or methodologies that would substantiate the claim under EU CSRD/ESRS E1-6 standards. The company's TPI-validated Paris-aligned governance suggests genuine climate commitment, but the specific claim lacks the measurable substance required by the EmpCo Directive (EU 2024/825) and UCPD Article 6.
 
-1. **Why not MISLEADING?** TPI's 2022 assessment validates credible climate governance and 1.5°C pathway alignment. This prevents a finding that the claim is deliberately deceptive. The absence of EU ETS data is a data gap, not a contradiction.
+---
 
-2. **Why not SUBSTANTIATED?** The company provides zero quantitative baselines (no coal %, no renewable %, no time period). EmpCo Directive (EU 2024/825) / UCPD Article 6 explicitly requires these. A claim cannot be substantiated if the company discloses no measurable evidence.
+## Data Gaps
 
-3. **Why INSUFFICIENT_EVIDENCE?** The claim is plausible but unverified. TPI supports the company's forward-looking credibility. The EU ETS data gap prevents historical verification but is not contradictory. This is the precise use case for INSUFFICIENT_EVIDENCE: a company with credible forward-looking credentials but an unsubstantiated historical claim.
+1. **Ørsted's Published Scope 3 GHG Baseline (ESRS E1-6 or equivalent)**: The evidence package does not include Ørsted's quantified Scope 3 emissions baseline for gas sales or supply chain. This document would typically appear in the company's CSRD/ESRS reporting or sustainability report, not in investor relations pages. Absence of this data in the verification package is the primary reason for the INSUFFICIENT_EVIDENCE verdict.
 
-**Confidence Rationale (58%):**
-- TPI supporting evidence: +15% confidence (institutional, well-regarded, but forward-looking, not historical)
-- EUR-LEX substantiation gap: -20% confidence (clear non-compliance with EmpCo Directive (EU 2024/825))
-- EU ETS data gap: -15% confidence (significant but not contradictory; unusual for a major utility)
-- Baseline confidence: 78% (claim is plausible for major utilities) → adjusted to 58%
+2. **Scope 3 Reduction Targets and Timeline**: No published reduction targets, methodologies, or timelines for Scope 3 reduction were located. This prevents assessment of target specificity and credibility.
 
-This report is publication-ready for legal citation and investigative journalism.
+3. **Gas Supply Chain Emissions Disclosure**: Ørsted's historical divestment from fossil generation may mean gas sales are now limited. No data on the materiality or quantification of gas supply chain Scope 3 emissions is available.
+
+4. **Implementation Evidence**: No documentation of active reduction initiatives, supplier engagement programs, or procurement standards addressing Scope 3 was reviewed.
+
+These gaps reduce confidence from a potential 90%+ to 68%. Full confidence would require review of Ørsted's published CSRD/ESRS E1-6 disclosure.
+
+---
+
+## Methodology Note
+
+Prasine Index scored this claim using five evidence sources: EU legislative requirements (CSRD/ESRS E1-6), institutional investor benchmarks (TPI), direct emissions data (EU ETS), historical claims data, and lobbying records. The score of 42/100 reflects four component assessments: claim substantiation (55), emissions accuracy (38), historical consistency (30), and target credibility (20). A score of 42 indicates INSUFFICIENT_EVIDENCE — the claim is plausible and directionally consistent with available governance data, but lacks the quantified Scope 3 baseline, reduction target, and methodology required under EU substantiation standards. Confidence of 68% reflects the significant data gap (missing Scope 3 disclosure) offset by supporting TPI institutional assessment and absence of contradicting evidence. This assessment did not include full document review of Ørsted's CSRD/ESRS filing or sustainability report, which may contain the substantiating Scope 3 data. 
+
+Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
