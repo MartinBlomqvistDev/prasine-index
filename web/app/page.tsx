@@ -219,16 +219,17 @@ export default function HomePage() {
             </div>
 
             <h2>Dimensional scoring</h2>
+            <p className="dimension-note">Higher score = stronger greenwashing evidence</p>
             <table className="dimension-table">
               <thead>
                 <tr><th>Dimension</th><th>Score</th></tr>
               </thead>
               <tbody>
-                <tr><td>Claim substantiation</td><td>45 / 100</td></tr>
-                <tr><td>Emissions accuracy</td><td>72 / 100</td></tr>
-                <tr><td>Historical consistency</td><td>85 / 100</td></tr>
-                <tr><td>Lobbying alignment</td><td>90 / 100</td></tr>
-                <tr><td>Target credibility</td><td>60 / 100</td></tr>
+                <tr><td>Substantiation failure</td><td>45 / 100</td></tr>
+                <tr><td>Emissions discrepancy</td><td>72 / 100</td></tr>
+                <tr><td>Prior violations</td><td>85 / 100</td></tr>
+                <tr><td>Lobbying contradiction</td><td>90 / 100</td></tr>
+                <tr><td>Target credibility gap</td><td>60 / 100</td></tr>
               </tbody>
             </table>
 
