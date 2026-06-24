@@ -1,116 +1,118 @@
 # SSAB AB — Greenwashing Assessment
 
-**Verdict: INSUFFICIENT_EVIDENCE** | Score: 35/100 | Confidence: 58%  
-*Published: 2026-05-11 | Prasine Index | Trace ID: 7ec6fe37-f59a-4f4e-92ce-9ef8d74d3a3f*
+**Verdict: INSUFFICIENT_EVIDENCE** | Score: 42/100 | Confidence: 58%  
+*Published: 2026-06-24 | Prasine Index | Trace ID: 99feded1-7d6b-4201-9058-4c392ff15ff3*
 
 ---
 
 ## The Claim
 
-> "These environmental savings will be even greater when using fossil-free versions of Strenx® performance steel."
+> "With the launch of SSAB's HYBRIT technology, hydrogen instead of coal will be used to remove oxygen from the iron ore. This is a major step for the steel industry, and Strenx® will be a game-changer for producers of applications in high-strength structural steel, and consequently eliminating the carbon dioxide emissions."
 
-*Source: Corporate website (Investor Relations), https://www.ssab.com/en/brands-and-products/strenx/sustainability, date unknown*
+*Source: IR_PAGE, https://www.ssab.com/en/brands-and-products/strenx/sustainability, accessed 2026-06-24*
 
 ---
 
 ## Evidence
 
-### Supporting Strategic Positioning (2 sources)
+**[1] TPI Transition Pathway Assessment (2022)**  
+Transition Pathway Initiative rates SSAB AB's 2050 decarbonisation pathway as "1.5 Degrees" — within Paris Agreement-compatible bounds — across all strategic checkpoints (2025, 2035, 2050). Management Quality Level 4 (Strategic). This independent expert assessment, used by 150+ institutional investors ($80tn AUM), validates that SSAB's stated transition direction is strategically credible and science-based.  
+*Source: Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates*
 
-**CA100+ Net Zero Company Benchmark, 2025, https://www.climateaction100.org/company-responses/**  
-SSAB AB is assessed as having "Net Zero Ambition = Yes" with "Partial Capex Alignment" and no short-term target. CA100+ investors classify the company as having credible net-zero alignment, which lends indirect credibility to the company's trajectory toward climate-compatible products.
+**[2] EU Directive 2024/825 (EmpCo) — Substantiation Standard**  
+In force March 2024, the amended UCPD Annex I explicitly blacklists carbon-neutral claims unless based on "actual verified emission reductions across the full lifecycle." Claims relying "primarily on offset schemes without verified absolute emission reductions" are prohibited. The Directive requires material environmental claims to disclose: baseline year, scope (Scope 1/2/3), verification method (third-party audit or verified registry), and offset percentage (if any).  
+*Source: EUR-LEX, EU 2024/825, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
-**Transition Pathway Initiative Assessment, 2022, https://www.transitionpathwayinitiative.org/corporates**  
-TPI rates SSAB's 2050 carbon pathway as "1.5 Degrees" (Paris-compatible) and assigns Management Quality Level 4 (Strategic). This confirms strategic climate commitment alignment at corporate level but does not independently verify the specific environmental savings claim for Strenx® fossil-free product variants.
+**[3] EU Transparency Register — Lobbying Activity**  
+SSAB AB is registered as an active direct corporate lobbyist (Registration no. 835967332819-32, HQ: Sweden). The register confirms lobbying engagement with EU institutions on policy matters.  
+*Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-### Data Gaps and Unverified Claims (5 sources)
+**[4] LobbyMap Climate Policy Engagement Score**  
+SSAB AB scores C+ on climate policy engagement — indicating neutral or mixed positioning. Not classified as obstructive or supportive.  
+*Source: LobbyMap, https://lobbymap.org/*
 
-**EU ETS EUTL Registry, 2026**  
-No installation IDs registered for SSAB AB in the EU ETS database. This represents a critical data gap: SSAB is a major European steel producer with significant scope 1 emissions. The absence of audited EU ETS emissions data prevents verification of:
-- Current absolute emissions baseline for Strenx® conventional steel
-- Historical emissions trajectory attributable to product line shifts
-- Quantifiable scope 1 reductions for fossil-free variants
+**[5] European Gas Tracker — Fossil Energy Assets**  
+As of March 2026, SSAB AB operates 1 LNG terminal asset in Europe. This indicates ongoing natural gas infrastructure ownership.  
+*Source: Global Energy Monitor — Europe Gas Tracker, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/*
 
-Without a verified baseline, the comparative claim "environmental savings will be even greater" cannot be quantified or independently validated.
-
-**European Gas Tracker, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/**  
-EGT records only 1 LNG terminal asset associated with SSAB AB. This is irrelevant to SSAB's primary steel production emissions and does not address the product-level claim.
-
-**Unfair Commercial Practices Directive (amended 2024), EU 2024/825, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825**  
-The amended UCPD Annex I (in force since March 2024) requires that environmental claims be substantiated by recognised scientific evidence. The claim under assessment lacks:
-- Specific, quantified environmental savings figures (e.g., percentage carbon reduction per tonne of steel)
-- A clearly defined baseline for comparison between conventional and fossil-free Strenx® variants
-- Clear definition of "fossil-free" scope (does it address direct reduction iron only? renewable electricity sourcing? hydrogen production?)
-- Independent third-party verification (e.g., Environmental Product Declaration, lifecycle assessment certification)
-
-The claim as stated appears generic and aspirational. Under the amended UCPD standard, such unquantified comparative claims risk classification as unfair commercial practice absent supporting substantiation.
-
-**Corporate Sustainability Reporting Directive (2022), https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464**  
-SSAB AB is not currently obligated under CSRD (data indicates CSRD obligated = No). However, if CSRD applies, any net-zero or climate claim made in investor relations or marketing must be consistent with mandatory ESRS E1 disclosures. No CSRD filing was provided for cross-reference, creating a verification gap for claims made in the IR channel.
-
-**EU Transparency Register and LobbyMap, https://ec.europa.eu/transparencyregister/ and https://lobbymap.org/**  
-SSAB AB is registered as an active EU corporate lobbyist (registration number 835967332819-32). LobbyMap assigns a climate engagement score of C+ (neutral/mixed). The direction of lobbying on climate and steelmaking policy is not disclosed by either source, and no contradiction with the fossil-free claim is evident. This represents an inconclusive verification rather than a contradiction.
+**[6] EU ETS Verified Emissions Data**  
+No EU ETS installation IDs or verified emissions records found for SSAB AB under the EU Emissions Trading System. Baseline emissions data for HYBRIT or Strenx® structural steel production cannot be verified against regulated data.  
+*Source: EU ETS EUTL database, accessed 2026-06-24, https://ec.europa.eu/clima/ets*
 
 ---
 
 ## Assessment
 
-SSAB's claim that fossil-free versions of Strenx® performance steel will deliver "even greater" environmental savings is **not contradicted by verified data** but is **not substantiated by measurable, audited evidence**. This results in an INSUFFICIENT_EVIDENCE verdict.
+### Substantiation Under EU Law
 
-### Claim Substantiation
+The claim asserts that Strenx® steel will result in "eliminating the carbon dioxide emissions." Under EU Directive 2024/825 (EmpCo), this absolute carbon-neutrality claim must be substantiated by disclosure of:
 
-The claim fails three critical substantiation tests required under the amended UCPD and standard greenwashing assessment:
+1. **Baseline emissions year and scope** — The claim does not specify whether "eliminating" refers to Scope 1 (direct production) only, or includes Scope 2 (electricity) and Scope 3 (upstream/downstream lifecycle).
+2. **Verification method** — No third-party lifecycle assessment, EU ETS baseline, or independent audit citation is provided.
+3. **Offset reliance** — The claim does not disclose what percentage of emission reductions, if any, rely on carbon offsets versus absolute abatement of iron ore reduction emissions.
+4. **Commercial deployment status and timeline** — The claim uses present tense ("will be used") without clarifying whether HYBRIT technology is currently operational at commercial scale, in pilot phase, or awaiting final investment decision (FID).
 
-1. **Specificity:** No quantified environmental benefit is stated. The claim does not specify percentage carbon reduction, tonnes of CO₂ avoided per product lifecycle, or measurable environmental metrics.
+**Finding:** The claim fails the substantiation standard required by EUR_LEX 2024/825. Absence of baseline, scope, verification, and offset disclosure breaches the amended UCPD Annex I blacklist for unsubstantiated carbon-neutral claims.
 
-2. **Baseline Definition:** The claim is explicitly comparative ("even greater") but does not define the current baseline for conventional Strenx® steel or the fossil-free variant's performance metrics against that baseline.
+### Mitigating Evidence: TPI Strategic Credibility
 
-3. **Independent Verification:** No third-party environmental product declaration (EPD), lifecycle assessment (LCA), or independent certification is referenced or cited.
+However, TPI's independent 2022 assessment rates SSAB's overall 2050 pathway as "1.5 Degrees" aligned. This provides meaningful — though limited — external validation that the company's stated decarbonisation direction is strategically plausible. TPI operates at portfolio/company level, not product level. The assessment does not verify the specific HYBRIT product claim, but it does corroborate that SSAB's transition strategy is science-based and credible.
 
-### Supporting Evidence Analysis
+### Data Gaps Preventing Verification
 
-CA100+ and TPI assessments confirm that SSAB has adopted a Paris-compatible net-zero strategy at corporate level, which provides strategic credibility. However, neither source verifies the specific claim about Strenx® fossil-free product environmental superiority. The company's corporate-level climate commitments do not automatically substantiate product-level marketing claims.
+**EU ETS baseline:** No installation IDs found. Without EU ETS verified emissions data, independent verification of SSAB's actual baseline emissions for iron ore reduction is impossible. The claim cannot be contradicted by verified regulated data because that data is not available in the public record.
 
-### Data Gaps Impact on Confidence
+**Lifecycle assessment:** No independent LCA for Strenx® HYBRIT production is publicly linked. Without third-party verification of absolute emission reductions (not offset-based), the claim's materiality cannot be assessed.
 
-The absence of EU ETS verified emissions data is significant. SSAB, as a major European steelmaker, would normally be expected to report scope 1 emissions through the EU ETS if it operates qualifying installations. The absence of installation IDs prevents:
-- Verification of current emissions intensity for the Strenx® product line
-- Assessment of whether claimed "fossil-free" variants are operationally deployed or remain prototype/planned
-- Cross-check of company claims against audited, third-party verified emissions data
+**Deployment status:** The claim does not disclose whether HYBRIT is commercial, pilot-scale, or future-stage. This ambiguity prevents assessment of whether the claim is about current products or aspirational future products.
 
-This gap alone reduces confidence to 58%, as the claim cannot be verified against the most authoritative source for European industrial emissions (EU ETS EUTL).
+**Lobbying alignment:** LobbyMap score C+ is inconclusive. SSAB's EU lobbying positions (for or against climate policy) are not specified in public records, so no contradictory lobbying pattern can be confirmed.
 
-### Regulatory Compliance Risk
+### Why Not GREENWASHING (Score >60)?
 
-Under the amended UCPD (EU 2024/825), in force since March 2024, the claim as currently stated presents a compliance risk. The regulation explicitly requires that comparative environmental claims be substantiated by recognised scientific evidence. The unquantified assertion "environmental savings will be even greater" does not meet this standard.
+A GREENWASHING verdict requires evidence of a *false or misleading* environmental claim — either contradicted by verified data or made in bad faith. Here:
+
+- **No regulatory ruling** has been issued against this specific claim.
+- **No EU ETS contradiction** exists (data unavailable, not contradicting).
+- **TPI strategic validation** mitigates the risk that SSAB is wholly insincere.
+- **No proven lobbying obstruction** — LobbyMap engagement score is neutral, not obstructive.
+
+Failure to substantiate under EmpCo is a regulatory procedural breach, but procedural failure is not equivalent to empirical falsity.
+
+### Why Not SUBSTANTIATED (Score <20)?
+
+The claim lacks the mandatory disclosures required by EU law. Under EmpCo (in force March 2024), this is sufficient grounds for non-substantiation. Additionally:
+
+- The absence of EU ETS data means no independent baseline exists for verification.
+- No third-party lifecycle assessment is cited.
+- The claim's language ("eliminating") is absolute but unqualified — it does not disclose whether based on actual abatement or offset purchases.
+- TPI's rating is strategic (pathway-level) and does not certify this specific product claim.
+
+### INSUFFICIENT_EVIDENCE Verdict
+
+This claim sits in the INSUFFICIENT_EVIDENCE band (21–45/100) because the data needed to verify or falsify the core assertion — independent lifecycle assessment, EU ETS baseline, third-party verification, deployment timeline — are unavailable or undisclosed. The EmpCo substantiation failure is a regulatory gap, not proof of false emissions claims. With TPI's mitigating strategic-level support and no verified contradiction from regulated emissions data, the claim cannot be confidently classified as proven greenwashing. The verdict is: **substantiation failure under EU law, but empirical falsity unconfirmed**.
 
 ---
 
 ## Key Finding
 
-SSAB AB's claim about fossil-free Strenx® steel environmental savings is supported by the company's corporate-level Paris-aligned strategy (CA100+, TPI) but lacks product-specific quantification, defined baseline metrics, or third-party verification—creating material substantiation gaps under the amended UCPD and preventing independent verification of the claim's accuracy. The absence of EU ETS emissions data for SSAB further prevents comparison of claimed fossil-free performance against audited baseline data.
+SSAB's claim that Strenx® steel will result in "eliminating the carbon dioxide emissions" fails the substantiation standard required by EU Directive 2024/825: no baseline year, scope, third-party verification, or offset disclosure is provided. While SSAB's overall 2050 pathway is independently validated as 1.5°C-aligned by the Transition Pathway Initiative, the specific product claim cannot be verified because no lifecycle assessment or EU ETS baseline data is available in the public record. The claim is a procedural non-substantiation under EU law, not yet a confirmed false assertion.
 
 ---
 
 ## Data Gaps
 
-| Source | Gap | Implication for Confidence |
-|--------|-----|---------------------------|
-| **EU ETS EUTL Registry** | No SSAB AB installation IDs found | Cannot verify baseline scope 1 emissions or quantify claimed improvements; confidence reduced by ~25 percentage points |
-| **Product-Level Environmental Declarations** | No EPD, LCA, or third-party certification cited in claim or supporting materials | Cannot independently verify environmental superiority of fossil-free variants |
-| **CSRD Filing / ESRS E1 Disclosure** | Not available for cross-reference | Cannot confirm consistency between product claim and mandatory scope 1/2/3 emissions disclosures (if CSRD-obligated) |
-| **Baseline Definition** | No specific conventional Strenx® carbon intensity provided | Cannot assess comparative merit of claim without baseline metrics |
-| **Fossil-Free Definition** | No specification of which fossil feedstocks or energy sources are eliminated | Ambiguity as to claim scope (direct reduction iron only? renewable electricity? hydrogen? coke replacement?) |
-
-**Confidence Rationale:** Confidence is 58% (moderate-low) because:
-- Supporting strategic sources (CA100+, TPI) provide alignment signals but do not verify the specific product claim.
-- EU ETS data gap is substantial for a major steel producer and prevents independent baseline verification.
-- The claim is forward-looking and product-specific, not yet subject to mandatory regulatory reporting.
-- No contradicting evidence exists, but substantiation failure under the UCPD is evident.
-- The claim is plausible given SSAB's sector position and stated ambitions, but material verification gaps prevent definitive assessment in either direction.
+| Source | Status | Impact |
+|--------|--------|--------|
+| **EU ETS Installation Data** | Not found | Prevents verification of baseline emissions for HYBRIT/Strenx® production. No contradiction can be drawn from regulated data because installation IDs are absent. Confidence cannot exceed 58% without EU ETS baseline. |
+| **Independent Lifecycle Assessment** | Not disclosed | No third-party verification of absolute emission reductions (Scope 1/2/3). Claim substantiation cannot be assessed without LCA. |
+| **HYBRIT Deployment Status** | Not specified | Claim does not clarify whether technology is operational, pilot-stage, or future-FID. Timeline ambiguity prevents assessment of claim materiality. |
+| **Lobbying Position Detail** | Not available | EU Transparency Register confirms SSAB lobbies, but LobbyMap score (C+) is neutral. No indication of whether SSAB opposes or supports climate policy — cannot assess lobbying contradiction. |
 
 ---
 
 ## Methodology Note
 
-Prasine Index assessed this claim using a four-component scoring framework: Claim Substantiation (42/100), Emissions Accuracy (38/100), Historical Consistency (25/100), and Target Credibility (28/100), yielding a composite score of 35/100. The INSUFFICIENT_EVIDENCE verdict indicates that material sources required to verify or refute the claim independently (specifically, EU ETS emissions baseline data, product-level environmental declarations, and quantified performance metrics) are unavailable or not referenced. Supporting sources (CA100+, TPI) confirm strategic climate alignment but do not substantiate the specific product claim. The claim does not contradict available verified data but fails substantiation tests under the amended UCPD (EU 2024/825), which requires environmental claims to be supported by recognised scientific evidence. The confidence score of 58% reflects moderate uncertainty: the claim is plausible given SSAB's corporate strategy and sector context, but independent verification is not possible with currently available data. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+Prasine Index scored this claim using five evidence sources: TPI strategic pathway assessment (independent expert validation), EUR-LEX Directive 2024/825 (regulatory substantiation standard), EU Transparency Register (lobbying confirmation), LobbyMap (lobbying position), Global Energy Monitor (fossil asset inventory), and EU ETS EUTL (verified emissions baseline). The score of 42/100 reflects three sub-dimensions: **Claim Substantiation** (55/100 — procedural failure under EmpCo), **Emissions Accuracy** (38/100 — data gap prevents verification), and **Target Credibility** (25/100 — TPI validation mitigates, but product-level claim lacks specificity). 
+
+The INSUFFICIENT_EVIDENCE verdict (21–45/100) is assigned when material data needed to verify or falsify a claim is unavailable or undisclosed, and no regulatory ruling or verified contradiction confirms falsity. Confidence of 58% reflects: strong TPI support (0.75), strong regulatory clarity on EmpCo standard (0.95), but weak EU ETS and LCA data availability (0.0). Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/

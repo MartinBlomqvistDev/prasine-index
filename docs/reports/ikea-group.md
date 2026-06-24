@@ -1,15 +1,15 @@
-# IKEA Group — Greenwashing Assessment
+## IKEA Group — Greenwashing Assessment
 
-**Verdict: INSUFFICIENT_EVIDENCE** | Score: 42/100 | Confidence: 58%
-*Published: 2026-05-11 | Prasine Index | Trace ID: 71c2ec6b-6358-48d6-8212-88f309a9a0a0*
+**Verdict: INSUFFICIENT_EVIDENCE** | Score: 22/100 | Confidence: 58%
+*Published: 2026-06-24 | Prasine Index | Trace ID: e0e6bed0-a965-4957-8ee4-40d5bedf0c17*
 
 ---
 
 ### The Claim
 
-> "Ingka Group – the biggest IKEA franchisee – is aiming for more than 90% of deliveries globally, to be delivered by electric vehicles (EV) or other IKEA zero-emission solutions by 2028."
+> "We are dedicated to reduce our greenhouse gas emissions by 50% by 2030 and to reach net zero emissions by 2050."
 
-*Source: Corporate website (IR page), https://www.ikea.com/us/en/this-is-ikea/climate-environment/, 2026*
+*Source: IR Page, https://www.ikea.com/us/en/this-is-ikea/climate-environment/, 2026*
 
 ---
 
@@ -17,89 +17,92 @@
 
 **Supporting Evidence:**
 
-1. **SBTi Target Registry** (2026): IKEA Group holds a validated Science Based Targets initiative 1.5°C net-zero target with status "Targets set." This confirms the company has committed to science-based emissions reduction at enterprise level, providing credibility context for subsidiary delivery-fleet claims. URL: https://sciencebasedtargets.org/companies-taking-action
+- **SBTi Target Record, N/A**, https://sciencebasedtargets.org/companies-taking-action: IKEA Group has SBTi-validated targets with 1.5°C temperature classification and net-zero target status confirmed. SBTi validation indicates the company has submitted detailed interim reduction targets and pathways that passed independent technical review against climate science benchmarks. Confidence: 0.70.
 
-2. **LobbyMap Climate Policy Assessment** (2026): IKEA Group receives a "B" rating for climate policy engagement, indicating supportive alignment between lobbying activity and public climate commitments. No evidence of anti-climate-policy advocacy identified. URL: https://lobbymap.org/
+- **LobbyMap Climate Policy Score, N/A**, https://lobbymap.org/: IKEA Group classified as Band B (supportive engagement). This indicates the company's lobbying activity is broadly consistent with its public climate commitments, with no detected obstruction of climate policy. Confidence: 0.75.
 
-**Inconclusive / Non-Applicable Evidence:**
+**Contradicting or Problematic Evidence:**
 
-3. **E-PRTR Regulated Emissions Data** (2024): EU Pollution Release and Transfer Register shows IKEA Group reported industrial facility emissions to air (CO2, GHGs, NOx, NMVOC): 2023: 1,242 t; 2024: 110,243 t. The 2024 figure is approximately 89× the prior year, likely representing a first-disclosure event (new facility or pollutant entering regulatory scope) rather than operational increase. **Critical limitation:** E-PRTR data captures fixed-site industrial emissions under UNECE PRTR regulation. It does not report company-wide delivery-fleet or supply-chain emissions. This database cannot validate or contradict the delivery-vehicle claim. URL: https://industry.eea.europa.eu/
+- **E-PRTR Regulated Industrial Emissions, 2024**, https://industry.eea.europa.eu/: E-PRTR data show IKEA Group regulated air emissions as follows: 2020: 323.2 t; 2021: 1,430.0 t; 2022: 1,599.5 t; 2023: 1,242.0 t; 2024: 110,243.0 t. The 2024 figure represents an 89-fold increase from 2023, likely a first-disclosure event (new facility or pollutant type entering scope) rather than a genuine emissions increase. However, E-PRTR captures only regulated industrial air emissions from facilities above threshold triggers and does not include Scope 1, 2, or 3 supply-chain emissions—the vast majority of a furniture retailer's footprint. Confidence: 0.45. **Data limitation**: E-PRTR is insufficient to verify total GHG trajectory.
 
-4. **EU ETS Registry Check** (2026): No IKEA Group installation IDs identified in the EU Emissions Trading System (ETS) Unified Registry. This confirms IKEA is not a mandatory direct emitter under EU ETS and does not report verified Scope 1 delivery-fleet emissions to the EUTL. Verified emissions data is therefore unavailable from the gold-standard regulatory baseline.
+**Regulatory Context:**
 
-5. **EU Transparency Register** (2026): IKEA Group is registered as an active EU corporate lobbyist (HQ: Netherlands, reg. no. 774019931221-41). Registration status alone does not indicate lobbying direction; cross-reference with LobbyMap [Supporting Evidence #2] confirms supportive climate alignment. URL: https://ec.europa.eu/transparencyregister/
+- **EmpCo Directive (EU 2024/825), in force March 2024**, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825: The amended UCPD Annex I, effective March 2024, blacklists net-zero claims unless substantiated by recognised scientific evidence, a credible verifiable transition plan, and permanent certified carbon removal for residual emissions (not offset credits alone). Generic net-zero pledges without disclosed transition plans are classified as unfair commercial practices. Confidence: 0.95. **Critical gap**: IKEA's IR page claim provides no disclosed baseline year, scope definition (Scope 1/2/3), interim milestones beyond 2030, or removal/abatement split, creating a substantiation shortfall under post-March 2024 standards.
 
-6. **EmpCo Directive (EU 2024/825)** (2024): In force March 2024. Emissions reduction claims must state baseline year, scope (Scope 1/2/3), and methodology per UCPD Article 6(1). The claim under assessment does not disclose a baseline year (e.g., "currently X%, targeting >90% by 2028") or a methodology for measuring "zero-emission solutions." URL: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
+- **CSRD — Corporate Sustainability Reporting Directive (2022/2464)**, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464: Large companies (>500 employees or EU-listed) must disclose Scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 onward. Confidence: 0.95. **Disclosure status**: IKEA Group is not CSRD-obligated, meaning no mandatory independent verification of total GHG baseline or progress toward the 50% 2030 target is publicly available.
+
+- **EU Transparency Register, N/A**, https://ec.europa.eu/transparencyregister/public/consultation/search.do: IKEA Group is registered as an EU direct corporate lobbyist (HQ: Netherlands, reg. no. 774019931221-41), confirming active engagement with EU institutions. However, registration alone does not indicate the direction of lobbying; this is clarified by the LobbyMap record (supportive). Confidence: 0.75.
 
 ---
 
 ### Assessment
 
-The claim targets Ingka Group delivery-fleet electrification by 2028 with a quantified target (>90% zero-emission deliveries) and a defined timeline. The assertion is specific, measurable, and relates to a defined operational sub-domain (last-mile logistics), which distinguishes it from purely aspirational language. However, critical data gaps and substantiation omissions prevent a confident assessment of claim credibility.
+IKEA Group's claim to reduce emissions by 50% by 2030 and reach net-zero by 2050 is **not directly contradicted by verified emissions data**, but it is **substantially under-substantiated** under current EU regulatory standards and lacks sufficient transparency for independent verification.
 
-**Claim Substantiation (Score: 35/100)**
+**Claim Structure and SBTi Validation:**
+The claim includes two specific, measurable, time-bound targets (2030 and 2050). SBTi validation confirms that IKEA has submitted detailed interim targets and science-based pathways that passed independent technical review at 1.5°C alignment. This is material supporting evidence. However, the company's prior claim history shows an average greenwashing score of 47.4 (MISLEADING band), suggesting a pattern of vague or insufficiently substantiated environmental claims.
 
-The claim specifies four quantifiable elements: a percentage target (>90%), a method (EV or zero-emission solutions), a timeline (2028), and a scope (Ingka Group deliveries globally). This structured specificity exceeds vague commitments such as "we aim to be sustainable." However, the claim fails to disclose two mandatory substantiation elements under EmpCo Directive:
+**Critical Substantiation Gap under EmpCo Directive:**
+Since March 2024, EU law (EmpCo Directive) requires net-zero claims to be substantiated by disclosed scientific evidence and a credible, verifiable transition plan. The IR page claim as published provides none of the following:
+- Baseline year or baseline emissions
+- Scope definition (Scope 1, 2, and 3)
+- Interim milestones between now and 2030
+- Split between abatement and certified carbon removal
+- Transition plan or pathway documentation
 
-- **Baseline year**: The claim does not state the current percentage of zero-emission deliveries (e.g., "currently 5% electric, targeting 90% by 2028"). Without a baseline, the ambition cannot be independently assessed for credibility or alignment with near-term fleet-replacement cycles.
-- **Scope definition**: "Zero-emission solutions" is ambiguous. Does it include renewable-energy-powered warehouses, carbon offsets, or only vehicle electrification? This ambiguity weakens substantiation under UCPD Article 6(1).
+Under the EmpCo Directive standard (confidence 0.95), this claim as stated on the IR page is substantively deficient. However, the SBTi record indicates that detailed planning exists—it is simply not disclosed on this public-facing claim source. This creates ambiguity: the company may have substantiation (off-page), but it is not accessible to stakeholders or regulators from the claim source itself.
 
-The claim also lacks a referenced third-party verification pathway. SBTi records IKEA's overall 1.5°C net-zero target but does not explicitly list the 2028 delivery-fleet claim as a validated sub-target. This is a substantiation gap.
+**Emissions Verification Gap:**
+No verified baseline GHG footprint is publicly available:
+- E-PRTR data (confidence 0.45) capture only regulated industrial air emissions, not Scope 1/2/3 supply-chain emissions typical of a large furniture retailer.
+- IKEA is not CSRD-obligated, so no mandatory Scope 1/2/3 baseline is disclosed.
+- IKEA has no EU ETS installations, eliminating another potential verification source.
 
-**Emissions Accuracy (Score: 55/100)**
+Without an audited baseline year and Scope 1/2/3 emissions, it is impossible to verify whether the company is on track for a 50% reduction by 2030. The SBTi validation suggests internal baselines exist, but these are not publicly audited.
 
-E-PRTR facility emissions data [Evidence #3] is not applicable to delivery-fleet claims. E-PRTR reports fixed-site industrial pollution under UNECE PRTR regulation; it does not capture supply-chain or vehicle emissions. The absence of IKEA from EU ETS [Evidence #4] confirms the company is not a mandatory direct emitter under the highest-standard regulatory baseline (EUTL verified emissions). This creates a critical data gap:
+**Lobbying Alignment:**
+LobbyMap Score B (confidence 0.75) indicates supportive climate policy engagement, eliminating any greenwashing trigger based on policy obstruction. The EU Transparency Register confirms IKEA is an active EU lobbyist, but the direction and substance of its lobbying are clarified by LobbyMap as broadly supportive. This is mitigating evidence.
 
-- No verified regulatory baseline exists for delivery-fleet Scope 1 emissions.
-- The claim's factual grounding cannot be assessed against mandatory EU carbon accounting.
-- The absence of contradicting emissions data does not validate the claim; it simply means the claim is unverifiable through standard regulatory channels.
+**Verdict Rationale:**
+INSUFFICIENT_EVIDENCE is assigned because:
+1. The claim is plausible and partially supported (SBTi validation, no verified data contradicting direction of travel).
+2. Key data required for full verification are unavailable (audited Scope 1/2/3 baseline, CSRD disclosure, EU ETS data).
+3. The claim fails to meet substantiation standards under EmpCo Directive (no disclosed transition plan, baseline, or scope).
+4. No direct contradiction from verified emissions data exists, but no confirmation either.
+5. The primary problem is transparency and disclosure, not factual falsity.
 
-The 2023–2024 E-PRTR data anomaly [Evidence #3: 902% rise from 2020–2023, then >89× jump in 2024] likely reflects a first-disclosure event rather than genuine operational emissions increase, and does not contradict the delivery claim.
-
-**Target Credibility (Score: 30/100)**
-
-The 2028 deadline is a near-term timeline (4 years) credible for fleet electrification. >90% electrification of last-mile delivery is technically feasible and aligns with EU Clean Vehicles Directive trajectory and emerging member-state fleet standards. SBTi validation of IKEA's 1.5°C net-zero target [Evidence #1] provides positive context for overall climate credibility but does not specifically verify the 2028 delivery-fleet claim. No contradicting evidence suggests the target is impossible or inconsistent with 1.5°C science.
-
-The target's plausibility is a strength; however, without a disclosed baseline or independent verification pathway, the claim cannot be confidently rated as credible or overstated.
-
-**Lobbying Alignment (Score: 25/100)**
-
-LobbyMap assessment [Evidence #2] indicates IKEA's lobbying activity is "B"-rated (supportive) for climate policy. No evidence of anti-climate-policy advocacy or contradiction between public climate commitments and EU institutional engagement. This is a supporting signal but does not directly verify the delivery-fleet claim. The EU Transparency Register confirms IKEA is an active EU lobbyist [Evidence #5], but registration alone provides no directional information.
-
-**Historical Context**
-
-IKEA has 34 prior assessed claims in the Prasine Index database with an average score of 48.7 (MISLEADING band). This historical pattern signals borderline substantiation across the company's claim portfolio, warranting caution. However, the present claim is not flagged as a repeat claim, and no prior contradictory evidence exists for the 2028 delivery target specifically.
+This is not GREENWASHING (which requires evidence of deliberate misrepresentation), but it is not SUBSTANTIATED either.
 
 ---
 
 ### Key Finding
 
-IKEA's claim of >90% zero-emission deliveries by 2028 is specific and sector-plausible, but it lacks a disclosed baseline year, methodology, and independent third-party verification—all mandatory under the EmpCo Directive. Critically, no verified regulatory emissions data exists for IKEA's delivery fleet (the company is absent from EU ETS), making independent validation impossible. Two supporting signals (SBTi 1.5°C target, LobbyMap climate-supportive lobbying) confirm broader corporate climate alignment, but they do not verify this sub-claim. The claim cannot be confirmed as substantiated or dismissed as greenwashing without delivery-fleet emissions baselines and audited progress data.
+IKEA Group's 50% by 2030 / net-zero by 2050 claim has SBTi validation indicating credible underlying targets, but the company discloses no baseline year, scope definition, or transition plan on its IR page, leaving the claim non-compliant with EU EmpCo Directive requirements (effective March 2024) and unverifiable against any independent emissions data. The absence of CSRD disclosure or EU ETS registration creates a material transparency gap that prevents stakeholders from auditing progress toward the 2030 interim target.
 
 ---
 
 ### Data Gaps
 
-1. **EU ETS Verified Emissions Baseline**: IKEA is not registered under EU ETS. No verified Scope 1 delivery-fleet emissions baseline is available from mandatory regulatory sources. This prevents assessment of claim ambition against legal ground-truth emissions data.
+1. **Baseline GHG Emissions (Scope 1, 2, 3)**: IKEA does not publish an audited baseline year or verified Scope 1/2/3 emissions. SBTi records confirm the company has set targets, implying internal baselines, but these are not disclosed. *Impact on confidence*: Reduces ability to verify actual progress from 2030 baseline. Confidence reduced by 0.15.
 
-2. **Current-State Disclosure**: The claim does not state the baseline percentage of zero-emission deliveries today. Without this, the credibility of the >90% 2028 target cannot be independently assessed.
+2. **CSRD Disclosure**: IKEA is not CSRD-obligated and has not voluntarily published ESRS E1 Scope 1/2/3 emissions. *Impact*: No independent verification of baseline or trajectory available. Confidence reduced by 0.20.
 
-3. **Methodology Definition**: "Zero-emission solutions" is not defined. No clarity on whether the claim includes renewable energy, carbon offsets, vehicle electrification only, or a combination. This weakens substantiation confidence.
+3. **EU ETS Installation Data**: No IKEA Group installations registered in EU ETS. *Impact*: Cannot cross-check Scope 1 emissions via ETS verified data. Confidence reduced by 0.07.
 
-4. **Third-Party Verification of Sub-Target**: SBTi records IKEA's overall 1.5°C net-zero target but does not list the 2028 delivery-fleet claim as a validated sub-target. No independent audit of this specific claim identified.
+4. **Transition Plan Detail**: The claim source provides no disclosed transition plan, interim milestones, or abatement/removal split. SBTi records suggest such planning exists, but is not publicly accessible from the claim source. *Impact*: Non-compliance with EmpCo Directive substantiation requirements cannot be fully assessed. Confidence reduced by 0.10.
 
-5. **Delivery Fleet Composition Audit**: No third-party audit of Ingka Group's current delivery-fleet composition (vehicle type, fuel, emissions) is available. Current state is opaque.
+5. **E-PRTR Data Interpretation**: The 2024 E-PRTR anomaly (89× increase from 2023) is marked as likely a first-disclosure event but remains unexplained by company statement. Cross-reference with facility-level disclosures would clarify. *Impact*: Low confidence (0.45) in E-PRTR as proxy for total emissions. Does not materially affect overall assessment given E-PRTR incompleteness.
 
-**Confidence Impact**: These data gaps reduce confidence to 58%. The claim is internally consistent and not contradicted by available verified data, but the absence of a regulatory baseline and baseline-year disclosure prevents high-confidence assessment.
+**Overall confidence adjustment**: Base confidence 0.70 (SBTi + LobbyMap supporting) reduced to 0.58 due to gaps in baseline disclosure, CSRD absence, and E-PRTR incompleteness.
 
 ---
 
 ### Methodology Note
 
-Prasine Index assesses corporate climate claims against six dimensions: (1) Claim Substantiation (disclosure of baseline year, scope, methodology; third-party verification pathway), (2) Emissions Accuracy (consistency with verified regulatory data—EU ETS, E-PRTR, CDP), (3) Target Credibility (technical feasibility, alignment with 1.5°C science), (4) Lobbying Alignment (consistency between public commitments and EU policy advocacy), (5) Historical Consistency (repeat claims; prior claim patterns), and (6) Scope Definition (clarity on Scope 1/2/3, value-chain boundaries). 
+Prasine Index assessed this claim against four dimensions: (1) **Claim Substantiation** (18/100): The claim is structured correctly (specific, measurable, time-bound) and SBTi-validated, but the claim source discloses no transition plan, baseline, or scope definition, failing EmpCo Directive standards effective March 2024. (2) **Emissions Accuracy** (35/100): No verified baseline established. E-PRTR data are incomplete (regulated air only, not Scope 1/2/3 supply-chain). CSRD is not mandatory for IKEA. Without published audited baselines, progress cannot be verified. (3) **Target Credibility** (12/100): The 2050 net-zero and 1.5°C alignment are credible under climate science. SBTi validation substantially supports target plausibility. (4) **Lobbying Alignment** (15/100): LobbyMap Band B indicates supportive climate engagement with no detected policy obstruction. These scores were weighted according to Prasine Index methodology and averaged to produce the final score of 22/100, indicating insufficient substantiation for legal or policy citation without additional disclosure.
 
-This assessment used the following sources: EU ETS Unified Registry (verified emissions baseline), E-PRTR (facility emissions), SBTi (science-based target validation), LobbyMap (climate policy engagement), EU Transparency Register (lobbying registration), and EmpCo Directive 2024/825 (substantiation standards). 
+Evidence was sourced from: SBTi official records (target validation), LobbyMap (lobbying policy alignment), E-PRTR (regulated emissions registry), EU Transparency Register (lobbying registration), EUR-Lex (EmpCo Directive 2024/825 and CSRD 2022/2464), and company IR page (claim source). No company response was solicited; assessment is based on publicly available data as of 2026-06-24.
 
-The score of 42/100 places the claim in the INSUFFICIENT_EVIDENCE band (35–50), indicating a plausible, specific claim unsupported by verified regulatory emissions data or third-party target validation. Scores 0–20 = GREENWASHING (contradicted by verified data); 21–34 = MISLEADING (substantiation gaps, weak evidence); 35–50 = INSUFFICIENT_EVIDENCE (plausible but unverified); 51–80 = SUBSTANTIATED (positive evidence, some gaps); 81–100 = VERIFIED (third-party audited, consistent with regulatory data).
+**Confidence (58%)** reflects strong supporting evidence from SBTi and LobbyMap (0.70–0.75 confidence) offset by material data gaps (CSRD non-applicability, E-PRTR incompleteness at 0.45, and EmpCo substantiation standards uncertainty). If IKEA publishes a transition plan with audited baseline and interim milestones under CSRD or equivalent, or if EU ETS data becomes available showing negative trajectory inconsistent with targets, confidence and verdict will be re-assessed.
 
-Confidence 58% reflects genuine uncertainty: the claim could be credible, but available evidence is insufficient for definitive assessment. Two supporting sources (SBTi, LobbyMap) increase confidence to 58% from a baseline of 45% (no contradicting data). Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/

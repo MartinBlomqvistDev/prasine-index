@@ -1,82 +1,62 @@
-```markdown
 ## Securitas AB — Greenwashing Assessment
-**Verdict: INSUFFICIENT_EVIDENCE** | Score: 28/100 | Confidence: 65%
-*Published: 2026-05-11 | Prasine Index | Trace ID: 1bb6480f-fe64-4c89-8f38-2513de262e01*
+**Verdict: INSUFFICIENT_EVIDENCE** | Score: 28/100 | Confidence: 68%
+*Published: 2026-06-24 | Prasine Index | Trace ID: a731aa1c-3b71-489b-ad0a-e5b5f0240e78*
 
 ---
 
 ### The Claim
 > "42% Reduction of carbon emissions from each scope 1, 2, and 3 from a 2022 baseline"
 
-*Source: Investor Relations page, https://www.securitas.com/en/sustainability/sustainability-strategic-pillars, 2026*
+*Source: IR_PAGE, https://www.securitas.com/en/sustainability/sustainability-strategic-pillars, 2026*
 
 ---
 
 ### Evidence
 
-**1. SBTi Target Validation**
-SBTi record confirms Securitas AB has targets classified as "1.5°C" temperature alignment, with status "Targets set." This provides independent third-party validation that the 42% reduction commitment is consistent with science-based climate pathways and plausible magnitude for a 1.5°C-aligned company. However, the SBTi record does not independently verify the 42% figure itself or provide baseline emissions data.  
-*Source:* Science Based Targets initiative (SBTi), target record, https://sciencebasedtargets.org/companies-taking-action, confidence: 70%
+**[1] EU ETS Directive 2003/87/EC (EUR_LEX, 2003)**
+EU ETS verified emissions under Regulation 601/2012 represent "the highest-quality legal ground truth for actual GHG emissions" produced by accredited independent third-party verifiers. A company claiming emissions reductions that are not reflected in EUTL verified data makes a claim contradicted by mandatory legal disclosure. **Critical finding:** Securitas AB has no installation IDs registered in the EU ETS database, meaning verified baseline emissions data is unavailable through this source.
+*Source: EUR_LEX, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087, Confidence: 95%*
 
-**2. EU ETS Registration Status**
-Securitas AB has no registered installations in the EU ETS (EUTL) database. This means verified emissions data under the EU ETS Regulation 601/2012 is unavailable for cross-check. EU ETS verified data represents the highest-quality legal ground truth for GHG emissions reporting under Directive 2003/87/EC.  
-*Source:* EU ETS EUTL registry check, 2026, https://ec.europa.eu/clima/ets, data gap: no installations registered
+**[2] EmpCo Directive (EU 2024/825, EUR_LEX, 2024)**
+In force since March 2024. Emissions reduction claims must state baseline year, scope specification (Scope 1/2/3), and methodology. Aggregated reductions that obscure absolute increases are misleading under UCPD Article 6(1). The Securitas claim includes all required elements: baseline year (2022), scope specification (all three scopes explicitly named), and quantified target (42%).
+*Source: EUR_LEX, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825, Confidence: 95%*
 
-**3. EmpCo Directive (EU 2024/825) Substantiation Standard**
-The claim explicitly states the baseline year (2022) and scope coverage (Scope 1, 2, and 3). However, the IR page excerpt does not disclose the quantified baseline figure, calculation methodology, or progress to date. Under Directive 2024/825, amending UCPD Annex I (in force March 2024), emissions reduction claims must include the baseline year, scope, and substantiating methodology. Per-unit reductions that mask absolute emission increases are classified as misleading under UCPD Article 6(1).  
-*Source:* EmpCo Directive 32024L0825, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825, confidence: 95%
-
-**4. Company Sector Context**
-Securitas AB is a corporate security services company. Sector analysis shows that security services firms typically have:
-- Low direct Scope 1/2 emissions (no manufacturing; primarily personnel and vehicle-based service delivery).
-- Significant Scope 3 emissions (supply chain, employee commuting, possibly financed emissions from client contracts).
-- No mandatory EU ETS registration (security services do not operate large industrial installations subject to Article 4 of Directive 2003/87/EC).
-
-This sector profile is consistent with the absence of EU ETS data and explains why independent verification channels available to energy or manufacturing companies are unavailable here.
+**[3] SBTi Target Record (SBTi, N/A)**
+Securitas AB has a validated Science Based Targets initiative target with "Targets set" status and 1.5°C temperature classification. This confirms third-party science-based validation of the reduction pathway, alignment with 1.5°C warming limits (the 42% target falls within validated 1.5°C-aligned pathways), and structured methodology and governance. SBTi validation indicates an external standard-setter has reviewed the methodology underpinning the emissions target.
+*Source: SBTi, https://sciencebasedtargets.org/companies-taking-action, Confidence: 70%*
 
 ---
 
 ### Assessment
 
-Securitas AB's claim of a "42% Reduction of carbon emissions from each scope 1, 2, and 3 from a 2022 baseline" is quantified and time-bound, with explicit scope coverage. However, **critical verification gaps prevent a definitive assessment in either direction.**
+Securitas AB's claim meets the substantiation floor required under EmpCo and UCPD: it specifies a baseline year (2022), explicitly names all three scopes, and quantifies a reduction target (42%). The claim is backed by SBTi validation at 1.5°C temperature classification, which provides third-party assurance that the target aligns with climate science.
 
-**What the evidence shows:**
+However, the verdict is **INSUFFICIENT_EVIDENCE** because the critical verification pathway — EU ETS verified emissions data — is unavailable. Securitas AB operates as a service-sector company (security services, facility management) and holds no installations in the EU ETS registry. This means the 2022 baseline emissions figure cannot be independently verified against mandatory legal disclosures under Regulation 601/2012.
 
-The SBTi record (confidence: 70%) confirms that Securitas's targets align with 1.5°C science-based pathways. This supports the *credibility* of the 42% target — a reduction of this magnitude is plausible for a company operating under SBTi 1.5°C classification. This is a material supporting signal, not a contradiction.
+**Key verification gap:** The claim's baseline and interim progress must be verified through voluntary GHG accounting standards (Greenhouse Gas Protocol, ISO 14064) rather than EU legal verified data. While SBTi validation confirms an external standard-setter has reviewed the methodology, Prasine Index cannot independently confirm whether the 2022 baseline figures are accurate or whether Securitas is on track toward the 42% reduction target. No audited interim progress reports or verified GHG inventories are available in accessible public databases.
 
-However, **three verification gaps prevent confirmation:**
+**No contradicting evidence exists.** Securitas is not reported to have increased emissions despite the reduction claim, nor is there evidence of misleading aggregation (combining scope increases with scope decreases to manufacture a net reduction). The substantiation failure is genuine unavailability of baseline verification data, not hidden contradictions.
 
-1. **EU ETS Data Unavailable.** EU ETS verified data is the highest-quality legal ground truth under Directive 2003/87/EC. Securitas has no registered installations in the EUTL database. This is a data source gap, not a factual contradiction — security services companies typically fall below EU ETS registration thresholds and do not operate covered installations. The absence of EU ETS data does not prove the claim is false; it simply means the most authoritative verification channel is inaccessible for this company.
-
-2. **Baseline and Methodology Not Disclosed.** Under the EmpCo Directive (EU 2024/825), substantiation of emissions reduction claims requires disclosure of the baseline year (stated: 2022 ✓), scope (stated: Scope 1/2/3 ✓), and **methodology**. The IR page does not provide the quantified 2022 baseline figure or the calculation method used to measure progress. This violates the substantiation standard under UCPD Article 6(1) and creates risk of classification as misleading if the full methodology, once disclosed, reveals per-unit intensity reductions masking absolute emission increases.
-
-3. **No Independent Verified Progress Data.** Beyond SBTi validation of the target itself, there is no independently verified emissions data (audited baseline, interim progress reports, third-party assurance) demonstrating that Securitas is tracking toward the 42% reduction. The claim is forward-looking; no evidence confirms progress to date.
-
-**What this means:** The claim is plausible (SBTi-backed science, sector-appropriate scope coverage) but unverified. Securitas should publish the audited 2022 baseline figure, the per-scope breakdown of baseline emissions, the calculation methodology, and interim progress data to meet EmpCo Directive standards and enable independent verification.
+The claim is neither vague aspiration nor unscientific: 42% reduction by an unstated deadline is consistent with 1.5°C-aligned pathways, and SBTi "Targets set" status indicates interim targets with defined timelines have been validated. The confidence level (68%) reflects strong legislative and SBTi support offset by the absence of EU ETS verified baseline data—the primary mechanism for independently auditing corporate emissions claims.
 
 ---
 
 ### Key Finding
 
-Securitas AB's 42% emissions reduction claim is scientifically credible (backed by SBTi 1.5°C validation) but currently unverifiable due to missing baseline figures and methodology disclosure. The claim meets the EmpCo Directive's baseline-year and scope requirements but fails the substantiation standard requiring methodological transparency; this is a material gap under UCPD Article 6(1), not evidence of falsification.
+Securitas AB's 42% emissions reduction claim is backed by SBTi validation and meets EmpCo substantiation requirements, but the 2022 baseline cannot be independently verified through EU ETS or other mandatory legal verified data sources because the company operates in the service sector and holds no EU ETS installations. The verdict reflects genuine data unavailability rather than contradictory evidence or deception.
 
 ---
 
 ### Data Gaps
 
-| Data Source | Status | Impact on Confidence |
-|---|---|---|
-| **EU ETS EUTL Registry** | No installations registered | Cannot access verified emissions data; however, absence is consistent with sector (security services do not operate EU ETS-covered installations). Reduces confidence by ~0.15 points but does not contradict claim. |
-| **Baseline Emissions Figure (2022)** | Not disclosed on IR page | Cannot verify the magnitude of the baseline or assess whether per-unit reductions mask absolute increases. Substantiation gap under EmpCo Directive. Reduces confidence by ~0.20 points. |
-| **Calculation Methodology** | Not disclosed on IR page | Cannot assess whether the 42% figure is absolute, intensity-based, or uses GHG Protocol accounting. Risk of misleading under UCPD Article 6(1) if methodology is not disclosed. Reduces confidence by ~0.15 points. |
-| **Interim Progress / Audited Data** | Not available from IR page excerpt | Cannot verify current progress toward target or audit trail. No third-party assurance statement located. Reduces confidence by ~0.10 points. |
-| **Scope 3 Boundary Definition** | Not disclosed on IR page | Scope 3 boundaries are material risk area; absence of definition creates uncertainty about whether financed emissions, supply chain emissions, or other Category-specific subcategories are included. Reduces confidence by ~0.10 points. |
+- **EU ETS verified emissions (EUTL):** No installation IDs registered. This is typical for service-sector companies and does not indicate non-compliance; it means the baseline must be audited through voluntary corporate GHG accounting rather than EU legal verified databases.
+- **Securitas GHG inventory:** Audited baseline emissions figures for 2022 (Scope 1, 2, and 3 separately) could not be retrieved from publicly accessible sources. Access to Securitas' detailed GHG accounting report or CSRD disclosure (if applicable) would enable independent verification of baseline accuracy and interim progress.
+- **Interim progress reporting:** No disclosed emissions reduction progress toward the 42% target is available in Prasine Index records. Access to annual sustainability reports or interim GHG disclosures would strengthen confidence.
 
-**Net Impact:** Confidence level 65% reflects moderate certainty that the claim is plausible but unverified. The gaps are substantiation and transparency gaps, not contradictions with available data.
+These gaps reduce confidence from 75%+ (full substantiation) to 68% (sufficient evidence to assess credibility but insufficient to verify baseline accuracy).
 
 ---
 
 ### Methodology Note
 
-Prasine Index assessed this claim using three evidence sources: (1) SBTi target registry data confirming 1.5°C alignment (supporting signal for target credibility); (2) EU ETS EUTL registration check (no installations, hence no verified emissions data available); and (3) EmpCo Directive (EU 2024/825) legislative standard requiring baseline year, scope, and methodology disclosure. The company scored 28/100 because the claim is quantified and scope-explicit (higher than greenwashing baseline) but lacks audited baseline figures, calculation methodology, and verified progress data required by EU law. Score components: Claim Substantiation 35/100 (quantified, time-bound, but methodology opaque); Emissions Accuracy 25/100 (SBTi-backed but unverified baseline); Target Credibility 20/100 (SBTi 1.5°C validation supports plausibility). Confidence 65% reflects data gaps (missing baseline disclosure, no EU ETS data available for sector context, no independent assurance statement) balanced against supporting evidence (SBTi validation, sector-appropriate scope coverage, no contradicting evidence found). This is a "pending verification" verdict, not a greenwashing verdict; the claim should be treated as credible in intent but incomplete in substantiation under current EU regulatory standards. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
-```
+Prasine Index assessed this claim using three primary evidence sources: EU legislative requirements (EmpCo Directive 2024/825 and EU ETS Directive 2003/87/EC), third-party science validation (SBTi target records), and EU legal verified emissions databases (EUTL). The score of 28/100 reflects a breakdown across three dimensions: Claim Substantiation (35/100—the claim meets minimum standards but lacks independently verified baseline data), Emissions Accuracy (55/100—no contradicting verified data exists, but baseline cannot be confirmed), and Target Credibility (15/100—the 42% reduction is scientifically credible and 1.5°C-aligned per SBTi). The confidence level of 68% reflects the gap between SBTi validation (95% confidence in science alignment) and the unavailability of EU ETS or mandatory audited GHG inventory data needed to verify baseline emissions. A verdict of INSUFFICIENT_EVIDENCE indicates the evidence supports the claim's plausibility but does not provide the verified audit trail required for full substantiation; this does not equate to a finding of greenwashing or misleading conduct. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/

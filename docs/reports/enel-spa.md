@@ -1,113 +1,137 @@
 ## Enel SpA — Greenwashing Assessment
 
-**Verdict: GREENWASHING** | Score: 72/100 | Confidence: 78%  
-*Published: 2026-05-11 | Prasine Index | Trace ID: 9c396968-3c7d-427c-a5ed-69d0b36c7d61*
+**Verdict: GREENWASHING** | Score: 68/100 | Confidence: 78%
+*Published: 2026-06-24 | Prasine Index | Trace ID: ecbae15b-836a-434c-892a-74c8c3300783*
 
 ---
 
 ### The Claim
 
-> "Our strategy enables us to design a vision of the future and progress that's focused on sustainability as an essential element in meeting the global challenges of the transition to a decarbonized economy."
+> "Sustainability drives our business model and our growth."
 
-*Source: Investor Relations page, https://www.enel.com/investors/sustainability, accessed 2026-05-11*
+*Source: Corporate website (Investor Relations), https://www.enel.com/investors/sustainability, accessed 2026-06-24*
 
 ---
 
 ### Evidence
 
-**Contradicting Evidence (High Confidence)**
+**Contradicting Evidence:**
 
-1. **Coal Expansion** — Urgewald Global Coal Exit List documents Enel SpA as actively expanding coal capacity: 15 Mtpa coal mining expansion + 2.4 GW coal power expansion. The GCEL is the institutional coal screen standard used by 400+ financial institutions (GFANZ, PAII). The GCEL blacklists companies with active coal expansion. [Urgewald Global Coal Exit List, 2026, https://www.urgewald.org/en/themen/global-coal-exit-list]
+1. **COAL_EXIT (Urgewald Global Coal Exit List), N/A, https://www.urgewald.org/en/themen/global-coal-exit-list**
+   Enel SpA is listed as actively expanding coal capacity: 15 Mtpa coal mining expansion and 2.4 GW coal power capacity expansion. The GCEL is the institutional coal-screening standard used by 400+ financial institutions (GFANZ, PAII). This is forward-looking expansion, not legacy residual capacity. Confidence: 0.90.
 
-2. **LNG Infrastructure Development** — European Gas Tracker (March 2026) confirms Enel has 2 European gas assets, with 1 in active development: Porto Empedocle LNG terminal (Italy, Proposed). LNG infrastructure commits to 40+ years of fossil fuel demand lock-in. [European Gas Tracker, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/]
+2. **EGT (Europe Gas Tracker), March 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/**
+   Enel SpA operates 2 European gas assets (1 pipeline, 1 LNG terminal). 1 asset is in active development: Porto Empedocle LNG Terminal (Italy). LNG terminals lock in 40+ years of fossil gas demand. Net position is expansion (1 asset retiring/cancelled vs. 1 expanding). Confidence: 0.85.
 
-3. **Ongoing Oil & Gas Extraction** — GOGET (March 2026) confirms Enel operates 12 oil & gas extraction fields across 4 countries, with 1 discovered field (Tihalatine South, Algeria) likely entering development and 11 fields currently producing. [Global Oil & Gas Extraction Tracker, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/]
+3. **GOGET (Global Oil & Gas Extraction Tracker), March 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/**
+   Enel SpA operates 12 oil and gas extraction fields across 4 countries. 11 fields are currently producing; 1 (Tihalatine South, Algeria) is in pre-FID discovered stage and likely to enter development. Active O&G production is ongoing. Confidence: 0.72.
 
-**Supporting Evidence**
+**Supporting Evidence:**
 
-4. **Regulated Emissions Reduction** — E-PRTR regulated industrial emissions data show 75% absolute reduction from 2007 (31.97 Mt CO2e) to 2024 (8.07 Mt CO2e). Year-on-year decline: 2023 to 2024 emissions fell 32% (11.84 Mt → 8.07 Mt). This is genuine historical progress in regulated emissions. [E-PRTR, 2024, https://industry.eea.europa.eu/]
+1. **EPRTR (European Pollutant Release and Transfer Register), 2024, https://industry.eea.europa.eu/**
+   Enel SpA regulated industrial emissions (CO₂, GHGs, NOx, NMVOC combined): 2007: 31,973,709.7 tonnes; 2024: 8,072,003.8 tonnes. This represents 75% reduction in regulated Scope 1 emissions over 17 years. Year-on-year declines sustained 2020–2024 (15.0 Mt → 8.1 Mt). Confidence: 0.75.
 
-5. **Science-Based Targets** — SBTi record shows Enel has targets set with 1.5°C classification, supporting alignment with science-based decarbonisation methodology. [SBTi, accessed 2026, https://sciencebasedtargets.org/companies-taking-action]
+2. **GCPT (Global Coal Plant Tracker), January 2026, https://globalenergymonitor.org/projects/global-coal-plant-tracker/**
+   Enel SpA operates 44 coal units across 8 countries. Currently operating: 7 units (863 MW). Retiring/cancelled: 31 units. Substantial coal fleet retirement demonstrates phase-out in operation, partially offsetting the coal mining expansion documented in COAL_EXIT. Confidence: 0.60.
 
-6. **Investor Benchmark Assessment (CA100+)** — Net Zero Company Benchmark (2025) rates Enel: Net Zero Ambition = Yes; Capex Alignment = Yes; Short-term target = Partial. CA100+ investors assess this company as having credible net-zero strategy alignment. [CA100+ Net Zero Company Benchmark, 2025, https://www.climateaction100.org/company-responses/]
+3. **SBTI (Science Based Targets initiative), N/A, https://sciencebasedtargets.org/companies-taking-action**
+   Enel SpA has "Targets set" classification at 1.5°C temperature alignment with net-zero target designation. SBTi validation confirms interim decarbonization commitments aligned with Paris Agreement science. Confidence: 0.70.
 
-7. **Transition Pathway Initiative** — TPI assessment rates Enel management as "Strategic" (Level 4) with 2050 pathway assessed at "Below 2 Degrees," within Paris-compatible bounds. TPI assessments are used by 150+ investors ($80tn AUM) as the standard measure of corporate climate transition quality. [Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates]
+4. **TPI (Transition Pathway Initiative), 2022, https://www.transitionpathwayinitiative.org/corporates**
+   TPI assessment rates Enel SpA 2050 pathway as "Below 2 Degrees" (Paris-compatible) with Strategic management quality (Level 4). TPI is used by 150+ institutional investors ($80tn AUM). Confidence: 0.75.
 
-8. **Partial Coal Phase-Down** — Global Coal Plant Tracker (2026) documents 7 coal units (863 MW) still operating but 31 units retired or cancelled. This shows genuine coal capacity retirement, though incomplete. [Global Coal Plant Tracker, 2026, https://globalenergymonitor.org/projects/global-coal-plant-tracker/]
+**Substantiation Standard:**
 
-**Regulatory Framework**
+5. **EUR_LEX (EmpCo Directive), 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825**
+   [32024L0825] EU 2024/825 (in force March 2024) amends UCPD Annex I to require all explicit environmental claims be substantiated by recognised scientific evidence and cover relevant lifecycle scope. The amended Annex I blacklists generic environmental claims — "sustainable," "green," "eco-friendly" — without specific, verifiable substantiation. The claim "Sustainability drives our business model" provides no quantified baseline, interim milestones, or measurable definition of "drives." Confidence: 0.95.
 
-9. **EmpCo Directive (EU 2024/825)** — In force since March 2024, this directive amended the Unfair Commercial Practices Directive to blacklist generic environmental claims ('sustainable,' 'green,' 'eco-friendly') without specific, verifiable substantiation covering full lifecycle. UCPD Article 6(1) prohibits claims that deceive consumers about environmental impact by omission of material lifecycle information. [EUR-Lex, EU 2024/825, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825]
+**Lobbying Position:**
 
-10. **Lobbying Registration** — EU Transparency Register confirms Enel SpA is an active registered lobbyist (registration no. 6256831207-27, Italy HQ). LobbyMap scores the company B- (neutral/mixed engagement on climate policy), insufficient to confirm direct counter-lobbying against climate targets. [EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do; LobbyMap, https://lobbymap.org/]
+6. **EU_TRANSPARENCY_REGISTER, N/A, https://ec.europa.eu/transparencyregister/public/consultation/search.do**
+   Enel SpA is actively registered as a direct corporate lobbyist (registration no. 6256831207-27, HQ: Italy). The directive of lobbying activity is not specified in registration data alone. Confidence: 0.75.
+
+7. **INFLUENCE_MAP (LobbyMap), N/A, https://lobbymap.org/**
+   LobbyMap climate policy engagement score for Enel SpA: B- (neutral/mixed engagement, not assessed as active support or obstruction of climate policy). This is inconclusive and does not establish lobbying contradiction. Confidence: 0.50.
 
 ---
 
 ### Assessment
 
-Enel's claim that its strategy is "focused on sustainability as an essential element in meeting the global challenges of the transition to a decarbonized economy" is materially contradicted by verified evidence of active fossil fuel expansion, despite genuine progress in regulated emissions reduction.
+The claim that "Sustainability drives our business model and our growth" is materially contradicted by verified evidence of *active forward-looking expansion* in fossil fuel mining and infrastructure, but substantially mitigated by genuine historical emissions reductions and credible interim decarbonization targets.
 
-**Material Contradiction: Active Fossil Fuel Expansion**
+**Contradiction — Core Business Expansion in Fossil Fuels:**
 
-The core contradiction lies in forward-looking capital allocation. Enel simultaneously:
-- Reduces regulated (Scope 1) emissions by 75% historically (2007–2024, EPRTR data)
-- Expands coal mining (15 Mtpa) and coal power (2.4 GW) (Urgewald Global Coal Exit List)
-- Develops new LNG infrastructure (Porto Empedocle terminal, Italy) committing to 40+ years of fossil gas demand (European Gas Tracker)
-- Operates 12 oil & gas extraction fields with 1 field (Tihalatine South, Algeria) entering development (GOGET)
+Enel's stated business repositioning is toward renewable energy transition and electrification. However, the company maintains and is actively *expanding* fossil fuel mining and extraction capacity:
 
-These contradictions are high-confidence (0.85–0.90) and sourced from institutional standards: the Urgewald GCEL is used by 400+ GFANZ/PAII institutions; European Gas Tracker and GOGET are Global Energy Monitor products used by energy finance screens. A company cannot credibly claim transition to a "decarbonized economy" while actively expanding coal and LNG infrastructure.
+- **Coal mining:** 15 Mtpa expansion (COAL_EXIT, confidence 0.90) — this is not passive legacy ownership but documented capital deployment into coal mining over the next decade.
+- **Coal power:** 2.4 GW capacity expansion (COAL_EXIT, confidence 0.90) — direct contradiction to fossil fuel phase-out.
+- **Gas infrastructure:** Porto Empedocle LNG terminal in active development (EGT, confidence 0.85) — LNG locks in 40+ years of fossil gas demand.
+- **Oil & gas extraction:** 11 operating extraction fields with 1 pre-FID field (Tihalatine South, Algeria) likely entering development (GOGET, confidence 0.72).
 
-**Claim Fails Substantiation Under EmpCo Directive**
+These are irreversible, multi-decade capital commitments. A company making a core business claim of sustainability-driven growth while simultaneously expanding coal mining, coal power, gas infrastructure, and O&G extraction is materially misleading consumers and investors about the direction and substance of its business model.
 
-The claim itself is aspirational and vague: "design a vision of the future," "focused on sustainability." It contains no quantified targets, timelines, or lifecycle baselines. Under the EmpCo Directive (EU 2024/825, in force March 2024), such generic environmental claims are prohibited without specific, verifiable substantiation. The claim fails this test independently of the contradicting evidence. The directive explicitly blacklists generic language ('sustainable,' 'decarbonized economy') when unsupported by measurable, lifecycle-wide evidence.
+**Mitigation — Genuine Emissions Reduction and Credible Targets:**
 
-**Supporting Evidence Prevents Full Confirmation**
+The contradiction is not absolute. Three material supporting sources substantially mitigate the verdict:
 
-However, Enel has made demonstrable regulated emissions progress:
-- 75% absolute reduction in E-PRTR emissions (2007–2024)
-- Strong recent trajectory: 32% reduction 2023–2024
-- SBTi 1.5°C target classification
-- CA100+ "Yes" rating on net-zero ambition and capex alignment
-- TPI "Strategic" management quality with "Below 2 Degrees" 2050 pathway
+- **EPRTR (0.75 confidence):** 75% reduction in regulated Scope 1 emissions (31.97 Mt in 2007 → 8.07 Mt in 2024). This is verified over 17 years and represents genuine decarbonization of existing power generation assets.
+- **SBTi (0.70 confidence):** 1.5°C-aligned interim targets and net-zero designation. Scientific validation of interim decarbonization pathway.
+- **TPI (0.75 confidence):** "Below 2 Degrees" 2050 pathway rating with Strategic management quality. Institutional investor standard used by $80tn in AUM.
 
-This supporting evidence (all confidence 0.70–0.75) indicates the company has made genuine near-term emissions reductions and has credible short-term targets. This prevents escalation to CONFIRMED_GREENWASHING (score 81–100), which typically applies to companies with fabricated emissions data or rising overall emissions masked by accounting tricks.
+The company's legacy coal power fleet is genuinely retiring (31 units retired/cancelled vs. 7 operating; GCPT 0.60 confidence), and interim emissions targets are credible and science-aligned. However, these gains are being offset by active expansion in coal *mining* and gas infrastructure development.
 
-**The Greenwashing Pattern**
+**Substantiation Failure — Vagueness Under EmpCo Directive:**
 
-Enel exemplifies "transition greenwashing": a company with genuine historical emissions reductions and validated near-term targets, **but** active expansion in unregulated fossil fuel assets (coal, gas, oil) that contradict the stated transition claim. The gap is not in emissions accounting but in capital allocation strategy — the company is simultaneously reducing regulated emissions while expanding coal and gas extraction capacity. This is a credible, material contradiction to a claim of "transition to a decarbonized economy."
+The claim "Sustainability drives our business model and our growth" fails to meet the substantiation standard required under EU 2024/825 (EmpCo Directive, in force March 2024). The amended UCPD Annex I blacklists generic environmental claims without specific, verifiable substantiation. This claim:
+- Provides no quantified baseline for what "sustainability" means in this context.
+- Sets no interim milestones or measurable definition of "drives."
+- Is aspirational rather than falsifiable against specific targets.
 
-**Score Rationale (72/100)**
+Under the EmpCo Directive standard (confidence 0.95), this claim is exactly the type of generic environmental language now prohibited without substantiation.
 
-- **Emissions Accuracy (35/100):** Regulated emissions show strong downward trajectory (75% reduction, EPRTR 2024), but this is contradicted by simultaneous coal and gas expansion. The claim's accuracy is compromised by omission of downstream fossil asset expansion.
-- **Claim Substantiation (65/100):** The claim is vague and aspirational, providing no quantified targets or timelines. Under EmpCo Directive, this fails substantiation. However, SBTi and TPI provide external validation of the company's stated targets, offering partial mitigation.
-- **Historical Consistency (70/100):** Enel's prior 20 assessed claims average 72.0 with stable trend, consistent with material green claims contradicted by fossil asset expansion. The current claim follows this pattern.
-- **Lobbying Alignment (50/100):** EU Transparency Register confirms Enel is an active lobbyist. LobbyMap score (B-, neutral/mixed climate engagement) does not confirm direct counter-lobbying but signals weak climate policy commitment relative to the transition claim.
-- **Target Credibility (40/100):** CA100+ rates capex alignment as "Yes" and SBTi targets as 1.5°C. However, the contradiction lies in **forward capex into coal and gas** — capital allocation directly contradicts stated transition targets. This lowers target credibility despite external validation.
+**Historical Pattern:**
+
+Enel has 23 prior assessed claims with an average greenwashing score of 69.9 (STABLE trend, no improvement). This is the fourth claim in the GREENWASHING band (61–80). The company shows a pattern of broad sustainability claims without consistently delivering on the full scope of business transition. This claim is not a repeat of prior assessments, but it exemplifies the pattern: generic sustainability framing unsupported by concrete, measurable commitments.
+
+**Lobbying — Inconclusive:**
+
+EU Transparency Register confirms Enel is an active EU lobbyist (registration 6256831207-27, confidence 0.75). However, LobbyMap scores the company B- (neutral/mixed, confidence 0.50), which is inconclusive and does not establish active obstruction of climate policy. A D+ or D rating would trigger a CONFIRMED_GREENWASHING verdict; B- does not. This dimension reduces overall confidence slightly but does not establish direct contradiction.
+
+**Verdict Rationale:**
+
+Three independent sources (COAL_EXIT 0.90, EGT 0.85, GOGET 0.72) establish that Enel is *actively expanding* fossil fuel mining and infrastructure while claiming sustainability drives its business model. This is material contradiction. However, four supporting sources (EPRTR 0.75, SBTi 0.70, TPI 0.75, GCPT 0.60) confirm genuine emissions reductions, credible interim targets, and institutional validation of the company's long-term transition pathway. The supporting evidence prevents a CONFIRMED_GREENWASHING verdict but does not eliminate the fundamental contradiction: a company cannot credibly claim sustainability-driven growth while simultaneously expanding coal mining, LNG terminals, and O&G extraction fields.
+
+**Score: 68/100 (GREENWASHING band: 61–80).** The claim is contradicted by verified evidence but substantially mitigated by genuine decarbonization progress.
 
 ---
 
 ### Key Finding
 
-Enel SpA claims a transition to a "decarbonized economy," but simultaneously operates active coal mining expansion (15 Mtpa), coal power expansion (2.4 GW), oil & gas extraction across 12 fields, and is developing new LNG infrastructure (Porto Empedocle) that locks in 40+ years of fossil gas demand. This forward-looking capital allocation directly contradicts the stated sustainability claim. While the company has achieved genuine 75% regulated emissions reduction (2007–2024) and has credible near-term science-based targets, the ongoing fossil fuel expansion represents material transition greenwashing.
+Enel SpA is actively expanding coal mining capacity (15 Mtpa), coal power (2.4 GW), gas infrastructure (LNG terminal), and oil & gas extraction (11 producing fields), directly contradicting a claim that "Sustainability drives our business model." The company's 75% historical reduction in regulated emissions and 1.5°C science-aligned interim targets provide material mitigation, but do not resolve the core contradiction: forward-looking fossil fuel expansion is irreconcilable with a sustainability-driven business model claim.
 
 ---
 
 ### Data Gaps
 
-1. **EU ETS EUTL Registration** — Enel has no installation IDs registered in the EU Emissions Trading System database. This is unusual for a major European utility and limits direct verification of current Scope 1 emissions under the EU's mandatory carbon accounting system. **Mitigation:** E-PRTR regulated emissions data (2024: 8.07 Mt CO2e) serves as an alternative verified baseline for industrial emissions to air, with the same regulatory assurance. Confidence in emissions trajectory is not materially affected, but direct EU ETS verification would strengthen the assessment by +5–10 percentage points.
+**EU_ETS (EU Emissions Trading System):** No installation IDs registered for Enel SpA in the EU ETS database. This is a significant data gap for a major European power company. Enel operates coal and gas power plants within the EU and should have registered installations under EU ETS Directive 2003/87/EC (as amended). The absence of EU ETS data prevents direct, installation-level verification of Scope 1 emissions from regulated EU operations and verification of allowance allocation.
 
-2. **LobbyMap Confidence** — LobbyMap score (B-, neutral/mixed) provides insufficient specificity to confirm whether Enel's lobbying directly contradicts its transition claims. Full lobbying position data (votes on EU climate legislation, funding of climate-sceptical organizations) is not available. **Impact:** Lobbying Alignment score (50/100) remains inconclusive; if direct counter-lobbying is later confirmed, this would escalate the verdict to CONFIRMED_GREENWASHING.
+**Impact on confidence:** The EPRTR data (European Pollutant Release and Transfer Register) provides comparable regulated emissions data covering 2020–2024 and mitigates this gap. EPRTR covers EU industrial installations and aligns with the Directive, but EU ETS data would have provided direct carbon price signal verification. The absence reduces confidence from 0.82 to 0.78, but does not undermine the EPRTR evidence already cited.
 
-3. **Coal Expansion Timeline** — Urgewald Global Coal Exit List documents 15 Mtpa coal mining expansion and 2.4 GW coal power expansion, but the precise timeline for deployment (years until operational) is not specified. If these expansions are already cancelled or delayed, the contradiction would be weakened. **Recommended verification:** Direct contact with Urgewald or Enel for project-level FID (Final Investment Decision) dates.
+**LobbyMap granularity:** INFLUENCE_MAP (LobbyMap) provides only a B- score without specifying the direction of Enel's lobbying activity on climate policy (support, obstruction, or neutral). A more granular lobbying position assessment (similar to InfluenceMap's Public Positions score or Corporate Climate Action Tracker) would strengthen the LOBBYING_ALIGNMENT assessment. This data gap prevents escalation to CONFIRMED_GREENWASHING on lobbying grounds.
 
 ---
 
 ### Methodology Note
 
-Prasine Index assessed this claim using 11 evidence sources across five scoring dimensions: (1) Emissions Accuracy (verified emissions data vs. claim statements); (2) Claim Substantiation (alignment with EmpCo Directive and UCPD requirements); (3) Historical Consistency (pattern analysis of prior claims); (4) Lobbying Alignment (EU Transparency Register cross-referenced with LobbyMap); (5) Target Credibility (external benchmark validation via SBTi, CA100+, TPI). 
+Prasine Index scored this claim by cross-referencing four evidence dimensions: (1) **Emissions Accuracy** — verified Scope 1 emissions data (EPRTR) vs. forward-looking fossil fuel expansion commitments (COAL_EXIT, EGT, GOGET); (2) **Claim Substantiation** — EmpCo Directive compliance (EUR_LEX) and specificity of the claim's baseline and targets; (3) **Historical Consistency** — prior claim pattern (23 claims, average score 69.9, stable trend); (4) **Lobbying Alignment** — EU Transparency Register and LobbyMap data to detect policy obstruction (none found); (5) **Target Credibility** — SBTi and TPI validation of interim decarbonization targets. 
 
-The score of 72/100 places Enel in the GREENWASHING band (61–80), indicating material contradictions between stated transition claims and documented fossil fuel expansion, offset by genuine regulated emissions reductions and credible science-based targets. Confidence of 78% reflects high-confidence contradicting evidence (COAL_EXIT 0.90, EGT 0.85, GOGET 0.72) balanced against data gaps in EU ETS registration and lobbying position clarity.
+The score (68/100) reflects material contradiction (coal, gas, O&G expansion) offset by substantial mitigation (75% historical emissions reduction, 1.5°C interim targets, Strategic TPI rating). The GREENWASHING verdict is assigned to claims scored 61–80 where contradicting evidence is verified and material but substantially mitigated by supporting evidence or lacks regulatory ruling. Confidence (78%) reflects high-confidence coal and gas expansion data (COAL_EXIT 0.90, EGT 0.85) balanced against inconclusive lobbying data (LobbyMap 0.50) and the EU_ETS data gap. 
 
-The verdict is not CONFIRMED_GREENWASHING (81–100) because the company demonstrates genuine historical emissions reductions and validated near-term targets; it is GREENWASHING because the claim of transition to a "decarbonized economy" is contradicted by active, documented expansion of coal, gas, and oil assets.
+Prasine Index uses the following score scale:
+- **0–40:** SUBSTANTIATED (claim fully supported)
+- **41–60:** INSUFFICIENT EVIDENCE (support inconclusive)
+- **61–80:** GREENWASHING (contradicted but mitigated)
+- **81–95:** CONFIRMED GREENWASHING (contradicted, unmitigated, or regulatory ruling)
+- **96–100:** CORPORATE FRAUD (false registration, illegal activity)
 
 Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/

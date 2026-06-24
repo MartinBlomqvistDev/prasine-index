@@ -1,78 +1,114 @@
-# Öresundskraft — Greenwashing Assessment
-
-**Verdict: MISLEADING** | Score: 52/100 | Confidence: 68%  
-*Published: 2026-05-05 | Prasine Index | Trace ID: 91617788-3c51-40ac-bfae-0a60ccfe1acd*
+## Oresundskraft — Greenwashing Assessment
+**Verdict: MISLEADING** | Score: 48/100 | Confidence: 58%
+*Published: 2026-06-24 | Prasine Index | Trace ID: 692eb965-5217-4906-b8e8-135949cdfa52*
 
 ---
 
 ### The Claim
+> "Innozhero-projektet och CCS-anläggningen på Filbornaverket är ett av de viktigaste initiativen för att Helsingborg ska nå nettonoll 2030."
 
-> "Med start 2029 ska vi fånga in 200 000 ton koldioxid varje år"  
-> [Translation: "Starting in 2029, we will capture 200,000 tonnes of CO2 every year"]
+*Source: Corporate website, https://www.oresundskraft.se/ccs, June 2026*
 
-*Source: Corporate website, https://www.oresundskraft.se/ccs, 2026*
+**Translation:** "The Innozhero project and the CCS facility at the Filbornaverket are among the most important initiatives for Helsingborg to reach net-zero in 2030."
 
 ---
 
 ### Evidence
 
-**[1] EU Transparency Register — Lobbying record**  
-Öresundskraft is registered as an EU lobbyist (registration no. 883228750982-76, headquartered in Sweden). Registration confirms active engagement with EU institutions on policy matters. The register does not disclose the direction or substance of lobbying positions (pro- or anti-climate policy). Cross-referencing against LobbyMap would be required to determine whether lobbying contradicts the stated carbon capture commitment.  
-Source: EU Transparency Register, 2026, https://ec.europa.eu/transparencyregister/public/consultation/search.do
+**[1] EU ETS Registration Status**
+No installation ID registered in EU ETS EUTL for Oresundskraft. This absence is critical: either the facility is not yet operational, emissions fall below EU ETS thresholds (unlikely for an industrial CCS facility), or the facility is registered under a different corporate entity. Without verified baseline emissions data from the primary regulatory source, the claim's core assertion—that CCS at Filbornaverket will deliver material emissions reductions—cannot be validated.
+*Source: EU ETS Unified Registry, 2026*
 
-**[2] EU ETS Directive 2003/87/EC (as amended)**  
-EU ETS verified emissions data (under Article 15 and Regulation 601/2012) are produced by accredited independent third-party verifiers and represent the highest-quality legal ground truth for actual greenhouse gas emissions. Any claim of emissions capture or reduction that is not reflected in mandatory EUTL verified data cannot be independently audited.  
-Source: EUR_LEX [32003L0087], 2003, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087
+**[2] National GHG Emissions Context**
+Sweden's total GHG emissions (excluding LULUCF) were 44.4 Mt CO2e in 2023, a 37.7% reduction since 1990. Helsingborg is a municipality with significant industrial and fossil-fuel-dependent infrastructure, including thermal power and waste-to-energy facilities. National-level data does not substitute for facility-level baseline emissions; the absence of EU ETS registration prevents assessment of Filbornaverket's proportional contribution to municipal net-zero targets.
+*Source: EEA National Emissions Inventory, 2023, https://www.eea.europa.eu/en/datahub/datahubitem-view/3b313f97-7730-4b57-9ef4-4d4c38a82cfa*
 
-**[3] EmpCo Directive (EU 2024/825) / UCPD**  
-Article 3(3)(a) of the EmpCo Directive (EU 2024/825) requires that emissions reduction or capture claims must explicitly state: (a) baseline year, (b) scope (Scope 1/2/3, or sectoral boundary), and (c) methodology. Article 5 prohibits net-zero aggregation claims that obscure absolute emission increases. The Directive establishes a legal substantiation standard that bare quantity claims without disclosed baselines do not meet.  
-Source: EUR_LEX [32024L0825], 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
+**[3] EmpCo Directive — Net-Zero Claim Substantiation Requirements**
+EU 2024/825 (EmpCo Directive), in force since March 2024, amends UCPD Annex I to blacklist environmental claims without substantiation by recognised scientific evidence. Specifically: (a) net-zero claims must demonstrate that residual emissions will be permanently removed by certified carbon removals, not offset credits; (b) generic net-zero pledges without a credible, verifiable transition plan are automatically classified as unfair commercial practices; (c) claims based solely on carbon offsetting schemes are blacklisted.
+*Source: EUR-Lex [32024L0825], 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
-**[4] EU ETS EUTL Database — Installation search**  
-Query for installations registered to Öresundskraft returned no results. Öresundskraft does not appear in the EU ETS Transaction Log as a registered operator or installation holder. This indicates either: (a) Öresundskraft is not an ETS-liable emitter (i.e., operates below thresholds or outside scope), or (b) emissions from Öresundskraft's operations are not currently captured under EU ETS reporting. Without baseline emissions data from EUTL or equivalent sources, the credibility of the 200,000-tonne annual capture target cannot be assessed against historical or projected emissions.  
-Source: EU ETS EUTL verified data, 2026, https://ec.europa.eu/clima/ets
+**[4] CSRD Mandatory Disclosure Requirements**
+The Corporate Sustainability Reporting Directive (2022/2464) requires large companies to disclose scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 reporting onward. A net-zero claim that is absent from or contradicts mandatory CSRD disclosure constitutes a material inconsistency. No CSRD disclosure by Oresundskraft addressing this claim has been identified.
+*Source: EUR-Lex [32022L2464], 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
+
+**[5] EU Transparency Register — Lobbying Activity**
+Oresundskraft is actively registered in the EU Transparency Register as a direct corporate lobbyist (registration no. 6566078100318-48, headquarters: United Kingdom). The registration confirms active engagement with EU institutions on policy matters. However, the direction of lobbying (pro- or anti-climate policy) cannot be determined from registration data alone. No evidence of contradictory lobbying has been identified.
+*Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
 ---
 
 ### Assessment
 
-The claim fails substantiation under the EmpCo Directive (EU 2024/825) on three grounds:
+Oresundskraft's claim that the Innozhero CCS project is "among the most important initiatives" for Helsingborg to achieve net-zero by 2030 fails substantiation under current EU law and lacks the verified emissions data necessary to support it.
 
-**1. Substantiation Failure (Primary Issue)**  
-Öresundskraft states that it will capture 200,000 tonnes of CO2 annually from 2029 onward, but provides no baseline year, baseline emissions figure, or methodological scope. Under EmpCo Directive (EU 2024/825) / UCPD Article 6, emissions claims must disclose baselines and methodology. The claim as published cannot be independently verified or audited. A reader cannot determine whether the company is comparing its capture target to: current emissions, historical emissions, projected business-as-usual emissions, or some other reference point. This omission is a substantiation failure.
+**Substantiation Failure (EmpCo Directive)**
 
-**2. Emissions Data Gap**  
-Query of the EU ETS EUTL database returned no registered installations for Öresundskraft. This is not a contradiction of the claim — it indicates that either the company does not currently generate ETS-liable emissions, or emissions are negligible. However, the absence of baseline emissions data from mandatory EU ETS reporting means we cannot assess whether a 200,000-tonne capture commitment is credible, proportionate, or material relative to the company's actual or projected emissions footprint.
+Under EU 2024/825, Oresundskraft's claim meets the definition of an unfair commercial practice because it: (a) makes a specific net-zero commitment for 2030 without disclosing a credible, verifiable transition plan; (b) does not disclose the baseline year, current emissions profile, interim reduction milestones (2025–2029), or the split between emissions reductions and permanent removal; (c) provides no evidence of certified carbon removal methodology; (d) offers no independent verification pathway.
 
-**3. Target Credibility Through Omission**  
-Without disclosed baseline emissions, sectoral context, or operational timeline, Öresundskraft's claim presents a bare quantity (200,000 tonnes) that appears specific but is empty of meaning. For context: 200,000 tonnes annually is a small-scale carbon capture deployment in the context of EU decarbonisation targets. A claim is misleading when it exaggerates through omission of critical context — the reader is presented with a number that cannot be evaluated. The company does not disclose whether: (a) this represents Scope 1, Scope 2, or Scope 3 emissions; (b) 2029 is realistic for operational deployment; (c) the facility will be company-operated or a third-party facility; or (d) this target is absolute or intensity-based.
+The claim is aspirational in formulation ("among the most important initiatives") but factually specific in scope (a named municipality, facility, and year). This combination—vague attribution paired with a precise target date—exaggerates impact through selective framing rather than direct falsehood, which classifies the claim as MISLEADING rather than outright GREENWASHING.
 
-**4. No Contradicting Evidence (Confidence Moderation)**  
-Query of the EU Transparency Register confirms Öresundskraft is an active EU lobbyist, but the register does not disclose lobbying positions. We cannot assess whether lobbying activity contradicts the stated commitment to carbon capture. The verdict does not rise to GREENWASHING (61–80 range), which requires verified contradicting evidence (e.g., lobbying against carbon pricing, climate targets, or carbon capture regulation). The claim is misleading through omission and failure to substantiate, not through outright contradiction.
+**Emissions Data Gaps**
 
-**Confidence Moderation to 68%:**  
-Confidence is moderated because we lack critical company context: (a) Öresundskraft's sector is not disclosed — if the company is a small service provider with minimal operational emissions, a 200,000-tonne capture commitment might be proportionate to future growth; (b) the company may have filed formal EmpCo Directive (EU 2024/825) substantiation with national authorities that is not available through this query; (c) the claim source is a corporate website, not a third-party-verified disclosure. However, as publicly stated, the claim lacks mandatory substantiation elements.
+The critical absence is EU ETS registration for Oresundskraft/Filbornaverket. This gap means: (i) no verified baseline emissions are available to assess whether the CCS initiative can deliver material reductions; (ii) the claim is aspirational rather than testable against regulatory data; (iii) Oresundskraft cannot demonstrate that this facility is the proportional contributor to municipal net-zero targets that the claim implies.
+
+For comparison, EEA National Emissions Inventory data shows Sweden achieved a 37.7% reduction since 1990 through broad economy-wide effort over three decades. A municipal net-zero 2030 target (4 years from publication) without verified baseline emissions or interim milestones is not inherently implausible, but without facility-level data, Oresundskraft's specific attribution to the CCS project cannot be validated.
+
+**Target Credibility**
+
+A net-zero 2030 target for a municipality with industrial infrastructure is scientifically ambitious. Such targets are credible only if: (a) emissions reductions exceed 70–80% against baseline through energy efficiency, fuel switching, and electrification; (b) residual emissions are permanently removed through certified carbon removals (not offsets); (c) interim milestones demonstrate progress toward 2030.
+
+Oresundskraft discloses none of these elements. The absence of facility-level data combined with the lack of a disclosed transition plan makes the 2030 timeline appear aspirational rather than credible.
+
+**Prior Claims and Consistency**
+
+This is the first assessment of Oresundskraft. No prior equivalent claims or contradictory statements have been identified. Lobbying registration with the EU indicates active policy engagement, but no evidence suggests Oresundskraft is lobbying against climate policy that would contradict this claim.
+
+**Score Justification**
+
+| Criterion | Score | Reasoning |
+|-----------|-------|-----------|
+| **Claim Substantiation** | 65/100 | Claim fails EmpCo Directive substantiation test (no transition plan, no certified removal, no interim milestones disclosed). However, the claim is specific enough (named facility, municipality, year) to be testable; it is not entirely unsubstantiated. |
+| **Emissions Accuracy** | 35/100 | No EU ETS registration means no verified baseline emissions exist. The absence of regulatory data prevents validation of the claim's core assertion that CCS will deliver material reductions. |
+| **Target Credibility** | 55/100 | A 2030 net-zero target without interim milestones or verified baseline is aggressive but not scientifically implausible. However, credibility cannot be assessed without facility-level data. |
+
+**Weighted Score: 48/100 (MISLEADING)**
 
 ---
 
 ### Key Finding
 
-Öresundskraft's carbon capture commitment lacks the baseline year, baseline emissions, and methodological scope required by the EmpCo Directive (EU 2024/825), making it a substantiation failure that cannot be independently verified. The claim presents a specific tonnage (200,000 tonnes annually from 2029) without the contextual disclosures that would allow readers or regulators to assess whether this target is credible, proportionate, or material to the company's actual emissions footprint.
+Oresundskraft's claim that the Innozhero CCS project is "among the most important initiatives" for Helsingborg's 2030 net-zero target fails substantiation under EU 2024/825 because it discloses no credible transition plan, certified removal methodology, interim milestones, or verified baseline emissions. The absence of EU ETS registration for the facility means the claim cannot be validated against regulatory data and should be considered unsubstantiated unless Oresundskraft provides CSRD disclosure, facility-level emissions baselines, and certified carbon removal documentation.
 
 ---
 
 ### Data Gaps
 
-- **EU ETS EUTL Installation Query:** No registered installations found for Öresundskraft. This prevents direct comparison of the claimed 200,000-tonne capture target against verified baseline emissions. Impact: confidence limited to 68% — we cannot assess target credibility without emissions context.
+**Critical Missing Data:**
 
-- **Company Sector Classification:** Öresundskraft's primary sector of operation is not disclosed in available sources. Without sector context, we cannot benchmark the ambition level of the target. Impact: unable to assess whether 200,000 tonnes annually represents material or token commitment.
+1. **EU ETS Installation Registration:** No installation ID found for Oresundskraft or Filbornaverket. This prevents verification of facility-level baseline emissions, verified emissions reductions, and regulatory compliance. **Impact on confidence:** Reduces ability to validate the core claim to near-zero; confidence in emissions accuracy is only 35%.
 
-- **EU Transparency Register — Lobbying Positions:** The register confirms Öresundskraft lobbies EU institutions, but does not disclose the positions or policy areas. A cross-reference with LobbyMap would be required to determine whether public climate lobbying contradicts the stated carbon capture commitment. Impact: potential contradiction not yet ruled in or out.
+2. **CSRD Disclosure:** If Oresundskraft is a large company (>500 employees or listed), CSRD disclosure (FY2024 onward) would provide scope 1, 2, 3 emissions baseline and interim targets. No such disclosure has been identified. **Impact:** Prevents consistency check between claimed net-zero target and mandatory GHG reporting.
 
-- **EmpCo Directive (EU 2024/825) Substantiation Filing:** The directive requires companies to substantiate claims and maintain documentation. We have no access to Öresundskraft's formal substantiation file or third-party audit (if any). Impact: claim may be privately substantiated; confidence reflects only publicly available evidence.
+3. **Certified Carbon Removal Methodology:** No evidence provided for certified removal protocol (e.g., ISO 14644, Verra Gold Standard, or equivalent). **Impact:** Cannot assess compliance with EmpCo Directive requirement for certified removals, not offsets.
+
+4. **Helsingborg Municipal Emissions Baseline:** No baseline emissions inventory identified for Helsingborg municipality as a whole. **Impact:** Cannot assess proportionality of the Innozhero CCS project within municipal reduction pathways.
+
+5. **Facility Operational Status:** No evidence confirms whether Filbornaverket's Innozhero CCS is operational, in construction, or planned. **Impact:** If planned but not yet operational, the claim is highly speculative.
+
+**Confidence Adjustment:** Base confidence is 58% because:
+- EmpCo Directive application is high-confidence (95%), directly applicable to this claim.
+- EU ETS absence is a structural gap with high confidence (95%) that no registration exists.
+- Missing facility and municipal-level data reduces confidence in target credibility assessment (confidence: 40%).
+- The claim is aspirational rather than directly falsifiable, limiting downward pressure on verdict.
 
 ---
 
 ### Methodology Note
 
-Prasine Index scored this claim by evaluating it against three criteria: **(1) Substantiation under the EmpCo Directive (EU 2024/825) (Article 3)**, **(2) Emissions accuracy against mandatory EU ETS data**, and **(3) Target credibility relative to disclosed baseline context**. The score of 52/100 reflects a **MISLEADING** verdict: the claim is directionally plausible (carbon capture is a real technology and within regulatory scope), but exaggerates through material omission of baseline disclosures and fails to meet the EmpCo Directive (EU 2024/825)'s mandatory substantiation standard. The confidence level of 68% reflects data gaps in company sector context and the absence of filed substantiation documentation. The score scale ranges from 0–100: 0–40 = fabricated/false claim; 41–60 = misleading (exaggerated by omission or lack of substantiation); 61–80 = greenwashing (claim contradicted by verified evidence); 81–100 = credible (independently verified against disclosed baselines and third-party data). Full Prasine Index methodology is published at https://martinblomqvistdev.github.io/prasine-index/.
+Prasine Index assessed this claim against four dimensions: **(1) Claim Substantiation** — Does the claim meet EU 2024/825 (EmpCo Directive) requirements for net-zero pledges? (2) **Emissions Accuracy** — Is the claim supported by verified baseline emissions data from EU ETS, national inventories, or corporate disclosure? (3) **Target Credibility** — Is the 2030 timeline scientifically plausible given the facility's likely reduction pathways? (4) **Lobbying Alignment** — Do any identified lobbying positions contradict the claim?
+
+Evidence was drawn from: EU ETS Unified Registry (installation data), EEA National Emissions Inventory (national context), EU Transparency Register (lobbying activity), and EUR-Lex (UCPD/EmpCo Directive and CSRD requirements). The claim was assessed as **MISLEADING** (score 48/100) because it makes a specific net-zero commitment (2030) and attribution (CCS as "among the most important initiatives") without meeting EU 2024/825 substantiation requirements—namely, a credible transition plan, certified removal methodology, residual emissions disclosure, and interim milestones. The claim is not **GREENWASHING** (which requires direct factual contradiction) because no verified data contradicts it; rather, verification is absent.
+
+The score reflects substantiation failure under current law (high confidence: 95%) combined with moderate confidence in emissions accuracy assessment (limited by EU ETS data gap: 35%) and target credibility (limited by missing baseline data: 40%).
+
+**Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/**
