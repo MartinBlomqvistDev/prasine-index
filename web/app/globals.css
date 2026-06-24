@@ -208,7 +208,77 @@ h1, h2 {
 }
 .ev-weight.contra { color: var(--red); }
 .ev-weight.support { color: var(--green); }
+.ev-weight.legislative { color: var(--muted); }
 .ev-weight.neutral { color: var(--faint); }
+
+/* ── Evidence group label ── */
+.ev-group-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  margin: 32px 0 12px;
+}
+
+/* ── Key finding ── */
+.key-finding {
+  border-left: 3px solid var(--text);
+  padding: 16px 20px;
+  margin-bottom: 40px;
+  background: var(--surface);
+}
+.key-finding-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 10px;
+}
+.key-finding p:last-child {
+  font-size: 0.9375rem; line-height: 1.7; color: var(--text);
+}
+
+/* ── Dimensional scoring table ── */
+.dimension-table {
+  width: 100%; border-collapse: collapse;
+  margin-bottom: 8px; font-size: 13px;
+}
+.dimension-table th {
+  text-align: left; font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  border-bottom: 1px solid var(--border); padding: 6px 0;
+}
+.dimension-table td {
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+.dimension-table td:last-child {
+  font-family: 'Space Mono', monospace; font-weight: 700;
+  color: var(--text); text-align: right;
+}
+
+/* ── Data gaps table ── */
+.data-gaps-table {
+  width: 100%; border-collapse: collapse;
+  margin-bottom: 8px; font-size: 12px;
+}
+.data-gaps-table th {
+  text-align: left; font-size: 10px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  border-bottom: 1px solid var(--border); padding: 6px 0;
+}
+.data-gaps-table td {
+  padding: 10px 8px 10px 0; border-bottom: 1px solid var(--border);
+  color: var(--muted); line-height: 1.5; vertical-align: top;
+}
+.data-gaps-table td:first-child {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  color: var(--text); white-space: nowrap; padding-right: 16px;
+}
+.data-gaps-table td:nth-child(2) {
+  font-family: 'Space Mono', monospace; font-size: 11px;
+  white-space: nowrap; padding-right: 16px;
+}
 
 /* ── Reasoning ── */
 .report-reasoning { display: flex; flex-direction: column; gap: 14px; }

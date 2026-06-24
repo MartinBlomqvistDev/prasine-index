@@ -4,7 +4,7 @@
 
 **Automated EU corporate greenwashing monitoring and scoring.**
 
-Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a full evidence chain citable by journalists, NGOs, and in court.
+Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain structured for ESG analysts, compliance teams, and regulators.
 
 *Prasine* — from Latin/Greek *prasinus* (green).
 
