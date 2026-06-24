@@ -49,7 +49,7 @@ export default function HomePage() {
 
           <div className="report-verdict-line">
             <span className="verdict-word confirmed">Confirmed greenwashing</span>
-            <span className="verdict-score">84 / 100</span>
+            <span className="verdict-score">86 / 100</span>
           </div>
 
           <div className="report-body">
@@ -57,12 +57,11 @@ export default function HomePage() {
             <div className="key-finding">
               <p className="key-finding-label">Key finding</p>
               <p>
-                Ryanair claims a 2050 net-zero commitment while actively lobbying against climate
-                legislation (D+ LobbyMap score) and carrying a documented history of misleading
-                emissions claims (ASA 2020 ruling). The company is under formal regulatory
-                investigation for environmental greenwashing by the European Commission (2024 CPC
-                investigation). The claim fails substantiation under the EmpCo Directive and is
-                contradicted by verified evidence on three independent grounds.
+                Ryanair&apos;s net-zero by 2050 pledge is contradicted by its own LobbyMap D+
+                (Obstructive) climate-lobbying classification, while a 2020 ASA ruling already
+                found an equivalent Ryanair emissions claim misleading and unsubstantiated —
+                making this net-zero claim confirmed greenwashing irrespective of its supporting
+                benchmarks.
               </p>
             </div>
 
@@ -204,18 +203,21 @@ export default function HomePage() {
               <p>
                 The claim satisfies three independent confirmation thresholds, each of which
                 alone is sufficient to trigger CONFIRMED_GREENWASHING status under the Prasine
-                framework: (1) active obstruction of climate legislation (LobbyMap D+, confidence
-                0.85) while making a net-zero pledge; (2) prior regulatory ruling against an
-                equivalent claim type (ASA 2020, confidence 0.90), establishing a documented
-                pattern; (3) substantiation failure under binding EU law — the EmpCo Directive
-                (2024/825) blacklists generic net-zero pledges without audited baseline, interim
-                targets, and verified carbon removal plan, which Ryanair&apos;s claim provides none of.
+                framework on two independent grounds: (1) LobbyMap D+ (Obstructive) — actively
+                opposing climate legislation while pledging net-zero is an irreconcilable
+                contradiction that alone triggers confirmed status; (2) the 2020 ASA ruling
+                (A20-529462) found an equivalent Ryanair emissions claim misleading and
+                unsubstantiated, establishing a documented pattern that alone triggers confirmed
+                status. The claim additionally fails substantiation under the EmpCo Directive
+                (2024/825): no baseline year, no interim checkpoints, no abatement/removal split,
+                no verified carbon removal plan.
               </p>
               <p>
-                Supporting evidence (SBTi interim targets, TPI Below 2°C) is below confidence
-                0.85 and neither directly validates a net-zero 2050 commitment. The EC CPC
-                investigation is ongoing and carries confidence 0.70 — not yet a binding
-                determination but corroborative of the pattern.
+                Partial mitigating evidence exists — SBTi interim 1.5°C targets (confidence 0.70)
+                and TPI &quot;Below 2 Degrees&quot; benchmark (confidence 0.75) — but neither
+                validates a net-zero 2050 commitment and neither can override a confirmed trigger.
+                The EC CPC investigation (confidence 0.70) is ongoing; a binding ruling would
+                push the score higher.
               </p>
             </div>
 
@@ -226,11 +228,11 @@ export default function HomePage() {
                 <tr><th>Dimension</th><th>Score</th></tr>
               </thead>
               <tbody>
-                <tr><td>Lobbying contradiction</td><td>95 / 100</td></tr>
-                <tr><td>Prior violations</td><td>90 / 100</td></tr>
-                <tr><td>Emissions discrepancy</td><td>75 / 100</td></tr>
-                <tr><td>Substantiation failure</td><td>70 / 100</td></tr>
-                <tr><td>Target credibility gap</td><td>45 / 100</td></tr>
+                <tr><td>Lobbying contradiction</td><td>88 / 100</td></tr>
+                <tr><td>Prior violations</td><td>85 / 100</td></tr>
+                <tr><td>Substantiation failure</td><td>80 / 100</td></tr>
+                <tr><td>Target credibility gap</td><td>75 / 100</td></tr>
+                <tr><td>Emissions discrepancy</td><td>55 / 100</td></tr>
               </tbody>
             </table>
 
@@ -309,7 +311,7 @@ export default function HomePage() {
                 { company: 'Glencore plc',             sector: 'Mining',      score: 87, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'Eni SpA',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'BP plc',                   sector: 'Oil & Gas',   score: 82, label: 'Confirmed',             badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 84, label: 'Confirmed',             badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 86, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'KLM Royal Dutch Airlines', sector: 'Aviation',    score: 78, label: 'Greenwashing',          badge: 'greenwashing' },
                 { company: 'TotalEnergies SE',         sector: 'Oil & Gas',   score: 75, label: 'Greenwashing',          badge: 'greenwashing' },
                 { company: 'Enel SpA',                 sector: 'Energy',      score: 68, label: 'Greenwashing',          badge: 'greenwashing' },
