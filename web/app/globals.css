@@ -237,6 +237,11 @@ h1, h2 {
 }
 
 /* ── Dimensional scoring table ── */
+.dimension-note {
+  font-size: 11px; color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  margin-bottom: 10px;
+}
 .dimension-table {
   width: 100%; border-collapse: collapse;
   margin-bottom: 8px; font-size: 13px;
