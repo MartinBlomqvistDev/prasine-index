@@ -26,7 +26,6 @@ import csv
 import os
 from pathlib import Path
 
-
 from core.logger import get_logger
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -353,8 +352,9 @@ def _get_cache() -> tuple[
     global _cache_by_isin, _cache_by_name, _cache_by_ticker
 
     if _cache_by_name is not None:
-        return _cache_by_isin, _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
-
+        assert _cache_by_isin is not None
+        assert _cache_by_ticker is not None
+        return _cache_by_isin, _cache_by_name, _cache_by_ticker
     if _CA100_XLSX.exists():
         _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_xlsx(_CA100_XLSX)
         logger.info(
@@ -376,7 +376,7 @@ def _get_cache() -> tuple[
             extra={"operation": "ca100_cache_missing"},
         )
 
-    return _cache_by_isin, _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
+    return _cache_by_isin, _cache_by_name, _cache_by_ticker
 
 
 def _lookup(name: str, isin: str | None, ticker: str | None) -> _CA100Record | None:

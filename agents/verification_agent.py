@@ -560,9 +560,7 @@ async def _node_fetch_lobby_map(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.LOBBY_MAP}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.LOBBY_MAP}: unexpected error — {type(exc).__name__}"],
         }
 
 
