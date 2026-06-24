@@ -25,11 +25,13 @@ framework.
 
 from __future__ import annotations
 
+import functools
 import operator
 import time
 from datetime import UTC, datetime
 from typing import Annotated, Any, TypedDict, cast
 
+import anthropic
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -55,6 +57,7 @@ from ingest.gogel import fetch_gogel_data
 from ingest.goget import fetch_goget_data
 from ingest.lobby_map import fetch_lobby_map_data
 from ingest.sbti import fetch_sbti_data
+from ingest.source_document import fetch_source_document_data
 from ingest.tpi import fetch_tpi_data
 from models.claim import Claim
 from models.company import CompanyContext
@@ -947,6 +950,61 @@ async def _node_fetch_climate_trace(state: VerificationState) -> dict[str, Any]:
         }
 
 
+async def _node_fetch_source_document(
+    state: VerificationState,
+    client: anthropic.AsyncAnthropic,
+) -> dict[str, Any]:
+    """LangGraph node: fetch and analyse the claim's own source document.
+
+    When the claim references a specific corporate document (sustainability
+    report, annual report, IR page), fetches that document and extracts
+    structured climate disclosures — emissions figures, baseline year, interim
+    targets, certified removal plan. This is the most direct verification step:
+    comparing the claim against the document it explicitly cites.
+
+    Args:
+        state: Current verification graph state.
+        client: Shared Anthropic async client (injected via functools.partial).
+
+    Returns:
+        Partial state dict with ``evidence`` and ``data_gaps`` keys.
+    """
+    claim = state["claim"]
+
+    try:
+        evidence = await fetch_source_document_data(claim=claim, client=client)
+        return {"evidence": evidence, "data_gaps": []}
+
+    except DataSourceError as exc:
+        logger.warning(
+            f"Source document fetch failed: {exc.message}",
+            extra={
+                "operation": "fetch_source_document_failed",
+                "error_type": type(exc).__name__,
+                "source": EvidenceSource.SOURCE_DOCUMENT.value,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [f"{EvidenceSource.SOURCE_DOCUMENT}: {exc.message}"],
+        }
+    except Exception as exc:
+        logger.error(
+            f"Source document fetch raised unexpected exception: {exc}",
+            exc_info=True,
+            extra={
+                "operation": "fetch_source_document_error",
+                "error_type": type(exc).__name__,
+            },
+        )
+        return {
+            "evidence": [],
+            "data_gaps": [
+                f"{EvidenceSource.SOURCE_DOCUMENT}: unexpected error — {type(exc).__name__}"
+            ],
+        }
+
+
 async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: synthesise all evidence into an overall assessment.
 
@@ -994,7 +1052,9 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _build_verification_graph() -> StateGraph[VerificationState]:
+def _build_verification_graph(
+    anthropic_client: anthropic.AsyncAnthropic,
+) -> StateGraph[VerificationState]:
     """Construct the LangGraph StateGraph for parallel source verification.
 
     The graph fans out from START to six independent fetch nodes, each
@@ -1019,6 +1079,8 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     """
     graph = StateGraph(VerificationState)
 
+    source_doc_node = functools.partial(_node_fetch_source_document, client=anthropic_client)
+    graph.add_node("fetch_source_document", source_doc_node)
     graph.add_node("fetch_eu_ets", _node_fetch_eu_ets)
     graph.add_node("fetch_cdp", _node_fetch_cdp)
     graph.add_node("fetch_sbti", _node_fetch_sbti)
@@ -1043,6 +1105,7 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_node("aggregate", _node_aggregate)
 
     # Fan out from START to all fetch nodes — LangGraph runs these in parallel
+    graph.add_edge(START, "fetch_source_document")
     graph.add_edge(START, "fetch_eu_ets")
     graph.add_edge(START, "fetch_cdp")
     graph.add_edge(START, "fetch_sbti")
@@ -1066,6 +1129,7 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_edge(START, "fetch_edgar")
 
     # All fetch nodes converge at aggregate
+    graph.add_edge("fetch_source_document", "aggregate")
     graph.add_edge("fetch_eu_ets", "aggregate")
     graph.add_edge("fetch_cdp", "aggregate")
     graph.add_edge("fetch_sbti", "aggregate")
@@ -1118,14 +1182,17 @@ class VerificationAgent:
         _graph: The compiled LangGraph state graph.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, client: anthropic.AsyncAnthropic | None = None) -> None:
         """Initialise the Verification Agent and compile the LangGraph graph.
 
-        The graph is compiled once at agent construction time. Compilation
-        is a synchronous operation that validates the graph topology and
-        produces the runnable object used for all subsequent invocations.
+        Args:
+            client: Shared Anthropic async client. Used by the source document
+                node to analyse fetched documents. Created internally if not
+                provided (not recommended in production — pass the pipeline's
+                shared client to avoid redundant connections).
         """
-        self._graph = _build_verification_graph().compile()
+        self._client = client or anthropic.AsyncAnthropic()
+        self._graph = _build_verification_graph(self._client).compile()
         logger.info(
             "Verification graph compiled",
             extra={"operation": "verification_graph_compiled"},
@@ -1219,6 +1286,7 @@ class VerificationAgent:
                 "evidence_count": len(result.evidence) if result else 0,
                 "data_gap_count": len(result.data_gaps) if result else 0,
                 "sources_queried": [
+                    "SOURCE_DOCUMENT",
                     "EU_ETS",
                     "CDP",
                     "SBTI",

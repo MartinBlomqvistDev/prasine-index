@@ -52,6 +52,7 @@ class EvidenceSource(StrEnum):
     EGT = "EGT"
     GOGET = "GOGET"
     EDGAR = "EDGAR"
+    SOURCE_DOCUMENT = "SOURCE_DOCUMENT"
 
 
 class EvidenceType(StrEnum):
@@ -71,6 +72,7 @@ class EvidenceType(StrEnum):
     ENFORCEMENT_RULING = "ENFORCEMENT_RULING"
     BENCHMARK_ASSESSMENT = "BENCHMARK_ASSESSMENT"
     FINANCING_RECORD = "FINANCING_RECORD"
+    SELF_REPORTED_DISCLOSURE = "SELF_REPORTED_DISCLOSURE"
 
 
 def _utc_now() -> datetime:
