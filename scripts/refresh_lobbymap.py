@@ -1,15 +1,15 @@
-"""Download the LobbyMap (formerly InfluenceMap) Company Climate Policy Engagement dataset.
+"""Download the LobbyMap Company Climate Policy Engagement dataset.
 
 Run this script whenever you want fresh LobbyMap data:
 
-    python scripts/refresh_influencemap.py
+    python scripts/refresh_lobbymap.py
 
-LobbyMap (rebranded from InfluenceMap in 2024) publishes annual company-level
-climate lobbying scores (A+ to F) at lobbymap.org. The bulk company database
-is available as a free download from their website — no account required.
+LobbyMap publishes annual company-level climate lobbying scores (A+ to F)
+at lobbymap.org. The bulk company database is available as a free download
+from their website — no account required.
 
-The file is saved to data/influencemap_companies.csv. The pipeline reloads
-automatically on next run. Run refresh_cache() from ingest.influence_map to
+The file is saved to data/lobbymap_companies.csv. The pipeline reloads
+automatically on next run. Run refresh_cache() from ingest.lobby_map to
 reload without restarting.
 
 Sources:
@@ -24,17 +24,17 @@ import urllib.request
 from pathlib import Path
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
-_DEST = _DATA_DIR / "influencemap_companies.csv"
+_DEST = _DATA_DIR / "lobbymap_companies.csv"
 
-# InfluenceMap company database CSV download URL.
-# InfluenceMap updates this annually; check the page below for the current URL.
+# LobbyMap company database CSV download URL.
+# LobbyMap updates this annually; check the page below for the current URL.
 # The URL below is the direct link to the bulk company scores CSV as of 2024.
-# If it returns a 404, check: https://influencemap.org/company-responses
-_IM_CSV_URL = "https://lobbymap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
+# If it returns a 404, check: https://lobbymap.org/report
+_LM_CSV_URL = "https://lobbymap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
 
 
 def check_existing() -> None:
-    """Report on the current state of the local InfluenceMap CSV."""
+    """Report on the current state of the local LobbyMap CSV."""
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
         row_count: int | str
@@ -43,21 +43,21 @@ def check_existing() -> None:
             row_count = len(lines) - 1
         except Exception:
             row_count = "unknown"
-        print(f"Existing InfluenceMap CSV: {_DEST} ({size_kb} KB, {row_count} rows)")
+        print(f"Existing LobbyMap CSV: {_DEST} ({size_kb} KB, {row_count} rows)")
     else:
-        print(f"No InfluenceMap CSV found at: {_DEST}")
+        print(f"No LobbyMap CSV found at: {_DEST}")
 
 
-def download_influencemap_csv() -> None:
-    """Attempt to download the InfluenceMap bulk company scores CSV."""
+def download_lobbymap_csv() -> None:
+    """Attempt to download the LobbyMap bulk company scores CSV."""
     _DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     print("Downloading LobbyMap Company Scores CSV...")
-    print(f"  URL: {_IM_CSV_URL}")
+    print(f"  URL: {_LM_CSV_URL}")
     print(f"  Destination: {_DEST}")
 
     req = urllib.request.Request(
-        _IM_CSV_URL,
+        _LM_CSV_URL,
         headers={
             "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)",
             "Accept": "text/csv,application/csv,*/*",
@@ -93,15 +93,14 @@ def download_influencemap_csv() -> None:
     except UnicodeDecodeError:
         pass
 
-    print("Done. Run ingest.influence_map.refresh_cache() or restart the API to reload.")
-
+    print("Done. Run ingest.lobby_map.refresh_cache() or restart the API to reload.")
 
 
 def print_manual_instructions() -> None:
     """Print manual download instructions."""
     print()
     print("Manual download steps:")
-    print("  1. Go to https://lobbymap.org/ (formerly influencemap.org)")
+    print("  1. Go to https://lobbymap.org/")
     print("  2. Look for 'Download Company Scores' or 'Bulk Data Download'")
     print("  3. Download the CSV of all companies")
     print(f"  4. Save to: {_DEST}")
@@ -112,4 +111,4 @@ def print_manual_instructions() -> None:
 
 if __name__ == "__main__":
     check_existing()
-    download_influencemap_csv()
+    download_lobbymap_csv()

@@ -218,7 +218,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "CONFIRMED_GREENWASHING per the scoring criteria. Ryanair's EU ETS verified "
             "emissions are among the highest of any European airline on a per-passenger "
             "basis. The claim 'greenest' has no substantiated baseline. "
-            "InfluenceMap D+ band confirms obstructive climate lobbying. "
+            "LobbyMap D+ band confirms obstructive climate lobbying. "
             "Enforcement module surfaces the ASA ban, pushing verdict to CONFIRMED."
         ),
     ),
@@ -397,7 +397,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "ASA banned two HSBC newspaper advertisements for misleading green claims (2022). "
             "HSBC simultaneously financed $87bn in fossil fuel expansion (2016–2022). "
             "Pipeline scores GREENWASHING: enforcement module surfaces ASA ruling (1 contradicting "
-            "record), InfluenceMap C- band — sufficient for GREENWASHING even without EU ETS data."
+            "record), LobbyMap C- band — sufficient for GREENWASHING even without EU ETS data."
         ),
     ),
     EvalCase(
@@ -485,7 +485,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         notes=(
             "Maersk has ordered green methanol vessels and has SBTi-validated targets. "
             "CA100+ ALIGNED. However the pipeline finds limited corroborating evidence "
-            "(1 supporting, 1 contradicting, 5 inconclusive). CDP and InfluenceMap return "
+            "(1 supporting, 1 contradicting, 5 inconclusive). CDP and LobbyMap return "
             "no record. Pipeline score hovers around 58-62 (MISLEADING/GREENWASHING boundary). "
             "Nondeterministic boundary case — expected GREENWASHING to capture the upper end."
         ),
@@ -622,7 +622,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         primary_evidence_source="EU_ETS",
         notes=(
             "Vestas is a genuine carbon neutrality case (scope 1&2 via renewables, "
-            "SBTi scope 3 validated). However the pipeline finds only InfluenceMap B+ "
+            "SBTi scope 3 validated). However the pipeline finds only LobbyMap B+ "
             "as a supporting signal — Vestas is not in CA100+ or CDP, and has no EU ETS "
             "installations registered. Score ranges 35-48 across runs. 2/3 runs give "
             "MISLEADING (~48). Known limitation: positive-control quality requires "

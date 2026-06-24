@@ -1,18 +1,18 @@
-"""LobbyMap (formerly InfluenceMap) climate lobbying scores ingest module for the Prasine Index.
+"""LobbyMap climate lobbying scores ingest module for the Prasine Index.
 
 Loads the LobbyMap Company Climate Policy Engagement database from
-data/influencemap_companies.csv, downloaded via scripts/refresh_influencemap.py.
+data/lobbymap_companies.csv, downloaded via scripts/refresh_lobbymap.py.
 Provides lobbying-alignment evidence for claims from companies that simultaneously
 advocate for climate action while opposing climate legislation in Brussels or
 Washington.
 
-LobbyMap (rebranded from InfluenceMap in 2024) independently assesses corporate
-climate policy engagement, scoring companies A+ (strongly supportive) to F (obstructive).
-A company scoring D or F while making green claims is a direct greenwashing signal —
-the company lobbies against the legislation it publicly claims to support.
+LobbyMap independently assesses corporate climate policy engagement, scoring
+companies A+ (strongly supportive) to F (obstructive). A company scoring D or F
+while making green claims is a direct greenwashing signal — the company lobbies
+against the legislation it publicly claims to support.
 
 Data source: LobbyMap (lobbymap.org)
-Refresh: python scripts/refresh_influencemap.py
+Refresh: python scripts/refresh_lobbymap.py
 """
 
 from __future__ import annotations
@@ -26,21 +26,21 @@ from core.logger import get_logger
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_influence_map_data", "refresh_cache"]
+__all__ = ["fetch_lobby_map_data", "refresh_cache"]
 
 logger = get_logger(__name__)
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 
-_IM_CSV: Path = Path(
+_LM_CSV: Path = Path(
     os.environ.get(
-        "INFLUENCEMAP_CSV",
-        str(_PROJECT_ROOT / "data" / "influencemap_companies.csv"),
+        "LOBBYMAP_CSV",
+        str(_PROJECT_ROOT / "data" / "lobbymap_companies.csv"),
     )
 )
 
 # ---------------------------------------------------------------------------
-# Column name variants across InfluenceMap CSV vintages
+# Column name variants across LobbyMap CSV vintages
 # ---------------------------------------------------------------------------
 
 _COL_COMPANY = ("Company", "company", "Organization", "Name")
@@ -79,8 +79,8 @@ _SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
 _NEUTRAL_BANDS = frozenset({"b-", "c+", "c", "c-"})
 
 
-class _InfluenceMapRecord:
-    """Internal representation of one InfluenceMap company record."""
+class _LobbyMapRecord:
+    """Internal representation of one LobbyMap company record."""
 
     __slots__ = (
         "active_engagement",
@@ -128,20 +128,20 @@ class _InfluenceMapRecord:
         return self.band_normalised in _SUPPORTIVE_BANDS
 
 
-# Module-level cache: {normalised_company: _InfluenceMapRecord}
-_cache_by_name: dict[str, _InfluenceMapRecord] | None = None
-_cache_by_ticker: dict[str, _InfluenceMapRecord] | None = None
+# Module-level cache: {normalised_company: _LobbyMapRecord}
+_cache_by_name: dict[str, _LobbyMapRecord] | None = None
+_cache_by_ticker: dict[str, _LobbyMapRecord] | None = None
 
 
 def refresh_cache() -> None:
-    """Reset the InfluenceMap cache so the next call reloads from disk.
+    """Reset the LobbyMap cache so the next call reloads from disk.
 
-    Call this after running scripts/refresh_influencemap.py.
+    Call this after running scripts/refresh_lobbymap.py.
     """
     global _cache_by_name, _cache_by_ticker
     _cache_by_name = None
     _cache_by_ticker = None
-    logger.info("InfluenceMap cache cleared.", extra={"operation": "influencemap_cache_reset"})
+    logger.info("LobbyMap cache cleared.", extra={"operation": "lobbymap_cache_reset"})
 
 
 def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
@@ -179,27 +179,27 @@ def _normalise_name(name: str) -> str:
     return name
 
 
-def _get_cache() -> tuple[dict[str, _InfluenceMapRecord], dict[str, _InfluenceMapRecord]]:
+def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]]:
     """Return module-level caches, loading from disk on first call."""
     global _cache_by_name, _cache_by_ticker
 
     if _cache_by_name is not None:
         return _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
 
-    if not _IM_CSV.exists():
+    if not _LM_CSV.exists():
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            "InfluenceMap data file not found — run scripts/refresh_influencemap.py. "
-            f"Expected at: {_IM_CSV}",
-            extra={"operation": "influencemap_cache_missing"},
+            "LobbyMap data file not found — run scripts/refresh_lobbymap.py. "
+            f"Expected at: {_LM_CSV}",
+            extra={"operation": "lobbymap_cache_missing"},
         )
         return _cache_by_name, _cache_by_ticker
 
-    by_name: dict[str, _InfluenceMapRecord] = {}
-    by_ticker: dict[str, _InfluenceMapRecord] = {}
+    by_name: dict[str, _LobbyMapRecord] = {}
+    by_ticker: dict[str, _LobbyMapRecord] = {}
 
-    with _IM_CSV.open(encoding="utf-8-sig") as fh:
+    with _LM_CSV.open(encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             company = _pick(row, _COL_COMPANY)
@@ -211,7 +211,7 @@ def _get_cache() -> tuple[dict[str, _InfluenceMapRecord], dict[str, _InfluenceMa
             with contextlib.suppress(ValueError):
                 year = int(year_str) if year_str else None
 
-            record = _InfluenceMapRecord(
+            record = _LobbyMapRecord(
                 company=company,
                 ticker=_pick(row, _COL_TICKER) or None,
                 country=_pick(row, _COL_COUNTRY),
@@ -235,13 +235,13 @@ def _get_cache() -> tuple[dict[str, _InfluenceMapRecord], dict[str, _InfluenceMa
     _cache_by_ticker = by_ticker
 
     logger.info(
-        f"InfluenceMap cache loaded: {len(by_name)} companies",
-        extra={"operation": "influencemap_cache_loaded"},
+        f"LobbyMap cache loaded: {len(by_name)} companies",
+        extra={"operation": "lobbymap_cache_loaded"},
     )
     return _cache_by_name, _cache_by_ticker
 
 
-def _lookup(name: str, ticker: str | None) -> _InfluenceMapRecord | None:
+def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
     """Look up a company by ticker (preferred) or normalised name.
 
     Args:
@@ -249,7 +249,7 @@ def _lookup(name: str, ticker: str | None) -> _InfluenceMapRecord | None:
         ticker: Stock ticker symbol, if available.
 
     Returns:
-        The matching InfluenceMapRecord, or None.
+        The matching LobbyMapRecord, or None.
     """
     by_name, by_ticker = _get_cache()
 
@@ -268,8 +268,8 @@ def _lookup(name: str, ticker: str | None) -> _InfluenceMapRecord | None:
     return None
 
 
-async def fetch_influence_map_data(claim: Claim, company: object) -> list[Evidence]:
-    """Return InfluenceMap lobbying alignment evidence for a company.
+async def fetch_lobby_map_data(claim: Claim, company: object) -> list[Evidence]:
+    """Return LobbyMap lobbying alignment evidence for a company.
 
     Looks up the company's climate policy engagement score. Obstructive
     lobbying (D/E/F band) while making green claims is a direct greenwashing
@@ -281,7 +281,7 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
 
     Returns:
         A single-element list with an Evidence record, or empty list if the
-        company is not in the InfluenceMap database.
+        company is not in the LobbyMap database.
     """
     name: str = getattr(company, "name", "")
     ticker: str | None = getattr(company, "ticker", None)
@@ -290,8 +290,8 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
 
     if record is None:
         logger.info(
-            f"InfluenceMap: {name!r} not found in database",
-            extra={"operation": "influencemap_not_found", "company": name},
+            f"LobbyMap: {name!r} not found in database",
+            extra={"operation": "lobbymap_not_found", "company": name},
         )
         return []
 
@@ -299,10 +299,10 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
     summary = _build_summary(name, record)
 
     logger.info(
-        f"InfluenceMap: {name!r} — band={record.band_normalised!r}, "
+        f"LobbyMap: {name!r} — band={record.band_normalised!r}, "
         f"obstructive={record.is_obstructive}, supportive={record.is_supportive}",
         extra={
-            "operation": "influencemap_found",
+            "operation": "lobbymap_found",
             "company": name,
             "band": record.band_normalised,
         },
@@ -312,7 +312,7 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
         Evidence(
             claim_id=claim.id,
             trace_id=claim.trace_id,
-            source=EvidenceSource.INFLUENCE_MAP,
+            source=EvidenceSource.LOBBY_MAP,
             evidence_type=EvidenceType.LOBBYING_RECORD,
             source_url="https://lobbymap.org/",
             raw_data={
@@ -333,11 +333,11 @@ async def fetch_influence_map_data(claim: Claim, company: object) -> list[Eviden
     ]
 
 
-def _assess_record(record: _InfluenceMapRecord) -> tuple[bool | None, float]:
-    """Determine whether the InfluenceMap record supports or contradicts the claim.
+def _assess_record(record: _LobbyMapRecord) -> tuple[bool | None, float]:
+    """Determine whether the LobbyMap record supports or contradicts the claim.
 
     Args:
-        record: The InfluenceMap record for the company.
+        record: The LobbyMap record for the company.
 
     Returns:
         Tuple of (supports_claim, confidence).
@@ -354,12 +354,12 @@ def _assess_record(record: _InfluenceMapRecord) -> tuple[bool | None, float]:
     return None, 0.50
 
 
-def _build_summary(company_name: str, record: _InfluenceMapRecord) -> str:
+def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
     """Build a human-readable summary for the Judge Agent.
 
     Args:
         company_name: Display name of the company.
-        record: The InfluenceMap record.
+        record: The LobbyMap record.
 
     Returns:
         A plain-text summary string.

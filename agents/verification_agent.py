@@ -53,7 +53,7 @@ from ingest.fossil_finance import fetch_fossil_finance_data
 from ingest.gcpt import fetch_gcpt_data
 from ingest.gogel import fetch_gogel_data
 from ingest.goget import fetch_goget_data
-from ingest.influence_map import fetch_influence_map_data
+from ingest.lobby_map import fetch_lobby_map_data
 from ingest.sbti import fetch_sbti_data
 from ingest.tpi import fetch_tpi_data
 from models.claim import Claim
@@ -514,7 +514,7 @@ async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
         }
 
 
-async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
+async def _node_fetch_lobby_map(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch LobbyMap climate lobbying scores from the local dataset.
 
     Queries the LobbyMap Company Climate Policy Engagement database for the
@@ -533,7 +533,7 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
     context = state["context"]
 
     try:
-        evidence = await fetch_influence_map_data(
+        evidence = await fetch_lobby_map_data(
             claim=claim,
             company=context.company,
         )
@@ -543,25 +543,25 @@ async def _node_fetch_influence_map(state: VerificationState) -> dict[str, Any]:
         logger.warning(
             f"LobbyMap fetch failed: {exc.message}",
             extra={
-                "operation": "fetch_influencemap_failed",
+                "operation": "fetch_lobbymap_failed",
                 "error_type": type(exc).__name__,
-                "source": EvidenceSource.INFLUENCE_MAP.value,
+                "source": EvidenceSource.LOBBY_MAP.value,
             },
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.INFLUENCE_MAP}: {exc.message}"],
+            "data_gaps": [f"{EvidenceSource.LOBBY_MAP}: {exc.message}"],
         }
     except Exception as exc:
         logger.error(
             f"LobbyMap fetch raised unexpected exception: {exc}",
             exc_info=True,
-            extra={"operation": "fetch_influencemap_error", "error_type": type(exc).__name__},
+            extra={"operation": "fetch_lobbymap_error", "error_type": type(exc).__name__},
         )
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.INFLUENCE_MAP}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.LOBBY_MAP}: unexpected error — {type(exc).__name__}"
             ],
         }
 
@@ -1025,7 +1025,7 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_node("fetch_cdp", _node_fetch_cdp)
     graph.add_node("fetch_sbti", _node_fetch_sbti)
     graph.add_node("fetch_eprtr", _node_fetch_eprtr)
-    graph.add_node("fetch_influence_map", _node_fetch_influence_map)
+    graph.add_node("fetch_lobby_map", _node_fetch_lobby_map)
     graph.add_node("fetch_enforcement", _node_fetch_enforcement)
     graph.add_node("fetch_ca100", _node_fetch_ca100)
     graph.add_node("fetch_fossil_finance", _node_fetch_fossil_finance)
@@ -1049,7 +1049,7 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_edge(START, "fetch_cdp")
     graph.add_edge(START, "fetch_sbti")
     graph.add_edge(START, "fetch_eprtr")
-    graph.add_edge(START, "fetch_influence_map")
+    graph.add_edge(START, "fetch_lobby_map")
     graph.add_edge(START, "fetch_enforcement")
     graph.add_edge(START, "fetch_ca100")
     graph.add_edge(START, "fetch_fossil_finance")
@@ -1072,7 +1072,7 @@ def _build_verification_graph() -> StateGraph[VerificationState]:
     graph.add_edge("fetch_cdp", "aggregate")
     graph.add_edge("fetch_sbti", "aggregate")
     graph.add_edge("fetch_eprtr", "aggregate")
-    graph.add_edge("fetch_influence_map", "aggregate")
+    graph.add_edge("fetch_lobby_map", "aggregate")
     graph.add_edge("fetch_enforcement", "aggregate")
     graph.add_edge("fetch_ca100", "aggregate")
     graph.add_edge("fetch_fossil_finance", "aggregate")
@@ -1225,7 +1225,7 @@ class VerificationAgent:
                     "CDP",
                     "SBTI",
                     "EPRTR",
-                    "INFLUENCE_MAP",
+                    "LOBBY_MAP",
                     "ENFORCEMENT",
                     "CA100",
                     "FOSSIL_FINANCE",
