@@ -246,7 +246,7 @@ class Pipeline:
             model_id=self._config.extraction_model,
         )
         self._context_agent = ContextAgent()
-        self._verification_agent = VerificationAgent()
+        self._verification_agent = VerificationAgent(client=self._anthropic_client)
         self._lobbying_agent = LobbyingAgent(http_client=self._http_client)
         self._judge_agent = JudgeAgent(
             client=self._anthropic_client,
