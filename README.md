@@ -16,9 +16,9 @@ Prasine Index is a live-running AI workflow system that:
 
 1. **Monitors** EU company investor relations pages, press releases, and CSRD reports continuously for new green claims.
 2. **Extracts** every green claim as a structured, attributed record — verbatim text, source URL, page reference, publication date.
-3. **Verifies** each claim against 21 parallel open data sources — EU ETS, SBTi, LobbyMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, EU Transparency Register, EEA National, Eurostat, EU Innovation Fund, GOGEL, Climate TRACE, TPI, GCPT, EGT, GOGET, EDGAR JRC, E-PRTR, and more.
+3. **Verifies** each claim against 22 parallel open data sources — EU ETS, SBTi, LobbyMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, EU Transparency Register, EEA National, Eurostat, EU Innovation Fund, GOGEL, Climate TRACE, TPI, GCPT, EGT, GOGET, EDGAR JRC, E-PRTR, and the claim's own source document (fetched and analysed via the Anthropic document API).
 4. **Cross-references** the company against the EU Transparency Register. A company claiming climate leadership while lobbying against climate legislation in Brussels is flagged explicitly.
-5. **Scores** each claim 0–100 using an LLM-as-judge with full chain-of-thought reasoning, broken down by dimension: emissions accuracy, claim substantiation, historical consistency, lobbying alignment, target credibility.
+5. **Scores** each claim 0–100 using an LLM-as-judge with full chain-of-thought reasoning, broken down by dimension: emissions discrepancy, substantiation failure, prior violations, lobbying contradiction, target credibility gap.
 6. **Publishes** a source-chained report in Markdown — every factual assertion is cited, every data gap is disclosed, and the full reasoning is preserved verbatim for audit and citation.
 7. **Monitors over time.** If a company re-makes a previously scored claim without evidence of progress, the system flags it automatically. If a company modifies a claim after Prasine Index published a verdict, that modification is flagged as a primary accountability signal.
 
@@ -40,7 +40,7 @@ Claim Extraction Agent    ← raw Anthropic SDK
 Context Agent             ← PostgreSQL + pgvector
       │
       ▼
-Verification Agent        ← LangGraph (parallel fan-out, 21 sources)
+Verification Agent        ← LangGraph (parallel fan-out, 22 sources)
       │
       ▼
 Lobbying Agent            ← EU Transparency Register
@@ -58,7 +58,7 @@ Report Agent              ← raw Anthropic SDK
 
 **Context Agent** — queries PostgreSQL for the company's claim history, aggregate scores, score trend, and semantically similar prior claims via pgvector cosine similarity before verification begins.
 
-**Verification Agent** — queries 21 parallel sources simultaneously (see Data Sources below), aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
+**Verification Agent** — queries 22 parallel sources simultaneously (see Data Sources below), aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
 
 **Lobbying Agent** — retrieves the company's Transparency Register record and classifies whether its lobbying activity contradicts its green claims.
 
@@ -74,7 +74,7 @@ This is the most important architectural decision in the codebase, and it is del
 
 **The case for LangGraph at the Verification Agent:**
 
-The Verification Agent queries 21 independent data sources and must:
+The Verification Agent queries 22 independent data sources and must:
 
 - Execute all queries concurrently (never sequentially — latency would compound)
 - Accumulate results from each branch as they complete
@@ -102,7 +102,7 @@ For single-step agents, introducing a framework means:
 
 The Judge Agent is the most sensitive step in the pipeline — its output may be cited in legal proceedings. It needs to be as transparent as possible. A direct Anthropic SDK call with the prompt written as a plain string is auditable; a LangGraph node wrapping a tool call is not. This is not a criticism of LangGraph; it is a recognition that frameworks add value in proportion to the complexity of the orchestration problem they solve.
 
-**The result:** Prasine Index uses LangGraph where it genuinely adds value (21-source parallel fan-out with partial failure tolerance), and raw Anthropic SDK where full control matters (single-step LLM calls with precise prompt requirements). This shows understanding of *when* to use a framework, not just *that* frameworks exist.
+**The result:** Prasine Index uses LangGraph where it genuinely adds value (22-source parallel fan-out with partial failure tolerance), and raw Anthropic SDK where full control matters (single-step LLM calls with precise prompt requirements). This shows understanding of *when* to use a framework, not just *that* frameworks exist.
 
 ---
 
@@ -114,7 +114,7 @@ Every agent communicates exclusively through Pydantic v2 models. No raw strings 
 | ----- | ----------- |
 | `Claim` | Atomic unit of work: a single green claim with full provenance |
 | `ClaimLifecycle` | Immutable status transition record; one row per status change |
-| `Evidence` | A single data point from one open data source |
+| `Evidence` | A single data point from one of the 22 data sources |
 | `VerificationResult` | Aggregated evidence package for a claim |
 | `GreenwashingScore` | Judge verdict: 0–100 index with dimension breakdown and reasoning |
 | `Company` | EU company registry data including LEI and EU ETS installation IDs |
@@ -150,7 +150,7 @@ pgvector serves two purposes:
 
 ### 1. Parallel Verification
 
-The Verification Agent never queries data sources sequentially. The LangGraph graph fans out to all 21 sources simultaneously from `START`; the `operator.add` reducer on the `evidence` list merges partial results as each branch completes. A source that takes 8 seconds does not hold up a source that takes 1 second.
+The Verification Agent never queries data sources sequentially. The LangGraph graph fans out to all 22 sources simultaneously from `START`; the `operator.add` reducer on the `evidence` list merges partial results as each branch completes. A source that takes 8 seconds does not hold up a source that takes 1 second.
 
 ### 2. Pydantic End-to-End
 
@@ -192,7 +192,7 @@ Returns every agent step in chronological order with duration, token count, outc
 | --------- | ---------- | ------------- |
 | Pipeline agents | Python 3.12 + asyncio | Async-first throughout; parallel verification requires it |
 | LLM agents (extraction, judge, report) | Raw Anthropic SDK | Full prompt control; no framework abstraction over legally sensitive LLM calls |
-| Verification orchestration | LangGraph | 21-source parallel fan-out with partial failure tolerance |
+| Verification orchestration | LangGraph | 22-source parallel fan-out with partial failure tolerance |
 | Data validation | Pydantic v2 | Runtime-validated agent contracts; no untyped data at boundaries |
 | API | FastAPI | Async-native, Pydantic-native, production-grade |
 | Database | PostgreSQL 15 + pgvector | Relational integrity + vector similarity in one service |
@@ -202,7 +202,7 @@ Returns every agent step in chronological order with duration, token count, outc
 
 ## Data Sources
 
-21 parallel sources queried per claim. Sources are grouped by evidence type.
+22 parallel sources queried per claim. Sources are grouped by evidence type.
 
 ### Verified Emissions
 
@@ -254,6 +254,12 @@ Returns every agent step in chronological order with duration, token count, outc
 | EEA National Totals | EEA-verified national inventory totals 1990–present. Standard EU reporting benchmark. | `refresh_eea_national.py` |
 | EU Innovation Fund | EU-funded decarbonisation projects. Context for whether claimed green investments match emissions scale. | `refresh_eu_innovation_fund.py` |
 
+### Source Documents
+
+| Source | What It Provides | Refresh |
+| ------ | ---------------- | ------- |
+| Source Document (claim URL) | The document explicitly cited by the claim — sustainability reports, CSRD filings, IR pages. Fetched live, analysed with Anthropic document API + forced tool use. Extracts scope 1/2/3 figures, baseline year, interim targets (2030/2035/2040), SAF %, and all EmpCo Directive substantiation gaps. The most direct verification step: a company that points readers to its sustainability report for net-zero goals but whose report lacks EmpCo-required elements is in substantiation failure under binding EU law. | Live fetch per run |
+
 **Note on CDP:** CDP corporate scores require investor-signatory or paid API access. Not implemented. Self-reported data carries lower evidential weight than verified sources in any case.
 
 ---
@@ -279,9 +285,15 @@ python scripts/run_assessment.py --company "Shell plc" \
 # Assess up to 10 claims (more thorough, higher token spend):
 python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" --max-claims 10
+
+# Use Opus for judge and report (recommended for client-facing or legally-citable output):
+python scripts/run_assessment.py --company "Shell plc" \
+    --url "https://shell.com/sustainability" \
+    --judge-model claude-opus-4-8 \
+    --report-model claude-opus-4-8
 ```
 
-Costs approximately **$0.08 per claim** on Haiku defaults — this is the per-claim floor (one claim through all 7 agents, including 21-source verification). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
+Costs approximately **$0.08–$0.12 per claim** on Haiku defaults — this is the per-claim floor (one claim through all 7 agents, including 22-source verification; source document LLM call adds ~$0.02 when the claim has a fetchable source URL). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
 
 Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (highest-scoring claim) to `docs/reports/<slug>.md`.
 
@@ -296,7 +308,7 @@ Current results from the 21-source pipeline, as published on [martinblomqvistdev
 | Glencore plc | Mining | CONFIRMED_GREENWASHING | 87/100 |
 | Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
 | BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
-| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 82/100 |
+| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 86/100 |
 | KLM Royal Dutch Airlines | Aviation | GREENWASHING | 78/100 |
 | TotalEnergies SE | Oil & Gas | GREENWASHING | 75/100 |
 | Enel SpA | Energy | GREENWASHING | 68/100 |
@@ -398,13 +410,13 @@ prasine-index/
 │   ├── discovery_agent.py      # Monitors company sources for new content
 │   ├── extraction_agent.py     # Extracts green claims (raw Anthropic SDK)
 │   ├── context_agent.py        # Retrieves company history from PostgreSQL
-│   ├── verification_agent.py   # 21-source parallel fan-out (LangGraph)
+│   ├── verification_agent.py   # 22-source parallel fan-out (LangGraph)
 │   ├── lobbying_agent.py       # EU Transparency Register cross-reference
 │   ├── judge_agent.py          # LLM-as-judge scoring (raw Anthropic SDK)
 │   └── report_agent.py         # Publication-ready report (raw Anthropic SDK)
 ├── models/
 │   ├── claim.py                # Claim, ClaimStatus, ClaimLifecycle
-│   ├── evidence.py             # Evidence, VerificationResult, EvidenceSource (21 values)
+│   ├── evidence.py             # Evidence, VerificationResult, EvidenceSource (22 values)
 │   ├── score.py                # GreenwashingScore, ScoreVerdict
 │   ├── company.py              # Company, CompanyContext
 │   ├── lobbying.py             # LobbyingRecord
@@ -434,7 +446,8 @@ prasine-index/
 │   ├── gcpt.py                 # GEM Coal Plant Tracker (local XLSX)
 │   ├── egt.py                  # GEM Europe Gas Tracker (local XLSX)
 │   ├── goget.py                # GEM Oil & Gas Extraction Tracker (local XLSX)
-│   └── edgar.py                # EDGAR JRC GHG booklet (local XLSX)
+│   ├── edgar.py                # EDGAR JRC GHG booklet (local XLSX)
+│   └── source_document.py      # Claim's source document (Anthropic document API, live fetch)
 ├── api/
 │   └── main.py                 # FastAPI REST API
 ├── eval/
@@ -523,7 +536,7 @@ Prasine Index does not give legal advice. Published reports are evidence compila
 Below is an abridged real pipeline output for Ryanair's "Europe's greenest airline" claim.
 
 **Claim:** *"Ryanair is Europe's greenest airline."*
-**Verdict:** `CONFIRMED_GREENWASHING` — Score: **82 / 100**
+**Verdict:** `CONFIRMED_GREENWASHING` — Score: **86 / 100**
 
 ```text
 REGULATORY ENFORCEMENT ACTIONS
@@ -545,7 +558,7 @@ LOBBYMAP
   aviation inclusion in the EU ETS.
 ```
 
-**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. LobbyMap D+ confirms that the green positioning is contradicted by policy behaviour. Score: 82 — CONFIRMED_GREENWASHING."*
+**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. LobbyMap D+ confirms that the green positioning is contradicted by policy behaviour. Score: 86 — CONFIRMED_GREENWASHING."*
 
 Full example reports are in [examples/](examples/).
 
