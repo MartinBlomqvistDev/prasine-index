@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { Fraunces, Outfit } from 'next/font/google'
-import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
 
 const fraunces = Fraunces({
@@ -29,17 +28,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={`${fraunces.variable} ${outfit.variable}`}>
-        <head>
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap"
-          />
-        </head>
-        <body>{children}</body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className={`${fraunces.variable} ${outfit.variable}`}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
   )
 }

@@ -1,4 +1,3 @@
-import { currentUser } from '@clerk/nextjs/server'
 import Link from 'next/link'
 
 const SAMPLE_ASSESSMENTS = [
@@ -16,9 +15,7 @@ const verdictClass: Record<string, string> = {
   'Insufficient evidence': 'badge-insufficient',
 }
 
-export default async function DashboardPage() {
-  const user = await currentUser()
-
+export default function DashboardPage() {
   return (
     <div className="dash-layout">
       <aside className="dash-sidebar">
@@ -31,11 +28,7 @@ export default async function DashboardPage() {
       <main className="dash-main">
         <div className="dash-header">
           <h1>Assessments</h1>
-          <p>
-            {user ? `Logged in as ${user.emailAddresses[0]?.emailAddress}` : ''}
-            {' · '}
-            <Link href="/dashboard/request">Request a new assessment →</Link>
-          </p>
+          <p><Link href="/dashboard/request">Request a new assessment →</Link></p>
         </div>
 
         <table className="assessments-table">
