@@ -132,13 +132,15 @@ async def run(
     source_url: str,
     claim_text: str | None = None,
     max_claims: int = 5,
+    judge_model: str = "claude-haiku-4-5-20251001",
+    report_model: str = "claude-haiku-4-5-20251001",
 ) -> None:
     await init_db()
 
     company_id = uuid.uuid5(uuid.NAMESPACE_DNS, company_name.lower())
     await _ensure_company(company_name, company_id)
 
-    pipeline = Pipeline(config=PipelineConfig())
+    pipeline = Pipeline(config=PipelineConfig(judge_model=judge_model, report_model=report_model))
 
     try:
         if claim_text:
@@ -216,6 +218,18 @@ if __name__ == "__main__":
         help="Maximum number of claims to assess across all discovered pages. "
         "Caps token spend. Default: 5.",
     )
+    parser.add_argument(
+        "--judge-model",
+        default="claude-haiku-4-5-20251001",
+        help="Anthropic model ID for the Judge Agent. Default: claude-haiku-4-5-20251001. "
+        "Use claude-opus-4-8 for production-quality legally-citable output.",
+    )
+    parser.add_argument(
+        "--report-model",
+        default="claude-haiku-4-5-20251001",
+        help="Anthropic model ID for the Report Agent. Default: claude-haiku-4-5-20251001. "
+        "Use claude-opus-4-8 for showcase or client-facing reports.",
+    )
     args = parser.parse_args()
 
     if args.refresh_data:
@@ -223,4 +237,4 @@ if __name__ == "__main__":
         _refresh_data()
         print("\nData refresh complete. Running assessment...\n")
 
-    asyncio.run(run(args.company, args.url, args.claim, args.max_claims))
+    asyncio.run(run(args.company, args.url, args.claim, args.max_claims, args.judge_model, args.report_model))
