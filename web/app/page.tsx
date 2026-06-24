@@ -365,7 +365,7 @@ export default function HomePage() {
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://linkedin.com/in/martin-blomqvist-dev" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://linkedin.com/in/martin-blomqvist" target="_blank" rel="noopener">LinkedIn</a>
             <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
           </div>
         </div>
