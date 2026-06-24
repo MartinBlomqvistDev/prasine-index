@@ -49,7 +49,7 @@ export default function HomePage() {
 
           <div className="report-verdict-line">
             <span className="verdict-word confirmed">Confirmed greenwashing</span>
-            <span className="verdict-score">82 / 100</span>
+            <span className="verdict-score">84 / 100</span>
           </div>
 
           <div className="report-body">
@@ -207,8 +207,9 @@ export default function HomePage() {
                 framework: (1) active obstruction of climate legislation (LobbyMap D+, confidence
                 0.85) while making a net-zero pledge; (2) prior regulatory ruling against an
                 equivalent claim type (ASA 2020, confidence 0.90), establishing a documented
-                pattern; (3) accumulated weight of four contradicting evidence items, three at
-                confidence ≥ 0.85, with no high-confidence supporting evidence.
+                pattern; (3) substantiation failure under binding EU law — the EmpCo Directive
+                (2024/825) blacklists generic net-zero pledges without audited baseline, interim
+                targets, and verified carbon removal plan, which Ryanair&apos;s claim provides none of.
               </p>
               <p>
                 Supporting evidence (SBTi interim targets, TPI Below 2°C) is below confidence
@@ -225,11 +226,11 @@ export default function HomePage() {
                 <tr><th>Dimension</th><th>Score</th></tr>
               </thead>
               <tbody>
-                <tr><td>Substantiation failure</td><td>45 / 100</td></tr>
-                <tr><td>Emissions discrepancy</td><td>72 / 100</td></tr>
-                <tr><td>Prior violations</td><td>85 / 100</td></tr>
-                <tr><td>Lobbying contradiction</td><td>90 / 100</td></tr>
-                <tr><td>Target credibility gap</td><td>60 / 100</td></tr>
+                <tr><td>Lobbying contradiction</td><td>95 / 100</td></tr>
+                <tr><td>Prior violations</td><td>90 / 100</td></tr>
+                <tr><td>Emissions discrepancy</td><td>75 / 100</td></tr>
+                <tr><td>Substantiation failure</td><td>70 / 100</td></tr>
+                <tr><td>Target credibility gap</td><td>45 / 100</td></tr>
               </tbody>
             </table>
 
@@ -242,7 +243,7 @@ export default function HomePage() {
                 <tr>
                   <td>EU ETS Verified Emissions</td>
                   <td>Not registered</td>
-                  <td>No baseline trajectory. Confidence not reduced — GCEL and ASA ruling provide independent evidence.</td>
+                  <td>No baseline trajectory. Confidence not reduced — ASA ruling and LobbyMap D+ provide independent evidence.</td>
                 </tr>
                 <tr>
                   <td>CSRD FY2024 Disclosure</td>
@@ -308,7 +309,7 @@ export default function HomePage() {
                 { company: 'Glencore plc',             sector: 'Mining',      score: 87, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'Eni SpA',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'BP plc',                   sector: 'Oil & Gas',   score: 82, label: 'Confirmed',             badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 82, label: 'Confirmed',             badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 84, label: 'Confirmed',             badge: 'confirmed'    },
                 { company: 'KLM Royal Dutch Airlines', sector: 'Aviation',    score: 78, label: 'Greenwashing',          badge: 'greenwashing' },
                 { company: 'TotalEnergies SE',         sector: 'Oil & Gas',   score: 75, label: 'Greenwashing',          badge: 'greenwashing' },
                 { company: 'Enel SpA',                 sector: 'Energy',      score: 68, label: 'Greenwashing',          badge: 'greenwashing' },
