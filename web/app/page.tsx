@@ -57,9 +57,8 @@ export default function HomePage() {
             <div className="key-finding">
               <p className="key-finding-label">Key finding</p>
               <p>
-                Ryanair simultaneously claims a 2050 net-zero commitment while actively lobbying
-                against climate legislation (D+ LobbyMap score), actively expanding coal capacity
-                (Urgewald Global Coal Exit List), and carrying a documented history of misleading
+                Ryanair claims a 2050 net-zero commitment while actively lobbying against climate
+                legislation (D+ LobbyMap score) and carrying a documented history of misleading
                 emissions claims (ASA 2020 ruling). The company is under formal regulatory
                 investigation for environmental greenwashing by the European Commission (2024 CPC
                 investigation). The claim fails substantiation under the EmpCo Directive and is
@@ -73,21 +72,6 @@ export default function HomePage() {
             <div className="evidence-doc">
               <div className="ev-entry">
                 <div className="ev-number">1</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">Urgewald Global Coal Exit List — Active Coal Expansion</p>
-                  <p className="ev-finding">
-                    Ryanair is listed as <strong>actively expanding coal capacity</strong>. The GCEL
-                    is used by 400+ financial institutions (GFANZ, PAII) as the standard coal
-                    screening tool. Forward-looking coal expansion directly contradicts a net-zero
-                    2050 commitment and signals that decarbonisation is not the governing strategic
-                    principle.
-                  </p>
-                  <p className="ev-weight contra">Contradicts claim · confidence 0.90</p>
-                </div>
-              </div>
-
-              <div className="ev-entry">
-                <div className="ev-number">2</div>
                 <div className="ev-content">
                   <p className="ev-source-name">UK ASA Ruling A20-529462 (2020)</p>
                   <p className="ev-finding">
@@ -103,7 +87,7 @@ export default function HomePage() {
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">3</div>
+                <div className="ev-number">2</div>
                 <div className="ev-content">
                   <p className="ev-source-name">LobbyMap — D+ Climate Policy Engagement Score</p>
                   <p className="ev-finding">
@@ -118,7 +102,7 @@ export default function HomePage() {
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">4</div>
+                <div className="ev-number">3</div>
                 <div className="ev-content">
                   <p className="ev-source-name">European Commission CPC Investigation (2024)</p>
                   <p className="ev-finding">
@@ -136,7 +120,7 @@ export default function HomePage() {
             <p className="ev-group-label">Supporting evidence</p>
             <div className="evidence-doc">
               <div className="ev-entry">
-                <div className="ev-number">5</div>
+                <div className="ev-number">4</div>
                 <div className="ev-content">
                   <p className="ev-source-name">Science Based Targets initiative — Interim Reduction Targets</p>
                   <p className="ev-finding">
@@ -151,7 +135,7 @@ export default function HomePage() {
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">6</div>
+                <div className="ev-number">5</div>
                 <div className="ev-content">
                   <p className="ev-source-name">Transition Pathway Initiative — Below 2°C (2050)</p>
                   <p className="ev-finding">
@@ -169,7 +153,7 @@ export default function HomePage() {
             <p className="ev-group-label">Legislative framework</p>
             <div className="evidence-doc">
               <div className="ev-entry">
-                <div className="ev-number">7</div>
+                <div className="ev-number">6</div>
                 <div className="ev-content">
                   <p className="ev-source-name">EmpCo Directive (EU 2024/825) — Substantiation Failure</p>
                   <p className="ev-finding">
@@ -185,7 +169,7 @@ export default function HomePage() {
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">8</div>
+                <div className="ev-number">7</div>
                 <div className="ev-content">
                   <p className="ev-source-name">Corporate Sustainability Reporting Directive (2022/2464)</p>
                   <p className="ev-finding">
@@ -200,7 +184,7 @@ export default function HomePage() {
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">9</div>
+                <div className="ev-number">8</div>
                 <div className="ev-content">
                   <p className="ev-source-name">EU Transparency Register — Active Lobbying Registration</p>
                   <p className="ev-finding">
@@ -279,7 +263,6 @@ export default function HomePage() {
 
             <h2>Sources</h2>
             <ol className="sources-list">
-              <li>Urgewald Global Coal Exit List, accessed 2026-06-24</li>
               <li>UK ASA Ruling A20-529462 — Ryanair Holdings Ltd, 2020-09-16</li>
               <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-24</li>
               <li>European Commission CPC Network — Coordinated Action on Airline Environmental Claims, 2024</li>
