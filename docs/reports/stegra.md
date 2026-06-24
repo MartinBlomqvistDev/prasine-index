@@ -1,86 +1,116 @@
 # Stegra — Greenwashing Assessment
-
-**Verdict: MISLEADING** | Score: 54/100 | Confidence: 58%  
-*Published: 2026-05-05 | Prasine Index | Trace ID: 637841fa-c166-4f3a-a9bf-ad7cb89d08a2*
+**Verdict: MISLEADING** | Score: 48/100 | Confidence: 62%
+*Published: 2026-06-24 | Prasine Index | Trace ID: 859fefc2-6b36-41cc-a6a8-5b2936a31ee4*
 
 ---
 
-## The Claim
-
+### The Claim
 > "the hydrogen plant in Boden generating the green hydrogen needed to supply 5 million tonnes of high-quality steel to the market by 2030, paving the way for reducing 300 million tonnes of CO₂ emissions by 2040"
 
-*Source: Corporate investor relations page, https://www.stegra.com/en/green-hydrogen, date of assessment: 2026-05-05*
+*Source: Corporate website (IR page), https://www.stegra.com/en/green-hydrogen, 2026*
 
 ---
 
-## Evidence
+### Evidence
 
-**[1] EU ETS Directive 2003/87/EC (as amended)**  
-EU ETS verified emissions data, produced by accredited independent third-party verifiers under Regulation 601/2012, represent the highest-quality legal ground truth for actual greenhouse gas emissions. Verified figures are mandatory legal disclosures. Stegra has no registered EU ETS installation IDs in the EUTL database, meaning no verified baseline emissions data is available to validate the claimed 300 Mt CO₂ reduction against mandatory third-party verification standards.  
-*Source: EUR_LEX, 2003 (amended), https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087*
+**[1] EU ETS Directive 2003/87/EC — Verified Emissions Baseline Standard**
+The EU Emissions Trading System (EU ETS) requires all regulated installations to report verified emissions data annually under Regulation 601/2012. Stegra has no registered EU ETS installation IDs in the EUTL (Emissions Trading Registry). This means: (a) no verified baseline emissions exist for the company's current or planned installations; (b) the company's actual emissions trajectory cannot be independently audited; (c) any emissions reduction claim cannot be measured against a legally verified starting point. Under EU ETS Directive 2003/87/EC Article 15, verified third-party audited emissions data represents the highest legal ground truth for GHG claims.
+*Source: EUR_LEX [32003L0087], 2003, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32003L0087*
 
-**[2] EmpCo Directive (EU 2024/825) / UCPD**  
-Article 3(3)(a) of the directive requires that emissions reduction claims must state: (i) the baseline year; (ii) the scope (Scope 1, 2, or 3); and (iii) the calculation methodology. Article 5 prohibits aggregating reductions and increases to manufacture a net reduction figure.  
-*Source: EUR_LEX, 2023, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
+**[2] EmpCo Directive (EU 2024/825) — Substantiation Requirements**
+The EmpCo Directive, in force since March 2024, mandates that emissions reduction claims must disclose: (1) the baseline year; (2) the scope (Scope 1, 2, or 3); and (3) the methodology used. Article 6(1) prohibits aggregating reductions and increases to mask absolute emission increases. Stegra's claim provides none of these mandatory elements: no baseline year is stated; the scope is ambiguous (it conflates direct hydrogen plant emissions with avoided Scope 3 financed emissions in steel customer supply chains); and no methodology for calculating the "300 million tonnes" reduction is disclosed.
+*Source: EUR_LEX [32024L0825], 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
-**[3] EU Transparency Register**  
-Stegra is actively registered as a direct corporate lobbyist with the EU Transparency Register (registration no. 191319744634-58, HQ: Sweden). The registration confirms engagement with EU institutions on policy matters. No contradictory lobbying positions on climate or hydrogen policy are indicated by the registration record alone.  
-*Source: EU Transparency Register, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
+**[3] EU Transparency Register — Lobbying Activity Record**
+Stegra is registered as an active EU lobbyist (registration no. 191319744634-58, corporate direct lobbyist, HQ: Sweden). Registration alone confirms engagement with EU institutions on policy matters but does not indicate the direction or alignment of lobbying positions. No contradictory lobbying record linking Stegra to climate policy obstruction was retrieved.
+*Source: EU Transparency Register, n.d., https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
----
-
-## Assessment
-
-The claim asserts a specific emissions reduction figure (300 million tonnes of CO₂ by 2040) conditional on the operation of a hydrogen plant in Boden beginning production in 2030. This is an aspirational, forward-looking commitment rather than a statement of historical performance.
-
-**Substantiation Deficiencies:**
-
-The claim fails to meet Article 3(3)(a) of the EmpCo Directive (EU 2024/825) on four material grounds:
-
-1. **No baseline year specified.** The claim does not state the baseline year (e.g., 2020, 2022) against which the 300 Mt reduction is measured. Without a baseline, the reduction figure is anchored to nothing and cannot be independently verified or falsified.
-
-2. **No scope clarification.** The claim does not state whether the 300 Mt represents Scope 1 (direct), Scope 2 (indirect energy), Scope 3 (financed/value-chain), or a combination. For a hydrogen-based steel production claim, scope is critical: the emissions benefit depends on whether avoided emissions from conventional hydrogen production are included and how "green" hydrogen is defined (renewable energy source, grid decarbonization assumptions, etc.).
-
-3. **No methodology disclosed.** The claim does not explain how the 300 Mt figure was calculated. Critical details are absent:
-   - Is the figure a direct displacement of CO₂ from replacing fossil-based steel production with green hydrogen–based production?
-   - What production volume assumptions underpin the calculation?
-   - How is the baseline production method defined?
-   - What is the assumed efficiency of the hydrogen production process and the carbon intensity of the electricity used?
-
-4. **No verified baseline emissions data.** Stegra has no registered EU ETS installation IDs. Either the hydrogen plant does not yet exist (remaining speculative), or it is not a covered EU ETS installation. Either way, no verified baseline emissions can be established against which the reduction claim can be audited. For entities claiming emissions reductions in Scope 3 (financed emissions), the EmpCo Directive (EU 2024/825) requires independent verification of the baseline. No such verification is cited or disclosed here.
-
-**Additional Deficiency:**
-
-The claim does not cite or reference any third-party certification or validation (e.g., SBTi approval, ISO 14064-2 compliance, external audit). For a claim of this magnitude (300 Mt), absence of independent verification significantly weakens credibility.
-
-**Plausibility Assessment:**
-
-Hydrogen-based steel production is a technically credible decarbonization pathway and is actively funded under the EU Innovation Fund. A 2030 commissioning date for a hydrogen plant in Boden (Sweden, where renewable electricity is abundant) is plausible given current industrial hydrogen project timelines. However, plausibility of the underlying technology does not remedy the substantiation failure: the specific 300 Mt figure remains unverifiable.
-
-**Lobbying Alignment:**
-
-Stegra is registered as an active EU lobbyist. The EU Transparency Register does not indicate lobbying positions on climate or hydrogen policy, so no contradiction between the green hydrogen claim and documented lobbying positions can be assessed.
+**[4] Company Claims History**
+Prasine Index records show Stegra has 6 prior claim assessments with an improving score trend (average prior score: 45.2/100). This is the first assessment of this specific hydrogen + steel decarbonisation claim; no repeated claims were identified.
+*Source: Prasine Index company profile, 2026*
 
 ---
 
-## Key Finding
+### Assessment
 
-Stegra's claim of "reducing 300 million tonnes of CO₂ emissions by 2040" fails Article 3(3)(a) of the EmpCo Directive (EU 2024/825) because it omits the baseline year, does not specify the emissions scope (Scope 1/2/3), and discloses no calculation methodology—material omissions that render the claim unverifiable and therefore misleading. The company has no EU ETS installation IDs, meaning no verified baseline emissions data exists to audit the claim, and no third-party certification (SBTi, ISO 14064-2) is cited.
+Stegra's claim fails to meet mandatory EU regulatory standards for emissions reduction substantiation, making it **misleading** under UCPD Article 6(1) as amended by EmpCo Directive 2024/825.
+
+**Core Substantiation Failure**
+
+The claim states that the Boden hydrogen plant will enable "reducing 300 million tonnes of CO₂ emissions by 2040." This is a material claim that requires, under EmpCo [32024L0825], disclosure of:
+
+1. **Baseline year**: Not provided. Without a declared baseline year, the "300 million tonnes" cannot be measured or verified.
+2. **Scope declaration**: Ambiguous. The claim appears to conflate direct emissions from the green hydrogen plant (Scope 1, potentially near-zero if renewably powered) with avoided Scope 3 financed emissions in customer steelmaking. Mixing scopes without explicit declaration violates EmpCo standards.
+3. **Methodology**: Not disclosed. The calculation method for the 300 Mt figure is not explained, preventing independent verification or audit.
+
+**Absence of Verified Baseline**
+
+Stegra has no registered EU ETS installation IDs. Under EU ETS Directive [32003L0087], verified third-party audited emissions data is the highest legal ground truth for GHG claims. The absence of EUTL records means:
+- No baseline emissions have been independently verified.
+- The company's actual emissions reductions cannot be measured against audited data.
+- The claim rests on unsubstantiated internal figures rather than externally verified data.
+
+This is not merely a data gap—it is a substantiation failure under mandatory EU law.
+
+**Scope Ambiguity as Misleading**
+
+The claim risks violating UCPD Article 6(1) through scope ambiguity. If "300 million tonnes" refers only to *avoided* Scope 3 financed emissions in customer steel production, this must be explicitly stated. If it is claimed as company-level reduction, the absence of a baseline year and current emissions inventory makes it unverifiable. By omitting this critical distinction, the claim obscures whether Stegra's own absolute emissions will decrease, remain static, or increase—a material omission under UCPD.
+
+**Temporal and Verification Gaps**
+
+- The plant commissioning date is not stated; only a "by 2030" production target (5 million tonnes steel) is given.
+- The "by 2040" reduction target lacks interim milestones or third-party verification pathways (e.g., audited Life Cycle Assessment for avoided emissions).
+- No timebound interim targets are provided for Stegra's core operations.
+
+**Mitigating Factors**
+
+- Green hydrogen for steel decarbonisation is a science-aligned technology pathway; the claim is not inherently implausible.
+- Stegra's prior claim assessment history shows improvement (average score 45.2), suggesting this may reflect incomplete disclosure rather than deliberate falsification.
+- No verified contradicting data was found (e.g., regulatory ruling, EUTL evidence, or prior Prasine assessment) proving the claim factually false.
+- The claim is not a repeat; this is the first assessment of this specific hydrogen-steel claim.
+
+**Why Not "Greenwashing"?**
+
+The score of 48/100 reflects a **MISLEADING** verdict rather than **GREENWASHING** (61+) because no verified empirical data contradicts the claim. The substantiation failure is *regulatory* (non-compliance with EmpCo mandatory disclosure) rather than *factual* (data showing the claim is false). A greenwashing verdict requires evidence that a company has made claims that are demonstrably false; this assessment confirms only that Stegra has failed to substantiate its claims according to EU law.
 
 ---
 
-## Data Gaps
+### Key Finding
 
-1. **EU ETS EUTL database.** No installation IDs registered for Stegra. This does not conclusively prove the hydrogen plant does not exist; it may indicate the facility is not yet operational or is not a covered installation under Article 15 of Directive 2003/87/EC. Impact on confidence: this gap prevents verification of baseline emissions, reducing confidence in the emissions accuracy assessment to 58%.
-
-2. **LobbyMap lobbying positions.** No data retrieved on Stegra's documented lobbying positions regarding climate policy or hydrogen subsidies. This prevents assessment of whether Stegra's publicly stated green hydrogen commitment aligns with its EU policy advocacy. Impact on confidence: this gap is minor because the absence of data does not indicate contradiction; it indicates incompleteness.
-
-3. **SBTi target validation.** Stegra's targets have not been submitted to or validated by the Science Based Targets initiative. This is not a contradiction (many companies have not yet submitted), but it means the 300 Mt target has not been assessed against 1.5°C decarbonization pathways. Impact on confidence: this gap is moderate; the target's scientific rigor cannot be independently verified.
-
-4. **Hydrogen plant commissioning documentation.** No permit data, financing agreements, or project milestones retrieved. The 2030 commissioning date and plant capacity are unverified. Impact on confidence: this gap is significant for the plausibility of the forward-looking claim, but does not contradict it.
+Stegra's claim to reduce "300 million tonnes of CO₂ emissions by 2040" violates mandatory EmpCo Directive substantiation requirements: it provides no baseline year, no explicit scope declaration, and no methodology. The absence of any EU ETS registered installation for Stegra means the claim cannot be verified against audited emissions data, making it unsubstantiated and misleading under UCPD Article 6(1).
 
 ---
 
-## Methodology Note
+### Data Gaps
 
-Prasine Index assessed this claim using the EmpCo Directive (EU 2024/825) (Article 3(3)(a)) as the primary legal standard. The claim was scored across four dimensions: (1) substantiation completeness (Article 3(3)(a) compliance), (2) emissions accuracy (verified EU ETS baseline vs. claimed reduction), (3) target credibility (2040 target realism against 1.5°C science), and (4) lobbying alignment (contradiction between public commitment and documented EU policy advocacy). The final score of 54/100 reflects a material substantiation failure (no baseline year, scope, or methodology disclosed) without contradicting verified emissions data that would lower the score further. The confidence of 58% reflects the absence of EU ETS data and third-party validation, which prevents definitive falsification but undermines verifiability. Full methodology: https://prasine.org/methodology
+1. **EU ETS Installation IDs**: Stegra has no registered EUTL records. This is a critical gap because it prevents verification of:
+   - Current and historical emissions baselines
+   - Scope 1 and 2 emissions inventory
+   - Any verified emissions reduction pathway
+
+   *Impact on confidence*: Unable to verify whether the company's actual (not avoided customer) emissions will decrease.
+
+2. **LobbyMap Lobbying Position Band**: EU Transparency Register confirms Stegra's lobbying registration, but no LobbyMap band (A+/A/A-/B+/B/C/D+/D) was retrieved. Cross-referencing with detailed lobbying positions on climate policy would clarify whether Stegra's lobbying aligns with or contradicts its decarbonisation claims.
+
+   *Impact on confidence*: Unable to rule out lobbying-claim misalignment as an aggravating factor.
+
+3. **Life Cycle Assessment Data**: No third-party audited LCA methodology for the claimed "avoided" Scope 3 emissions was provided or retrieved. The 300 Mt figure cannot be independently validated without access to:
+   - Baseline hydrogen production emissions (current grid mix)
+   - Steelmaking decarbonisation pathways (avoided emissions per tonne)
+   - Customer uptake assumptions (how many tonnes of the 5 Mt will actually replace high-carbon steel?)
+
+   *Impact on confidence*: The "300 million tonnes" reduction claim is entirely unverifiable without methodological disclosure.
+
+4. **Plant Commissioning Timeline**: Stegra provides no commissioning date or pre-operational baseline for the Boden hydrogen facility. Without this, the claim's emissions boundary and calculation start point are undefined.
+
+   *Impact on confidence*: Unable to determine whether the 2030 and 2040 milestones are interim targets or cumulative figures.
+
+**Combined impact**: These gaps reduce confidence to 62%. While EmpCo legislative requirements and the EUTL absence are high-confidence findings (95%), the company's improving prior claim history and absence of verified contradictory evidence prevent a higher confidence verdict.
+
+---
+
+### Methodology Note
+
+Prasine Index scored this claim using regulatory compliance assessment and third-party data verification. The three sub-scores reflect: (1) **Claim Substantiation** (65/100): the claim specifies measurable targets but omits mandatory EmpCo disclosures (baseline year, scope, methodology); (2) **Emissions Accuracy** (55/100): the claim is directionally plausible for green hydrogen deployment but entirely unverifiable without a declared baseline and audited LCA; (3) **Target Credibility** (40/100): green hydrogen technology is credible, but the 2040 timeline is late for 1.5°C alignment, and the absence of interim company-level decarbonisation targets raises questions about genuine commitment. The overall score (48/100) places the claim in the **MISLEADING** category (41–60) due to substantiation failure under UCPD Article 6(1) as amended by EmpCo Directive [32024L0825], though not in **GREENWASHING** (61+) due to the absence of verified contradictory empirical data. Confidence is 62% because regulatory requirements are clear, but the company's improving prior assessment history and lack of empirical falsification prevent higher certainty that the claim is deliberately rather than negligently non-compliant.
+
+Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
