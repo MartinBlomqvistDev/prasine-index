@@ -1,3 +1,5 @@
+import ApplyForm from './apply-form'
+
 export default function HomePage() {
   return (
     <>
@@ -219,25 +221,7 @@ export default function HomePage() {
             I&apos;m working with a small number of early clients — ESG analysts, compliance
             teams, and journalists. If this is useful to your work, get in touch.
           </p>
-          <form
-            className="apply-form"
-            action="https://formspree.io/f/placeholder"
-            method="POST"
-          >
-            <div className="form-row">
-              <label className="form-label" htmlFor="name">Name</label>
-              <input className="form-input" type="text" id="name" name="name" required />
-            </div>
-            <div className="form-row">
-              <label className="form-label" htmlFor="email">Email</label>
-              <input className="form-input" type="email" id="email" name="email" required />
-            </div>
-            <div className="form-row">
-              <label className="form-label" htmlFor="context">How would you use this?</label>
-              <textarea className="form-textarea" id="context" name="context" rows={4} />
-            </div>
-            <button type="submit" className="form-submit">Send</button>
-          </form>
+          <ApplyForm />
         </div>
       </section>
 
