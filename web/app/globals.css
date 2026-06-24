@@ -312,6 +312,8 @@ h1, h2 {
   margin-top: 8px;
 }
 .form-submit:hover { opacity: 0.82; }
+.form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.apply-thanks { font-size: 1rem; color: var(--text); padding: 24px 0; }
 
 /* ── Footer ── */
 footer {
