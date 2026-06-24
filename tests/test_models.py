@@ -368,15 +368,15 @@ class TestGreenwashingScore:
             trace_id=trace_id,
             score=60.0,
             score_breakdown={
-                ScoreCategory.EMISSIONS_ACCURACY.value: 70.0,
-                ScoreCategory.HISTORICAL_CONSISTENCY.value: 55.0,
+                ScoreCategory.EMISSIONS_DISCREPANCY.value: 70.0,
+                ScoreCategory.PRIOR_VIOLATIONS.value: 55.0,
             },
             verdict=ScoreVerdict.GREENWASHING,
             reasoning="Test.",
             confidence=0.8,
             judge_model_id="claude-opus-4-6",
         )
-        assert score.score_breakdown[ScoreCategory.EMISSIONS_ACCURACY.value] == 70.0
+        assert score.score_breakdown[ScoreCategory.EMISSIONS_DISCREPANCY.value] == 70.0
 
 
 # ---------------------------------------------------------------------------

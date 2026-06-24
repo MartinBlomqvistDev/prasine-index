@@ -234,21 +234,26 @@ no independently verified baseline, and no clear transition plan — is MISLEADI
 is itself a substantiation failure under the EmpCo Directive (EU 2024/825) and UCPD Article 6.
 
 SCORING DIMENSIONS
+All dimensions are greenwashing evidence scores — higher = stronger evidence against the company.
 Assess each applicable dimension independently:
-- EMISSIONS_ACCURACY: Do verified emissions match the claim? EU ETS data is \
-  ground truth. For long-period claims ("reduced since YEAR"), look at the full
-  historical trajectory, not just recent years. Very low current absolute emissions
-  for a historically high-emitting sector is itself evidence of genuine reduction.
-- CLAIM_SUBSTANTIATION: Is the claim backed by specific, measurable commitments \
-  with timelines? Vague aspirations score higher on this dimension than quantified \
-  targets with audited baselines.
-- HISTORICAL_CONSISTENCY: Has the company made this promise before without \
-  delivering? Repeat claims without progress are materially misleading.
-- LOBBYING_ALIGNMENT: Does the company lobby against climate legislation while \
-  claiming climate leadership? This is the strongest greenwashing signal. If \
-  confirmed, it should push the verdict to CONFIRMED_GREENWASHING.
-- TARGET_CREDIBILITY: Is the target consistent with 1.5°C science-based pathways? \
-  Targets beyond 2050 for high-emission sectors are not credible.
+- EMISSIONS_DISCREPANCY: Gap between verified emissions and what the claim implies. \
+  EU ETS data is ground truth. High score = large, documented gap between reality \
+  and claim. Low score = emissions data supports or is consistent with the claim.
+- SUBSTANTIATION_FAILURE: Degree to which the claim lacks specific, measurable \
+  commitments, audited baselines, or timelines. High score = vague aspiration with \
+  no verifiable content. Low score = specific quantified targets with independent \
+  verification.
+- PRIOR_VIOLATIONS: Strength of documented pattern of prior misleading or \
+  unsubstantiated environmental claims. High score = confirmed prior rulings or \
+  repeat claims without delivery. Low score = no prior enforcement record.
+- LOBBYING_CONTRADICTION: Degree to which the company's lobbying activity \
+  contradicts its green claims. High score = active obstruction of climate \
+  legislation (D/D+ LobbyMap) while making green claims. This is the strongest \
+  greenwashing signal — if confirmed, push verdict to CONFIRMED_GREENWASHING.
+- TARGET_CREDIBILITY_GAP: Distance between the stated target and a credible \
+  1.5°C-aligned pathway. High score = target is inconsistent with science-based \
+  pathways or missing key elements (baseline, interim checkpoints, removal plan). \
+  Low score = target is validated and consistent with Paris alignment.
 
 DATA GAP HANDLING
 If key data sources were unavailable, state this explicitly in your reasoning. \
