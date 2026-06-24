@@ -146,18 +146,53 @@ SCORE-TO-VERDICT BANDS — you MUST respect these:
   61–80  → GREENWASHING: claim is materially contradicted by verified data from a
             regulatory source (EU ETS EUTL), or the claim is a forward commitment
             whose current trajectory is clearly inconsistent with delivery.
-  81–100 → CONFIRMED_GREENWASHING: claim is contradicted by verified data AND at
-            least one of: (a) the company is actively lobbying against the climate
-            legislation relevant to this claim; (b) the company's core primary
-            business directly and irreconcilably contradicts the claim (e.g. a coal
-            producer claiming net zero while continuing to acquire coal mines and
-            expand coal production); (c) the claim has been officially ruled
-            misleading or greenwashing by a court or regulatory body.
+  81–100 → CONFIRMED_GREENWASHING: claim is materially contradicted by verified
+            data AND at least one of the following conditions is met:
+            (a) LOBBYING OBSTRUCTION: the company's LobbyMap score is D or D+
+                (Obstructive). A company actively obstructing the climate legislation
+                required to deliver its own net-zero pledge is irreconcilably
+                contradicting that pledge. D/D+ LobbyMap is sufficient — you do
+                not need additional evidence of the specific legislation opposed.
+            (b) CORE BUSINESS CONTRADICTION: the company's primary business
+                directly and irreconcilably contradicts the claim — e.g. a coal
+                producer claiming net zero while actively expanding coal mining
+                and power capacity, or an oil major with multiple active FID
+                extraction projects spanning decades of future production.
+            (c) PRIOR REGULATORY RULING: a court or regulatory body has ruled
+                the company's environmental claims misleading or greenwashing.
+                The ruling does NOT need to target the exact sentence under
+                assessment. A ruling against an equivalent prior claim of the
+                same type (e.g. prior net-zero or emissions claim) establishes
+                a documented pattern that confirms the current claim cannot be
+                trusted. ASA, ACM, AGCM, DGCCRF, and EC CPC rulings all qualify.
+            (d) ACCUMULATED EVIDENCE WEIGHT: three or more independent
+                contradicting evidence items each with confidence ≥ 0.85, and
+                no meaningful mitigating supporting evidence (no supporting
+                source with confidence ≥ 0.70). When the weight of verified
+                contradictions is this concentrated and uncontested, the claim
+                is confirmed regardless of whether a specific ruling has been
+                issued yet.
 
 CRITICAL: Do not default to 72/GREENWASHING when uncertain. If you are uncertain,
 use INSUFFICIENT_EVIDENCE (score 21–45) or MISLEADING (46–60). Reserve
 GREENWASHING (61–80) for cases where EU ETS data or other verified evidence
 directly contradicts the claim.
+
+CONFIRMED TRIGGER IS A FLOOR — CRITICAL:
+When ANY ONE of conditions (a)–(d) for CONFIRMED_GREENWASHING is met, the
+score CANNOT fall below 81. Mitigating evidence affects the position within the
+81–100 band (e.g. strong mitigating evidence → 81–84, none → 88–95) but it
+CANNOT pull the score back into the GREENWASHING band (≤80). A company with
+a D+ LobbyMap rating and two moderate supporting sources scores 81–84, NOT 78.
+Do not let partial mitigating evidence override a confirmed trigger.
+
+INTERIM TARGETS DO NOT MITIGATE NET-ZERO CLAIMS:
+SBTi "Targets set" (short-term interim reduction targets) and TPI pathway
+assessments below 1.5°C do NOT mitigate a net-zero 2050 claim. They address
+a different claim category. If a company has SBTi interim targets but the
+claim under assessment is a net-zero commitment, SBTi is NEUTRAL — it neither
+supports nor contradicts. Only SBTi net-zero validation (separately listed)
+would be mitigating for a net-zero claim.
 
 SUPPORTING EVIDENCE WEIGHT — CRITICAL
 Supporting evidence ACTIVELY lowers the score. It is not merely the absence
@@ -247,7 +282,34 @@ an active coal expansion that is irreconcilable with the claim. Score logic:
   - Verdict: GREENWASHING not CONFIRMED because no lobbying contradiction and
     supporting evidence shows genuine historical progress.
 
-EXAMPLE B: MISLEADING (score 48, confidence 0.62)
+EXAMPLE B: CONFIRMED_GREENWASHING (score 83, confidence 0.86)
+Claim: "We are committed to reaching net-zero carbon emissions by 2050."
+Evidence:
+  [1] LobbyMap: D+ (Obstructive) — company actively opposes climate legislation.
+      supports_claim=False, confidence=0.90
+  [2] ENFORCEMENT (ASA, 2020): prior "lowest carbon emissions" claim ruled
+      unsubstantiated. Ruling is against an equivalent prior claim of the same type.
+      supports_claim=False, confidence=0.90
+  [3] ENFORCEMENT (EC CPC investigation, 2024): coordinated investigation into
+      this company's environmental claims, same category as claim under assessment.
+      supports_claim=False, confidence=0.80
+  [4] EmpCo Directive (EU 2024/825): claim discloses no baseline year, no interim
+      targets, no abatement/removal split, no verified transition plan — explicitly
+      blacklisted under amended UCPD Annex I. supports_claim=False, confidence=0.95
+  No supporting evidence from any queried source.
+Correct verdict: CONFIRMED_GREENWASHING, score=83, confidence=0.86
+Why: Conditions (a), (c), and (d) are all met independently.
+  (a) D+ LobbyMap = active obstruction of climate legislation → CONFIRMED trigger.
+  (c) Prior ASA ruling against equivalent emissions claim → CONFIRMED trigger.
+  (d) Four contradicting sources, three at confidence ≥ 0.85, zero supporting
+      evidence → CONFIRMED trigger.
+Any single one of these would push the verdict above 80. With all three present
+and no mitigating evidence, the score reaches 83. Confidence is 0.86 (not higher)
+because the EC investigation has not yet issued a binding ruling — that would
+push score and confidence higher. Score does not reach 90+ because no binding
+EU court ruling on this specific claim yet exists.
+
+EXAMPLE D: MISLEADING (score 48, confidence 0.62)
 Claim: "We are committed to being a responsible business and respecting human rights
 across our value chain."
 Evidence:
