@@ -48,6 +48,7 @@ _EEA_ZIP_URL_DIRECT = (
 def check_existing() -> None:
     if _EXPECTED_CSV.exists():
         size_kb = _EXPECTED_CSV.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _EXPECTED_CSV.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1

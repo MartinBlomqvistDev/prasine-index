@@ -47,6 +47,7 @@ _EIF_CSV_URL_FALLBACK = (
 def check_existing() -> None:
     if _DEST.exists():
         size_kb = _DEST.stat().st_size // 1024
+        row_count: int | str
         try:
             lines = _DEST.read_text(encoding="utf-8-sig").splitlines()
             row_count = len(lines) - 1
@@ -80,12 +81,13 @@ def download_eu_innovation_fund_csv() -> None:
 
             _DEST.write_bytes(data)
             size_kb = len(data) // 1024
+            row_count2: int | str
             try:
                 lines = data.decode("utf-8-sig").splitlines()
-                row_count = len(lines) - 1
+                row_count2 = len(lines) - 1
             except Exception:
-                row_count = "unknown"
-            print(f"  Saved {size_kb} KB — {row_count} projects → {_DEST}")
+                row_count2 = "unknown"
+            print(f"  Saved {size_kb} KB — {row_count2} projects → {_DEST}")
             return
 
         except Exception as exc:
