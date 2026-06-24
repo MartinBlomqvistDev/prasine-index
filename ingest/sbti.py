@@ -163,7 +163,7 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy company name matching."""
-    name = name.lower().strip()
+    name = name.lower().strip().rstrip(".,;:")
     for suffix in (
         " plc",
         " ag",
