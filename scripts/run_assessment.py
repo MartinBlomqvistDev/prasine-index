@@ -94,7 +94,7 @@ def _refresh_data() -> None:
 
         module = importlib.util.module_from_spec(spec)
         try:
-            spec.loader.exec_module(module)  # type: ignore[union-attr]
+            spec.loader.exec_module(module)
             # Each refresh script exposes a main download function with a predictable name.
             for fn_name in (
                 "download_sbti",
@@ -237,4 +237,8 @@ if __name__ == "__main__":
         _refresh_data()
         print("\nData refresh complete. Running assessment...\n")
 
-    asyncio.run(run(args.company, args.url, args.claim, args.max_claims, args.judge_model, args.report_model))
+    asyncio.run(
+        run(
+            args.company, args.url, args.claim, args.max_claims, args.judge_model, args.report_model
+        )
+    )

@@ -254,7 +254,7 @@ async def fetch_source_document_data(
             system=_SYSTEM_PROMPT,
             tools=[_EXTRACTION_TOOL],
             tool_choice=anthropic.types.ToolChoiceToolParam(type="tool", name=_TOOL_NAME),
-            messages=[{"role": "user", "content": content_blocks}],
+            messages=[{"role": "user", "content": content_blocks}],  # type: ignore[typeddict-item]
         )
     except anthropic.APIStatusError as exc:
         raise DataSourceError(
