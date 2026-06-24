@@ -33,11 +33,11 @@ export default function HomePage() {
 
           <div className="report-meta">
             <span className="report-label">Assessment</span>
-            <span className="report-date">11 May 2026</span>
+            <span className="report-date">24 June 2026</span>
           </div>
 
           <h1 className="report-company">Ryanair Holdings plc</h1>
-          <p className="report-details">Ireland · Aviation · CSRD obligated · Assessed 2026-05-11</p>
+          <p className="report-details">Ireland · Aviation · CSRD obligated · Assessed 2026-06-24</p>
 
           <div className="report-claim">
             <div className="claim-attr">Claim extracted from corporate.ryanair.com/sustainability/</div>
