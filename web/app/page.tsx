@@ -1,6 +1,3 @@
-import Link from 'next/link'
-import { Show, SignInButton, UserButton } from '@clerk/nextjs'
-
 export default function HomePage() {
   return (
     <>
@@ -9,16 +6,7 @@ export default function HomePage() {
         <div className="nav-inner">
           <div className="nav-logo"><span>P</span>rasine Index</div>
           <div className="nav-links">
-            <Show when="signed-in">
-              <Link href="/dashboard" className="nav-link">Dashboard</Link>
-              <UserButton />
-            </Show>
-            <Show when="signed-out">
-              <SignInButton mode="modal">
-                <button className="nav-btn outline">Sign in</button>
-              </SignInButton>
-              <a href="#apply" className="nav-btn">Apply for early access</a>
-            </Show>
+            <a href="#apply" className="nav-btn">Apply for early access</a>
           </div>
         </div>
       </nav>
