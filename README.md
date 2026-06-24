@@ -241,7 +241,7 @@ Returns every agent step in chronological order with duration, token count, outc
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| LobbyMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_LobbyMap.py` |
+| LobbyMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_lobbymap.py` |
 | EU Transparency Register | Brussels lobbying declarations. Confirms active lobbying; direction requires cross-reference with LobbyMap. | `refresh_eu_transparency_register.py` |
 | Enforcement Rulings | ASA, ACM, AGCM, CMA, EC rulings and court judgments. Prior ruling = strongest evidence category. | Static (embedded in module) |
 | EUR-Lex | Green Claims Directive, CSRD ESRS E1, EU ETS legislation as regulatory baseline. | Static (legislation is stable) |
@@ -281,7 +281,7 @@ python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" --max-claims 10
 ```
 
-Costs approximately **$0.05 per claim** on Haiku defaults — this is the per-claim floor (one claim through all 7 agents, including 21-source verification). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
+Costs approximately **$0.08 per claim** on Haiku defaults — this is the per-claim floor (one claim through all 7 agents, including 21-source verification). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
 
 Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (highest-scoring claim) to `docs/reports/<slug>.md`.
 
@@ -289,21 +289,28 @@ Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (h
 
 ## Published Assessments
 
-Current results from the 21-source pipeline, as published on [prasineindex.eu](https://martinblomqvistdev.github.io/prasine-index/):
+Current results from the 21-source pipeline, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/):
 
 | Company | Sector | Verdict | Score |
 | ------- | ------ | ------- | ----- |
+| Glencore plc | Mining | CONFIRMED_GREENWASHING | 87/100 |
+| Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
+| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
 | Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 82/100 |
-| KLM Royal Dutch Airlines | Aviation | CONFIRMED_GREENWASHING | 92/100 |
-| Glencore plc | Mining | CONFIRMED_GREENWASHING | 82/100 |
-| Shell plc | Oil & Gas | GREENWASHING | 78/100 |
-| TotalEnergies SE | Oil & Gas | GREENWASHING | 72/100 |
-| Enel SpA | Energy | GREENWASHING | 72/100 |
-| HSBC Holdings plc | Banking | GREENWASHING | 71/100 |
-| RWE AG | Energy | MISLEADING | 56/100 |
-| IKEA Group | Retail | MISLEADING | 52/100 |
-| Öresundskraft AB | Energy | MISLEADING | 52/100 |
-| Ørsted A/S | Energy | INSUFFICIENT_EVIDENCE | 32/100 |
+| KLM Royal Dutch Airlines | Aviation | GREENWASHING | 78/100 |
+| TotalEnergies SE | Oil & Gas | GREENWASHING | 75/100 |
+| Enel SpA | Energy | GREENWASHING | 68/100 |
+| RWE AG | Energy | MISLEADING | 58/100 |
+| Wizz Air Holdings plc | Aviation | MISLEADING | 56/100 |
+| LKAB | Steel | MISLEADING | 52/100 |
+| H&M Group | Fashion | MISLEADING | 48/100 |
+| Öresundskraft | Energy | MISLEADING | 48/100 |
+| Stegra | Steel | MISLEADING | 48/100 |
+| SSAB AB | Steel | INSUFFICIENT_EVIDENCE | 42/100 |
+| Danone SA | Food | INSUFFICIENT_EVIDENCE | 35/100 |
+| Ørsted A/S | Renewables | INSUFFICIENT_EVIDENCE | 32/100 |
+| Securitas AB | Services | INSUFFICIENT_EVIDENCE | 28/100 |
+| IKEA Group | Retail | INSUFFICIENT_EVIDENCE | 22/100 |
 
 Reports are published to `docs/reports/` as Markdown — every factual assertion cited, every data gap disclosed.
 
@@ -348,7 +355,7 @@ python scripts/run_assessment.py --company "..." --url "..." --refresh-data
 python scripts/refresh_eutl.py           # EU ETS daily snapshot
 python scripts/refresh_sbti.py           # SBTi targets
 python scripts/refresh_eprtr.py          # E-PRTR non-CO2 GHG
-python scripts/refresh_LobbyMap.py   # LobbyMap lobbying scores
+python scripts/refresh_lobbymap.py   # LobbyMap lobbying scores
 python scripts/refresh_ca100.py          # CA100+ benchmark
 python scripts/refresh_fossil_finance.py # Banking on Climate Chaos
 python scripts/refresh_gcel.py           # Global Coal Exit List
@@ -411,7 +418,7 @@ prasine-index/
 │   ├── eu_ets.py               # EU ETS EUTL verified emissions (local CSV)
 │   ├── sbti.py                 # SBTi validated/removed targets (local CSV)
 │   ├── eprtr.py                # E-PRTR non-CO2 GHG releases (local CSV)
-│   ├── influence_map.py        # LobbyMap lobbying scores (local CSV)
+│   ├── lobby_map.py            # LobbyMap lobbying scores (local CSV)
 │   ├── enforcement.py          # ASA/ACM/AGCM/CMA/EC rulings (static, embedded)
 │   ├── ca100.py                # CA100+ net-zero benchmark (local CSV)
 │   ├── fossil_finance.py       # Banking on Climate Chaos fossil financing (local CSV)
@@ -437,7 +444,7 @@ prasine-index/
 │   ├── refresh_eutl.py         # Download EU ETS daily snapshot
 │   ├── refresh_sbti.py         # Download SBTi CSV
 │   ├── refresh_eprtr.py        # Download E-PRTR CSV
-│   ├── refresh_LobbyMap.py # Download LobbyMap CSV
+│   ├── refresh_lobbymap.py     # Download LobbyMap CSV
 │   ├── refresh_ca100.py        # Download CA100+ CSV
 │   ├── refresh_fossil_finance.py  # Download Banking on Climate Chaos CSV
 │   ├── refresh_gcel.py         # Download Urgewald GCEL CSV
@@ -452,7 +459,7 @@ prasine-index/
 ├── data/                       # Local bulk datasets (not committed — download via refresh scripts)
 │   ├── sbti_companies.csv
 │   ├── eprtr_releases.csv
-│   ├── LobbyMap_companies.csv
+│   ├── lobbymap_companies.csv
 │   ├── ca100_companies.csv
 │   ├── fossil_finance_banks.csv
 │   ├── gcel_companies.csv
@@ -531,7 +538,7 @@ EU ETS VERIFIED EMISSIONS (2005–2023)
   Supports claim: False (confidence: 0.75)
   Ryanair's verified CO2 emissions increased 41% over the monitoring period.
 
-INFLUENCE MAP
+LOBBYMAP
   Score: D+ (obstructive climate lobbying)
   Supports claim: False (confidence: 0.85)
   LobbyMap D+ band: Ryanair has opposed fuel taxation and lobbied against
