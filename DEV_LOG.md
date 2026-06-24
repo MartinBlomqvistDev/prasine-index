@@ -352,6 +352,30 @@ are the only safe identifiers; substring matching should only run in one directi
 
 ---
 
+## 2026-06-24 — Pipeline never read the document a claim explicitly cites
+
+**Symptom:** Ryanair's assessed claim reads "Within our Sustainability Report 2025, learn more about the ambitious goals we've set to reach net-zero carbon emissions by 2050." Prasine Index had never fetched or read that Sustainability Report 2025 — despite it being available (Ryanair published it in September 2025 with PwC limited assurance). The 21 external sources all said nothing about the document Ryanair itself pointed readers to.
+
+**Root cause:** The Verification Agent's 21 parallel sources all query independent third-party databases. None of them fetch the source document named in the claim. A company can point to any document it likes; the pipeline would never read it. This is a fundamental gap: if the claim says "see our report," the most relevant verification step is reading that report.
+
+**What the Ryanair Sustainability Statement 2025 actually shows (found manually):**
+- Scope 1: 16.5 Mt CO2e (FY2025)
+- Scope 3: 3.6 Mt
+- SAF: 2% actual usage / >10% by 2030 target (vs 63%+ needed for aviation net zero by 2050)
+- SBTi validates near-term targets only, not the net-zero claim
+- No 2035/2040 interim checkpoints
+- No certified carbon removal plan
+
+This would strengthen the assessment materially. The pipeline missed it entirely.
+
+**Fix:** Added a 22nd verification node: `ingest/source_document.py` + `_node_fetch_source_document` wired into `VerificationAgent`. The node fetches `claim.source_url`, detects HTML vs PDF, passes content to Claude Haiku via Anthropic document API and forced tool use (`extract_climate_disclosures`), and returns a structured `Evidence` record. The tool extracts scope 1/2/3 figures, baseline year, interim targets at 2030/2035/2040, SAF %, certified removal plan status, and a list of EmpCo Directive (EU 2024/825) substantiation elements that are explicitly absent.
+
+**Why the gap wasn't obvious:** The existing 21 sources all returned real evidence. The pipeline produced a confident, well-reasoned verdict. Nothing in the output flagged that the most directly cited document had never been read. The only way to notice was to manually inspect the claim text and ask: "did we read what the company told us to read?"
+
+**Lesson:** When a claim explicitly references a document, reading that document is not optional. It is the most direct evidence available and the one a human analyst would reach for first. External data sources are necessary but not sufficient.
+
+---
+
 ## Pipeline architecture decisions that proved correct
 
 **LangGraph only in Verification Agent.** Originally considered using it for the

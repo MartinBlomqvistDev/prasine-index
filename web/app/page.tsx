@@ -286,7 +286,7 @@ export default function HomePage() {
         <div className="doc-container">
           <h2 className="index-heading">The Index</h2>
           <p className="index-sub">
-            18 EU companies assessed across 6 sectors. Evidence drawn from 21 open data sources per run.
+            18 EU companies assessed across 6 sectors. Evidence drawn from 22 open data sources per run.
           </p>
           <div className="index-stats">
             <span className="index-stat"><strong>4</strong> confirmed</span>
@@ -357,9 +357,15 @@ export default function HomePage() {
       {/* ── Footer ── */}
       <footer>
         <div className="footer-inner">
-          <span>Prasine Index — Martin Blomqvist, 2026</span>
+          <div>
+            <span>Prasine Index — Martin Blomqvist, 2026</span>
+            <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
+              Data Scientist / AI Engineer · EC Utbildning (Data Science, 2026) · LIA: IMVI Labs · Sweden
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://linkedin.com/in/martin-blomqvist-dev" target="_blank" rel="noopener">LinkedIn</a>
             <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
           </div>
         </div>
