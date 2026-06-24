@@ -327,7 +327,7 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
     for key, records_by_year in by_parent.items():
         if key == norm:
             continue  # already handled above
-        if norm in key or key in norm:
+        if len(norm) >= 5 and norm in key:
             for year, records in records_by_year.items():
                 merged[year].extend(records)
 

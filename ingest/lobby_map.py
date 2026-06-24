@@ -261,9 +261,10 @@ def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
         return by_name[norm]
 
     # Partial substring match as last resort
-    for key, record in by_name.items():
-        if norm in key or key in norm:
-            return record
+    if len(norm) >= 5:
+        for key, record in by_name.items():
+            if norm in key:
+                return record
 
     return None
 

@@ -306,6 +306,52 @@ company, report length, and whether discovery is triggered.
 
 ---
 
+## 2026-06-24 — Fuzzy name matching producing false positives across all ingest modules
+
+**Symptom:** The Ryanair report (`docs/reports/ryanair-holdings-plc.md`) contained
+a finding that Ryanair was "ACTIVELY EXPANDING coal capacity" on the Urgewald Global
+Coal Exit List. Ryanair is an airline with no coal operations. The GCEL CSV contains
+no record for Ryanair.
+
+**Root cause:** The `_lookup()` function in `coal_exit.py` (and 8 other ingest
+modules) used bidirectional substring matching as a fuzzy fallback:
+
+```python
+for key, record in by_name.items():
+    if norm in key or key in norm:
+        return record
+```
+
+"Ry Holding Ltd" normalises to `"ry"`. The condition `"ry" in "ryanair"` is `True`.
+This returned a coal company record for a completely unrelated entity. The same
+vulnerability existed in `ca100.py`, `enforcement.py`, `eu_transparency_register.py`,
+`fossil_finance.py`, `eu_innovation_fund.py`, `gogel.py`, `eprtr.py`, and `lobby_map.py`.
+
+**Fix:** Dropped the `key in norm` direction (short DB key matching inside query name)
+entirely across all 9 files. Kept `norm in key` (query is substring of longer DB entry)
+but guarded with `len(norm) >= 5` to prevent ultra-short normalised names from matching:
+
+```python
+if len(norm) >= 5:
+    for key, record in by_name.items():
+        if norm in key:
+            return record
+```
+
+**Why the hallucination wasn't caught earlier:** The false positive produced a
+plausible-sounding finding — a coal exit list hit is exactly the kind of signal
+the pipeline is designed to surface. The output was internally consistent with the
+greenwashing verdict and passed the Judge Agent's reasoning step without contradiction.
+It only failed the human smell-test: Ryanair is an airline.
+
+**Lesson:** Fuzzy string matching on company names is a primary hallucination vector —
+a false lookup match is indistinguishable from a real one in downstream LLM output.
+Never use bidirectional substring matching. ISIN, ticker, and exact normalised name
+are the only safe identifiers; substring matching should only run in one direction
+(query inside DB entry) and only for queries longer than a meaningful minimum length.
+
+---
+
 ## Pipeline architecture decisions that proved correct
 
 **LangGraph only in Verification Agent.** Originally considered using it for the

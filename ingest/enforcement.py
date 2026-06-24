@@ -478,9 +478,9 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
     rulings = _BY_COMPANY.get(norm, [])
 
     # Partial substring match — catches "Ryanair Holdings plc" vs "Ryanair"
-    if not rulings:
+    if not rulings and len(norm) >= 5:
         for key, key_rulings in _BY_COMPANY.items():
-            if norm in key or key in norm:
+            if norm in key:
                 rulings = key_rulings
                 break
 

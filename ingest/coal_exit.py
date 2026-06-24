@@ -309,9 +309,10 @@ def _lookup(name: str, isin: str | None, ticker: str | None) -> _GCELRecord | No
     norm = _normalise_name(name)
     if norm in by_name:
         return by_name[norm]
-    for key, record in by_name.items():
-        if norm in key or key in norm:
-            return record
+    if len(norm) >= 5:
+        for key, record in by_name.items():
+            if norm in key:
+                return record
     return None
 
 
