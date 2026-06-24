@@ -243,15 +243,15 @@ def _lookup(company_name: str, isin: str | None = None) -> list[_EIFProject]:
         results.extend(by_promoter[norm])
 
     # Substring match on promoter
-    if not results:
+    if not results and len(norm) >= 5:
         for key, projects in by_promoter.items():
-            if norm in key or key in norm:
+            if norm in key:
                 results.extend(projects)
 
     # Project name match (catches consortium/project-name-only entries)
-    if not results:
+    if not results and len(norm) >= 5:
         for key, projects in by_name.items():
-            if norm in key or key in norm:
+            if norm in key:
                 results.extend(projects)
 
     return results

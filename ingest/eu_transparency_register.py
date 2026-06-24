@@ -204,9 +204,10 @@ def _lookup(company_name: str) -> _TRRecord | None:
         return cache[norm]
 
     # Substring fallback
-    for key, record in cache.items():
-        if norm in key or key in norm:
-            return record
+    if len(norm) >= 5:
+        for key, record in cache.items():
+            if norm in key:
+                return record
 
     return None
 

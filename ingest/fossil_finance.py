@@ -211,9 +211,10 @@ def _lookup(name: str) -> _FossilFinanceRecord | None:
     norm = _normalise_name(name)
     if norm in cache:
         return cache[norm]
-    for key, record in cache.items():
-        if norm in key or key in norm:
-            return record
+    if len(norm) >= 5:
+        for key, record in cache.items():
+            if norm in key:
+                return record
     return None
 
 
