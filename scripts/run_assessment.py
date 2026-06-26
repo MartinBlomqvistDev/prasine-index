@@ -44,9 +44,11 @@ load_dotenv()
 from sqlalchemy import text  # noqa: E402
 
 from agents.extraction_agent import ExtractionInput  # noqa: E402
+from core.aggregate import aggregate_claim_scores  # noqa: E402
 from core.database import get_session, init_db, teardown_db  # noqa: E402
-from core.pipeline import Pipeline, PipelineConfig  # noqa: E402
+from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
 from models.claim import SourceType  # noqa: E402
+from models.company_score import CompanyScore  # noqa: E402
 
 _REPORTS_DIR = Path(__file__).parent.parent / "docs" / "reports"
 _SCRIPTS_DIR = Path(__file__).parent
@@ -114,6 +116,42 @@ def _refresh_data() -> None:
             print(f"  [warn] {script_name} failed: {exc}")
 
 
+def _build_aggregate_header(
+    company_name: str,
+    company_score: CompanyScore,
+    results: list[PipelineResult],
+) -> str:
+    n = company_score.claim_count
+    lines = [
+        f"## {company_name} — Company Assessment ({n} claim{'s' if n != 1 else ''})",
+        "",
+        f"**Overall Score: {company_score.score:.0f}/100** "
+        f"(confidence-weighted across {n} claim{'s' if n != 1 else ''})  ",
+        f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f}  ",
+        f"**Verdict:** {company_score.verdict.value}  ",
+        f"**Confidence:** {company_score.confidence:.0%}",
+        "",
+        "| # | Score | Verdict | Claim |",
+        "|---|-------|---------|-------|",
+    ]
+    for i, claim in enumerate(company_score.claims, start=1):
+        preview = claim.claim_text[:120].replace("|", "/").replace("\n", " ")
+        lines.append(f"| {i} | {claim.score:.0f}/100 | {claim.verdict.value} | {preview} |")
+
+    best_score = max(r.score.score for r in results)
+    lines += [
+        "",
+        "---",
+        "",
+        f"*Detailed assessment of the highest-scoring claim "
+        f"(score: {best_score:.0f}/100) follows.*",
+        "",
+        "---",
+        "",
+    ]
+    return "\n".join(lines)
+
+
 async def _ensure_company(company_name: str, company_id: uuid.UUID) -> None:
     async with get_session() as session:
         await session.execute(
@@ -177,7 +215,7 @@ async def run(
         _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         slug = _slug(company_name)
 
-        # Print all verdicts; write each claim to its own numbered file.
+        # Print per-claim verdicts; write each to its own numbered file.
         for i, r in enumerate(results, start=1):
             out_path = _REPORTS_DIR / f"{slug}-{i}.md"
             out_path.write_text(r.report_markdown or "No report generated.", encoding="utf-8")
@@ -189,11 +227,24 @@ async def run(
             print(f"Report  : {out_path}")
             print(f"{'=' * 60}\n")
 
-        # Write the highest-scoring claim as the canonical report.
+        # Aggregate all claims into a company-level score.
+        company_score = aggregate_claim_scores(company_name, company_id, results)
+        print(f"\n{'=' * 60}")
+        print(f"COMPANY ASSESSMENT: {company_name}")
+        print(f"Overall Score : {company_score.score:.0f}/100  "
+              f"(confidence-weighted, {company_score.claim_count} claim"
+              f"{'s' if company_score.claim_count != 1 else ''})")
+        print(f"Score range   : {company_score.score_low:.0f}–{company_score.score_high:.0f}")
+        print(f"Verdict       : {company_score.verdict.value}")
+        print(f"{'=' * 60}\n")
+
+        # Write the canonical report: aggregate header + highest-scoring claim detail.
         best = max(results, key=lambda r: r.score.score)
         best_path = _REPORTS_DIR / f"{slug}.md"
-        best_path.write_text(best.report_markdown or "No report generated.", encoding="utf-8")
-        print(f"Canonical report (highest score {best.score.score:.0f}/100): {best_path}")
+        header = _build_aggregate_header(company_name, company_score, results)
+        best_path.write_text(header + (best.report_markdown or ""), encoding="utf-8")
+        print(f"Canonical report ({company_score.claim_count} claims, "
+              f"aggregate score {company_score.score:.0f}/100): {best_path}")
 
     finally:
         await pipeline.aclose()

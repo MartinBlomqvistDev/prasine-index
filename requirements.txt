@@ -59,3 +59,10 @@ python-dotenv>=1.0.0
 pytest>=8.3.0
 pytest-asyncio>=0.24.0
 ruff==0.15.8
+
+# ---------------------------------------------------------------------------
+# PDF export
+# ---------------------------------------------------------------------------
+
+# fpdf2 — pure Python PDF generation; no system-level dependencies on Windows
+fpdf2>=2.8.0
