@@ -352,10 +352,13 @@ async def _create_schema(conn: AsyncConnection) -> None:
             company_id      UUID NOT NULL REFERENCES companies(id),
             trace_id        UUID NOT NULL,
             score           FLOAT NOT NULL,
+            score_low       FLOAT,
+            score_high      FLOAT,
             score_breakdown JSONB NOT NULL DEFAULT '{}',
             verdict         TEXT NOT NULL,
             reasoning       TEXT NOT NULL,
             confidence      FLOAT NOT NULL,
+            evidence_ids    JSONB NOT NULL DEFAULT '[]',
             scored_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             judge_model_id  TEXT NOT NULL
         )

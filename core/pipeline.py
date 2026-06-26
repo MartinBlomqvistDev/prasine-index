@@ -721,12 +721,13 @@ class Pipeline:
                 await session.execute(
                     text(
                         "INSERT INTO greenwashing_scores "
-                        "(id, claim_id, company_id, trace_id, score, score_breakdown, "
-                        " verdict, reasoning, confidence, scored_at, judge_model_id) "
+                        "(id, claim_id, company_id, trace_id, score, score_low, score_high, "
+                        " score_breakdown, verdict, reasoning, confidence, evidence_ids, "
+                        " scored_at, judge_model_id) "
                         "VALUES "
-                        "(:id, :claim_id, :company_id, :trace_id, :score, "
-                        " :score_breakdown, :verdict, :reasoning, :confidence, "
-                        " :scored_at, :judge_model_id)"
+                        "(:id, :claim_id, :company_id, :trace_id, :score, :score_low, "
+                        " :score_high, :score_breakdown, :verdict, :reasoning, :confidence, "
+                        " :evidence_ids, :scored_at, :judge_model_id)"
                     ),
                     {
                         "id": str(score.id),
@@ -734,10 +735,13 @@ class Pipeline:
                         "company_id": str(score.company_id),
                         "trace_id": str(score.trace_id),
                         "score": score.score,
+                        "score_low": score.score_low,
+                        "score_high": score.score_high,
                         "score_breakdown": json.dumps(score.score_breakdown),
                         "verdict": score.verdict.value,
                         "reasoning": score.reasoning,
                         "confidence": score.confidence,
+                        "evidence_ids": json.dumps([str(eid) for eid in score.evidence_ids]),
                         "scored_at": score.scored_at,
                         "judge_model_id": score.judge_model_id,
                     },
