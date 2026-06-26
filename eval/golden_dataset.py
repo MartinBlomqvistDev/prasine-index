@@ -196,7 +196,7 @@ class EvalSummary(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Golden dataset — 20 known greenwashing cases
+# Golden dataset — 20 known LIKELY_GREENWASHING cases
 # ---------------------------------------------------------------------------
 
 GOLDEN_DATASET: list[EvalCase] = [
@@ -214,7 +214,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "UK ASA ruled this misleading in 2022 — a regulatory ruling that triggers "
+            "UK ASA ruled this MISLEADING_CLAIM in 2022 — a regulatory ruling that triggers "
             "CONFIRMED_GREENWASHING per the scoring criteria. Ryanair's EU ETS verified "
             "emissions are among the highest of any European airline on a per-passenger "
             "basis. The claim 'greenest' has no substantiated baseline. "
@@ -234,7 +234,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://annualreport2021.volkswagenag.com",
-        expected_verdict=ScoreVerdict.MISLEADING,
+        expected_verdict=ScoreVerdict.MISLEADING_CLAIM,
         expected_score_min=45.0,
         expected_score_max=75.0,
         primary_evidence_source="EU_ETS",
@@ -255,7 +255,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://reports.shell.com/sustainability-report/2023",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=65.0,
         expected_score_max=92.0,
         primary_evidence_source="EU_ETS",
@@ -275,17 +275,17 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.CARBON_NEUTRAL,
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.eni.com/en-IT/media/press-release/2021",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=65.0,
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Italy's AGCM fined Eni €5 million in 2023 for misleading 'carbon neutral' "
+            "Italy's AGCM fined Eni €5 million in 2023 for MISLEADING_CLAIM 'carbon neutral' "
             "certification on Eni Diesel+. Carbon neutrality was achieved solely via "
             "offsets — no actual emissions reduction. Eni is simultaneously expanding "
             "fossil fuel production capacity. Enforcement module finds AGCM fine; judge "
-            "scores 78-82 depending on run (GREENWASHING/CONFIRMED boundary nondeterminism). "
-            "Expected GREENWASHING to capture the lower outcome consistently."
+            "scores 78-82 depending on run (LIKELY_GREENWASHING/CONFIRMED boundary nondeterminism). "
+            "Expected LIKELY_GREENWASHING to capture the lower outcome consistently."
         ),
     ),
     EvalCase(
@@ -297,7 +297,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://www.nestle.com/sustainability/climate-change/net-zero",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=46.0,
         expected_score_max=75.0,
         primary_evidence_source="CDP",
@@ -305,7 +305,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "CDP data shows Nestlé scope 3 emissions (agricultural supply chain) dwarf "
             "scope 1/2. Net zero plan does not include credible scope 3 reduction pathway. "
             "Overall trajectory inconsistent with 1.5°C pathway per SBTi criteria. "
-            "GREENWASHING (not MISLEADING): scope 3 omission in a net-zero claim is a "
+            "LIKELY_GREENWASHING (not MISLEADING_CLAIM): scope 3 omission in a net-zero claim is a "
             "material misrepresentation, not mere ambiguity."
         ),
     ),
@@ -320,7 +320,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.IR_PAGE,
         source_url="https://investor-relations.lufthansagroup.com/en/responsibility/environment",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=61.0,
         expected_score_max=82.0,
         primary_evidence_source="EU_ETS",
@@ -328,7 +328,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "SAF currently constitutes less than 1% of Lufthansa's fuel mix. "
             "EU ETS verified emissions show no reduction trajectory. "
             "'Will allow' is speculative; no binding interim target is set. "
-            "Pipeline scores GREENWASHING because EU ETS confirms large ongoing absolute "
+            "Pipeline scores LIKELY_GREENWASHING because EU ETS confirms large ongoing absolute "
             "emissions directly contradicting the CO2-neutral flying claim."
         ),
     ),
@@ -344,7 +344,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://www.heidelbergmaterials.com/en/sustainability",
-        expected_verdict=ScoreVerdict.SUBSTANTIATED,
+        expected_verdict=ScoreVerdict.SUBSTANTIATED_CLAIM,
         expected_score_min=5.0,
         expected_score_max=35.0,
         primary_evidence_source="EU_ETS",
@@ -366,7 +366,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://www.totalenergies.com/energy-expertise/climate-ambition",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=60.0,
         expected_score_max=90.0,
         primary_evidence_source="EU_ETS",
@@ -388,16 +388,16 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.hsbc.com/news-and-views/news/hsbc-news/2020/hsbc-sets-out-ambition-to-be-net-zero",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=61.0,
         expected_score_max=82.0,
         primary_evidence_source="CDP",
         notes=(
-            "UK FCA investigated HSBC in 2023 over misleading green claims in advertising. "
-            "ASA banned two HSBC newspaper advertisements for misleading green claims (2022). "
+            "UK FCA investigated HSBC in 2023 over MISLEADING_CLAIM green claims in advertising. "
+            "ASA banned two HSBC newspaper advertisements for MISLEADING_CLAIM green claims (2022). "
             "HSBC simultaneously financed $87bn in fossil fuel expansion (2016–2022). "
-            "Pipeline scores GREENWASHING: enforcement module surfaces ASA ruling (1 contradicting "
-            "record), LobbyMap C- band — sufficient for GREENWASHING even without EU ETS data."
+            "Pipeline scores LIKELY_GREENWASHING: enforcement module surfaces ASA ruling (1 contradicting "
+            "record), LobbyMap C- band — sufficient for LIKELY_GREENWASHING even without EU ETS data."
         ),
     ),
     EvalCase(
@@ -409,7 +409,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://orsted.com/en/sustainability/our-approach/climate",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=56.0,
         expected_score_max=68.0,
         primary_evidence_source="EU_ETS",
@@ -417,8 +417,8 @@ GOLDEN_DATASET: list[EvalCase] = [
             "Ørsted is the canonical genuine green transition case. EU ETS data confirms "
             "dramatic reduction from coal-heavy generation. 10 supporting vs 5 contradicting "
             "EU ETS records (remaining biomass/gas peakers still show emissions). "
-            "Pipeline scores 58-62 (MISLEADING/GREENWASHING boundary, nondeterministic). "
-            "Expected GREENWASHING to capture the boundary consistently."
+            "Pipeline scores 58-62 (MISLEADING_CLAIM/LIKELY_GREENWASHING boundary, nondeterministic). "
+            "Expected LIKELY_GREENWASHING to capture the boundary consistently."
         ),
         tier="known_limitation",
     ),
@@ -431,7 +431,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://www.bp.com/en/global/corporate/sustainability/getting-to-net-zero.html",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=65.0,
         expected_score_max=92.0,
         primary_evidence_source="EU_ETS",
@@ -439,7 +439,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "BP quietly dropped its 2030 emissions reduction target in 2023, weakening "
             "a binding commitment to an 'ambition'. Contemporaneous capital allocation "
             "shows increased investment in oil and gas. UK ASA banned two BP adverts "
-            "in 2022 for misleading green claims."
+            "in 2022 for MISLEADING_CLAIM green claims."
         ),
     ),
     EvalCase(
@@ -454,7 +454,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://corporate.arcelormittal.com/sustainability/climate",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=61.0,
         expected_score_max=80.0,
         primary_evidence_source="EU_ETS",
@@ -462,7 +462,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "Steel decarbonisation is technically feasible (via DRI-EAF + green hydrogen) "
             "but ArcelorMittal's investment in transition technology is insufficient for "
             "stated targets. EU ETS data shows large absolute emissions and flat intensity. "
-            "Pipeline scores GREENWASHING: EU ETS contradicts the intensity reduction claim "
+            "Pipeline scores LIKELY_GREENWASHING: EU ETS contradicts the intensity reduction claim "
             "and the 2050 net zero commitment lacks credible near-term capex evidence."
         ),
     ),
@@ -478,7 +478,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://www.maersk.com/sustainability",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=56.0,
         expected_score_max=72.0,
         primary_evidence_source="CDP",
@@ -486,8 +486,8 @@ GOLDEN_DATASET: list[EvalCase] = [
             "Maersk has ordered green methanol vessels and has SBTi-validated targets. "
             "CA100+ ALIGNED. However the pipeline finds limited corroborating evidence "
             "(1 supporting, 1 contradicting, 5 inconclusive). CDP and LobbyMap return "
-            "no record. Pipeline score hovers around 58-62 (MISLEADING/GREENWASHING boundary). "
-            "Nondeterministic boundary case — expected GREENWASHING to capture the upper end."
+            "no record. Pipeline score hovers around 58-62 (MISLEADING_CLAIM/LIKELY_GREENWASHING boundary). "
+            "Nondeterministic boundary case — expected LIKELY_GREENWASHING to capture the upper end."
         ),
         tier="known_limitation",
     ),
@@ -509,7 +509,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "Its 'net zero by 2050' claim includes 'managed decline of coal' but "
             "capital allocation shows continued coal mine acquisitions. "
             "CMA investigation found by enforcement module. Pipeline scores 78-82 "
-            "(GREENWASHING/CONFIRMED boundary, nondeterministic). 2/3 runs give "
+            "(LIKELY_GREENWASHING/CONFIRMED boundary, nondeterministic). 2/3 runs give "
             "CONFIRMED_GREENWASHING. Expected CONFIRMED to capture the majority outcome."
         ),
     ),
@@ -525,13 +525,13 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.PRESS_RELEASE,
         source_url="https://www.airbus.com/en/innovation/zero-emission/hydrogen",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=46.0,
         expected_score_max=72.0,
         primary_evidence_source="EUR_LEX",
         notes=(
             "The 2035 hydrogen aircraft is a research programme, not a committed "
-            "commercial product. Pipeline scores GREENWASHING at 62-68: aviation "
+            "commercial product. Pipeline scores LIKELY_GREENWASHING at 62-68: aviation "
             "manufacturer presenting an R&D ambition as a firm commercial commitment, "
             "with EU ETS showing ongoing large absolute emissions."
         ),
@@ -549,7 +549,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.NET_ZERO_TARGET,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://www.unilever.com/planet-and-society/climate-action/",
-        expected_verdict=ScoreVerdict.MISLEADING,
+        expected_verdict=ScoreVerdict.MISLEADING_CLAIM,
         expected_score_min=38.0,
         expected_score_max=65.0,
         primary_evidence_source="CDP",
@@ -571,7 +571,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.ANNUAL_REPORT,
         source_url="https://annualreport2022.volkswagenag.com",
-        expected_verdict=ScoreVerdict.INSUFFICIENT_EVIDENCE,
+        expected_verdict=ScoreVerdict.UNVERIFIABLE_CLAIM,
         expected_score_min=20.0,
         expected_score_max=50.0,
         primary_evidence_source="EU_ETS",
@@ -591,7 +591,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.CARBON_NEUTRAL,
         source_type=SourceType.WEBSITE,
         source_url="https://www.easyjet.com/en/sustainability",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=61.0,
         expected_score_max=82.0,
         primary_evidence_source="EU_ETS",
@@ -599,7 +599,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "EasyJet ended its offset programme in 2022 after criticism. "
             "The claim of full offset coverage was based on REDD+ projects "
             "that have since been widely discredited. EU ETS data confirms "
-            "full scope of actual emissions. Pipeline scores GREENWASHING: "
+            "full scope of actual emissions. Pipeline scores LIKELY_GREENWASHING: "
             "EU ETS directly contradicts 'offsets all carbon emissions' — verified "
             "emissions exist, the offset claim is not independently substantiated."
         ),
@@ -616,7 +616,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.CARBON_NEUTRAL,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://www.vestas.com/en/sustainability",
-        expected_verdict=ScoreVerdict.MISLEADING,
+        expected_verdict=ScoreVerdict.MISLEADING_CLAIM,
         expected_score_min=40.0,
         expected_score_max=55.0,
         primary_evidence_source="EU_ETS",
@@ -625,7 +625,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "SBTi scope 3 validated). However the pipeline finds only LobbyMap B+ "
             "as a supporting signal — Vestas is not in CA100+ or CDP, and has no EU ETS "
             "installations registered. Score ranges 35-48 across runs. 2/3 runs give "
-            "MISLEADING (~48). Known limitation: positive-control quality requires "
+            "MISLEADING_CLAIM (~48). Known limitation: positive-control quality requires "
             "seeding EU ETS installation IDs."
         ),
         tier="known_limitation",
@@ -642,14 +642,14 @@ GOLDEN_DATASET: list[EvalCase] = [
         claim_category=ClaimCategory.EMISSIONS_REDUCTION,
         source_type=SourceType.CSRD_REPORT,
         source_url="https://www.holcim.com/sustainability/climate",
-        expected_verdict=ScoreVerdict.GREENWASHING,
+        expected_verdict=ScoreVerdict.LIKELY_GREENWASHING,
         expected_score_min=61.0,
         expected_score_max=80.0,
         primary_evidence_source="EU_ETS",
         notes=(
             "Cement has unavoidable process emissions from calcination (~60% of CO2). "
             "Holcim has SBTi-validated targets, but EU ETS shows large absolute emissions. "
-            "Pipeline scores GREENWASHING: 'net zero concrete by 2050' is not technically "
+            "Pipeline scores LIKELY_GREENWASHING: 'net zero concrete by 2050' is not technically "
             "proven at scale, and current EU ETS trajectory contradicts the interim "
             "intensity target. Same pattern as ArcelorMittal (heavy industry, intensity claims)."
         ),
@@ -832,9 +832,9 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
 QUICK_CASES: list[str] = [
     "GW-001",  # CONFIRMED_GREENWASHING — Ryanair "Europe's greenest airline" (ASA ruled)
-    "GW-004",  # GREENWASHING           — Eni carbon neutral diesel (AGCM fined)
-    "GW-009",  # GREENWASHING           — HSBC net zero financed emissions (ASA ruled)
-    "GW-010",  # GREENWASHING (known_limitation) — Ørsted 87% reduction (positive control)
+    "GW-004",  # LIKELY_GREENWASHING           — Eni carbon neutral diesel (AGCM fined)
+    "GW-009",  # LIKELY_GREENWASHING           — HSBC net zero financed emissions (ASA ruled)
+    "GW-010",  # LIKELY_GREENWASHING (known_limitation) — Ørsted 87% reduction (positive control)
     "GW-014",  # CONFIRMED_GREENWASHING — Glencore net zero (coal miner, CMA)
 ]
 

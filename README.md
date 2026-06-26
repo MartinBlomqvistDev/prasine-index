@@ -309,20 +309,20 @@ Current results from the 21-source pipeline, as published on [martinblomqvistdev
 | Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
 | BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
 | Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 86/100 |
-| KLM Royal Dutch Airlines | Aviation | GREENWASHING | 78/100 |
-| TotalEnergies SE | Oil & Gas | GREENWASHING | 75/100 |
-| Enel SpA | Energy | GREENWASHING | 68/100 |
-| RWE AG | Energy | MISLEADING | 58/100 |
-| Wizz Air Holdings plc | Aviation | MISLEADING | 56/100 |
-| LKAB | Steel | MISLEADING | 52/100 |
-| H&M Group | Fashion | MISLEADING | 48/100 |
-| Öresundskraft | Energy | MISLEADING | 48/100 |
-| Stegra | Steel | MISLEADING | 48/100 |
-| SSAB AB | Steel | INSUFFICIENT_EVIDENCE | 42/100 |
-| Danone SA | Food | INSUFFICIENT_EVIDENCE | 35/100 |
-| Ørsted A/S | Renewables | INSUFFICIENT_EVIDENCE | 32/100 |
-| Securitas AB | Services | INSUFFICIENT_EVIDENCE | 28/100 |
-| IKEA Group | Retail | INSUFFICIENT_EVIDENCE | 22/100 |
+| KLM Royal Dutch Airlines | Aviation | LIKELY_GREENWASHING | 78/100 |
+| TotalEnergies SE | Oil & Gas | LIKELY_GREENWASHING | 75/100 |
+| Enel SpA | Energy | LIKELY_GREENWASHING | 68/100 |
+| RWE AG | Energy | MISLEADING_CLAIM | 58/100 |
+| Wizz Air Holdings plc | Aviation | MISLEADING_CLAIM | 56/100 |
+| LKAB | Steel | MISLEADING_CLAIM | 52/100 |
+| H&M Group | Fashion | MISLEADING_CLAIM | 48/100 |
+| Öresundskraft | Energy | MISLEADING_CLAIM | 48/100 |
+| Stegra | Steel | MISLEADING_CLAIM | 48/100 |
+| SSAB AB | Steel | UNVERIFIABLE_CLAIM | 42/100 |
+| Danone SA | Food | UNVERIFIABLE_CLAIM | 35/100 |
+| Ørsted A/S | Renewables | UNVERIFIABLE_CLAIM | 32/100 |
+| Securitas AB | Services | UNVERIFIABLE_CLAIM | 28/100 |
+| IKEA Group | Retail | UNVERIFIABLE_CLAIM | 22/100 |
 
 Reports are published to `docs/reports/` as Markdown — every factual assertion cited, every data gap disclosed.
 
@@ -522,10 +522,11 @@ Greenwashing scores are calibrated against the EU Green Claims Directive, the Co
 
 | Range | Verdict | Meaning |
 | ----- | ------- | ------- |
-| 0–40 | `FABRICATED` | Claim is demonstrably false; directly contradicted by verified data |
-| 41–60 | `MISLEADING` | Claim exaggerates through omission or lacks mandatory substantiation under the Green Claims Directive |
-| 61–80 | `GREENWASHING` | Claim directly contradicted by verified third-party evidence (emissions data, enforcement rulings, lobbying records) |
-| 81–100 | `CONFIRMED_GREENWASHING` | Multiple high-confidence sources contradict the claim; and/or prior regulatory or judicial enforcement action exists |
+| 0–20 | `SUBSTANTIATED_CLAIM` | Verified data supports the claim; no material contradiction |
+| 21–40 | `UNVERIFIABLE_CLAIM` | Data gaps prevent assessment either way |
+| 41–60 | `MISLEADING_CLAIM` | Claim misleads through omission, vague framing, or unauditable metrics |
+| 61–80 | `LIKELY_GREENWASHING` | Claim materially contradicted by verified third-party evidence |
+| 81–100 | `CONFIRMED_GREENWASHING` | Binding regulatory ruling or multiple hard triggers (D+ lobbying, active expansion, prior enforcement) |
 
 Prasine Index does not give legal advice. Published reports are evidence compilations intended to support journalistic investigation and civil society accountability work.
 
