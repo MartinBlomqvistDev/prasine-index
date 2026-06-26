@@ -45,6 +45,7 @@ from sqlalchemy import text  # noqa: E402
 
 from agents.extraction_agent import ExtractionInput  # noqa: E402
 from core.aggregate import aggregate_claim_scores  # noqa: E402
+from core.data_manifest import build_manifest, manifest_to_markdown  # noqa: E402
 from core.database import get_session, init_db, teardown_db  # noqa: E402
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
 from models.claim import SourceType  # noqa: E402
@@ -240,15 +241,26 @@ async def run(
         print(f"Verdict       : {company_score.verdict.value}")
         print(f"{'=' * 60}\n")
 
-        # Write the canonical report: aggregate header + highest-scoring claim detail.
+        # Write the canonical report: aggregate header + highest-scoring claim detail + manifest.
         best = max(results, key=lambda r: r.score.score)
         best_path = _REPORTS_DIR / f"{slug}.md"
         header = _build_aggregate_header(company_name, company_score, results)
-        best_path.write_text(header + (best.report_markdown or ""), encoding="utf-8")
+        manifest = build_manifest()
+        manifest_path = _REPORTS_DIR / f"{slug}-manifest.json"
+        manifest_path.write_text(manifest.to_json(), encoding="utf-8")
+        canonical = (
+            header
+            + (best.report_markdown or "")
+            + "\n\n---\n\n"
+            + manifest_to_markdown(manifest)
+            + "\n"
+        )
+        best_path.write_text(canonical, encoding="utf-8")
         print(
             f"Canonical report ({company_score.claim_count} claims, "
             f"aggregate score {company_score.score:.0f}/100): {best_path}"
         )
+        print(f"Data manifest: {manifest_path}")
 
     finally:
         await pipeline.aclose()
