@@ -156,6 +156,8 @@ class ScoreResponse(BaseModel):
     claim_id: str
     company_id: str
     score: float
+    score_low: float | None = None
+    score_high: float | None = None
     verdict: str
     confidence: float
     reasoning: str
@@ -374,8 +376,8 @@ async def get_company_scores(company_id: uuid.UUID) -> list[ScoreResponse]:
     async with get_session() as session:
         result = await session.execute(
             text(
-                "SELECT claim_id, company_id, score, verdict, confidence, "
-                "reasoning, scored_at "
+                "SELECT claim_id, company_id, score, score_low, score_high, "
+                "verdict, confidence, reasoning, scored_at "
                 "FROM greenwashing_scores "
                 "WHERE company_id = :company_id "
                 "ORDER BY scored_at DESC"
@@ -389,6 +391,8 @@ async def get_company_scores(company_id: uuid.UUID) -> list[ScoreResponse]:
             claim_id=str(r["claim_id"]),
             company_id=str(r["company_id"]),
             score=float(r["score"]),
+            score_low=float(r["score_low"]) if r["score_low"] is not None else None,
+            score_high=float(r["score_high"]) if r["score_high"] is not None else None,
             verdict=r["verdict"],
             confidence=float(r["confidence"]),
             reasoning=r["reasoning"],
