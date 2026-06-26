@@ -430,6 +430,36 @@ the two. Manual copy is a data source that drifts.
 
 ---
 
+## 2026-06-27 — fpdf2 Helvetica rejects characters outside Latin-1
+
+**Symptom:** `export_pdf.py` raised `FPDFUnicodeEncodingException: Character "…" at index 58 is outside the range of characters supported by font "helvetica"` on the first smoke test run against `ryanair-holdings-plc.md`.
+
+**Root cause:** fpdf2's built-in Helvetica font is a core PDF font that only covers the Latin-1 character set (U+0000–U+00FF). EU sustainability reports routinely contain typographic characters that fall outside this range: the ellipsis `…` (U+2026), curly quotes `"` `"` (U+201C, U+201D), apostrophes `'` (U+2019), and en dashes `–` (U+2013). The metadata line in the rendered PDF included `"…"` as a trace ID truncation character, which triggered the error.
+
+**Fix:** Added `_safe()` — a two-step normalisation function that first translates common Unicode characters to their nearest ASCII/Latin-1 equivalents via `str.maketrans()` (e.g. `…` → `...`, `"` → `"`, `–` → `-`), then encodes to Latin-1 with `errors="replace"` as a final safety net. All text passed to fpdf2 cell/multi_cell calls goes through `_safe()`.
+
+**Alternative considered:** Using a TTF Unicode font (e.g. DejaVuSans). This would handle all Unicode correctly but requires bundling the font file with the project. For portfolio use, `_safe()` is sufficient — EU company names and claim text rarely contain characters that the translation table misses. If the product goes multilingual (Greek, Cyrillic, Arabic), TTF becomes necessary.
+
+**Lesson:** PDF generation with built-in fonts is a Latin-1 boundary, not a Unicode boundary. Normalise text before rendering; don't assume that clean Python strings are clean PDF strings.
+
+---
+
+## 2026-06-27 — Canonical report selected by max score, not representativeness
+
+**Observation:** `run_assessment.py` always wrote `{slug}.md` as the highest-scoring claim's report. For a company like Ryanair with claims at 86/100, 74/100, 68/100, 42/100 and 38/100, the canonical report only showed the worst claim — arguably cherry-picking the most damning evidence for a single-claim narrative while ignoring the company's overall pattern.
+
+**Decision:** Added a confidence-weighted aggregate score across all assessed claims (`core/aggregate.py`). The canonical report now opens with an aggregate header showing the company-level score, score range, dominant verdict, and a table of all assessed claims with individual scores. The highest-scoring claim's full report follows as supporting detail. The new `CompanyScore` Pydantic model captures `score`, `score_low`, `score_high`, `verdict` (highest-severity across claims), `confidence` (mean), and `claim_count`.
+
+**Aggregate formula:**
+
+- Score: `sum(score_i * confidence_i) / sum(confidence_i)` — confidence-weighted mean
+- Score range: same formula applied to `score_low` and `score_high` fields
+- Verdict: `max(claims, key=severity)` — most severe verdict wins
+
+**Why this is defensible:** A company should not be able to improve its Prasine Index assessment by making one unambiguously low-risk claim that dilutes the average. The dominant-verdict rule means a CONFIRMED_GREENWASHING claim at 86/100 makes the company CONFIRMED_GREENWASHING regardless of whether it also made a SUBSTANTIATED_CLAIM. The weighted score reflects the balance of evidence, not the worst case alone.
+
+---
+
 ## Pipeline architecture decisions that proved correct
 
 **LangGraph only in Verification Agent.** Originally considered using it for the
