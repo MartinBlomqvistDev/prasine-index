@@ -34,17 +34,66 @@ export default function HomePage() {
 
           <div className="report-meta">
             <span className="report-label">Assessment</span>
-            <span className="report-date">24 June 2026</span>
+            <span className="report-date">26 June 2026</span>
           </div>
 
           <h1 className="report-company">Ryanair Holdings plc</h1>
-          <p className="report-details">Ireland · Aviation · CSRD obligated · Assessed 2026-06-24</p>
+          <p className="report-details">Ireland · Aviation · CSRD obligated · Assessed 2026-06-26</p>
+
+          {/* ── Aggregate summary ── */}
+          <div className="report-verdict-line" style={{ marginTop: '1.5rem' }}>
+            <span className="verdict-word confirmed">Confirmed greenwashing</span>
+            <span className="verdict-score">83 / 100</span>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.25rem' }}>
+            Confidence-weighted aggregate across 5 claims · range 80–89
+          </p>
+
+          {/* ── Claim overview table ── */}
+          <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
+            <thead>
+              <tr><th>#</th><th>Score</th><th>Verdict</th><th>Claim</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td><td>84</td>
+                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
+                <td style={{ fontSize: 12 }}>&ldquo;the ambitious goals we&apos;ve set to reach net-zero carbon emissions by 2050&rdquo;</td>
+              </tr>
+              <tr style={{ background: 'var(--surface-alt, #f7f7f7)' }}>
+                <td><strong>2</strong></td><td><strong>86</strong></td>
+                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
+                <td style={{ fontSize: 12 }}><strong>&ldquo;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement&hellip;&rdquo;</strong></td>
+              </tr>
+              <tr>
+                <td>3</td><td>82</td>
+                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
+                <td style={{ fontSize: 12 }}>&ldquo;Work with suppliers to increase sustainable aviation fuel (SAF) with industry-leading SAF goals &gt;10% by 2030.&rdquo;</td>
+              </tr>
+              <tr>
+                <td>4</td><td>82</td>
+                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
+                <td style={{ fontSize: 12 }}>&ldquo;By appointing best-in class researchers, we&apos;ll achieve our goal of powering 12.5% of our flights with SAF by 2030.&rdquo;</td>
+              </tr>
+              <tr>
+                <td>5</td><td>82</td>
+                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
+                <td style={{ fontSize: 12 }}>&ldquo;Our goal is 12.5% SAF usage by 2030.&rdquo;</td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* ── Claim detail divider ── */}
+          <p style={{ fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
+            Detailed assessment of claim 2 (highest-scoring) follows.
+          </p>
 
           <div className="report-claim">
-            <div className="claim-attr">Claim extracted from corporate.ryanair.com/sustainability/</div>
+            <div className="claim-attr">Claim extracted from corporate.ryanair.com/sustainability/pathway-to-net-zero</div>
             <blockquote>
-              &quot;Within our Sustainability Report 2025, learn more about the ambitious goals
-              we&apos;ve set to reach net-zero carbon emissions by 2050.&quot;
+              &quot;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal
+              by 2050, which aligns with the Paris Agreement and the aviation industry&apos;s
+              Destination 2050 initiative.&quot;
             </blockquote>
           </div>
 
@@ -52,17 +101,17 @@ export default function HomePage() {
             <span className="verdict-word confirmed">Confirmed greenwashing</span>
             <span className="verdict-score">86 / 100</span>
           </div>
+          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Range 82–90 · Confidence 86% · Trace af429cf9</p>
 
           <div className="report-body">
 
             <div className="key-finding">
               <p className="key-finding-label">Key finding</p>
               <p>
-                Ryanair&apos;s net-zero by 2050 pledge is contradicted by its own LobbyMap D+
-                (Obstructive) climate-lobbying classification, while a 2020 ASA ruling already
-                found an equivalent Ryanair emissions claim misleading and unsubstantiated —
-                making this net-zero claim confirmed greenwashing irrespective of its supporting
-                benchmarks.
+                Ryanair holds a D+ obstructive climate-lobbying rating from LobbyMap, meaning it
+                actively opposes or delays the climate legislation its own net-zero pledge depends
+                on — and its self-published pathway relies on 24% carbon offsetting, a basis
+                expressly blacklisted for net-zero claims under the EmpCo Directive (EU 2024/825).
               </p>
             </div>
 
@@ -73,79 +122,68 @@ export default function HomePage() {
               <div className="ev-entry">
                 <div className="ev-number">1</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">UK ASA Ruling A20-529462 (2020)</p>
+                  <p className="ev-source-name">LobbyMap D+ (Obstructive) + EU Transparency Register</p>
                   <p className="ev-finding">
-                    The Advertising Standards Authority ruled Ryanair&apos;s &quot;lowest carbon
-                    emissions&quot; claim CONFIRMED MISLEADING — Ryanair could not substantiate
-                    lower CO₂ per passenger than comparable airlines on a like-for-like basis.
-                    This establishes a documented pattern: Ryanair&apos;s environmental claims
-                    have failed regulatory scrutiny before. Under the Prasine framework, a prior
-                    ruling against an equivalent claim type independently triggers CONFIRMED status.
+                    LobbyMap rates Ryanair <strong>D+ (Obstructive)</strong> — actively opposing
+                    or delaying climate legislation while making green claims (confidence 0.85).
+                    This is corroborated by the EU Transparency Register, which confirms Ryanair
+                    is an actively registered direct corporate lobbyist (reg. no. 002977215945-85,
+                    HQ Ireland, confidence 0.75). A company obstructing the policy framework its
+                    own 2050 pledge depends on cannot reconcile that pledge with its conduct.
+                    Under Prasine scoring, a D/D+ LobbyMap rating alone triggers CONFIRMED status.
                   </p>
-                  <p className="ev-weight contra">Contradicts claim · confidence 0.90</p>
+                  <p className="ev-weight contra">Independent trigger · confidence 0.85</p>
                 </div>
               </div>
 
               <div className="ev-entry">
                 <div className="ev-number">2</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">LobbyMap — D+ Climate Policy Engagement Score</p>
+                  <p className="ev-source-name">UK ASA Ruling A20-529462 (2020)</p>
                   <p className="ev-finding">
-                    Ryanair holds a <strong>D+ (Obstructive)</strong> rating: the company actively
-                    opposes or delays climate legislation while making green claims. A net-zero 2050
-                    pledge made simultaneously with active lobbying against the regulatory framework
-                    required to achieve it is an irreconcilable contradiction. Active obstruction
-                    independently triggers CONFIRMED status under the Prasine framework.
+                    The Advertising Standards Authority found Ryanair&apos;s &quot;lowest carbon
+                    emissions&quot; claim <strong>CONFIRMED MISLEADING</strong> — Ryanair could
+                    not substantiate lower CO₂ per passenger than comparable airlines on a
+                    like-for-like basis. This establishes a documented prior violation within the
+                    same claim category. Under the Prasine framework, a prior ruling against an
+                    equivalent claim type independently triggers CONFIRMED status.
                   </p>
-                  <p className="ev-weight contra">Contradicts claim · confidence 0.85</p>
+                  <p className="ev-weight contra">Independent trigger · confidence 0.90</p>
                 </div>
               </div>
 
               <div className="ev-entry">
                 <div className="ev-number">3</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">European Commission CPC Investigation (2024)</p>
+                  <p className="ev-source-name">Ryanair Self-Disclosure — Pathway to Net Zero (2024)</p>
                   <p className="ev-finding">
-                    The European Commission and national consumer protection authorities launched a
-                    coordinated investigation into Ryanair&apos;s environmental claims on carbon
-                    emissions, offsetting, and sustainability credentials under CPC Regulation
-                    2017/2394. Ryanair is a named target alongside Air France, KLM, and Lufthansa.
-                    The investigation confirms regulators identified a credible basis for concern.
+                    Ryanair&apos;s own pathway document reveals that 24% of its net-zero plan
+                    relies on &ldquo;offsetting and other economic measures&rdquo; — a basis
+                    expressly blacklisted under the EmpCo Directive. The document states no
+                    explicit baseline year, no 2035/2040 interim targets, no
+                    abatement-versus-certified-removal split, and no verified transition plan.
+                    It also contradicts itself: prioritises carbon reduction over offsetting
+                    while assigning nearly a quarter of the pathway to offsets. The 34% SAF
+                    component currently sits at the EU-mandated 2% against a &gt;10% 2030 target.
                   </p>
-                  <p className="ev-weight contra">Contradicts claim · confidence 0.70</p>
+                  <p className="ev-weight contra">Substantiation failure · confidence 0.95</p>
                 </div>
               </div>
-            </div>
 
-            <p className="ev-group-label">Supporting evidence</p>
-            <div className="evidence-doc">
               <div className="ev-entry">
                 <div className="ev-number">4</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">Science Based Targets initiative — Interim Reduction Targets</p>
+                  <p className="ev-source-name">European Commission CPC Investigation (2024)</p>
                   <p className="ev-finding">
-                    SBTi records show Ryanair has interim reduction targets classified as 1.5°C,
-                    but explicitly notes <em>net-zero target: none</em>. SBTi validates interim
-                    targets only and does not validate a net-zero 2050 claim. These targets are
-                    neutral with respect to the assessed commitment and do not mitigate the
-                    contradicting evidence.
+                    The EC and national consumer protection authorities launched a coordinated
+                    investigation under CPC Regulation 2017/2394 into Ryanair&apos;s environmental
+                    claims on carbon emissions, offsetting, and sustainability credentials.
+                    On 6 November 2025, Ryanair was among 21 airlines that reached a formal
+                    settlement with the CPC Network, committing to remove or revise misleading
+                    environmental claims. No fine was issued, but the settlement constitutes a
+                    concluded regulatory determination.
                   </p>
-                  <p className="ev-weight support">Partial support · confidence 0.70</p>
-                </div>
-              </div>
-
-              <div className="ev-entry">
-                <div className="ev-number">5</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">Transition Pathway Initiative — Below 2°C (2050)</p>
-                  <p className="ev-finding">
-                    TPI rates Ryanair&apos;s 2050 decarbonisation pathway as &quot;Below 2
-                    Degrees,&quot; which is Paris-compatible. TPI distinguishes between &quot;Below
-                    2°C&quot; and &quot;Net-Zero Aligned&quot;; Ryanair does not achieve the latter.
-                    This is supportive of climate action but does not validate the specific
-                    net-zero claim under assessment.
-                  </p>
-                  <p className="ev-weight support">Partial support · confidence 0.75</p>
+                  <p className="ev-weight contra">Regulatory settlement · confidence 0.70</p>
                 </div>
               </div>
             </div>
@@ -153,48 +191,50 @@ export default function HomePage() {
             <p className="ev-group-label">Legislative framework</p>
             <div className="evidence-doc">
               <div className="ev-entry">
-                <div className="ev-number">6</div>
+                <div className="ev-number">5</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">EmpCo Directive (EU 2024/825) — Substantiation Failure</p>
+                  <p className="ev-source-name">EmpCo Directive (EU 2024/825) — Blacklisted Claim Type</p>
                   <p className="ev-finding">
                     In force since March 2024, the EmpCo Directive amends UCPD Annex I to require
-                    that net-zero claims demonstrate: a baseline emissions year, interim targets at
-                    2030/2035/2040, a breakdown of abatement versus certified carbon removal, and
-                    a verified transition plan. The assessed claim discloses none of these.
-                    Generic net-zero pledges without substantiation are explicitly blacklisted as
-                    unfair commercial practices.
+                    that net-zero claims demonstrate: a baseline emissions year, interim targets,
+                    a split between abatement and certified permanent removal, and a verified
+                    transition plan. Claims based on carbon offsetting are expressly blacklisted.
+                    Ryanair&apos;s pathway fails every requirement. EUR-Lex CELEX:32024L0825.
                   </p>
                   <p className="ev-weight legislative">Substantiation failure · confidence 0.95</p>
                 </div>
               </div>
 
               <div className="ev-entry">
-                <div className="ev-number">7</div>
+                <div className="ev-number">6</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">Corporate Sustainability Reporting Directive (2022/2464)</p>
+                  <p className="ev-source-name">CSRD (EU 2022/2464) — Mandatory Emissions Disclosure</p>
                   <p className="ev-finding">
-                    CSRD requires large companies to disclose scope 1, 2, and 3 GHG emissions under
-                    ESRS E1 from FY2024. A net-zero claim that contradicts mandatory CSRD disclosure
-                    constitutes a material inconsistency. No CSRD-compliant emissions baseline for
-                    Ryanair could be cross-referenced against the claimed 2050 pathway at assessment
-                    date — FY2024 disclosures are not yet published.
+                    CSRD requires mandatory disclosure of scope 1, 2, and 3 GHG emissions under
+                    ESRS E1 from FY2024. A net-zero claim that cannot be cross-referenced against
+                    a CSRD-compliant baseline constitutes a material substantiation gap. EUR-Lex
+                    CELEX:32022L2464.
                   </p>
-                  <p className="ev-weight legislative">Data gap — re-assess on CSRD publication · confidence 0.95</p>
+                  <p className="ev-weight legislative">Data gap · confidence 0.95</p>
                 </div>
               </div>
+            </div>
 
+            <p className="ev-group-label">Mitigating evidence</p>
+            <div className="evidence-doc">
               <div className="ev-entry">
-                <div className="ev-number">8</div>
+                <div className="ev-number">7</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">EU Transparency Register — Active Lobbying Registration</p>
+                  <p className="ev-source-name">SBTi — Interim Targets Set (net-zero: none) · TPI — Below 2°C</p>
                   <p className="ev-finding">
-                    Ryanair Holdings plc is registered as an active EU lobbyist (registration
-                    no. 002977215945-85, HQ: Ireland), confirming direct corporate lobbying
-                    engagement with EU institutions. Direction and substance of lobbying are not
-                    disclosed by the register; cross-reference with LobbyMap (source 3) confirms
-                    obstructive climate policy engagement.
+                    SBTi records interim reduction targets classified as 1.5°C but{' '}
+                    <em>net-zero target: none</em> — neutral for the assessed net-zero commitment
+                    (confidence 0.70). TPI rates the 2050 pathway &ldquo;Below 2 Degrees&rdquo;
+                    at Management Quality Level 2 (Acknowledging) — Paris-compatible but not
+                    1.5°C-aligned and weak on governance (confidence 0.75). Neither displaces the
+                    three independent confirmed triggers.
                   </p>
-                  <p className="ev-weight legislative">Corroborates source 3 · confidence 0.75</p>
+                  <p className="ev-weight support">Partial mitigation — insufficient to rebut · confidence 0.70–0.75</p>
                 </div>
               </div>
             </div>
@@ -202,37 +242,44 @@ export default function HomePage() {
             <h2>Assessment</h2>
             <div className="report-reasoning">
               <p>
-                The claim satisfies three independent confirmation thresholds, each of which
-                alone is sufficient to trigger CONFIRMED_GREENWASHING status under the Prasine
-                framework on two independent grounds: (1) LobbyMap D+ (Obstructive) — actively
-                opposing climate legislation while pledging net-zero is an irreconcilable
-                contradiction that alone triggers confirmed status; (2) the 2020 ASA ruling
-                (A20-529462) found an equivalent Ryanair emissions claim misleading and
-                unsubstantiated, establishing a documented pattern that alone triggers confirmed
-                status. The claim additionally fails substantiation under the EmpCo Directive
-                (2024/825): no baseline year, no interim checkpoints, no abatement/removal split,
-                no verified carbon removal plan.
+                The decisive finding is the contradiction between Ryanair&apos;s net-zero pledge
+                and its own lobbying conduct. LobbyMap classifies Ryanair D+ (Obstructive) —
+                actively opposing the climate legislation required to deliver any net-zero pathway.
+                A company obstructing the policy framework its 2050 pledge depends on cannot
+                reconcile that pledge with its conduct. Under Prasine scoring, this alone confirms
+                greenwashing. The EU Transparency Register confirms this engagement is
+                operationalised at the institutional level.
               </p>
               <p>
-                Partial mitigating evidence exists — SBTi interim 1.5°C targets (confidence 0.70)
-                and TPI &quot;Below 2 Degrees&quot; benchmark (confidence 0.75) — but neither
-                validates a net-zero 2050 commitment and neither can override a confirmed trigger.
-                The EC CPC investigation (confidence 0.70) is ongoing; a binding ruling would
-                push the score higher.
+                Two further independent triggers reinforce the verdict. The ASA found an equivalent
+                prior emissions claim CONFIRMED MISLEADING (A20-529462, 2020), establishing a
+                documented pattern. Ryanair&apos;s own pathway document then fails the EmpCo
+                Directive on every substantiation requirement: no baseline year, no 2035/2040
+                interim targets, no abatement-versus-certified-removal split, and 24% reliance on
+                offsetting — expressly blacklisted. The self-published pathway is internally
+                inconsistent and materially behind its own 2030 SAF trajectory.
+              </p>
+              <p>
+                Mitigating evidence (SBTi interim targets, TPI Below 2°C rating) is genuine but
+                cannot override three independent confirmed triggers. These signals place the score
+                in the lower-to-mid confirmed band (82–90) rather than higher. The November 2025
+                CPC settlement — Ryanair among 21 airlines that committed to revise misleading
+                environmental claims — adds a concluded regulatory determination on top of the
+                existing finding.
               </p>
             </div>
 
             <h2>Dimensional scoring</h2>
-            <p className="dimension-note">Higher score = stronger greenwashing evidence</p>
+            <p className="dimension-note">Higher score = stronger greenwashing evidence. Claim 2 of 5.</p>
             <table className="dimension-table">
               <thead>
                 <tr><th>Dimension</th><th>Score</th></tr>
               </thead>
               <tbody>
+                <tr><td>Substantiation failure</td><td>90 / 100</td></tr>
                 <tr><td>Lobbying contradiction</td><td>88 / 100</td></tr>
                 <tr><td>Prior violations</td><td>85 / 100</td></tr>
-                <tr><td>Substantiation failure</td><td>80 / 100</td></tr>
-                <tr><td>Target credibility gap</td><td>75 / 100</td></tr>
+                <tr><td>Target credibility gap</td><td>82 / 100</td></tr>
                 <tr><td>Emissions discrepancy</td><td>55 / 100</td></tr>
               </tbody>
             </table>
@@ -244,38 +291,34 @@ export default function HomePage() {
               </thead>
               <tbody>
                 <tr>
-                  <td>EU ETS Verified Emissions</td>
+                  <td>EU ETS Verified Emissions (EUTL)</td>
                   <td>Not registered</td>
-                  <td>No baseline trajectory. Confidence not reduced — ASA ruling and LobbyMap D+ provide independent evidence.</td>
+                  <td>Aviation emissions reported through a separate scheme. Scope 1 absolute emissions could not be independently verified. Does not affect the lobbying, prior-violation, or substantiation triggers — each independently sufficient.</td>
                 </tr>
                 <tr>
-                  <td>CSRD FY2025 Sustainability Report</td>
-                  <td>Analysed (Sep 2025)</td>
-                  <td>Report discloses net-zero pathway: 32% tech, 34% SAF, 10% Single European Sky, 24% offsetting. No certified removal plan. Baseline year implicit only. Multiple EmpCo gaps confirmed — deepens the finding.</td>
+                  <td>Scope 1, 2 and 3 absolute emissions</td>
+                  <td>Not in source document</td>
+                  <td>No verified baseline provided in the pathway document, preventing cross-check against CSRD-mandated disclosure.</td>
                 </tr>
                 <tr>
-                  <td>LobbyMap itemised activities</td>
-                  <td>Score only</td>
-                  <td>D+ classification sufficient; itemised list would only deepen the finding.</td>
-                </tr>
-                <tr>
-                  <td>EC CPC Investigation outcome</td>
-                  <td>Settled — Nov 2025</td>
-                  <td>Ryanair among 21 airlines that committed to EU CPC Network on 6 Nov 2025 to remove or revise misleading environmental claims. No fine issued, but a concluded regulatory commitment. Strengthens the finding — regulators confirmed the claims were misleading.</td>
+                  <td>SBTi net-zero validation</td>
+                  <td>Status: none</td>
+                  <td>No validated net-zero target exists to corroborate the assessed claim. Neutral — absence of validation does not itself trigger a score increase, but removes a potential mitigant.</td>
                 </tr>
               </tbody>
             </table>
 
             <h2>Sources</h2>
             <ol className="sources-list">
-              <li>UK ASA Ruling A20-529462 — Ryanair Holdings Ltd, 2020-09-16</li>
-              <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-24</li>
-              <li>European Commission CPC Network — Coordinated Action on Airline Environmental Claims, 2024</li>
-              <li>Science Based Targets initiative — Companies Taking Action, accessed 2026-06-24</li>
-              <li>Transition Pathway Initiative — Corporates, 2022</li>
-              <li>Directive (EU) 2024/825 (EmpCo) amending UCPD 2005/29/EC and CRD 2011/83/EU, Annex I</li>
-              <li>Directive (EU) 2022/2464 (CSRD)</li>
-              <li>EU Transparency Register — Ryanair Holdings plc, accessed 2026-06-24</li>
+              <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-26. https://lobbymap.org/</li>
+              <li>EU Transparency Register — Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-06-26</li>
+              <li>UK ASA Ruling A20-529462 — Ryanair Holdings Ltd, 2020-09-16. https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html</li>
+              <li>Ryanair — Pathway to Net Zero, corporate.ryanair.com/sustainability/pathway-to-net-zero, retrieved 2026-06-26</li>
+              <li>European Commission / CPC Network — Coordinated Action on Airline Environmental Claims, 2024–2025</li>
+              <li>Directive (EU) 2024/825 (EmpCo) — EUR-Lex CELEX:32024L0825</li>
+              <li>Directive (EU) 2022/2464 (CSRD) — EUR-Lex CELEX:32022L2464</li>
+              <li>Science Based Targets initiative — Companies Taking Action, accessed 2026-06-26</li>
+              <li>Transition Pathway Initiative — Corporates, accessed 2026-06-26</li>
             </ol>
           </div>
 
@@ -310,7 +353,7 @@ export default function HomePage() {
             <tbody>
               {[
                 { company: 'Glencore plc',             sector: 'Mining',      score: 87, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 86, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'Eni SpA',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'BP plc',                   sector: 'Oil & Gas',   score: 82, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'KLM Royal Dutch Airlines', sector: 'Aviation',    score: 78, label: 'Likely greenwashing', badge: 'greenwashing' },
