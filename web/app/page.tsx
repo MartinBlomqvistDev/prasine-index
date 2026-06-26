@@ -248,9 +248,9 @@ export default function HomePage() {
                   <td>No baseline trajectory. Confidence not reduced — ASA ruling and LobbyMap D+ provide independent evidence.</td>
                 </tr>
                 <tr>
-                  <td>CSRD FY2024 Disclosure</td>
-                  <td>Not yet published</td>
-                  <td>Cannot cross-reference scope 1–3. Re-assess on publication.</td>
+                  <td>CSRD FY2025 Sustainability Report</td>
+                  <td>Analysed (Sep 2025)</td>
+                  <td>Report discloses net-zero pathway: 32% tech, 34% SAF, 10% Single European Sky, 24% offsetting. No certified removal plan. Baseline year implicit only. Multiple EmpCo gaps confirmed — deepens the finding.</td>
                 </tr>
                 <tr>
                   <td>LobbyMap itemised activities</td>
