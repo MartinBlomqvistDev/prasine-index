@@ -148,6 +148,18 @@ class GreenwashingScore(BaseModel):
             "Reduced when key data sources were unavailable or signals were conflicting."
         ),
     )
+    score_low: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=100.0,
+        description="Lower bound of the plausible score range, accounting for data uncertainty.",
+    )
+    score_high: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=100.0,
+        description="Upper bound of the plausible score range, accounting for data uncertainty.",
+    )
     scored_at: datetime = Field(
         default_factory=_utc_now,
         description="UTC timestamp of when the Judge Agent produced this verdict.",
