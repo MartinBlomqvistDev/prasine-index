@@ -231,9 +231,11 @@ async def run(
         company_score = aggregate_claim_scores(company_name, company_id, results)
         print(f"\n{'=' * 60}")
         print(f"COMPANY ASSESSMENT: {company_name}")
-        print(f"Overall Score : {company_score.score:.0f}/100  "
-              f"(confidence-weighted, {company_score.claim_count} claim"
-              f"{'s' if company_score.claim_count != 1 else ''})")
+        print(
+            f"Overall Score : {company_score.score:.0f}/100  "
+            f"(confidence-weighted, {company_score.claim_count} claim"
+            f"{'s' if company_score.claim_count != 1 else ''})"
+        )
         print(f"Score range   : {company_score.score_low:.0f}–{company_score.score_high:.0f}")
         print(f"Verdict       : {company_score.verdict.value}")
         print(f"{'=' * 60}\n")
@@ -243,8 +245,10 @@ async def run(
         best_path = _REPORTS_DIR / f"{slug}.md"
         header = _build_aggregate_header(company_name, company_score, results)
         best_path.write_text(header + (best.report_markdown or ""), encoding="utf-8")
-        print(f"Canonical report ({company_score.claim_count} claims, "
-              f"aggregate score {company_score.score:.0f}/100): {best_path}")
+        print(
+            f"Canonical report ({company_score.claim_count} claims, "
+            f"aggregate score {company_score.score:.0f}/100): {best_path}"
+        )
 
     finally:
         await pipeline.aclose()

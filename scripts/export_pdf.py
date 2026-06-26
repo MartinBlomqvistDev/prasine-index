@@ -17,12 +17,13 @@ from core.pdf_export import report_markdown_to_pdf
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Export a Prasine Index report to PDF."
-    )
+    parser = argparse.ArgumentParser(description="Export a Prasine Index report to PDF.")
     parser.add_argument("report", type=Path, help="Path to the .md report file.")
     parser.add_argument(
-        "-o", "--output", type=Path, default=None,
+        "-o",
+        "--output",
+        type=Path,
+        default=None,
         help="Output PDF path. Defaults to <report>.pdf in the same directory.",
     )
     args = parser.parse_args()
