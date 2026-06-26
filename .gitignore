@@ -1,5 +1,8 @@
 # Prasine Index — .gitignore
 
+# Private planning docs
+PRODUCT_ROADMAP.md
+
 # ---------------------------------------------------------------------------
 # Environment and secrets — never commit
 # ---------------------------------------------------------------------------

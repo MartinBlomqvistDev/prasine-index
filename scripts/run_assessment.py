@@ -134,7 +134,17 @@ async def run(
     max_claims: int = 5,
     judge_model: str = "claude-haiku-4-5-20251001",
     report_model: str = "claude-haiku-4-5-20251001",
+    dry_run: bool = False,
 ) -> None:
+    if dry_run:
+        print(f"[dry-run] Would assess: {company_name}")
+        print(f"[dry-run] Source URL : {source_url}")
+        print(f"[dry-run] Claim text : {claim_text or '(discover from URL)'}")
+        print(f"[dry-run] Max claims : {max_claims}")
+        print(f"[dry-run] Judge model: {judge_model}")
+        print("[dry-run] No tokens spent. Pass without --dry-run to run the full pipeline.")
+        return
+
     await init_db()
 
     company_id = uuid.uuid5(uuid.NAMESPACE_DNS, company_name.lower())
@@ -230,6 +240,11 @@ if __name__ == "__main__":
         help="Anthropic model ID for the Report Agent. Default: claude-haiku-4-5-20251001. "
         "Use claude-opus-4-8 for showcase or client-facing reports.",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print what would be assessed without spending any tokens.",
+    )
     args = parser.parse_args()
 
     if args.refresh_data:
@@ -239,6 +254,12 @@ if __name__ == "__main__":
 
     asyncio.run(
         run(
-            args.company, args.url, args.claim, args.max_claims, args.judge_model, args.report_model
+            args.company,
+            args.url,
+            args.claim,
+            args.max_claims,
+            args.judge_model,
+            args.report_model,
+            dry_run=args.dry_run,
         )
     )

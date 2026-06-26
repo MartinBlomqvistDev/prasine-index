@@ -58,7 +58,7 @@ STRUCTURE
 Use the following Markdown structure:
 
 ## [Company Name] — Greenwashing Assessment
-**Verdict: [VERDICT]** | Score: [X/100] | Confidence: [X%]
+**Verdict: [VERDICT]** | Score: [X/100] (range: [LOW–HIGH] if provided) | Confidence: [X%]
 *Published: [DATE] | Prasine Index | Trace ID: [TRACE_ID]*
 
 ### The Claim
@@ -329,7 +329,12 @@ def _build_report_prompt(input: ReportInput) -> str:
         f'CLAIM TEXT: "{claim.raw_text}"',
         "",
         f"VERDICT: {score.verdict.value}",
-        f"SCORE: {score.score:.1f}/100",
+        f"SCORE: {score.score:.1f}/100"
+        + (
+            f" (range: {score.score_low:.0f}–{score.score_high:.0f})"
+            if score.score_low is not None and score.score_high is not None
+            else ""
+        ),
         f"CONFIDENCE: {score.confidence * 100:.0f}%",
         "",
         "JUDGE REASONING:",
@@ -345,6 +350,7 @@ def _build_report_prompt(input: ReportInput) -> str:
     for i, ev in enumerate(vr.evidence, 1):
         parts.append(
             f"[{i}] {ev.source.value} | {ev.evidence_type.value} | Year: {ev.data_year or 'N/A'} | "
+            f"Retrieved: {ev.retrieved_at.date().isoformat()} | "
             f"Supports claim: {ev.supports_claim} | Confidence: {ev.confidence:.2f}"
         )
         parts.append(f"    {ev.summary}")

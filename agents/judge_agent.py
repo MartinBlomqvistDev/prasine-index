@@ -114,6 +114,26 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                     "confidence >= 0.85."
                 ),
             },
+            "score_low": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 100.0,
+                "description": (
+                    "Lower bound of the plausible score range, given data uncertainty. "
+                    "If all ambiguous evidence resolved in the company's favour, the score "
+                    "would not fall below this value. Omit only if data is unambiguous."
+                ),
+            },
+            "score_high": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 100.0,
+                "description": (
+                    "Upper bound of the plausible score range, given data uncertainty. "
+                    "If all ambiguous evidence resolved against the company, the score "
+                    "would not exceed this value. Omit only if data is unambiguous."
+                ),
+            },
         },
         "required": ["score", "score_breakdown", "verdict", "reasoning", "confidence"],
     },
@@ -585,6 +605,12 @@ class JudgeAgent:
                 verdict=ScoreVerdict(verdict["verdict"]),
                 reasoning=verdict["reasoning"],
                 confidence=float(verdict.get("confidence", 0.7)),
+                score_low=float(verdict["score_low"])
+                if verdict.get("score_low") is not None
+                else None,
+                score_high=float(verdict["score_high"])
+                if verdict.get("score_high") is not None
+                else None,
                 judge_model_id=self._model_id,
                 evidence_ids=[e.id for e in input.verification.evidence],
             )
