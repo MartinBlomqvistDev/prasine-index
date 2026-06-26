@@ -22,7 +22,7 @@ export default function DashboardPage() {
         <div className="dash-logo"><span>P</span>rasine Index</div>
         <Link href="/dashboard" className="dash-nav-item active">Assessments</Link>
         <Link href="/dashboard/request" className="dash-nav-item">Request new</Link>
-        <a href="/" className="dash-nav-item" style={{ marginTop: 'auto', position: 'absolute', bottom: 24 }}>← Public site</a>
+        <Link href="/" className="dash-nav-item" style={{ marginTop: 'auto', position: 'absolute', bottom: 24 }}>← Public site</Link>
       </aside>
 
       <main className="dash-main">

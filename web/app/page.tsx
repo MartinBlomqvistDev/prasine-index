@@ -8,7 +8,7 @@ export default function HomePage() {
         <div className="nav-inner">
           <div className="nav-logo"><span>P</span>rasine Index</div>
           <div className="nav-links">
-            <a href="#apply" className="nav-btn">Apply for early access</a>
+            <a href="#apply" className="nav-btn">Request an assessment</a>
           </div>
         </div>
       </nav>
@@ -18,11 +18,12 @@ export default function HomePage() {
         <div className="doc-container">
           <p className="intro-text">
             Prasine Index verifies EU corporate sustainability claims against enforcement
-            records, regulatory filings, and open climate data. The output is a
-            fully-cited evidence chain, structured for ESG analysts, compliance teams, and regulators.
+            records, regulatory filings, lobbying data, and open climate datasets. Submit
+            a company and claim URL. Receive a cited greenwashing assessment report built
+            for journalists, NGOs, law firms, and activist investors.
           </p>
           <p className="intro-sub">
-            Below is a complete assessment. This is what you get.
+            Example output: what a Prasine Index assessment looks like.
           </p>
         </div>
       </section>
@@ -42,8 +43,8 @@ export default function HomePage() {
           <div className="report-claim">
             <div className="claim-attr">Claim extracted from corporate.ryanair.com/sustainability/</div>
             <blockquote>
-              "Within our Sustainability Report 2025, learn more about the ambitious goals
-              we&apos;ve set to reach net-zero carbon emissions by 2050."
+              &quot;Within our Sustainability Report 2025, learn more about the ambitious goals
+              we&apos;ve set to reach net-zero carbon emissions by 2050.&quot;
             </blockquote>
           </div>
 
@@ -345,10 +346,11 @@ export default function HomePage() {
       {/* ── Apply ── */}
       <section id="apply" className="apply-section">
         <div className="doc-container">
-          <h2>Apply for early access</h2>
+          <h2>Request an assessment</h2>
           <p className="apply-sub">
-            I&apos;m working with a small number of early clients — ESG analysts, compliance
-            teams, and journalists. If this is useful to your work, get in touch.
+            Send the company and claim URL. I&apos;ll review whether it&apos;s suitable for
+            assessment and come back with scope and delivery timing. Running a limited number
+            of pilot assessments for journalists, NGOs, legal researchers, and analysts.
           </p>
           <ApplyForm />
         </div>

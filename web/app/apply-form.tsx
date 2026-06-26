@@ -26,7 +26,12 @@ export default function ApplyForm() {
         <ValidationError field="email" errors={state.errors} />
       </div>
       <div className="form-row">
-        <label className="form-label" htmlFor="context">How would you use this?</label>
+        <label className="form-label" htmlFor="claim-url">Company or claim URL</label>
+        <input className="form-input" type="url" id="claim-url" name="claim_url" placeholder="https://www.company.com/sustainability/" />
+        <ValidationError field="claim_url" errors={state.errors} />
+      </div>
+      <div className="form-row">
+        <label className="form-label" htmlFor="context">What should I assess?</label>
         <textarea className="form-textarea" id="context" name="context" rows={4} />
         <ValidationError field="context" errors={state.errors} />
       </div>
