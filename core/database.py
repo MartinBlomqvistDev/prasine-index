@@ -405,6 +405,14 @@ async def _create_schema(conn: AsyncConnection) -> None:
     for stmt in statements:
         await conn.execute(text(stmt))
 
+    # Idempotent column migrations — ADD COLUMN IF NOT EXISTS is safe on existing tables.
+    column_migrations = [
+        "ALTER TABLE greenwashing_scores ADD COLUMN IF NOT EXISTS score_low  FLOAT",
+        "ALTER TABLE greenwashing_scores ADD COLUMN IF NOT EXISTS score_high FLOAT",
+    ]
+    for stmt in column_migrations:
+        await conn.execute(text(stmt))
+
     # Enable Row-Level Security on every table. This blocks anonymous access
     # via the Supabase PostgREST REST API (anon key) while leaving direct
     # database connections (postgres superuser) and service-role API calls
