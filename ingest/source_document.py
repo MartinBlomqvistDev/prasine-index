@@ -19,6 +19,7 @@ document blocks to the Anthropic API).
 from __future__ import annotations
 
 import base64
+import io
 import re
 from typing import Any
 
@@ -36,6 +37,7 @@ logger = get_logger(__name__)
 
 _TOOL_NAME = "extract_climate_disclosures"
 _MAX_HTML_CHARS = 80_000
+_MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 _FETCH_TIMEOUT = 45.0
 
 _EXTRACTION_TOOL: anthropic.types.ToolParam = {
@@ -213,21 +215,31 @@ async def fetch_source_document_data(
 
     is_pdf = "pdf" in content_type.lower() or claim.source_url.lower().endswith(".pdf")
     if is_pdf:
-        b64 = base64.standard_b64encode(content_bytes).decode()
-        content_blocks.append(
-            {
-                "type": "document",
-                "source": {
-                    "type": "base64",
-                    "media_type": "application/pdf",
-                    "data": b64,
-                },
-            }
-        )
-        logger.info(
-            f"Source document is PDF ({len(content_bytes) // 1024} KB)",
-            extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
-        )
+        page_count = _pdf_page_count(content_bytes)
+        if page_count <= _MAX_PDF_PAGES:
+            b64 = base64.standard_b64encode(content_bytes).decode()
+            content_blocks.append(
+                {
+                    "type": "document",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "application/pdf",
+                        "data": b64,
+                    },
+                }
+            )
+            logger.info(
+                f"Source document is PDF ({len(content_bytes) // 1024} KB, {page_count} pages)",
+                extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
+            )
+        else:
+            text = _extract_pdf_text(content_bytes)[:_MAX_HTML_CHARS]
+            content_blocks.append({"type": "text", "text": text})
+            logger.info(
+                f"PDF has {page_count} pages (>{_MAX_PDF_PAGES} limit) — falling back to text extraction "
+                f"({len(text)} chars)",
+                extra={"operation": "source_doc_pdf_text_fallback", "page_count": page_count},
+            )
     else:
         text = _strip_html(content_bytes.decode("utf-8", errors="replace"))[:_MAX_HTML_CHARS]
         content_blocks.append({"type": "text", "text": text})
@@ -321,6 +333,31 @@ async def fetch_source_document_data(
             confidence=confidence,
         )
     ]
+
+
+def _pdf_page_count(pdf_bytes: bytes) -> int:
+    """Return the number of pages in a PDF, or 0 if unreadable."""
+    try:
+        import pypdf
+
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        return len(reader.pages)
+    except Exception:
+        return 0
+
+
+def _extract_pdf_text(pdf_bytes: bytes) -> str:
+    """Extract plain text from a PDF using pypdf."""
+    try:
+        import pypdf
+
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        parts: list[str] = []
+        for page in reader.pages:
+            parts.append(page.extract_text() or "")
+        return re.sub(r"\s+", " ", " ".join(parts)).strip()
+    except Exception as exc:
+        return f"[PDF text extraction failed: {exc}]"
 
 
 async def _fetch_content(url: str) -> tuple[str, bytes]:
