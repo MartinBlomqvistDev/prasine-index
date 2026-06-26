@@ -32,10 +32,10 @@ Ryanair Holdings plc is actively registered as an EU corporate lobbyist (registr
 
 *Source: EU Transparency Register, 2026, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-**4. EU Consumer Protection Investigation (2024)**
-The European Commission and national consumer protection authorities launched a coordinated investigation into Ryanair's environmental claims about carbon emissions, offsetting, and sustainability as part of the 2024 airline greenwashing sweep (EC CPC Regulation 2017/2394). This investigation covers Ryanair alongside Air France, KLM, and Lufthansa. The investigation remains open; no binding ruling has yet been issued.
+**4. EU Consumer Protection Settlement (Nov 2025)**
+On 6 November 2025, Ryanair was among 21 airlines that reached a formal settlement with the EU Consumer Protection Cooperation (CPC) Network, committing to remove or revise environmental claims deemed misleading — including claims suggesting flights could be made "carbon neutral" or "sustainable" via offsets or SAF. No fine was issued, but the settlement constitutes a concluded regulatory determination that the airlines' environmental claims were misleading. This directly substantiates the present finding.
 
-*Source: European Commission, 2024, https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2057*
+*Source: European Commission / CPC Network, November 2025, https://ec.europa.eu/commission/presscorner/detail/en/ip_24_2322*
 
 **5. EmpCo Directive (EU 2024/825) — Binding Standard**
 The EmpCo Directive, in force since March 2024, amends the UCPD to blacklist environmental claims that rely solely on carbon offsetting schemes rather than certified permanent removals. Net-zero claims must demonstrate that residual emissions will be permanently removed by recognised certified carbon removals, not offset credits. Generic net-zero pledges without credible, verifiable transition plans are automatically classified as unfair commercial practices under Annex I.
@@ -79,9 +79,9 @@ The source document (Ryanair's 2025 Sustainability Report) confirms that the net
 
 The claim also lacks: (1) an explicit baseline year; (2) interim 2035/2040 targets; (3) a quantified abatement vs. removals split; and (4) a verified transition plan meeting EmpCo substantiation requirements.
 
-**Corroborating Signal: EC CPC Investigation**
+**Corroborating Signal: EC CPC Settlement (Nov 2025)**
 
-The European Commission's 2024 coordinated investigation into Ryanair's environmental claims (EC CPC airline greenwashing sweep) provides additional corroborating evidence of concern at the enforcement level, though no binding ruling has yet been issued. This investigation is ongoing.
+On 6 November 2025, Ryanair was among 21 airlines that settled with the EU CPC Network, committing to remove or revise misleading environmental claims — including claims relying on offsetting or SAF to imply carbon neutrality. No fine was issued, but the settlement constitutes a concluded regulatory determination that the claims were misleading, directly corroborating this assessment.
 
 **Mitigating Evidence (Within-Band Position Only)**
 
@@ -105,9 +105,9 @@ Ryanair's net-zero 2050 claim is confirmed greenwashing on two independent groun
 
 No installation IDs for Ryanair were returned from the EU Emissions Trading System registry. Aviation emissions are partially outside the EUTL installation-based system (scope 1 international flights; scope 3 emissions often unregistered at installation level). This prevented direct verification of Ryanair's historical and projected emissions trajectory. **Impact on confidence:** Reduces confidence from potential 92% to 86%. The verdict is not affected because it rests on the lobbying obstruction trigger and prior regulatory ruling, both of which are documented with high confidence (0.85–0.90). Direct emissions verification would have strengthened confidence but is not necessary for the verdict.
 
-**EC CPC Investigation Outcome — Pending**
+**EC CPC Settlement — Concluded Nov 2025**
 
-The European Commission's coordinated investigation into Ryanair's environmental claims (launched 2024) has not yet issued a binding ruling. A future binding EC decision would elevate confidence to 92+%. Current confidence reflects corroborating signal (0.70) from an ongoing investigation, not a final determination.
+On 6 November 2025, Ryanair and 20 other airlines settled with the EU CPC Network, committing to remove or revise misleading environmental claims. No fine was issued, but the settlement is a concluded regulatory determination. This resolves the data gap — the corroborating signal is now confirmed rather than pending, and confidence has been updated accordingly.
 
 ---
 
