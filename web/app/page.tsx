@@ -259,8 +259,8 @@ export default function HomePage() {
                 </tr>
                 <tr>
                   <td>EC CPC Investigation outcome</td>
-                  <td>Ongoing (2024–)</td>
-                  <td>No binding ruling yet. Re-assess on conclusion.</td>
+                  <td>Settled — Nov 2025</td>
+                  <td>Ryanair among 21 airlines that committed to EU CPC Network on 6 Nov 2025 to remove or revise misleading environmental claims. No fine issued, but a concluded regulatory commitment. Strengthens the finding — regulators confirmed the claims were misleading.</td>
                 </tr>
               </tbody>
             </table>
