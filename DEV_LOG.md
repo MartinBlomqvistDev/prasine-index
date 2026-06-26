@@ -376,6 +376,60 @@ This would strengthen the assessment materially. The pipeline missed it entirely
 
 ---
 
+## 2026-06-26 — Pydantic model fields silently dropped from DB and API
+
+**Symptom:** `score_low`, `score_high`, and `evidence_ids` appeared on
+`GreenwashingScore` in the Pydantic model and in the judge tool schema, but
+every pipeline run wrote `NULL` for all three to the database. The API
+response also omitted them. No error was raised at any point.
+
+**Root cause:** Three separate code paths each required updating when the
+fields were added to the model, but only one was touched:
+- `core/database.py` DDL — columns were never added to `CREATE TABLE`
+- `core/pipeline.py` INSERT — parameter dict did not include the new fields
+- `api/main.py` `ScoreResponse` and SELECT — neither model nor query listed them
+
+Pydantic validates the model object correctly; it has no knowledge of what
+the database schema expects. The DB insert silently ignored fields not named
+in the parameter dict, and `NULL` defaulted on the missing columns.
+
+**Fix:** Updated DDL, INSERT parameter dict, API response model, and SELECT
+statement in one pass. Confirmed via a dry-run and schema inspection.
+
+**Lesson:** Adding a field to a Pydantic model is not the same as adding it
+to the system. Every layer that serialises or persists the model must be
+updated independently, and there is no runtime signal when a layer is missed.
+A schema migration test that round-trips a model through the DB layer would
+have caught this immediately.
+
+---
+
+## 2026-06-26 — Landing page mini-cards diverged from canonical pipeline reports
+
+**Symptom:** 13 of 18 mini-cards on `docs/index.html` showed claim text
+that did not match the claim actually assessed in the corresponding
+`docs/reports/*.md` file. 9 of 18 showed wrong scores. Two showed wrong
+verdict badges. Danone's card was built entirely around a different claim
+(a carbon removal pledge) than the one the pipeline had assessed (an
+early-adopter net-zero commitment from 2015).
+
+**Root cause:** Mini-card content was written manually as placeholder copy
+and never reconciled against the pipeline output files. Over successive
+pipeline re-runs, the reports were updated but the HTML was not. No
+automated check linked the two.
+
+**Fix:** Read all 18 canonical reports, extracted verbatim claim text,
+score, and verdict, and updated every diverging field in one commit. Also
+corrected 9 "Why X/100?" expand headings whose scores had drifted from
+the mini-score-num shown above them on the same card.
+
+**Lesson:** Any UI element that claims to reflect pipeline output is a
+liability the moment the pipeline re-runs. Either generate the HTML from
+the pipeline data programmatically, or have a validation step that diffs
+the two. Manual copy is a data source that drifts.
+
+---
+
 ## Pipeline architecture decisions that proved correct
 
 **LangGraph only in Verification Agent.** Originally considered using it for the
