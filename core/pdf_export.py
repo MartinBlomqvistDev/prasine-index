@@ -82,6 +82,26 @@ class _Report:
     methodology: str = ""
 
 
+@dataclass
+class _ClaimRow:
+    index: int
+    score: int
+    verdict: str
+    preview: str
+
+
+@dataclass
+class _AggregateHeader:
+    company: str
+    claim_count: int
+    score: int
+    score_low: int
+    score_high: int
+    verdict: str
+    confidence: float
+    claim_rows: list[_ClaimRow]
+
+
 # ---------------------------------------------------------------------------
 # Markdown parser
 # ---------------------------------------------------------------------------
@@ -112,22 +132,75 @@ def _parse_evidence_items(evidence_text: str) -> list[_Evidence]:
     return items
 
 
+def _parse_aggregate_header(markdown: str) -> _AggregateHeader | None:
+    """Parse the company-level aggregate block if present.
+
+    Returns None for single-claim reports that lack the aggregate prefix.
+    """
+    agg_m = re.match(r"^## (.+?) — Company Assessment \((\d+) claims?\)", markdown.lstrip())
+    if not agg_m:
+        return None
+
+    company = agg_m.group(1).strip()
+    claim_count = int(agg_m.group(2))
+
+    score_m = re.search(r"\*\*Overall Score: (\d+)/100\*\*", markdown)
+    score = int(score_m.group(1)) if score_m else 0
+
+    range_m = re.search(r"\*\*Score range:\*\* (\d+)[–\-](\d+)", markdown)
+    score_low = int(range_m.group(1)) if range_m else score
+    score_high = int(range_m.group(2)) if range_m else score
+
+    verdict_m = re.search(r"\*\*Verdict:\*\* ([A-Z_]+)", markdown)
+    verdict = verdict_m.group(1).strip() if verdict_m else ""
+
+    conf_m = re.search(r"\*\*Confidence:\*\* (\d+)%", markdown)
+    confidence = int(conf_m.group(1)) / 100 if conf_m else 0.0
+
+    claim_rows: list[_ClaimRow] = []
+    for row_m in re.finditer(r"^\| (\d+) \| (\d+)/100 \| ([A-Z_]+) \| (.+?) \|$", markdown, re.M):
+        claim_rows.append(
+            _ClaimRow(
+                index=int(row_m.group(1)),
+                score=int(row_m.group(2)),
+                verdict=row_m.group(3).strip(),
+                preview=row_m.group(4).strip(),
+            )
+        )
+
+    return _AggregateHeader(
+        company=company,
+        claim_count=claim_count,
+        score=score,
+        score_low=score_low,
+        score_high=score_high,
+        verdict=verdict,
+        confidence=confidence,
+        claim_rows=claim_rows,
+    )
+
+
 def _parse(markdown: str) -> _Report:
-    title_m = re.search(r"^## (.+?) —", markdown, re.M)
+    # For aggregate reports, the individual claim detail follows the second "---" separator.
+    # Strip the aggregate preamble so the per-field regexes find the right values.
+    parts = re.split(r"\n---\n", markdown, maxsplit=2)
+    detail = parts[-1] if len(parts) >= 2 else markdown
+
+    title_m = re.search(r"^## (.+?) —", detail, re.M)
     company = title_m.group(1).strip() if title_m else "Unknown Company"
 
     meta_m = re.search(
-        r"\*\*Verdict: ([A-Z_]+)\*\*.*?Score: (\d+)/100.*?Confidence: (\d+)%", markdown
+        r"\*\*Verdict: ([A-Z_]+)\*\*.*?Score: (\d+)/100.*?Confidence: (\d+)%", detail
     )
     verdict = meta_m.group(1) if meta_m else ""
     score = int(meta_m.group(2)) if meta_m else 0
     confidence = int(meta_m.group(3)) / 100 if meta_m else 0.0
 
-    pub_m = re.search(r"\*Published: ([^|]+)\|.*?Trace ID: ([^\*]+)\*", markdown)
+    pub_m = re.search(r"\*Published: ([^|]+)\|.*?Trace ID: ([^\*]+)\*", detail)
     published = pub_m.group(1).strip() if pub_m else ""
     trace_id = pub_m.group(2).strip() if pub_m else ""
 
-    claim_section = _section(markdown, "The Claim")
+    claim_section = _section(detail, "The Claim")
     bq_m = re.search(r"^> (.+?)(?=\n\n|\*Source)", claim_section, re.S | re.M)
     claim_text = ""
     if bq_m:
@@ -145,11 +218,11 @@ def _parse(markdown: str) -> _Report:
         trace_id=trace_id,
         claim_text=claim_text,
         claim_source=claim_source,
-        evidence=_parse_evidence_items(_section(markdown, "Evidence")),
-        assessment=_section(markdown, "Assessment"),
-        key_finding=_section(markdown, "Key Finding"),
-        data_gaps=_section(markdown, "Data Gaps"),
-        methodology=_section(markdown, "Methodology Note"),
+        evidence=_parse_evidence_items(_section(detail, "Evidence")),
+        assessment=_section(detail, "Assessment"),
+        key_finding=_section(detail, "Key Finding"),
+        data_gaps=_section(detail, "Data Gaps"),
+        methodology=_section(detail, "Methodology Note"),
     )
 
 
@@ -163,8 +236,8 @@ _UNICODE_MAP = str.maketrans(
         "…": "...",  # ellipsis
         "‘": "'",  # left single quote
         "’": "'",  # right single quote / apostrophe
-        "“": '"',  # left double quote
-        "”": '"',  # right double quote
+        "\u201c": '"',  # left double quote
+        "\u201d": '"',  # right double quote
         "–": "-",  # en dash
         "—": "--",  # em dash
         "×": "x",  # multiplication sign
@@ -247,18 +320,27 @@ def _section_heading(pdf: _PDF, title: str) -> None:
     _rule(pdf)
 
 
-def _render_cover(pdf: _PDF, data: _Report) -> None:
-    color = _VERDICT_COLOR.get(data.verdict, _TEXT_DARK)
+def _render_cover(pdf: _PDF, data: _Report, agg: _AggregateHeader | None = None) -> None:
+    verdict = agg.verdict if agg else data.verdict
+    score = agg.score if agg else data.score
+    confidence = agg.confidence if agg else data.confidence
+    company = agg.company if agg else data.company
+    color = _VERDICT_COLOR.get(verdict, _TEXT_DARK)
     cw = pdf.w - pdf.l_margin - pdf.r_margin
 
     # Company name
     pdf.set_font("Helvetica", "B", 20)
     pdf.set_text_color(*_TEXT_DARK)
-    pdf.multi_cell(0, 9, _safe(data.company), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.multi_cell(0, 9, _safe(company), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*_MUTED)
-    pdf.cell(0, 6, "Greenwashing Assessment", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    subtitle = (
+        f"Greenwashing Assessment — {agg.claim_count} claims assessed"
+        if agg
+        else "Greenwashing Assessment"
+    )
+    pdf.cell(0, 6, subtitle, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(5)
 
     # Score bar
@@ -270,7 +352,7 @@ def _render_cover(pdf: _PDF, data: _Report) -> None:
     pdf.set_fill_color(*_RULE)
     pdf.rect(bar_x, bar_y, bar_w, bar_h, "F")
 
-    filled = max(1.0, bar_w * data.score / 100)
+    filled = max(1.0, bar_w * score / 100)
     pdf.set_fill_color(*color)
     pdf.rect(bar_x, bar_y, filled, bar_h, "F")
 
@@ -278,16 +360,27 @@ def _render_cover(pdf: _PDF, data: _Report) -> None:
     pdf.set_font("Helvetica", "B", 16)
     pdf.set_text_color(*_TEXT_DARK)
     pdf.set_xy(bar_x + bar_w + 3, bar_y - 1)
-    pdf.cell(25, bar_h + 2, f"{data.score}/100", new_x=XPos.LMARGIN, new_y=YPos.TOP)
+    pdf.cell(25, bar_h + 2, f"{score}/100", new_x=XPos.LMARGIN, new_y=YPos.TOP)
 
     pdf.set_y(bar_y + bar_h + 3)
+
+    # Score range (aggregate reports only)
+    if agg and agg.score_low != agg.score_high:
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(*_MUTED)
+        pdf.cell(
+            0,
+            4,
+            _safe(f"Range: {agg.score_low}-{agg.score_high}/100"),
+            new_x=XPos.LMARGIN,
+            new_y=YPos.NEXT,
+        )
+        pdf.ln(1)
 
     # Verdict label
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(*color)
-    pdf.cell(
-        0, 6, _VERDICT_LABEL.get(data.verdict, data.verdict), new_x=XPos.LMARGIN, new_y=YPos.NEXT
-    )
+    pdf.cell(0, 6, _VERDICT_LABEL.get(verdict, verdict), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(3)
 
     # Metadata
@@ -295,11 +388,57 @@ def _render_cover(pdf: _PDF, data: _Report) -> None:
     pdf.set_text_color(*_MUTED)
     short_trace = (data.trace_id[:8] + "...") if len(data.trace_id) > 8 else data.trace_id
     meta = _safe(
-        f"Published {data.published}  |  Confidence {data.confidence:.0%}  |  Trace {short_trace}"
+        f"Published {data.published}  |  Confidence {confidence:.0%}  |  Trace {short_trace}"
     )
     pdf.cell(0, 5, meta, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.ln(8)
     _rule(pdf)
+
+
+def _render_claim_table(pdf: _PDF, agg: _AggregateHeader) -> None:
+    """Render the multi-claim summary table between the cover and the detail section."""
+    _section_heading(pdf, "Claim Overview")
+
+    col_w = (pdf.w - pdf.l_margin - pdf.r_margin - 28) / 2
+    row_h = 5
+
+    for row in agg.claim_rows:
+        color = _VERDICT_COLOR.get(row.verdict, _TEXT_DARK)
+        label = _VERDICT_LABEL.get(row.verdict, row.verdict)
+
+        # Index + score
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(*_TEXT_DARK)
+        pdf.cell(8, row_h, _safe(f"{row.index}."), new_x=XPos.RIGHT, new_y=YPos.TOP)
+        pdf.cell(20, row_h, _safe(f"{row.score}/100"), new_x=XPos.RIGHT, new_y=YPos.TOP)
+
+        # Verdict (colour-coded)
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(*color)
+        pdf.cell(col_w, row_h, _safe(label), new_x=XPos.RIGHT, new_y=YPos.TOP)
+
+        # Claim preview
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(*_TEXT_DARK)
+        preview = _safe(row.preview[:80] + "..." if len(row.preview) > 80 else row.preview)
+        pdf.cell(col_w, row_h, preview, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.ln(1)
+
+    pdf.ln(4)
+    _rule(pdf)
+
+    # Transition line to the detail section
+    pdf.set_font("Helvetica", "I", 8)
+    pdf.set_text_color(*_MUTED)
+    best_idx = max(agg.claim_rows, key=lambda r: r.score).index if agg.claim_rows else 1
+    pdf.cell(
+        0,
+        5,
+        _safe(f"Detailed assessment of claim {best_idx} (highest severity) follows."),
+        new_x=XPos.LMARGIN,
+        new_y=YPos.NEXT,
+    )
+    pdf.ln(5)
 
 
 def _render_claim(pdf: _PDF, data: _Report) -> None:
@@ -376,18 +515,25 @@ def _render_prose(pdf: _PDF, heading: str, text: str) -> None:
 def report_markdown_to_pdf(source: Path, dest: Path) -> None:
     """Convert a Prasine Index Markdown report to a styled PDF.
 
+    Handles both single-claim reports and the canonical multi-claim format
+    (aggregate header + highest-severity claim detail).
+
     Args:
         source: Path to the .md report file produced by the Report Agent.
         dest: Output path for the PDF file (will be created or overwritten).
     """
-    data = _parse(source.read_text(encoding="utf-8"))
+    markdown = source.read_text(encoding="utf-8")
+    agg = _parse_aggregate_header(markdown)
+    data = _parse(markdown)
 
     pdf = _PDF(orientation="P", unit="mm", format="A4")
     pdf.set_margins(20, 20, 20)
     pdf.set_auto_page_break(auto=True, margin=20)
     pdf.add_page()
 
-    _render_cover(pdf, data)
+    _render_cover(pdf, data, agg)
+    if agg and len(agg.claim_rows) > 1:
+        _render_claim_table(pdf, agg)
     _render_claim(pdf, data)
     _render_evidence(pdf, data)
     _render_prose(pdf, "Assessment", data.assessment)
