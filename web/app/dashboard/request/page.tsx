@@ -12,7 +12,7 @@ export default function RequestPage() {
       <main className="dash-main">
         <div className="dash-header">
           <h1>Request an assessment</h1>
-          <p>Turnaround: 48 hours. You&apos;ll receive the full report via email and in your dashboard.</p>
+          <p>Turnaround: 48 hours. You&apos;ll receive the full report by email.</p>
         </div>
 
         <form
