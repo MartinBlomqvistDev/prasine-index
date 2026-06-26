@@ -328,7 +328,7 @@ async def fetch_source_document_data(
             source_url=claim.source_url,
             raw_data=raw_data,
             summary=summary,
-            data_year=extraction.get("emissions_year"),
+            data_year=extraction.get("emissions_year") if isinstance(extraction.get("emissions_year"), int) else None,
             supports_claim=supports_claim,
             confidence=confidence,
         )
