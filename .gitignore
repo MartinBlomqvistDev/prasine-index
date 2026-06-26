@@ -96,6 +96,8 @@ operators_daily.csv
 EUTL24/
 eutl_2024_202410/
 data/*.csv
+data/enforcement_flags.json
+data/enforcement_last_run.json
 data/*.xlsx
 data/*.xls
 data/*.pdf
