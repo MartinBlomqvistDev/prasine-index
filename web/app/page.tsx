@@ -348,9 +348,10 @@ export default function HomePage() {
         <div className="doc-container">
           <h2>Request an assessment</h2>
           <p className="apply-sub">
-            Send the company and claim URL. I&apos;ll review whether it&apos;s suitable for
-            assessment and come back with scope and delivery timing. Running a limited number
-            of pilot assessments for journalists, NGOs, legal researchers, and analysts.
+            I&apos;m running a limited number of pilot assessments for journalists, NGOs,
+            legal researchers, and analysts. Get in touch — send a company, a claim, or
+            just describe what you&apos;re investigating. I&apos;ll come back with whether
+            it&apos;s a fit and what&apos;s involved.
           </p>
           <ApplyForm />
         </div>
