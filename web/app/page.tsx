@@ -360,7 +360,7 @@ export default function HomePage() {
           <div>
             <span>Prasine Index — Martin Blomqvist, 2026</span>
             <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-              Data Scientist / AI Engineer · EC Utbildning (Data Science, 2026) · LIA: IMVI Labs · Sweden
+              Data Scientist / AI Engineer · Sweden
             </p>
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
