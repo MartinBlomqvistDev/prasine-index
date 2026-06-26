@@ -85,10 +85,10 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                 "enum": [v.value for v in ScoreVerdict],
                 "description": (
                     "Verdict band — must match your score per the bands below. "
-                    "score 0–20 → SUBSTANTIATED. "
-                    "score 21–45 → INSUFFICIENT_EVIDENCE. "
-                    "score 46–60 → MISLEADING. "
-                    "score 61–80 → GREENWASHING. "
+                    "score 0–20 → SUBSTANTIATED_CLAIM. "
+                    "score 21–40 → UNVERIFIABLE_CLAIM. "
+                    "score 41–60 → MISLEADING_CLAIM. "
+                    "score 61–80 → LIKELY_GREENWASHING. "
                     "score 81–100 → CONFIRMED_GREENWASHING."
                 ),
             },
@@ -132,20 +132,20 @@ verified behaviour. Score 0 means the claim is fully backed by verified data. \
 Score 100 means the claim is directly and clearly contradicted by verified evidence.
 
 SCORE-TO-VERDICT BANDS — you MUST respect these:
-  0–20   → SUBSTANTIATED: verified data supports the claim; no material contradiction.
-  21–45  → INSUFFICIENT_EVIDENCE: data gaps prevent a clear assessment in either
+  0–20   → SUBSTANTIATED_CLAIM: verified data supports the claim; no material contradiction.
+  21–40  → UNVERIFIABLE_CLAIM: data gaps prevent a clear assessment in either
             direction. Use ONLY when you genuinely cannot tell because the data
             needed to evaluate the claim is unavailable and the claim is at least
             plausible given the company's sector.
-  46–60  → MISLEADING: claim is directionally possible but exaggerates, omits key
-            context, or cannot be independently verified. Includes: vague aspirational
-            claims without measurable targets; claims from non-emitting entities
-            (banks, services) about financed or value-chain emissions that have no
-            audited baseline; per-unit efficiency claims that mask rising absolute
-            emissions.
-  61–80  → GREENWASHING: claim is materially contradicted by verified data from a
-            regulatory source (EU ETS EUTL), or the claim is a forward commitment
-            whose current trajectory is clearly inconsistent with delivery.
+  41–60  → MISLEADING_CLAIM: claim is directionally possible but exaggerates, omits
+            key context, or cannot be independently verified. Includes: vague
+            aspirational claims without measurable targets; claims from non-emitting
+            entities (banks, services) about financed or value-chain emissions that
+            have no audited baseline; per-unit efficiency claims that mask rising
+            absolute emissions.
+  61–80  → LIKELY_GREENWASHING: claim is materially contradicted by verified data
+            from a regulatory source (EU ETS EUTL), or the claim is a forward
+            commitment whose current trajectory is clearly inconsistent with delivery.
   81–100 → CONFIRMED_GREENWASHING: claim is materially contradicted by verified
             data AND at least one of the following conditions is met:
             (a) LOBBYING OBSTRUCTION: the company's LobbyMap score is D or D+
@@ -173,17 +173,17 @@ SCORE-TO-VERDICT BANDS — you MUST respect these:
                 is confirmed regardless of whether a specific ruling has been
                 issued yet.
 
-CRITICAL: Do not default to 72/GREENWASHING when uncertain. If you are uncertain,
-use INSUFFICIENT_EVIDENCE (score 21–45) or MISLEADING (46–60). Reserve
-GREENWASHING (61–80) for cases where EU ETS data or other verified evidence
-directly contradicts the claim.
+CRITICAL: Do not default to 72/LIKELY_GREENWASHING when uncertain. If you are
+uncertain, use UNVERIFIABLE_CLAIM (score 21–40) or MISLEADING_CLAIM (41–60).
+Reserve LIKELY_GREENWASHING (61–80) for cases where EU ETS data or other
+verified evidence directly contradicts the claim.
 
 CONFIRMED TRIGGER IS A FLOOR — CRITICAL:
 When ANY ONE of conditions (a)–(d) for CONFIRMED_GREENWASHING is met, the
 score CANNOT fall below 81. Mitigating evidence affects the position within the
 81–100 band (e.g. strong mitigating evidence → 81–84, none → 88–95) but it
-CANNOT pull the score back into the GREENWASHING band (≤80). A company with
-a D+ LobbyMap rating and two moderate supporting sources scores 81–84, NOT 78.
+CANNOT pull the score back into the LIKELY_GREENWASHING band (≤80). A company
+with a D+ LobbyMap rating and two moderate supporting sources scores 81–84, NOT 78.
 Do not let partial mitigating evidence override a confirmed trigger.
 
 INTERIM TARGETS DO NOT MITIGATE NET-ZERO CLAIMS:

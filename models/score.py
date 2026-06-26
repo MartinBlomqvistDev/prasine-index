@@ -40,14 +40,20 @@ class ScoreVerdict(StrEnum):
     """Human-readable verdict category derived from the overall score.
 
     These bands map score ranges to actionable labels used in published reports
-    and the public-facing API. The bands are intentionally conservative to avoid
-    false positives in published material intended for legal and journalistic use.
+    and the public-facing API. The top three verdicts describe the *claim*;
+    the bottom two describe the *company*. Bands are equal-width (20 points each).
+
+    0–20   SUBSTANTIATED_CLAIM    — verified data supports the claim.
+    21–40  UNVERIFIABLE_CLAIM     — data gaps prevent assessment either way.
+    41–60  MISLEADING_CLAIM       — claim misleads even if technically defensible.
+    61–80  LIKELY_GREENWASHING    — material contradictions found; no binding ruling.
+    81–100 CONFIRMED_GREENWASHING — binding ruling or multiple hard triggers.
     """
 
-    SUBSTANTIATED = "SUBSTANTIATED"
-    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
-    MISLEADING = "MISLEADING"
-    GREENWASHING = "GREENWASHING"
+    SUBSTANTIATED_CLAIM = "SUBSTANTIATED_CLAIM"
+    UNVERIFIABLE_CLAIM = "UNVERIFIABLE_CLAIM"
+    MISLEADING_CLAIM = "MISLEADING_CLAIM"
+    LIKELY_GREENWASHING = "LIKELY_GREENWASHING"
     CONFIRMED_GREENWASHING = "CONFIRMED_GREENWASHING"
 
 
