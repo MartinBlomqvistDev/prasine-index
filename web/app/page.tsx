@@ -52,31 +52,31 @@ export default function HomePage() {
           {/* ── Claim overview table ── */}
           <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
             <thead>
-              <tr><th>#</th><th>Score</th><th>Verdict</th><th>Claim</th></tr>
+              <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
             </thead>
             <tbody>
               <tr>
-                <td>1</td><td>84</td>
+                <td>84 / 100</td>
                 <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
                 <td style={{ fontSize: 12 }}>&ldquo;the ambitious goals we&apos;ve set to reach net-zero carbon emissions by 2050&rdquo;</td>
               </tr>
               <tr style={{ background: 'var(--surface-alt, #f7f7f7)' }}>
-                <td><strong>2</strong></td><td><strong>86</strong></td>
+                <td><strong>86 / 100</strong></td>
                 <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}><strong>&ldquo;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement&hellip;&rdquo;</strong></td>
+                <td style={{ fontSize: 12 }}><strong>&ldquo;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement&hellip;&rdquo; &mdash; detailed below</strong></td>
               </tr>
               <tr>
-                <td>3</td><td>82</td>
+                <td>82 / 100</td>
                 <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
                 <td style={{ fontSize: 12 }}>&ldquo;Work with suppliers to increase sustainable aviation fuel (SAF) with industry-leading SAF goals &gt;10% by 2030.&rdquo;</td>
               </tr>
               <tr>
-                <td>4</td><td>82</td>
+                <td>82 / 100</td>
                 <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
                 <td style={{ fontSize: 12 }}>&ldquo;By appointing best-in class researchers, we&apos;ll achieve our goal of powering 12.5% of our flights with SAF by 2030.&rdquo;</td>
               </tr>
               <tr>
-                <td>5</td><td>82</td>
+                <td>82 / 100</td>
                 <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
                 <td style={{ fontSize: 12 }}>&ldquo;Our goal is 12.5% SAF usage by 2030.&rdquo;</td>
               </tr>
