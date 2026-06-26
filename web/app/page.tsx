@@ -293,9 +293,9 @@ export default function HomePage() {
             <span className="index-stat-sep">·</span>
             <span className="index-stat"><strong>3</strong> likely greenwashing</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>7</strong> misleading claim</span>
+            <span className="index-stat"><strong>6</strong> misleading claim</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>4</strong> unverifiable claim</span>
+            <span className="index-stat"><strong>5</strong> unverifiable claim</span>
           </div>
           <table className="assessments-table">
             <thead>
@@ -321,8 +321,8 @@ export default function HomePage() {
                 { company: 'H&M Group',                sector: 'Fashion',     score: 48, label: 'Misleading claim',    badge: 'misleading'   },
                 { company: 'Öresundskraft',            sector: 'Energy',      score: 48, label: 'Misleading claim',    badge: 'misleading'   },
                 { company: 'Stegra',                   sector: 'Steel',       score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'SSAB AB',                  sector: 'Steel',       score: 35, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Danone SA',                sector: 'Food',        score: 48, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'SSAB AB',                  sector: 'Steel',       score: 42, label: 'Unverifiable claim',  badge: 'insufficient' },
+                { company: 'Danone SA',                sector: 'Food',        score: 35, label: 'Unverifiable claim',  badge: 'insufficient' },
                 { company: 'Ørsted A/S',               sector: 'Renewables',  score: 32, label: 'Unverifiable claim',  badge: 'insufficient' },
                 { company: 'Securitas AB',             sector: 'Services',    score: 28, label: 'Unverifiable claim',  badge: 'insufficient' },
                 { company: 'IKEA Group',               sector: 'Retail',      score: 22, label: 'Unverifiable claim',  badge: 'insufficient' },
