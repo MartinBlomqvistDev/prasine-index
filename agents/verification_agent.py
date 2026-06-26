@@ -71,6 +71,32 @@ __all__ = [
 
 logger = get_logger(__name__)
 
+_SLOW_NODE_THRESHOLD_S = 20.0
+
+
+def _with_timing(node_name: str, fn: Any) -> Any:
+    """Wrap a LangGraph node to emit a WARNING if it exceeds _SLOW_NODE_THRESHOLD_S."""
+
+    async def _wrapped(state: VerificationState) -> dict[str, Any]:
+        t0 = time.monotonic()
+        result: dict[str, Any] = cast("dict[str, Any]", await fn(state))
+        elapsed = time.monotonic() - t0
+        if elapsed > _SLOW_NODE_THRESHOLD_S:
+            logger.warning(
+                f"PARTIAL: {node_name} took {elapsed:.1f}s "
+                f"(threshold {_SLOW_NODE_THRESHOLD_S:.0f}s) — "
+                "evidence from this source may be incomplete",
+                extra={
+                    "operation": "verification_node_slow",
+                    "node": node_name,
+                    "duration_s": round(elapsed, 1),
+                    "outcome": AgentOutcome.PARTIAL.value,
+                },
+            )
+        return result
+
+    return _wrapped
+
 
 # ---------------------------------------------------------------------------
 # LangGraph state
@@ -1079,29 +1105,44 @@ def _build_verification_graph(
     """
     graph = StateGraph(VerificationState)
 
-    source_doc_node = functools.partial(_node_fetch_source_document, client=anthropic_client)
+    source_doc_node = _with_timing(
+        "fetch_source_document",
+        functools.partial(_node_fetch_source_document, client=anthropic_client),
+    )
     graph.add_node("fetch_source_document", source_doc_node)
-    graph.add_node("fetch_eu_ets", _node_fetch_eu_ets)
-    graph.add_node("fetch_cdp", _node_fetch_cdp)
-    graph.add_node("fetch_sbti", _node_fetch_sbti)
-    graph.add_node("fetch_eprtr", _node_fetch_eprtr)
-    graph.add_node("fetch_lobby_map", _node_fetch_lobby_map)
-    graph.add_node("fetch_enforcement", _node_fetch_enforcement)
-    graph.add_node("fetch_ca100", _node_fetch_ca100)
-    graph.add_node("fetch_fossil_finance", _node_fetch_fossil_finance)
-    graph.add_node("fetch_coal_exit", _node_fetch_coal_exit)
-    graph.add_node("fetch_eurlex", _node_fetch_eurlex)
-    graph.add_node("fetch_eu_innovation_fund", _node_fetch_eu_innovation_fund)
-    graph.add_node("fetch_gogel", _node_fetch_gogel)
-    graph.add_node("fetch_eea_national", _node_fetch_eea_national)
-    graph.add_node("fetch_eu_transparency_register", _node_fetch_eu_transparency_register)
-    graph.add_node("fetch_eurostat", _node_fetch_eurostat)
-    graph.add_node("fetch_climate_trace", _node_fetch_climate_trace)
-    graph.add_node("fetch_tpi", _node_fetch_tpi)
-    graph.add_node("fetch_gcpt", _node_fetch_gcpt)
-    graph.add_node("fetch_egt", _node_fetch_egt)
-    graph.add_node("fetch_goget", _node_fetch_goget)
-    graph.add_node("fetch_edgar", _node_fetch_edgar)
+    graph.add_node("fetch_eu_ets", _with_timing("fetch_eu_ets", _node_fetch_eu_ets))
+    graph.add_node("fetch_cdp", _with_timing("fetch_cdp", _node_fetch_cdp))
+    graph.add_node("fetch_sbti", _with_timing("fetch_sbti", _node_fetch_sbti))
+    graph.add_node("fetch_eprtr", _with_timing("fetch_eprtr", _node_fetch_eprtr))
+    graph.add_node("fetch_lobby_map", _with_timing("fetch_lobby_map", _node_fetch_lobby_map))
+    graph.add_node("fetch_enforcement", _with_timing("fetch_enforcement", _node_fetch_enforcement))
+    graph.add_node("fetch_ca100", _with_timing("fetch_ca100", _node_fetch_ca100))
+    graph.add_node(
+        "fetch_fossil_finance", _with_timing("fetch_fossil_finance", _node_fetch_fossil_finance)
+    )
+    graph.add_node("fetch_coal_exit", _with_timing("fetch_coal_exit", _node_fetch_coal_exit))
+    graph.add_node("fetch_eurlex", _with_timing("fetch_eurlex", _node_fetch_eurlex))
+    graph.add_node(
+        "fetch_eu_innovation_fund",
+        _with_timing("fetch_eu_innovation_fund", _node_fetch_eu_innovation_fund),
+    )
+    graph.add_node("fetch_gogel", _with_timing("fetch_gogel", _node_fetch_gogel))
+    graph.add_node(
+        "fetch_eea_national", _with_timing("fetch_eea_national", _node_fetch_eea_national)
+    )
+    graph.add_node(
+        "fetch_eu_transparency_register",
+        _with_timing("fetch_eu_transparency_register", _node_fetch_eu_transparency_register),
+    )
+    graph.add_node("fetch_eurostat", _with_timing("fetch_eurostat", _node_fetch_eurostat))
+    graph.add_node(
+        "fetch_climate_trace", _with_timing("fetch_climate_trace", _node_fetch_climate_trace)
+    )
+    graph.add_node("fetch_tpi", _with_timing("fetch_tpi", _node_fetch_tpi))
+    graph.add_node("fetch_gcpt", _with_timing("fetch_gcpt", _node_fetch_gcpt))
+    graph.add_node("fetch_egt", _with_timing("fetch_egt", _node_fetch_egt))
+    graph.add_node("fetch_goget", _with_timing("fetch_goget", _node_fetch_goget))
+    graph.add_node("fetch_edgar", _with_timing("fetch_edgar", _node_fetch_edgar))
     graph.add_node("aggregate", _node_aggregate)
 
     # Fan out from START to all fetch nodes — LangGraph runs these in parallel

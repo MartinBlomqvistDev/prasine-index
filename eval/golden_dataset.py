@@ -851,6 +851,7 @@ if __name__ == "__main__":
         python -m eval.golden_dataset --quick           # 5-case subset (~$0.25)
         python -m eval.golden_dataset GW-001 GW-002     # specific cases
     """
+    import os
     import sys
 
     from dotenv import load_dotenv
@@ -870,5 +871,19 @@ if __name__ == "__main__":
     summary = asyncio.run(run_eval(case_ids=case_ids))
     print(summary.report())
 
-    # Exit with non-zero status if pass rate is below 80%
+    if step_summary_path := os.getenv("GITHUB_STEP_SUMMARY"):
+        from pathlib import Path
+
+        with Path(step_summary_path).open("a") as _f:
+            _f.write(f"```\n{summary.report()}\n```\n")
+
+    if os.getenv("GITHUB_ACTIONS"):
+        level = "notice" if summary.tier1_pass_rate >= 0.80 else "error"
+        print(
+            f"::{level} title=Eval Results::"
+            f"Tier-1: {summary.tier1_pass_rate:.1%} | "
+            f"Overall: {summary.overall_pass_rate:.1%} | "
+            f"{summary.passed}/{summary.total_cases} passed"
+        )
+
     sys.exit(0 if summary.overall_pass_rate >= 0.80 else 1)
