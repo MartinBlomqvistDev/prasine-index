@@ -14,7 +14,6 @@ __all__ = ["aggregate_claim_scores"]
 _SEVERITY: dict[ScoreVerdict, int] = {
     ScoreVerdict.SUBSTANTIATED_CLAIM: 0,
     ScoreVerdict.UNVERIFIABLE_CLAIM: 1,
-    ScoreVerdict.INSUFFICIENT_EVIDENCE: 1,
     ScoreVerdict.MISLEADING_CLAIM: 2,
     ScoreVerdict.LIKELY_GREENWASHING: 3,
     ScoreVerdict.CONFIRMED_GREENWASHING: 4,

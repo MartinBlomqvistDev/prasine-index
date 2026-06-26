@@ -158,31 +158,33 @@ def _parse(markdown: str) -> _Report:
 # ---------------------------------------------------------------------------
 
 
-_UNICODE_MAP = str.maketrans({
-    "…": "...",   # ellipsis
-    "‘": "'",     # left single quote
-    "’": "'",     # right single quote / apostrophe
-    "“": '"',     # left double quote
-    "”": '"',     # right double quote
-    "–": "-",     # en dash
-    "—": "--",    # em dash
-    "×": "x",     # multiplication sign
-    " ": " ",     # non-breaking space
-    "°": " deg",  # degree sign
-    "€": "EUR",   # euro sign
-    "→": "->",    # right arrow
-    "←": "<-",    # left arrow
-    "é": "e",     # é
-    "è": "e",     # è
-    "ê": "e",     # ê
-    "à": "a",     # à
-    "â": "a",     # â
-    "ö": "o",     # ö
-    "ä": "a",     # ä
-    "ü": "u",     # ü
-    "Å": "A",     # Å
-    "å": "a",     # å
-})
+_UNICODE_MAP = str.maketrans(
+    {
+        "…": "...",  # ellipsis
+        "‘": "'",  # left single quote
+        "’": "'",  # right single quote / apostrophe
+        "“": '"',  # left double quote
+        "”": '"',  # right double quote
+        "–": "-",  # en dash
+        "—": "--",  # em dash
+        "×": "x",  # multiplication sign
+        " ": " ",  # non-breaking space
+        "°": " deg",  # degree sign
+        "€": "EUR",  # euro sign
+        "→": "->",  # right arrow
+        "←": "<-",  # left arrow
+        "é": "e",  # é
+        "è": "e",  # è
+        "ê": "e",  # ê
+        "à": "a",  # à
+        "â": "a",  # â
+        "ö": "o",  # ö
+        "ä": "a",  # ä
+        "ü": "u",  # ü
+        "Å": "A",  # Å
+        "å": "a",  # å
+    }
+)
 
 
 def _safe(text: str) -> str:
@@ -211,8 +213,12 @@ class _PDF(FPDF):
         self.set_font("Helvetica", "", 7)
         self.set_text_color(*_MUTED)
         self.cell(
-            0, 5, "martinblomqvistdev.github.io/prasine-index",
-            align="R", new_x=XPos.LMARGIN, new_y=YPos.NEXT,
+            0,
+            5,
+            "martinblomqvistdev.github.io/prasine-index",
+            align="R",
+            new_x=XPos.LMARGIN,
+            new_y=YPos.NEXT,
         )
         self.set_draw_color(*_RULE)
         self.set_line_width(0.2)
@@ -279,7 +285,9 @@ def _render_cover(pdf: _PDF, data: _Report) -> None:
     # Verdict label
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(*color)
-    pdf.cell(0, 6, _VERDICT_LABEL.get(data.verdict, data.verdict), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.cell(
+        0, 6, _VERDICT_LABEL.get(data.verdict, data.verdict), new_x=XPos.LMARGIN, new_y=YPos.NEXT
+    )
     pdf.ln(3)
 
     # Metadata
@@ -307,7 +315,9 @@ def _render_claim(pdf: _PDF, data: _Report) -> None:
     if data.claim_source:
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(*_MUTED)
-        pdf.multi_cell(0, 4, _safe(f"Source: {data.claim_source}"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.multi_cell(
+            0, 4, _safe(f"Source: {data.claim_source}"), new_x=XPos.LMARGIN, new_y=YPos.NEXT
+        )
     pdf.ln(6)
 
 
@@ -320,8 +330,11 @@ def _render_evidence(pdf: _PDF, data: _Report) -> None:
         pdf.set_font("Helvetica", "B", 9)
         pdf.set_text_color(*_TEXT_DARK)
         pdf.multi_cell(
-            0, 5, _safe(f"{item.number}. {item.title}"),
-            new_x=XPos.LMARGIN, new_y=YPos.NEXT,
+            0,
+            5,
+            _safe(f"{item.number}. {item.title}"),
+            new_x=XPos.LMARGIN,
+            new_y=YPos.NEXT,
         )
         pdf.ln(1)
 
@@ -336,8 +349,11 @@ def _render_evidence(pdf: _PDF, data: _Report) -> None:
             pdf.set_font("Helvetica", "I", 8)
             pdf.set_text_color(*_MUTED)
             pdf.multi_cell(
-                0, 4, _safe(f"Source: {item.source}"),
-                new_x=XPos.LMARGIN, new_y=YPos.NEXT,
+                0,
+                4,
+                _safe(f"Source: {item.source}"),
+                new_x=XPos.LMARGIN,
+                new_y=YPos.NEXT,
             )
         pdf.ln(4)
 
