@@ -36,8 +36,8 @@ WORKAROUND: 2013 Global 500 Dataset (free, stale)
 The 2013 Global 500 dataset covers 482 large companies with A/B/C/D/F scores.
 It is publicly accessible without login at:
 
-  data.cdp.net → search: "2013 Global 500 Emissions and Response Status"
-  → Export → CSV
+  data.cdp.net -> search: "2013 Global 500 Emissions and Response Status"
+  -> Export -> CSV
 
 This is stale (2013) but useful to verify the pipeline processes CDP evidence
 correctly. Download and save to data/cdp_companies.csv to enable the ingest
@@ -85,8 +85,12 @@ def check_existing() -> None:
         print("  Pipeline will run without CDP evidence (other 9 sources active).")
 
 
-if __name__ == "__main__":
+def main() -> None:
     check_existing()
     print()
     print(__doc__)
+
+
+if __name__ == "__main__":
+    main()
     sys.exit(0)
