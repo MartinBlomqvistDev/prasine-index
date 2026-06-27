@@ -353,8 +353,8 @@ export default function HomePage() {
             <tbody>
               {[
                 { company: 'Glencore plc',             sector: 'Mining',      score: 87, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'Eni SpA',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'BP plc',                   sector: 'Oil & Gas',   score: 82, label: 'Confirmed',          badge: 'confirmed'    },
                 { company: 'KLM Royal Dutch Airlines', sector: 'Aviation',    score: 78, label: 'Likely greenwashing', badge: 'greenwashing' },
                 { company: 'TotalEnergies SE',         sector: 'Oil & Gas',   score: 75, label: 'Likely greenwashing', badge: 'greenwashing' },

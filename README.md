@@ -307,8 +307,8 @@ Current results, as published on [martinblomqvistdev.github.io/prasine-index](ht
 | ------- | ------ | ------- | ----- |
 | Glencore plc | Mining | CONFIRMED_GREENWASHING | 87/100 |
 | Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
-| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
 | Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 83/100 |
+| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
 | KLM Royal Dutch Airlines | Aviation | LIKELY_GREENWASHING | 78/100 |
 | TotalEnergies SE | Oil & Gas | LIKELY_GREENWASHING | 75/100 |
 | Enel SpA | Energy | LIKELY_GREENWASHING | 68/100 |
