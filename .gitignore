@@ -1,7 +1,10 @@
 # Prasine Index — .gitignore
 
-# Private planning docs
+# Private planning docs and internal working files
 PRODUCT_ROADMAP.md
+DEV_LOG.md
+AGENTS.md
+WEB_AUDIT_HANDOFF_CLAUDE.md
 
 # ---------------------------------------------------------------------------
 # Environment and secrets — never commit
