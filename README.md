@@ -301,14 +301,14 @@ Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (h
 
 ## Published Assessments
 
-Current results from the 21-source pipeline, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/):
+Current results, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/):
 
 | Company | Sector | Verdict | Score |
 | ------- | ------ | ------- | ----- |
 | Glencore plc | Mining | CONFIRMED_GREENWASHING | 87/100 |
 | Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
 | BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
-| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 86/100 |
+| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 83/100 |
 | KLM Royal Dutch Airlines | Aviation | LIKELY_GREENWASHING | 78/100 |
 | TotalEnergies SE | Oil & Gas | LIKELY_GREENWASHING | 75/100 |
 | Enel SpA | Energy | LIKELY_GREENWASHING | 68/100 |
