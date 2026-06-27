@@ -39,12 +39,28 @@ _REFRESH_SCRIPTS: list[str] = [
 
 _ENTRY_POINTS: tuple[str, ...] = (
     "download_sbti",
-    "download_LobbyMap_csv",
+    "download_lobbymap_csv",
     "download_ca100_csv",
+    "download_eprtr_csv",
     "main",
     "download_bocc_csv",
     "download_gcel_csv",
     "run",
+)
+
+# Scripts where auto-download routinely fails (URL rot, auth, form submission required).
+# Their existing data files remain usable; failure is demoted to [WARN] and does not
+# trigger a non-zero exit code from refresh_all.py.
+_SOFT_FAIL_SCRIPTS: frozenset[str] = frozenset(
+    {
+        "refresh_cdp.py",
+        "refresh_eprtr.py",
+        "refresh_gcel.py",
+        "refresh_gogel.py",
+        "refresh_fossil_finance.py",
+        "refresh_eu_innovation_fund.py",
+        "refresh_lobbymap.py",
+    }
 )
 
 
@@ -92,19 +108,36 @@ def main() -> None:
 
         for script_name in _REFRESH_SCRIPTS:
             ok, detail = _run_script(script_name)
-            tag = "[OK  ]" if ok else "[FAIL]"
+            soft = script_name in _SOFT_FAIL_SCRIPTS
+            if ok:
+                tag = "[OK  ]"
+            elif soft:
+                tag = "[WARN]"
+            else:
+                tag = "[FAIL]"
             emit(f"  {tag} {script_name:<45} {detail}")
             results.append((script_name, ok, detail))
 
-        failures = [r for r in results if not r[1]]
-        emit(f"\n=== {len(results) - len(failures)}/{len(results)} scripts succeeded ===")
-        if failures:
+        hard_failures = [r for r in results if not r[1] and r[0] not in _SOFT_FAIL_SCRIPTS]
+        soft_failures = [r for r in results if not r[1] and r[0] in _SOFT_FAIL_SCRIPTS]
+        ok_count = len(results) - len(hard_failures) - len(soft_failures)
+        emit(
+            f"\n=== {ok_count}/{len(results)} ok"
+            + (f", {len(soft_failures)} warn" if soft_failures else "")
+            + (f", {len(hard_failures)} FAILED" if hard_failures else "")
+            + " ==="
+        )
+        if soft_failures:
+            emit("WARN (manual download required — existing data still usable):")
+            for name, _, detail in soft_failures:
+                emit(f"  {name}: {detail}")
+        if hard_failures:
             emit("FAILED:")
-            for name, _, detail in failures:
+            for name, _, detail in hard_failures:
                 emit(f"  {name}: {detail}")
         emit(f"Log: {log_path}")
 
-    if failures:
+    if hard_failures:
         sys.exit(1)
 
 
