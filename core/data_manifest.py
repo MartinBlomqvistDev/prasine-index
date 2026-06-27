@@ -16,28 +16,36 @@ from pathlib import Path
 
 __all__ = ["DataManifest", "build_manifest", "load_manifest", "manifest_to_markdown"]
 
-_DATA_DIR = Path(__file__).parent.parent / "data"
+_PROJECT_ROOT = Path(__file__).parent.parent
+_DATA_DIR = _PROJECT_ROOT / "data"
 
-# Glob patterns relative to _DATA_DIR, in source-name order.
-# Large files are hashed too — takes ~2s per 500 MB file, acceptable at run time.
-_PATTERNS: list[tuple[str, str]] = [
-    ("sbti", "sbti_companies*"),
-    ("lobbymap", "lobbymap_companies.csv"),
-    ("ca100", "ca100_companies.csv"),
-    ("eprtr", "eprtr_releases.csv"),
-    ("fossil_finance", "Expansion_Company_List_*.xlsx"),
-    ("gcel", "gcel_companies.csv"),
-    ("gogel", "gogel_companies.csv"),
-    ("tpi", "tpi_companies.csv"),
-    ("eea_national", "eea_national_ghg.csv"),
-    ("eu_innovation_fund", "eu_innovation_fund_projects.csv"),
-    ("eu_transparency_register", "EU_Transparency register_searchExport.xlsx"),
-    ("gcpt", "Global-Coal-Plant-Tracker-*.xlsx"),
-    ("egt", "Europe-Gas-Tracker-*.xlsx"),
-    ("goget_tracker", "Global-Oil-and-Gas-Extraction-Tracker-*.xlsx"),
-    ("edgar_jrc", "JRC/EDGAR_2025_GHG_booklet_2025.xlsx"),
-    ("eutl", "emissions_high_granularity.csv"),
-    ("influencemap", "influencemap_companies.csv"),
+# Each entry: (key, base_dir, glob_pattern).
+# base_dir is _DATA_DIR for everything in data/, _PROJECT_ROOT for EUTL
+# (which lives in EUTL24/ at the project root, downloaded by refresh_eutl.py).
+# Large files are hashed too — ~2s per 500 MB file, acceptable at run time.
+_PATTERNS: list[tuple[str, Path, str]] = [
+    ("sbti", _DATA_DIR, "sbti_companies*"),
+    ("lobbymap", _DATA_DIR, "lobbymap_companies.csv"),
+    # ca100: ingest reads .csv or .xlsx; glob catches both, newest wins.
+    ("ca100", _DATA_DIR, "ca100_companies*"),
+    ("eprtr", _DATA_DIR, "eprtr_releases.csv"),
+    # fossil_finance: ingest reads fossil_finance_banks.csv (banking data).
+    # Expansion_Company_List_BOCC_*.xlsx is a different dataset (expansion cos).
+    ("fossil_finance", _DATA_DIR, "fossil_finance_banks.csv"),
+    ("gcel", _DATA_DIR, "gcel_companies.csv"),
+    ("gogel", _DATA_DIR, "gogel_companies.csv"),
+    ("tpi", _DATA_DIR, "tpi_companies.csv"),
+    # eea_national: versioned subdirectory; glob matches regardless of version tag.
+    ("eea_national", _DATA_DIR, "eea_t_national-emissions-reported_*/UNFCCC_v28.csv"),
+    ("eu_innovation_fund", _DATA_DIR, "eu_innovation_fund_projects.csv"),
+    ("eu_transparency_register", _DATA_DIR, "EU_Transparency register_searchExport.xlsx"),
+    ("gcpt", _DATA_DIR, "Global-Coal-Plant-Tracker-*.xlsx"),
+    ("egt", _DATA_DIR, "Europe-Gas-Tracker-*.xlsx"),
+    ("goget_tracker", _DATA_DIR, "Global-Oil-and-Gas-Extraction-Tracker-*.xlsx"),
+    ("edgar_jrc", _DATA_DIR, "JRC/EDGAR_2025_GHG_booklet_2025.xlsx"),
+    # eutl: daily snapshot lives outside data/ in EUTL24/ at project root.
+    ("eutl", _PROJECT_ROOT, "EUTL24/operators_yearly_activity_daily.csv"),
+    ("influencemap", _DATA_DIR, "influencemap_companies.csv"),
 ]
 
 
@@ -81,8 +89,8 @@ def build_manifest() -> DataManifest:
         A :py:class:`DataManifest` with hashes for all found files.
     """
     sources: dict[str, str] = {}
-    for key, pattern in _PATTERNS:
-        matches = sorted(_DATA_DIR.glob(pattern))
+    for key, base_dir, pattern in _PATTERNS:
+        matches = sorted(base_dir.glob(pattern))
         if not matches:
             sources[key] = "not_present"
         else:
@@ -108,7 +116,7 @@ def manifest_to_markdown(manifest: DataManifest) -> str:
         f"*Sources active at assessment time — {ts}*",
         "",
         "| Source | SHA-256 (16 hex) |",
-        "|--------|-----------------|",
+        "| ------ | ---------------- |",
     ]
     for key, sha in manifest.sources.items():
         status = f"`{sha}`" if sha != "not_present" else "*not present*"
