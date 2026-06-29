@@ -8,6 +8,7 @@ export default function HomePage() {
         <div className="nav-inner">
           <div className="nav-logo"><span>P</span>rasine Index</div>
           <div className="nav-links">
+            <a href="/methodology" className="nav-link">Methodology</a>
             <a href="#apply" className="nav-btn">Request an assessment</a>
           </div>
         </div>
@@ -18,9 +19,9 @@ export default function HomePage() {
         <div className="doc-container">
           <p className="intro-text">
             Prasine Index verifies EU corporate sustainability claims against enforcement
-            records, regulatory filings, lobbying data, and open climate datasets. Submit
-            a company and claim URL. Receive a cited greenwashing assessment report built
-            for journalists, NGOs, law firms, and activist investors.
+            records, regulatory filings, lobbying data, and open climate datasets. Get in
+            touch with a company and a claim. I run the full evidence pipeline and deliver
+            a cited assessment report — built for journalists, NGOs, law firms, and activist investors.
           </p>
           <p className="intro-sub">
             Example output: what a Prasine Index assessment looks like.
@@ -401,7 +402,7 @@ export default function HomePage() {
           <div>
             <span>Prasine Index — Martin Blomqvist, 2026</span>
             <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-              Data Scientist / AI Engineer · Sweden
+              EU greenwashing analyst · Prasine Index
             </p>
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
