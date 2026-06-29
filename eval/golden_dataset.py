@@ -827,7 +827,7 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
 
 # ---------------------------------------------------------------------------
-# Quick-run subset — one case per verdict category, ~$0.25 with Haiku
+# Quick-run subset — one case per verdict category. ~$1.50 with Opus judge+report
 # ---------------------------------------------------------------------------
 
 QUICK_CASES: list[str] = [
@@ -848,7 +848,7 @@ if __name__ == "__main__":
 
     Usage:
         python -m eval.golden_dataset                   # all 20 cases
-        python -m eval.golden_dataset --quick           # 5-case subset (~$0.25)
+        python -m eval.golden_dataset --quick           # 5-case subset (~$1.50 Opus judge+report)
         python -m eval.golden_dataset GW-001 GW-002     # specific cases
     """
     import os

@@ -110,15 +110,16 @@ _RULINGS: list[_Ruling] = [
         authority="ASA",
         country="UK",
         year=2020,
-        case_reference="ASA A20-529462",
+        case_reference="ASA G20-1089921",
         ruling_type="CONFIRMED_MISLEADING",
         claim_type="EMISSIONS_REDUCTION",
         description=(
-            "ASA upheld complaint against Ryanair's claim to have the 'lowest carbon emissions'. "
+            "ASA upheld complaint against Ryanair DAC's claim to have the 'lowest carbon emissions'. "
             "Ryanair could not substantiate that it had lower CO2 per passenger than other "
-            "European airlines when evaluated on the same basis. The claim was found misleading."
+            "European airlines when evaluated on the same basis. The claim was found misleading. "
+            "Ruling date: 5 February 2020."
         ),
-        source_url="https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html",
+        source_url="https://www.asa.org.uk/rulings/ryanair-dac-g20-1089921-ryanair-dac.html",
     ),
     _Ruling(
         companies=("Ryanair", "Ryanair Holdings"),

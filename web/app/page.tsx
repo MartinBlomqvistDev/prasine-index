@@ -139,7 +139,7 @@ export default function HomePage() {
               <div className="ev-entry">
                 <div className="ev-number">2</div>
                 <div className="ev-content">
-                  <p className="ev-source-name">UK ASA Ruling A20-529462 (2020)</p>
+                  <p className="ev-source-name">UK ASA Ruling G20-1089921 (2020)</p>
                   <p className="ev-finding">
                     The Advertising Standards Authority found Ryanair&apos;s &quot;lowest carbon
                     emissions&quot; claim <strong>CONFIRMED MISLEADING</strong> — Ryanair could
@@ -252,7 +252,7 @@ export default function HomePage() {
               </p>
               <p>
                 Two further independent triggers reinforce the verdict. The ASA found an equivalent
-                prior emissions claim CONFIRMED MISLEADING (A20-529462, 2020), establishing a
+                prior emissions claim CONFIRMED MISLEADING (G20-1089921, 2020), establishing a
                 documented pattern. Ryanair&apos;s own pathway document then fails the EmpCo
                 Directive on every substantiation requirement: no baseline year, no 2035/2040
                 interim targets, no abatement-versus-certified-removal split, and 24% reliance on
@@ -312,7 +312,7 @@ export default function HomePage() {
             <ol className="sources-list">
               <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-26. https://lobbymap.org/</li>
               <li>EU Transparency Register — Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-06-26</li>
-              <li>UK ASA Ruling A20-529462 — Ryanair Holdings Ltd, 2020-09-16. https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html</li>
+              <li>UK ASA Ruling G20-1089921 — Ryanair DAC, 2020-02-05. https://www.asa.org.uk/rulings/ryanair-dac-g20-1089921-ryanair-dac.html</li>
               <li>Ryanair — Pathway to Net Zero, corporate.ryanair.com/sustainability/pathway-to-net-zero, retrieved 2026-06-26</li>
               <li>European Commission / CPC Network — Coordinated Action on Airline Environmental Claims, 2024–2025</li>
               <li>Directive (EU) 2024/825 (EmpCo) — EUR-Lex CELEX:32024L0825</li>
@@ -330,16 +330,16 @@ export default function HomePage() {
         <div className="doc-container">
           <h2 className="index-heading">The Index</h2>
           <p className="index-sub">
-            18 EU companies assessed across 6 sectors. Evidence drawn from 22 open data sources per run.
+            6 EU companies assessed — full Opus pipeline across 5 sectors. Evidence drawn from 22 open data sources per run.
           </p>
           <div className="index-stats">
-            <span className="index-stat"><strong>4</strong> confirmed</span>
+            <span className="index-stat"><strong>3</strong> confirmed</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>3</strong> likely greenwashing</span>
+            <span className="index-stat"><strong>1</strong> likely greenwashing</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>6</strong> misleading claim</span>
+            <span className="index-stat"><strong>1</strong> misleading claim</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>5</strong> unverifiable claim</span>
+            <span className="index-stat"><strong>1</strong> substantiated claim</span>
           </div>
           <table className="assessments-table">
             <thead>
@@ -352,24 +352,12 @@ export default function HomePage() {
             </thead>
             <tbody>
               {[
-                { company: 'BP plc',                   slug: 'bp-plc',                   sector: 'Oil & Gas',   score: 87, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Eni SpA',                  slug: 'eni-spa',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Glencore plc',             slug: 'glencore-plc',             sector: 'Mining',      score: 83, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     slug: 'ryanair-holdings-plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'KLM Royal Dutch Airlines', slug: 'klm-royal-dutch-airlines', sector: 'Aviation',    score: 78, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'TotalEnergies SE',         slug: 'totalenergies-se',         sector: 'Oil & Gas',   score: 75, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'Enel SpA',                 slug: 'enel-spa',                 sector: 'Energy',      score: 58, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'RWE AG',                   slug: 'rwe-ag',                   sector: 'Energy',      score: 58, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Wizz Air Holdings plc',    slug: 'wizz-air-holdings-plc',    sector: 'Aviation',    score: 56, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'LKAB',                     slug: 'lkab',                     sector: 'Steel',       score: 52, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Öresundskraft',            slug: 'oresundskraft',            sector: 'Energy',      score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Stegra',                   slug: 'stegra',                   sector: 'Steel',       score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'IKEA Group',               slug: 'ikea-group',               sector: 'Retail',      score: 43, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'SSAB AB',                  slug: 'ssab-ab',                  sector: 'Steel',       score: 42, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Danone SA',                slug: 'danone-sa',                sector: 'Food',        score: 35, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Ørsted A/S',               slug: 'orsted-a-s',               sector: 'Renewables',  score: 32, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Securitas AB',             slug: 'securitas-ab',             sector: 'Services',    score: 28, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'H&M Group',                slug: 'h-m-group',                sector: 'Fashion',     score: 20, label: 'Substantiated claim', badge: 'substantiated'},
+                { company: 'BP plc',               slug: 'bp-plc',               sector: 'Oil & Gas', score: 87, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Glencore plc',         slug: 'glencore-plc',         sector: 'Mining',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc', slug: 'ryanair-holdings-plc', sector: 'Aviation',  score: 83, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Enel SpA',             slug: 'enel-spa',             sector: 'Energy',    score: 58, label: 'Likely greenwashing', badge: 'greenwashing' },
+                { company: 'IKEA Group',           slug: 'ikea-group',           sector: 'Retail',    score: 43, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'H&M Group',            slug: 'h-m-group',            sector: 'Fashion',   score: 20, label: 'Substantiated claim', badge: 'substantiated'},
               ].map(({ company, slug, sector, score, label, badge }) => (
                 <tr key={company} style={{ cursor: 'pointer' }} onClick={undefined}>
                   <td style={{ fontWeight: 500 }}>
