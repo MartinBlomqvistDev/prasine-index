@@ -114,6 +114,12 @@ _SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
 ]
 
 
+# Claims scoring at or below this threshold are generic filler (category=OTHER,
+# no specificity signals). They are filtered out before the full pipeline runs.
+# Fallback: if ALL claims score below this, the filter is bypassed so the
+# pipeline doesn't return empty results for legitimate but weakly-cached pages.
+_MIN_CLAIM_PRIORITY = 2
+
 _HAS_LARGE_NUMBER = re.compile(r"\d{1,3}[,\s]?\d{3}")
 _HAS_YEAR = re.compile(r"20[2-9]\d")
 _HAS_TECHNOLOGY = re.compile(
@@ -157,8 +163,8 @@ class PipelineConfig(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     extraction_model: str = Field(default="claude-haiku-4-5-20251001")
-    judge_model: str = Field(default="claude-haiku-4-5-20251001")
-    report_model: str = Field(default="claude-haiku-4-5-20251001")
+    judge_model: str = Field(default="claude-opus-4-8")
+    report_model: str = Field(default="claude-opus-4-8")
     persist_traces: bool = Field(default=True)
     persist_claims: bool = Field(default=True)
 
@@ -441,12 +447,22 @@ class Pipeline:
         if not all_claims:
             return []
 
-        # --- Phase 3: rank claims, keep top N ---
+        # --- Phase 3: rank claims, filter generics, keep top N ---
         ranked = sorted(all_claims, key=_claim_priority_score, reverse=True)
-        selected = ranked[:max_claims]
+        filtered = [c for c in ranked if _claim_priority_score(c) >= _MIN_CLAIM_PRIORITY]
+        if not filtered:
+            logger.warning(
+                "run_from_url: all extracted claims scored below minimum threshold "
+                f"({_MIN_CLAIM_PRIORITY}); falling back to top-ranked unfiltered claims. "
+                "Consider providing --claim directly or using a more specific URL.",
+                extra={"operation": "pipeline_claims_generic_fallback"},
+            )
+            filtered = ranked
+        selected = filtered[:max_claims]
 
         logger.info(
             f"run_from_url: {len(all_claims)} claims extracted, "
+            f"{len(filtered)} passed quality filter, "
             f"running top {len(selected)} through full pipeline",
             extra={
                 "operation": "pipeline_claims_selected",
@@ -463,6 +479,86 @@ class Pipeline:
                 all_results.append(result)
 
         return all_results
+
+    async def preview_claims_from_url(
+        self,
+        company_id: uuid.UUID,
+        source_url: str,
+        source_type: SourceType = SourceType.IR_PAGE,
+        max_subpages: int = 5,
+        max_claims: int = 5,
+    ) -> list[Claim]:
+        """Fetch a URL and return ranked extracted claims WITHOUT running verification/judge/report.
+
+        Runs phases 1–3 of run_from_url (fetch, extract, rank) at Haiku cost (~$0.01)
+        so the caller can review discovered claims before committing to a full Opus run.
+
+        Args:
+            company_id: UUID of the company being assessed.
+            source_url: Entry-point URL.
+            source_type: Source type applied to all discovered pages.
+            max_subpages: Maximum number of additional subpages to fetch.
+            max_claims: Maximum number of top-ranked claims to return.
+
+        Returns:
+            Ranked list of extracted :py:class:`~models.claim.Claim` objects.
+        """
+        _headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
+                "+https://github.com/MartinBlomqvistDev/prasine-index)"
+            ),
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
+            "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
+        }
+
+        try:
+            resp = await self._http_client.get(source_url, headers=_headers)
+            resp.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
+
+        pages: list[tuple[str, str]] = []
+        entry_text = _html_to_text(resp.text)[:_MAX_FETCH_CHARS]
+        if entry_text:
+            pages.append((source_url, entry_text))
+
+        seen: set[str] = {source_url.rstrip("/")}
+        for sub_url in extract_relevant_links(resp.text, source_url, max_links=max_subpages):
+            if sub_url in seen:
+                continue
+            seen.add(sub_url)
+            try:
+                sub_resp = await self._http_client.get(sub_url, headers=_headers)
+                sub_resp.raise_for_status()
+                sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
+                if sub_text:
+                    pages.append((sub_url, sub_text))
+            except Exception:
+                pass
+
+        all_claims: list[Claim] = []
+        for page_url, page_content in pages:
+            extraction_input = ExtractionInput(
+                trace_id=uuid.uuid4(),
+                company_id=company_id,
+                source_url=page_url,
+                source_type=source_type,
+                raw_content=page_content,
+            )
+            extraction_result = await self._extraction_agent.run(extraction_input)
+            all_claims.extend(extraction_result.claims)
+
+        ranked = sorted(all_claims, key=_claim_priority_score, reverse=True)
+        filtered = [c for c in ranked if _claim_priority_score(c) >= _MIN_CLAIM_PRIORITY]
+        if not filtered:
+            logger.warning(
+                "preview_claims_from_url: all extracted claims scored below minimum threshold; "
+                "returning unfiltered top claims. Consider a more specific URL.",
+                extra={"operation": "pipeline_claims_generic_fallback"},
+            )
+            filtered = ranked
+        return filtered[:max_claims]
 
     async def _run_claim_pipeline(self, claim: Claim) -> PipelineResult | None:
         """Run agents 2–7 for a single extracted claim.

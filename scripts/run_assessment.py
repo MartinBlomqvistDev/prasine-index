@@ -174,6 +174,7 @@ async def run(
     judge_model: str = "claude-haiku-4-5-20251001",
     report_model: str = "claude-haiku-4-5-20251001",
     dry_run: bool = False,
+    extract_only: bool = False,
 ) -> None:
     if dry_run:
         print(f"[dry-run] Would assess: {company_name}")
@@ -182,6 +183,34 @@ async def run(
         print(f"[dry-run] Max claims : {max_claims}")
         print(f"[dry-run] Judge model: {judge_model}")
         print("[dry-run] No tokens spent. Pass without --dry-run to run the full pipeline.")
+        return
+
+    if extract_only:
+        print(f"[extract-only] Fetching and extracting claims for: {company_name}")
+        print(f"[extract-only] URL: {source_url}")
+        print("[extract-only] Spending ~$0.01 on Haiku extraction only — no judge/report.\n")
+        await init_db()
+        company_id = uuid.uuid5(uuid.NAMESPACE_DNS, company_name.lower())
+        pipeline = Pipeline(config=PipelineConfig())
+        try:
+            claims = await pipeline.preview_claims_from_url(
+                company_id, source_url, max_claims=max_claims
+            )
+        finally:
+            await pipeline.aclose()
+            await teardown_db()
+        if not claims:
+            print("No claims extracted — page may be JS-rendered or contain no green claims.")
+            return
+        print(f"Top {len(claims)} claim(s) found:\n")
+        for i, claim in enumerate(claims, start=1):
+            text_preview = (claim.raw_text or "")[:200].replace("\n", " ")
+            print(f"  [{i}] {text_preview}")
+            print(f"       source: {claim.source_url}")
+            print()
+        print(
+            "Review the claims above, then re-run without --extract-only to run the full pipeline."
+        )
         return
 
     await init_db()
@@ -312,6 +341,13 @@ if __name__ == "__main__":
         action="store_true",
         help="Print what would be assessed without spending any tokens.",
     )
+    parser.add_argument(
+        "--extract-only",
+        action="store_true",
+        help="Fetch the URL and extract claims (~$0.01 Haiku) without running "
+        "verification, judge, or report. Use this to preview discovered claims "
+        "before committing to a full Opus run.",
+    )
     args = parser.parse_args()
 
     if args.refresh_data:
@@ -328,5 +364,6 @@ if __name__ == "__main__":
             args.judge_model,
             args.report_model,
             dry_run=args.dry_run,
+            extract_only=args.extract_only,
         )
     )

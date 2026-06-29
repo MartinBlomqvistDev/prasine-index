@@ -1,113 +1,105 @@
-# Glencore plc — Greenwashing Assessment
+## Glencore plc — Company Assessment (5 claims)
 
-**Verdict: CONFIRMED_GREENWASHING** | Score: 87/100 | Confidence: 88%
-*Published: 2026-06-24 | Prasine Index | Trace ID: cb166ea7-60de-4565-85ea-2c56abec12e5*
+**Overall Score: 83/100** (confidence-weighted across 5 claims)  
+**Score range:** 76–88  
+**Verdict:** CONFIRMED_GREENWASHING  
+**Confidence:** 80%
 
----
-
-## The Claim
-
-> "to achieve net zero industrial CO2e emissions, subject to a supportive policy environment by the end of 2050"
-
-*Source: Corporate website, https://www.glencore.com/sustainability/esg-a-z/climate-change, 2026*
-
----
-
-## Evidence
-
-**[1] Active coal capacity expansion — GCEL institutional standard**
-Urgewald Global Coal Exit List identifies Glencore plc as ACTIVELY EXPANDING coal capacity. The GCEL is the institutional coal-screening standard used by 400+ financial institutions (GFANZ, PAII). Active mining-sector coal expansion is directly incompatible with any credible net-zero 2050 pathway. 
-*Source: Urgewald Global Coal Exit List, N/A, https://www.urgewald.org/en/themen/global-coal-exit-list | Confidence: 0.90*
-
-**[2] Regulatory investigation into equivalent claim type**
-UK Competition and Markets Authority (2023) investigation into greenwashing by fossil fuel producers. The CMA explicitly flagged Glencore's net-zero commitment while continuing active coal mining expansion as potentially misleading under UK consumer protection law. Glencore is the world's largest coal exporter.
-*Source: CMA Greenwashing Investigation, 2023, https://www.gov.uk/cma-cases/greenwashing-claims | Confidence: 0.70*
-
-**[3] Obstructive climate policy lobbying — LobbyMap score**
-LobbyMap rates Glencore plc climate policy engagement as D+ (obstructive engagement). This indicates the company actively opposes or delays climate legislation required for decarbonisation, directly contradicting its stated net-zero commitment.
-*Source: LobbyMap, N/A, https://lobbymap.org/ | Confidence: 0.85*
-
-**[4] Substantiation requirements under EU law — EmpCo Directive**
-EU Directive 2024/825 (EmpCo Directive), in force since March 2024, amends UCPD Annex I to blacklist environmental claims not substantiated by recognised scientific evidence. Net-zero claims must be backed by: (a) a credible, verifiable transition plan with interim targets; (b) audited baseline emissions; (c) an abatement/removal split; and (d) permanent removal of residual emissions via certified carbon removals (not offsets). Generic net-zero pledges without these elements are unfair commercial practices.
-*Source: EUR-Lex [32024L0825], 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825 | Confidence: 0.95*
-
-**[5] Mandatory disclosure framework — CSRD**
-The Corporate Sustainability Reporting Directive (2022/2464) requires large companies (>500 employees; listed on EU-regulated markets) to disclose scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 reporting. Material inconsistency between a net-zero claim and mandatory scope 1+2 CSRD disclosure indicates substantiation failure.
-*Source: EUR-Lex [32022L2464], 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464 | Confidence: 0.95*
-
-**[6] EU Transparency Register — active lobbying engagement**
-Glencore plc is registered as a direct corporate EU lobbyist (Registration no. 869729025581-78, Switzerland HQ). Registration confirms active engagement with EU institutions on policy matters.
-*Source: EU Transparency Register, N/A, https://ec.europa.eu/transparencyregister/public/consultation/search.do | Confidence: 0.75*
-
-**[7] TPI climate transition assessment — incomplete pathway**
-Transition Pathway Initiative (used by 150+ investors, $80tn AUM) rates Glencore MQ Level 4 (Strategic), but climate pathway for 2025, 2035, and 2050 targets are not assessed. The absence of an evaluated emissions reduction pathway from an investor-grade assessment body indicates inadequate substantiation.
-*Source: Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates | Confidence: 0.60*
+| # | Score | Verdict | Claim |
+|---|-------|---------|-------|
+| 1 | 90/100 | CONFIRMED_GREENWASHING | 2050 ambition to achieve net zero industrial CO2e emissions, subject to a supportive policy environment by the end of 20 |
+| 2 | 88/100 | CONFIRMED_GREENWASHING | We support the use of carbon credits to offset residual emissions. Glencore will consider the business case for both gen |
+| 3 | 88/100 | CONFIRMED_GREENWASHING | In late 2020, we published our 2020 Climate Action Transition Plan, Pathway to Net Zero. This set out our approach to de |
+| 4 | 88/100 | CONFIRMED_GREENWASHING | Our current industrial emissions reduction targets are measured against a restated 2019 baseline and our long-term ambit |
+| 5 | 52/100 | MISLEADING_CLAIM | In 2017, we announced our first target of reducing our industrial Scope 1 and 2 emissions intensity by 5% by 2020 compar |
 
 ---
 
-## Assessment
+*Detailed assessment of the highest-scoring claim (score: 90/100) follows.*
 
-Glencore's net-zero 2050 claim meets **three independent conditions** that trigger CONFIRMED_GREENWASHING classification under the Prasine Index framework.
+---
+## Glencore plc — Greenwashing Assessment
+**Verdict: CONFIRMED GREENWASHING** | Score: 90.0/100 (range: 84–94) | Confidence: 86%
+*Published: 2026-06-29 | Prasine Index | Trace ID: 2603f765-9db9-41a9-bec4-7dc6172dcdfd*
 
-### Condition (A): Lobbying Obstruction — MET
+### The Claim
+> "2050 ambition to achieve net zero industrial CO2e emissions, subject to a supportive policy environment by the end of 2050"
 
-LobbyMap assigns Glencore a D+ score (confidence 0.85), indicating obstructive climate policy engagement. Under the Prasine Index framework, a company with D/D+ LobbyMap rating that actively opposes climate legislation required for its own net-zero pledge is materially contradicting that pledge. A company cannot credibly commit to net-zero decarbonisation while simultaneously lobbying against the legislative framework necessary to achieve it. This alone constitutes grounds for CONFIRMED_GREENWASHING.
+*Source: Investor Relations / corporate sustainability page, https://www.glencore.com/sustainability/esg-a-z/climate-change, retrieved 2026-06-29*
 
-### Condition (C): Prior Regulatory Scrutiny — MET
+### Evidence
 
-The UK CMA (2023) investigation into greenwashing by fossil fuel producers explicitly flagged Glencore's net-zero commitment while continuing active coal mining expansion as potentially misleading under UK consumer protection law. Although the investigation is ongoing (not yet a binding judgment), a regulatory body's documented scrutiny of an equivalent prior claim of the same type—net-zero ambitions by an active coal mining company—establishes that this claim cannot be presumed credible without additional substantiation. The CMA's flagging of this company's equivalent claim contemporaneously filed satisfies Condition (C).
+**Coal expansion (contradicts claim).** The Urgewald Global Coal Exit List records Glencore plc as "ACTIVELY EXPANDING coal capacity (100 Mtpa coal mining)," with mining expansion status "yes" and power expansion status "yes." The GCEL notes Glencore "fails" this screen, which is used by 400+ financial institutions (GFANZ, PAII). Glencore is described as the world's largest coal exporter.
+*Urgewald Global Coal Exit List, year not stated, https://www.urgewald.org/en/themen/global-coal-exit-list*
 
-### Condition (D): Accumulated Evidence Weight — MET
+**Lobbying obstruction (contradicts claim).** LobbyMap assigns Glencore plc a climate policy engagement score of D+, indicating "obstructive engagement — the company actively opposes or delays climate legislation while making green claims."
+*LobbyMap, year not stated, https://lobbymap.org/*
 
-Three independent contradicting evidence sources, each with confidence ≥0.85, directly contradict the claim, with zero supporting evidence from any queried source:
+**EU lobbying registration.** The EU Transparency Register confirms Glencore plc is "actively registered as an EU lobbyist (direct corporate lobbyist, HQ: SWITZERLAND, reg. no. 869729025581-78)." The register confirms active engagement with EU institutions but does not itself indicate lobbying direction.
+*EU Transparency Register, year not stated, https://ec.europa.eu/transparencyregister/public/consultation/search.do*
 
-1. **COAL_EXIT** (Urgewald, confidence 0.90): Glencore is actively expanding coal mining capacity. The GCEL standard, used by 400+ financial institutions (GFANZ, PAII), is the institutional benchmark for carbon-intensive energy companies. Active coal capacity expansion is irreconcilable with any credible net-zero 2050 pathway. Coal mining expansion locks in decades of future fossil fuel production and directly falsifies a net-zero commitment.
+**Substantiation failure (contradicts claim).** Glencore's own disclosure states a 2050 net-zero ambition with a 2019 baseline and interim targets of 15% by 2026, 25% by 2030 and 50% by 2035. The document discloses no 2040 interim target, no split between abatement and certified permanent removals, and no certified removal plan. It states Glencore "support[s] the use of carbon credits to offset residual emissions" and will "consider the business case for both generating and utilising carbon offsets," without describing certified permanent removal infrastructure. No verified transition plan and no latest-year scope emissions data are provided.
+*Glencore self-reported disclosure (SOURCE_DOCUMENT), 2024, https://www.glencore.com/sustainability/esg-a-z/climate-change*
 
-2. **INFLUENCE_MAP** (LobbyMap, confidence 0.85): D+ obstructive rating confirms active opposition to climate legislation. This is the strongest greenwashing signal in the Prasine Index framework: a company cannot claim net-zero ambitions while lobbying against the climate policy required to achieve them.
+**Applicable EU law.** The EmpCo Directive (EU 2024/825), in force since March 2024, amends UCPD Annex I to require that net-zero claims demonstrate residual emissions will be "permanently removed by certified carbon removals, not offset credits," and blacklists claims "based solely on carbon offsetting schemes." Generic net-zero pledges without a credible, verifiable transition plan are automatically unfair commercial practices.
+*EUR-Lex, 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
-3. **EUR_LEX** (EmpCo Directive, confidence 0.95): The claim text—"subject to a supportive policy environment by the end of 2050"—provides no substantiation under EU law. It lacks: (a) a credible, verifiable transition plan with interim targets; (b) an audited baseline; (c) an abatement/removal split; (d) verified permanent removal of residual emissions. Under amended UCPD Annex I (in force since March 2024), generic net-zero pledges without demonstrable science-based decarbonisation pathways are blacklisted as unfair commercial practices. The claim is substantively non-compliant with EU consumer protection law.
+The CSRD (2022/2464) requires large/EU-listed companies to disclose scope 1, 2 and 3 emissions under ESRS E1 from FY2024.
+*EUR-Lex, 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
 
-### Core Greenwashing Signals
+**Regulatory scrutiny.** The UK Competition and Markets Authority (CMA) placed Glencore under scrutiny in its 2023 investigation into green claims by fossil fuel producers; the company's net-zero commitment while continuing coal expansion was "flagged as potentially misleading." This remains an open investigation, not a binding ruling.
+*CMA enforcement record, 2023, https://www.gov.uk/cma-cases/greenwashing-claims*
 
-**1. Active coal expansion contradicts net-zero claim.** Glencore is the world's largest coal exporter and is actively expanding coal mining capacity (GCEL, confidence 0.90). This is a forward-looking, institutional-grade contradiction: a net-zero pledge from an actively expanding coal miner is a direct falsification. No genuine net-zero pathway is compatible with coal capacity growth.
+**Transition assessment.** TPI rates Glencore plc Management Quality Level 4 (Strategic) for Aluminium (UK), but Carbon Performance pathways for 2025, 2035 and 2050 are "Not Assessed."
+*Transition Pathway Initiative, 2022, https://www.transitionpathwayinitiative.org/corporates*
 
-**2. Lobbying obstruction contradicts net-zero claim.** Glencore's D+ LobbyMap score indicates the company actively opposes or delays climate legislation (LobbyMap, confidence 0.85). A company cannot credibly claim net-zero commitment while lobbying against the policy framework required to deliver it. This is the strongest greenwashing signal in the Prasine Index methodology.
+### Assessment
 
-**3. Substantiation failure under EU law.** Under EmpCo Directive 2024/825 (in force March 2024), net-zero claims must be backed by recognised scientific evidence, credible transition plans, audited baselines, and certified carbon removals for residual emissions. The claim provides none of these. It is a generic aspiration with no interim targets, no audited baseline, no abatement/removal split, and no verified decarbonisation pathway. Under amended UCPD Annex I, it is automatically an unfair commercial practice.
+The lead finding is an irreconcilable contradiction between Glencore's lobbying conduct and its stated net-zero ambition. LobbyMap rates Glencore D+ (obstructive), indicating the company "actively opposes or delays climate legislation." The claim itself is explicitly conditioned on a "supportive policy environment" — yet the company is documented as obstructing the very policy required to deliver it. Under the Prasine Index scoring framework, a D/D+ LobbyMap rating alone is sufficient to push the verdict above 80.
 
-**4. Regulatory body flagged equivalent claim as potentially misleading.** The UK CMA (2023) investigation into greenwashing by fossil fuel producers explicitly identified Glencore's net-zero commitment while continuing coal mining expansion as potentially misleading under UK consumer protection law. This establishes a contemporaneous regulatory finding that the company's environmental claims lack adequate substantiation.
+This is compounded by a core-business contradiction. The Urgewald Global Coal Exit List records Glencore as actively expanding coal capacity at 100 Mtpa across both mining and power, with no mitigating evidence on file. Forward-looking coal expansion at this scale is directly incompatible with a net-zero-by-2050 commitment.
 
-### Why No Mitigating Evidence Exists
+The claim additionally fails substantiation. Glencore's own 2024 disclosure (SOURCE_DOCUMENT) reveals no 2040 interim target, no abatement/removal split, and reliance on carbon offsets and credits rather than certified permanent removals — precisely the practice blacklisted under the amended UCPD Annex I per the EmpCo Directive (EU 2024/825). The conditional "subject to supportive policy" framing further undermines the claim's credibility.
 
-No queried source provided supporting evidence for the claim:
-- EU_ETS: No installation IDs retrieved. This prevents direct verification of historical emissions trajectory, but does not mitigate the claim because the COAL_EXIT institutional finding (active expansion) is stronger evidence of forward-looking emissions growth than missing historical data.
-- TPI: Only MQ Level 4 reported; climate pathway for 2025, 2035, 2050 not assessed. This is neutral absence of data, not supporting evidence.
-- CSRD: Mandatory disclosure not retrieved (data gap noted below). This gap does not weaken the verdict because contradicting evidence from COAL_EXIT, LobbyMap, and EmpCo is already overwhelming.
+Three independently verified contradicting sources sit at confidence ≥ 0.85 (Urgewald 0.90, LobbyMap 0.85, SOURCE_DOCUMENT 0.95), against zero supporting records from any queried source. This claim is not a repeat; it is Glencore's first assessment of this specific claim, though the company's history (17 prior claims, average score 69.9, worst 87.0) indicates a documented pattern. The score of 90 reflects three concurrent triggers and the absence of any mitigating evidence; it is not set higher because no binding court or regulatory ruling on this specific claim yet exists.
+
+### Key Finding
+
+Glencore's net-zero ambition is explicitly conditioned on a "supportive policy environment" while the company is rated D+ (obstructive) by LobbyMap for actively opposing or delaying climate legislation — a contradiction compounded by documented active coal expansion of 100 Mtpa, making Glencore the world's largest coal exporter.
+
+### Data Gaps
+
+- **EU ETS (EUTL):** No installation IDs were registered against Glencore, so verified regulated-emissions ground-truth could not be obtained. This means the claim could not be cross-checked against independently verified EU emissions data.
+- **TPI Carbon Performance:** Carbon Performance pathways for 2025, 2035 and 2050 were "Not Assessed," so an investor-facing transition-quality benchmark for emissions trajectory was unavailable.
+
+These gaps account for the confidence level (86%) and the score range (84–94). They do not weaken the verdict, as the coal expansion, lobbying obstruction, and substantiation failures are independently verified.
+
+### Methodology Note
+
+Prasine Index scored this claim by querying independent datasets — the Urgewald Global Coal Exit List, LobbyMap, the EU Transparency Register, EUR-Lex (EmpCo Directive and CSRD), the Transition Pathway Initiative, UK CMA enforcement records, the EU ETS/EUTL, and the company's own disclosures — and weighting each evidence record by source confidence. The 0–100 score measures the gap between a stated claim and verifiable conduct: scores above 80 denote CONFIRMED GREENWASHING, triggered here by lobbying obstruction, core-business contradiction, and accumulated contradicting evidence with zero supporting records. The score breakdown for this case was: Substantiation Failure 92, Lobbying Contradiction 90, Target Credibility Gap 88, Emissions Discrepancy 85, Prior Violations 65. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
 
 ---
 
-## Key Finding
+### Data Manifest
 
-Glencore's net-zero 2050 claim is materially contradicted by verified evidence across three independent institutional sources: active coal capacity expansion (GCEL standard, 400+ financial institutions), D+ obstructive lobbying rating (LobbyMap), and substantiation failure under EU law (EmpCo Directive 2024/825). The UK CMA (2023) investigation explicitly flagged this company's equivalent net-zero claim while continuing coal mining as potentially misleading. No supporting evidence exists from any queried source.
+*Sources active at assessment time — 2026-06-29 11:17 UTC*
 
----
-
-## Data Gaps
-
-**EU_ETS emissions data — unavailable.** No Glencore installation IDs registered in the EU Emissions Trading System database. This prevented direct verification of Glencore's absolute scope 1 emissions trajectory under EU ETS during reporting periods. However, this gap does not reduce confidence materially: the COAL_EXIT institutional finding (active coal mining capacity expansion) is stronger forward-looking evidence of emissions growth than historical ETS data would provide. Confidence: 0.88 remains appropriate.
-
-**CSRD mandatory sustainability disclosure — not retrieved.** Glencore plc meets CSRD criteria (>500 employees; likely listed on EU-regulated markets) and should be obligated to disclose scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 reporting. No mandatory CSRD disclosure was retrieved during assessment. If Glencore's reported CSRD scope 1+2 emissions show no decarbonisation trajectory toward net-zero 2050, this would strengthen the verdict independently. The absence of CSRD data does not weaken the current verdict because contradicting evidence (COAL_EXIT, LobbyMap, EmpCo) is already sufficient.
-
-**TPI climate pathway assessment — incomplete.** Transition Pathway Initiative assigned Glencore MQ Level 4 (Strategic) but did not assess climate pathways for 2025, 2035, or 2050 targets. This indicates the company's emissions reduction trajectory has not been evaluated by the institutional investor assessment standard ($80tn AUM user base). This is neutral absence of data, not contradicting evidence.
-
----
-
-## Methodology Note
-
-This assessment applies the Prasine Index CONFIRMED_GREENWASHING standard, which requires that a claim meet at least one of four conditions: (A) documented lobbying obstruction of legislation required for the stated commitment; (B) contradicted by the company's own mandatory regulatory disclosure; (C) prior regulatory scrutiny of an equivalent claim by the same company; (D) three or more independent contradicting sources at confidence ≥0.85 with zero supporting evidence. Glencore's claim meets conditions (A), (C), and (D) independently. 
-
-The score of 87/100 is calibrated within the CONFIRMED_GREENWASHING band (81–100) and reflects: (1) confirmed multiple contradictions with high institutional confidence (GCEL 0.90, LobbyMap 0.85, EmpCo 0.95); (2) three independent CONFIRMED conditions triggered; (3) zero mitigating sources; (4) a minor deduction from the 88–95 range only because the UK CMA ruling is investigatory rather than a final binding judgment, introducing minimal residual uncertainty (confidence 0.88, not 0.92).
-
-The scoring breakdown reflects: Lobbying Alignment 95/100 (D+ score is direct contradiction); Emissions Accuracy 85/100 (GCEL active expansion directly contradicts net-zero claim); Claim Substantiation 72/100 (no credible transition plan, audited baseline, or interim targets under EmpCo Directive); Target Credibility 80/100 (conditional on "supportive policy environment," unverifiable); Historical Consistency 75/100 (13 prior assessments show stable high greenwashing trend, pattern of exaggerated claims).
-
-Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+| Source | SHA-256 (16 hex) |
+| ------ | ---------------- |
+| sbti | `2cb2f6ccf607edb7` |
+| lobbymap | `f1a44dff511b356f` |
+| ca100 | `add50b3457dfbe96` |
+| eprtr | `945ab1559805c047` |
+| fossil_finance | `bac43a9db3fcf64a` |
+| gcel | `48ce82ad6a6dfa73` |
+| gogel | `37690827a7c87136` |
+| tpi | `c7b6050b4a694291` |
+| eea_national | `ad15cc3738782724` |
+| eu_innovation_fund | *not present* |
+| eu_transparency_register | `c004723d6ca570a4` |
+| gcpt | `8201da8ec1457adf` |
+| egt | `371de5f09b86342b` |
+| goget_tracker | `10ed7bc007e47895` |
+| edgar_jrc | `8bd6b8a405b9c405` |
+| eutl | `4975728bdebddfe1` |
+| influencemap | `f1a44dff511b356f` |

@@ -326,7 +326,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Index ── */}
-      <section className="index-section">
+      <section id="index" className="index-section">
         <div className="doc-container">
           <h2 className="index-heading">The Index</h2>
           <p className="index-sub">
@@ -352,36 +352,40 @@ export default function HomePage() {
             </thead>
             <tbody>
               {[
-                { company: 'Glencore plc',             sector: 'Mining',      score: 87, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Eni SpA',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'BP plc',                   sector: 'Oil & Gas',   score: 82, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'KLM Royal Dutch Airlines', sector: 'Aviation',    score: 78, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'TotalEnergies SE',         sector: 'Oil & Gas',   score: 75, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'Enel SpA',                 sector: 'Energy',      score: 68, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'RWE AG',                   sector: 'Energy',      score: 58, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Wizz Air Holdings plc',    sector: 'Aviation',    score: 56, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'LKAB',                     sector: 'Steel',       score: 52, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'H&M Group',                sector: 'Fashion',     score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Öresundskraft',            sector: 'Energy',      score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'Stegra',                   sector: 'Steel',       score: 48, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'SSAB AB',                  sector: 'Steel',       score: 42, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Danone SA',                sector: 'Food',        score: 35, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Ørsted A/S',               sector: 'Renewables',  score: 32, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'Securitas AB',             sector: 'Services',    score: 28, label: 'Unverifiable claim',  badge: 'insufficient' },
-                { company: 'IKEA Group',               sector: 'Retail',      score: 22, label: 'Unverifiable claim',  badge: 'insufficient' },
-              ].map(({ company, sector, score, label, badge }) => (
-                <tr key={company}>
-                  <td style={{ fontWeight: 500 }}>{company}</td>
+                { company: 'BP plc',                   slug: 'bp-plc',                   sector: 'Oil & Gas',   score: 87, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Eni SpA',                  slug: 'eni-spa',                  sector: 'Oil & Gas',   score: 85, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Glencore plc',             slug: 'glencore-plc',             sector: 'Mining',      score: 83, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'Ryanair Holdings plc',     slug: 'ryanair-holdings-plc',     sector: 'Aviation',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
+                { company: 'KLM Royal Dutch Airlines', slug: 'klm-royal-dutch-airlines', sector: 'Aviation',    score: 78, label: 'Likely greenwashing', badge: 'greenwashing' },
+                { company: 'TotalEnergies SE',         slug: 'totalenergies-se',         sector: 'Oil & Gas',   score: 75, label: 'Likely greenwashing', badge: 'greenwashing' },
+                { company: 'Enel SpA',                 slug: 'enel-spa',                 sector: 'Energy',      score: 58, label: 'Likely greenwashing', badge: 'greenwashing' },
+                { company: 'RWE AG',                   slug: 'rwe-ag',                   sector: 'Energy',      score: 58, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'Wizz Air Holdings plc',    slug: 'wizz-air-holdings-plc',    sector: 'Aviation',    score: 56, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'LKAB',                     slug: 'lkab',                     sector: 'Steel',       score: 52, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'Öresundskraft',            slug: 'oresundskraft',            sector: 'Energy',      score: 48, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'Stegra',                   slug: 'stegra',                   sector: 'Steel',       score: 48, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'IKEA Group',               slug: 'ikea-group',               sector: 'Retail',      score: 43, label: 'Misleading claim',    badge: 'misleading'   },
+                { company: 'SSAB AB',                  slug: 'ssab-ab',                  sector: 'Steel',       score: 42, label: 'Unverifiable claim',  badge: 'insufficient' },
+                { company: 'Danone SA',                slug: 'danone-sa',                sector: 'Food',        score: 35, label: 'Unverifiable claim',  badge: 'insufficient' },
+                { company: 'Ørsted A/S',               slug: 'orsted-a-s',               sector: 'Renewables',  score: 32, label: 'Unverifiable claim',  badge: 'insufficient' },
+                { company: 'Securitas AB',             slug: 'securitas-ab',             sector: 'Services',    score: 28, label: 'Unverifiable claim',  badge: 'insufficient' },
+                { company: 'H&M Group',                slug: 'h-m-group',                sector: 'Fashion',     score: 20, label: 'Substantiated claim', badge: 'substantiated'},
+              ].map(({ company, slug, sector, score, label, badge }) => (
+                <tr key={company} style={{ cursor: 'pointer' }} onClick={undefined}>
+                  <td style={{ fontWeight: 500 }}>
+                    <a href={`/reports/${slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      {company}
+                    </a>
+                  </td>
                   <td style={{ color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</td>
                   <td style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</td>
-                  <td><span className={`verdict-badge badge-${badge}`}>{label}</span></td>
+                  <td><a href={`/reports/${slug}`} style={{ textDecoration: 'none' }}><span className={`verdict-badge badge-${badge}`}>{label}</span></a></td>
                 </tr>
               ))}
             </tbody>
           </table>
           <p className="index-note">
-            Full evidence chains and scoring breakdowns available on request.
+            Click any row for the full evidence chain and scoring breakdown.
           </p>
         </div>
       </section>

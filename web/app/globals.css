@@ -390,6 +390,65 @@ h1, h2 {
 .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .apply-thanks { font-size: 1rem; color: var(--text); padding: 24px 0; }
 
+/* ── Report markdown (rendered from .md pipeline output) ── */
+.report-markdown h1 {
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  margin-bottom: 12px;
+  line-height: 1.15;
+}
+.report-markdown h2 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--faint);
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  margin: 40px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.report-markdown h3 {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 10px;
+}
+.report-markdown p {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+.report-markdown p strong { color: var(--text); font-weight: 600; }
+.report-markdown blockquote {
+  border-left: 3px solid var(--border-2);
+  padding: 4px 0 4px 20px;
+  margin: 24px 0;
+  font-style: italic;
+  color: var(--text);
+  font-size: 1.0625rem;
+  line-height: 1.7;
+}
+.report-markdown blockquote p { color: var(--text); margin: 0; }
+.report-markdown em { font-style: italic; color: var(--faint); font-size: 0.875rem; }
+.report-markdown hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+.report-markdown ul, .report-markdown ol {
+  padding-left: 24px;
+  margin-bottom: 14px;
+}
+.report-markdown li {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 6px;
+}
+.report-markdown a { color: var(--text); text-decoration: underline; }
+.report-markdown a:hover { color: var(--green); }
+
 /* ── Footer ── */
 footer {
   border-top: 1px solid var(--border);

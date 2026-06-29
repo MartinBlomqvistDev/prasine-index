@@ -1,88 +1,101 @@
-## BP plc — Greenwashing Assessment
-**Verdict: CONFIRMED_GREENWASHING** | Score: 82/100 | Confidence: 88%
-*Published: 2026-06-24 | Prasine Index | Trace ID: 2ea04daf-a103-4988-b175-638f1f16fde2*
+## BP plc — Company Assessment (5 claims)
+
+**Overall Score: 87/100** (confidence-weighted across 5 claims)  
+**Score range:** 82–91  
+**Verdict:** CONFIRMED_GREENWASHING  
+**Confidence:** 85%
+
+| # | Score | Verdict | Claim |
+|---|-------|---------|-------|
+| 1 | 86/100 | CONFIRMED_GREENWASHING | Our aim is to reach net zero by 2050 or sooner for Scope 1 and 2 emissions within bp's operational control (on a CO2e ba |
+| 2 | 86/100 | CONFIRMED_GREENWASHING | Our aim is to reach net zero by 2050 or sooner for Scope 1 and 2 emissions within bp's operational control |
+| 3 | 87/100 | CONFIRMED_GREENWASHING | Our ambition is to be a net zero company by 2050 or sooner, and to help the world get to net zero |
+| 4 | 87/100 | CONFIRMED_GREENWASHING | Our aim is to reduce to net zero the carbon intensity of the energy products we sell by 2050 or sooner, enabled by suppo |
+| 5 | 87/100 | CONFIRMED_GREENWASHING | Our aim is to reduce to net zero the average lifecycle carbon intensity of the energy products we sell by 2050 or sooner |
 
 ---
+
+*Detailed assessment of the highest-scoring claim (score: 87/100) follows.*
+
+---
+## BP plc — Greenwashing Assessment
+**Verdict: CONFIRMED_GREENWASHING** | Score: 87.0/100 (range: 82–92) | Confidence: 86%
+*Published: 2026-06-29 | Prasine Index | Trace ID: 9d1ed56f-abd0-4c9b-b576-4a7d4fb6f595*
 
 ### The Claim
-> "Our aim is to reach net zero by 2050 or sooner for Scope 1 and 2 emissions within bp's operational control (on a CO2e basis), including by maintaining 'near-zero' methane intensity across our operated producing assets, enabled by supportive government policies."
+> "Our ambition is to be a net zero company by 2050 or sooner, and to help the world get to net zero"
 
-*Source: Corporate website, https://www.bp.com/en/global/corporate/sustainability/getting-to-net-zero.html*
-
----
+*Source: Investor relations / sustainability webpage, https://www.bp.com/en/global/corporate/sustainability/getting-to-net-zero.html, retrieved 2026-06-29*
 
 ### Evidence
 
-**[1] ASA Enforcement Ruling (2019) — Precedential Pattern of Misleading Environmental Claims**
-The UK Advertising Standards Authority ruled in July 2019 that BP advertisements featuring flowers, wind turbines, and solar panels were materially misleading. The ASA found that the ads emphasised low-carbon activities representing only a fraction of BP's business, creating a false overall impression of environmental commitment. This ruling directly establishes that BP has a documented pattern of selective presentation in environmental claims — presenting atypical, favourable activities while omitting the company's core fossil fuel business. *Source: ASA ruling, 2019, https://www.asa.org.uk/rulings/bp-plc-g19-1020800.html | Confidence: 0.90*
+**[1] European Gas Tracker (EGT) — Global Energy Monitor, March 2026.** BP plc holds 10 European gas assets (9 pipelines, 1 LNG terminal), of which 3 are in active development. Named expansion assets include the Trans-Adriatic Gas Pipeline (Türkiye, Greece, Albania, Italy — Proposed) and the Trans-Anatolian Gas Pipeline (Georgia, Greece, Türkiye — Proposed). The record states that such infrastructure "locks in 40+ years of fossil fuel demand." Supports claim: No. Confidence: 0.85. https://globalenergymonitor.org/projects/europe-gas-tracker/
 
-**[2] Active Fossil Fuel Extraction Expansion (GOGET, March 2026)**
-Global Oil & Gas Extraction Tracker data shows BP has 10 extraction fields with Final Investment Decision (FID) — meaning capital is committed to decades of future fossil fuel production. Named examples include CLOV 3 Oil Phase (Angola), Dalia 3 Oil Phase (Angola), Ginger Gas Field (Trinidad and Tobago), Guadalupe (federal offshore, United States), and Harmattan Gas Field (Egypt). BP operates 131 producing fields and has 17 discovered fields likely entering development. Each FID field locks in decades of production that extend into and beyond the 2050 net-zero target date. This represents irreconcilable contradiction: an oil and gas major with active extraction projects spanning decades cannot credibly claim a path to net-zero within operational control by 2050. *Source: GOGET, 2026, https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/ | Confidence: 0.87*
+**[2] ASA Enforcement Ruling — Advertising Standards Authority (UK), July 2019.** The ASA upheld complaints against BP advertisements featuring flowers, wind turbines and solar panels that promoted BP as environmentally friendly. The ruling found that emphasising low-carbon activities "representing a fraction of BP's business" created "a misleading overall impression," establishing that selective presentation of favourable environmental activities is misleading. Supports claim: No. Confidence: 0.90. https://www.asa.org.uk/rulings/bp-plc-g19-1020800.html
 
-**[3] European Gas Infrastructure Expansion (EGT, March 2026)**
-Europe Gas Tracker data confirms BP is actively developing three major gas pipeline projects: Trans-Adriatic Gas Pipeline and Trans-Anatolian Gas Pipeline (two phases). These gas infrastructure assets are classified as "Proposed" / in active development. Gas pipelines commit infrastructure to 40+ years of fossil fuel demand by design. This expansion directly contradicts any credible net-zero or fossil fuel phase-out transition pathway. BP operates 5 gas pipeline assets across Europe. *Source: EGT, 2026, https://globalenergymonitor.org/projects/europe-gas-tracker/ | Confidence: 0.85*
+**[3] EUR-Lex — EmpCo Directive (EU 2024/825), 2024.** In force since March 2024, amending UCPD Annex I. Net-zero claims must demonstrate that residual emissions will be permanently removed by certified carbon removals, not offset credits; generic net-zero pledges without a credible, verifiable transition plan are automatically unfair commercial practices. Supports claim: N/A (legislative standard). Confidence: 0.95. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
 
-**[4] Transition Pathway Initiative Assessment — Not Aligned with Paris Agreement (2022)**
-The Transition Pathway Initiative (TPI) — the institutional standard used by 150+ investors managing $80 trillion in assets — rates BP as "Not Aligned" with the Paris Agreement across all timeframes (2025, 2035, 2050). TPI uses disclosed emissions pathways and management quality to assess alignment. This assessment means BP's projected trajectory exceeds the sector benchmark for net-zero and therefore contradicts the company's 2050 net-zero claim. *Source: TPI assessment, 2022, https://www.transitionpathwayinitiative.org/corporates | Confidence: 0.85*
+**[4] EUR-Lex — CSRD (2022/2464), 2022.** Large companies must disclose Scope 1, 2 and 3 GHG emissions under ESRS E1; a net-zero claim absent from or contradicting mandatory CSRD disclosure constitutes a material inconsistency. Supports claim: N/A (legislative standard). Confidence: 0.95. https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464
 
-**[5] Regulated Emissions Trajectory (E-PRTR, 2024)**
-European Pollutant Release and Transfer Register data shows BP's regulated industrial emissions declined 38% from 2007 (7.0 million tonnes) to 2024 (4.4 million tonnes). However, this historical improvement is undermined by three factors: (a) the decline predates BP's net-zero commitment and reflects divested assets (Russian operations post-2022, renewables divestitures) rather than managed transition; (b) 2024 emissions (4.37 million tonnes) actually rose from 2023 (4.16 million tonnes), indicating no robust downward trajectory post-commitment; and (c) the claim's boundary ("Scope 1 and 2 within operational control") excludes Scope 3 financed emissions and upstream extraction — which constitute BP's primary climate impact. *Source: E-PRTR, 2024, https://industry.eea.europa.eu/ | Confidence: 0.75*
+**[5] GOGEL — Urgewald Global Oil and Gas Exit List.** BP plc is listed as ACTIVELY EXPANDING oil and gas capacity: 2,860,055 boe/d production; 2,996,140,000 boe proven reserves; upstream expansion confirmed; LNG expansion confirmed. GOGEL is used by 400+ financial institutions (GFANZ, PAII) as the standard oil and gas screen — BP fails it. Supports claim: No. Confidence: 0.90. https://gogel.org/
 
-**[6] Coal Holdings (Urgewald Global Coal Exit List)**
-BP is listed on the Global Coal Exit List with 1.2 GW of coal power capacity. Expansion status is unclear, but coal holdings are confirmed. This further contradicts a credible net-zero transition claim. *Source: COAL_EXIT, https://www.urgewald.org/en/themen/global-coal-exit-list | Confidence: 0.65*
+**[6] GOGET — Global Oil and Gas Extraction Tracker, Global Energy Monitor, March 2026.** BP plc holds 163 extraction fields across 21 countries (gas, gas and condensate, oil). 10 fields are in development with committed FID (capital deployed for new extraction), including CLOV 3 Oil Phase (Angola), Dalia 3 Oil Phase (Angola), Ginger Gas Field (Trinidad and Tobago), Guadalupe KC010 (US federal offshore) and Harmattan Gas Field (Egypt). A further 17 fields are pre-FID discoveries; 131 are operating. Supports claim: No. Confidence: 0.87. https://globalenergymonitor.org/projects/global-oil-gas-extraction-tracker/
 
-**[7] EU Substantiation Requirements (EmpCo Directive 2024/825)**
-The amending Directive (EU 2024/825), in force since March 2024, blacklists net-zero claims that do not include: a credible transition plan with interim targets, verifiable methodology for residual emissions removal (not offset credits), and a disclosed baseline year. BP's claim provides none of these substantiation elements. Additionally, the phrase "enabled by supportive government policies" functions as a conditional escape clause, acknowledging that BP cannot achieve net-zero through its own capital allocation — a substantiation failure under the amended Unfair Commercial Practices Directive. *Source: EUR_LEX, 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825 | Confidence: 0.95*
+**[7] LobbyMap — Climate Policy Engagement Score.** BP plc rated C-. The record classifies this as "neutral or mixed engagement — inconclusive for greenwashing assessment." Supports claim: N/A (inconclusive). Confidence: 0.50. https://lobbymap.org/
 
-**[8] Lobbying Position (LobbyMap, n/a)**
-LobbyMap scores BP as C- on climate policy engagement — indicating neutral or mixed engagement. This is inconclusive and does not provide mitigating evidence, nor does it independently trigger the "obstructive lobbying" condition for greenwashing. However, the absence of a definitive score does not reduce the weight of the other evidence. *Source: LobbyMap, https://lobbymap.org/ | Confidence: 0.50*
+**[8] BP Self-Reported Disclosure (SOURCE_DOCUMENT), 2025.** BP discloses a 2050 net-zero ambition for Scope 1 and 2 operational emissions (54.5 MtCO2e baseline in 2019) and for the carbon intensity of sold energy products. In 2025, Scope 1 emissions were 33.7 MtCO2e and Scope 2 emissions 0.7 MtCO2e — a 37% reduction against the 2019 baseline; targets are 45–50% operational reduction and 8–10% carbon intensity reduction by 2030. The document lacks substantiation under the EmpCo Directive: no interim 2035 or 2040 targets; no split between abatement and certified permanent removals; no certified permanent removal mechanisms described; no verified transition plan; and Scope 3 emissions are not disclosed. Supports claim: No. Confidence: 0.95. https://www.bp.com/en/global/corporate/sustainability/getting-to-net-zero.html
 
----
+**[9] TPI Benchmark Assessment — Transition Pathway Initiative, 2022.** Oil & Gas (United Kingdom). Management Quality Level 4STAR (Strategic+). Carbon Performance: CP 2025 Not Aligned; CP 2035 Not Aligned; CP 2050 Not Aligned — BP's disclosed emissions pathway exceeds the TPI sector benchmark for 2050. TPI Centre assessments are used by 150+ investors ($80tn AUM). Supports claim: No. Confidence: 0.85. https://www.transitionpathwayinitiative.org/corporates
 
 ### Assessment
 
-BP's net-zero 2050 claim is **CONFIRMED_GREENWASHING** based on four independent, high-confidence contradictions and one definitive regulatory precedent.
+BP's claim received a score of 87/100 because three independent CONFIRMED_GREENWASHING trigger conditions are satisfied, and no evidence source supports the net-zero claim at the required confidence threshold.
 
-**Regulatory Precedent — Strongest Signal:**
-The ASA 2019 ruling against BP establishes conclusively that the company has a documented pattern of making materially misleading environmental claims through selective scope presentation. BP's advertisements emphasised low-carbon activities (flowers, wind turbines, solar panels) representing only a fraction of the company's business, creating a false overall impression. The current net-zero claim follows the identical pattern: it presents a headline commitment (net-zero 2050) focused on a narrow scope (Scope 1 and 2 within operational control) while the company actively expands fossil fuel extraction and infrastructure. Under the ASA precedent, this selective scope presentation — which excludes Scope 3 financed emissions and the company's primary climate impact — is the exact mechanism previously found to be misleading.
+**Core business contradiction (CONFIRMED).** BP's primary business is irreconcilable with the net-zero claim. GOGEL [5] lists BP as actively expanding oil and gas capacity. GOGET [6] documents 163 extraction fields across 21 countries, including 10 with committed FID — meaning capital has been deployed for new fossil fuel extraction — plus 17 pre-FID discoveries. EGT [1] documents 3 expanding European gas pipeline assets locking in 40+ years of fossil demand. Each project locks in decades of upstream production, directly contradicting the net-zero ambition.
 
-**Core Business Contradiction — Critical Trigger:**
-GOGET data (2026) shows BP has 10 oil and gas extraction fields with Final Investment Decision, meaning capital is legally committed to decades of future production. These include major projects in Angola (CLOV 3, Dalia 3), Trinidad and Tobago (Ginger), the US (Guadalupe), and Egypt (Harmattan). With 131 currently operating fields and 17 discovered fields likely entering development, BP is locked into fossil fuel production through and beyond 2050. This is irreconcilable with any credible net-zero claim. A company cannot simultaneously commit capital to decades of new oil and gas extraction and credibly claim a net-zero transition by 2050.
+**Prior regulatory ruling (CONFIRMED).** The ASA [2] upheld complaints in 2019 against BP advertising that selectively promoted low-carbon activities representing only a fraction of BP's business. This binding ruling against an equivalent prior environmental claim establishes a documented pattern of misleading green messaging.
 
-**Infrastructure Lock-in:**
-EGT data (2026) confirms BP is actively developing three European gas pipeline projects (Trans-Adriatic and Trans-Anatolian). Gas infrastructure locks in 40+ years of fossil fuel demand by design. This expansion directly contradicts a net-zero pathway.
+**Accumulated evidence weight (CONFIRMED).** Six records contradict the claim, four at confidence ≥ 0.85 ([5] 0.90, [2] 0.90, [6] 0.87, [1] 0.85, [8] 0.95, [9] 0.85), with zero supporting sources and no mitigating evidence at confidence ≥ 0.70.
 
-**Institutional Benchmark Misalignment:**
-TPI's "Not Aligned" assessment across all timeframes (2025, 2035, 2050) is the standard used by institutional investors managing $80 trillion. TPI's methodology assesses whether a company's disclosed emissions trajectory meets the Paris Agreement benchmark. BP's does not. This is an independent, quantified contradiction of the net-zero claim.
+On substantiation, TPI [9] rates BP "Not Aligned" with Paris for CP 2025, 2035 and 2050. BP's own disclosure [8] confirms a substantiation failure under the EmpCo Directive (EU 2024/825) [3]: no interim 2035/2040 targets, no abatement-versus-removal split, no certified permanent removal mechanisms, no verified transition plan, and no Scope 3 disclosure. The disclosed 37% Scope 1+2 reduction since 2019 is operational only and does not address the value-chain emissions that dominate an oil major's footprint.
 
-**Substantiation Failures Under EU Law:**
-The EmpCo Directive (2024/825) requires net-zero claims to include: a credible transition plan, interim targets, a disclosed baseline year, and verifiable methodology for residual emissions removal (not offsets). BP's claim provides none of these. The phrase "enabled by supportive government policies" is a conditional escape clause that acknowledges BP cannot achieve net-zero through its own decisions — a substantiation failure under the amended UCPD Annex I.
-
-**Emissions Trajectory — Limited Mitigating Evidence:**
-E-PRTR data shows BP's regulated emissions declined 38% from 2007 to 2024. However, this improvement is heavily qualified: it predates BP's net-zero commitment, reflects divestments (Russian assets, renewables) rather than managed transition, and shows volatility (2024 actually rose from 2023). More critically, the claim's boundary excludes Scope 3 and upstream emissions — which constitute BP's primary climate impact. The ASA precedent explicitly flagged this type of selective scope as misleading.
-
-**Score Rationale:**
-The score of 82/100 reflects:
-- **CONFIRMED trigger condition**: ASA precedential ruling establishes a documented pattern of misleading environmental claims, setting a floor score of 81.
-- **Strong independent contradictions**: GOGET (10 FID extraction fields), TPI (not aligned to Paris 2050), EGT (active gas infrastructure expansion), and EUR_LEX substantiation failures all contradict the claim.
-- **Limited mitigating support**: E-PRTR's 38% historical decline provides modest support but is outweighed by forward-looking evidence of continued fossil fuel lock-in, volatility, and TPI's projected misalignment.
-- **Position within confirmed range (81–89)**: Score of 82 reflects definitive regulatory precedent and clear core business contradiction, but confidence is 0.88 (not 0.95+) due to EU_ETS data unavailability and LobbyMap's inconclusive C- score (not triggering obstructive lobbying condition).
-
----
+LobbyMap [7] returned a C- rating, classified as inconclusive; it does not meet the obstruction threshold and the lobbying contradiction was scored moderate (45). This claim is not a repeat, but BP's overall score trend across 8 prior assessed claims is DETERIORATING.
 
 ### Key Finding
 
-BP's net-zero 2050 claim is contradicted by four independent, verified sources: (1) a 2019 ASA regulatory ruling that found BP made misleading environmental claims through selective scope presentation — the identical mechanism used in this claim; (2) Global Oil & Gas Extraction Tracker data showing 10 fields with FID committing BP to decades of fossil fuel production; (3) TPI's institutional assessment rating BP "Not Aligned" with Paris Agreement by 2050; and (4) active expansion of European gas pipeline infrastructure locking in 40+ years of fossil fuel demand. BP cannot simultaneously commit capital to decades of new extraction and claim a credible net-zero transition by 2050.
-
----
+BP claims net-zero ambition by 2050 while a binding 2019 ASA ruling already found its green advertising misleading, and current data show 10 oil and gas extraction fields with capital committed to new production plus active European gas pipeline expansion — making the net-zero claim irreconcilable with BP's documented forward-looking fossil fuel expansion.
 
 ### Data Gaps
 
-**EU ETS (Installation IDs):**
-No EU ETS installation IDs were registered for BP facilities in the database query. This prevented cross-verification of BP's regulated Scope 1 emissions under the EU Emissions Trading System. However, this gap does not materially reduce confidence because: (a) E-PRTR provides direct regulated emissions data for 2024; (b) TPI and GOGET provide independent contradictions not dependent on EU ETS; and (c) the core business contradiction (10 FID extraction fields) is verified by GOGET with high confidence (0.87). **Confidence impact: Minimal (confidence remains 0.88).**
-
----
+- **EU ETS (EUTL verified installation data):** No installation IDs were registered for BP plc, so EU-verified facility-level emissions could not be cross-referenced. This is the primary reason confidence is 86% rather than higher; emissions verification relies on BP's self-reported disclosure [8] and third-party trackers rather than regulator-verified installation data.
+- **LobbyMap [7]:** Returned an inconclusive C- score, providing insufficient data to assess lobbying conduct. The lobbying-contradiction trigger was therefore not met and was scored moderate.
 
 ### Methodology Note
 
-Prasine Index assessed this claim using eight primary evidence sources: (1) ASA enforcement ruling (2019) establishing precedential pattern of misleading claims; (2) GOGET oil & gas extraction tracker (2026) verifying active FID projects; (3) EGT European gas tracker (2026) confirming pipeline expansion; (4) TPI institutional benchmark (2022) showing Paris misalignment; (5) E-PRTR regulated emissions (2024) showing trajectory; (6) Urgewald coal exit list verifying coal holdings; (7) EmpCo Directive (2024/825) establishing substantiation requirements; and (8) LobbyMap climate policy score. Scoring followed the CONFIRMED_GREENWASHING threshold: a claim receives this verdict when (a) prior regulatory ruling against equivalent claims establishes a documented pattern; (b) multiple independent high-confidence sources contradict the claim's core assertion; or (c) the company's disclosed core business strategy contradicts the claim. The score of 82/100 reflects the position within the confirmed range (81–89) based on the strength and independence of contradictions. Confidence of 88% reflects the definitive nature of the ASA precedent (0.90) and GOGET verification (0.87), offset by a minor gap in EU ETS data (unavailable) and inconclusive lobbying position (LobbyMap C-). Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+Prasine Index assessed this NET_ZERO_TARGET claim against nine evidence records drawn from eight independent sources, spanning regulatory rulings (ASA), EU legislative standards (EUR-Lex / EmpCo Directive, CSRD), investor-grade benchmarks (TPI), fossil-fuel expansion trackers (GOGEL, GOGET, EGT), lobbying analysis (LobbyMap) and BP's own disclosure. Scores run from 0 (no greenwashing indication) to 100 (confirmed greenwashing); a single met CONFIRMED trigger establishes a floor of 81, and the absence of any source supporting the claim at confidence ≥ 0.70 placed this case in the upper part of the 82–92 band at 87. Component scores were: Emissions Discrepancy 80, Substantiation Failure 90, Prior Violations 85, Lobbying Contradiction 45, Target Credibility Gap 88. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+
+---
+
+### Data Manifest
+
+*Sources active at assessment time — 2026-06-29 11:23 UTC*
+
+| Source | SHA-256 (16 hex) |
+| ------ | ---------------- |
+| sbti | `2cb2f6ccf607edb7` |
+| lobbymap | `f1a44dff511b356f` |
+| ca100 | `add50b3457dfbe96` |
+| eprtr | `945ab1559805c047` |
+| fossil_finance | `bac43a9db3fcf64a` |
+| gcel | `48ce82ad6a6dfa73` |
+| gogel | `37690827a7c87136` |
+| tpi | `c7b6050b4a694291` |
+| eea_national | `ad15cc3738782724` |
+| eu_innovation_fund | *not present* |
+| eu_transparency_register | `c004723d6ca570a4` |
+| gcpt | `8201da8ec1457adf` |
+| egt | `371de5f09b86342b` |
+| goget_tracker | `10ed7bc007e47895` |
+| edgar_jrc | `8bd6b8a405b9c405` |
+| eutl | `4975728bdebddfe1` |
+| influencemap | `f1a44dff511b356f` |
