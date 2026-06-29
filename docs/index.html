@@ -453,6 +453,45 @@
       .evidence-item { grid-template-columns: auto 1fr; }
       .ev-verdict { grid-column: 2; }
     }
+
+    /* ── Multi-claim verdict format ── */
+    .agg-verdict-row { display: flex; align-items: baseline; gap: 16px; margin: 16px 0 4px; }
+    .agg-score-big { font-size: 28px; font-weight: 700; letter-spacing: -0.04em; color: var(--red-text); font-family: 'Space Mono', monospace; }
+    .agg-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .claim-overview-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+    .claim-overview-table th { padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); border-bottom: 2px solid var(--border-2); }
+    .claim-overview-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .claim-overview-table tr:last-child td { border-bottom: none; }
+    .claim-overview-table .row-hl { background: var(--card); }
+    .claim-overview-table .score-cell { font-family: 'Space Mono', monospace; font-weight: 700; white-space: nowrap; }
+    .detail-divider { font-size: 12px; color: var(--muted); padding: 12px 0; border-top: 1px solid var(--border); margin-bottom: 16px; }
+    .claim2-score-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+    .claim2-verdict { font-size: 12px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--red-text); padding: 3px 8px; background: var(--red-dim); border: 1px solid #c8a0a0; }
+    .claim2-score { font-size: 24px; font-weight: 700; letter-spacing: -0.04em; color: var(--red-text); font-family: 'Space Mono', monospace; }
+    .claim2-meta { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+    .key-finding-box { background: var(--red-dim); border: 1px solid #c8a0a0; border-left: 3px solid var(--red); padding: 16px 18px; margin-bottom: 24px; }
+    .key-finding-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--red-text); margin-bottom: 8px; }
+    .key-finding-box p { font-size: 13px; line-height: 1.65; }
+    .report-h2 { font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text); margin: 24px 0 10px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .ev-group-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin: 14px 0 8px; }
+    .ev-num-list { display: flex; flex-direction: column; }
+    .ev-num-row { display: grid; grid-template-columns: 28px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .ev-num-row:last-child { border-bottom: none; }
+    .ev-num-badge { width: 24px; height: 24px; flex-shrink: 0; background: transparent; border: 1px solid var(--border-2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--faint); font-family: 'Space Mono', monospace; }
+    .ev-num-src { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .ev-num-txt { font-size: 13px; color: var(--muted); line-height: 1.55; }
+    .ev-wt { font-size: 11px; font-weight: 600; margin-top: 6px; letter-spacing: 0.04em; }
+    .ev-wt-contra { color: var(--red-text); }
+    .ev-wt-support { color: var(--green-text); }
+    .ev-wt-neutral { color: var(--muted); }
+    .assess-paras { display: flex; flex-direction: column; gap: 14px; margin-bottom: 8px; }
+    .assess-paras p { font-size: 13px; color: var(--text); line-height: 1.7; }
+    .dim-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .rpt-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+    .rpt-table th { padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--border-2); }
+    .rpt-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .rpt-table tr:last-child td { border-bottom: none; }
+    .sources-ol { font-size: 12px; color: var(--muted); padding-left: 20px; display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
   </style>
 </head>
 <body>
@@ -582,78 +621,210 @@
     <div class="section-label">Real Output</div>
     <h2>A real pipeline verdict.</h2>
     <p class="section-desc">
-      Actual pipeline output, run 2026-06-24 with Claude Opus judge and report agents. Claim extracted from Ryanair's corporate sustainability page. Score: 83/100 — CONFIRMED GREENWASHING.
+      Multi-claim assessment, run 2026-06-26 with Claude Opus judge and report agents. 5 claims assessed across Ryanair's sustainability disclosures. Aggregate score 83/100 — CONFIRMED GREENWASHING.
     </p>
 
     <div class="verdict-card">
       <div class="verdict-header">
         <div class="company-info">
           <div class="company-name">Ryanair Holdings plc</div>
-          <div class="company-meta">IE · Aviation · CSRD obligated · 2026-06-24</div>
+          <div class="company-meta">IE · Aviation · CSRD obligated · 2026-06-26</div>
         </div>
         <span class="verdict-badge verdict-confirmed">Confirmed greenwashing</span>
       </div>
 
       <div class="verdict-body">
+
+        <!-- Aggregate -->
+        <div class="agg-verdict-row">
+          <span class="agg-score-big">83 / 100</span>
+        </div>
+        <p class="agg-sub">Confidence-weighted aggregate across 5 claims · range 80–89</p>
+
+        <!-- Claim overview table -->
+        <table class="claim-overview-table">
+          <thead>
+            <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="score-cell">84 / 100</td>
+              <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
+              <td style="font-size:12px">"the ambitious goals we've set to reach net-zero carbon emissions by 2050"</td>
+            </tr>
+            <tr class="row-hl">
+              <td class="score-cell"><strong>86 / 100</strong></td>
+              <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
+              <td style="font-size:12px"><strong>"We've developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement…" — detailed below</strong></td>
+            </tr>
+            <tr>
+              <td class="score-cell">82 / 100</td>
+              <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
+              <td style="font-size:12px">"Work with suppliers to increase sustainable aviation fuel (SAF) with industry-leading SAF goals &gt;10% by 2030."</td>
+            </tr>
+            <tr>
+              <td class="score-cell">82 / 100</td>
+              <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
+              <td style="font-size:12px">"By appointing best-in class researchers, we'll achieve our goal of powering 12.5% of our flights with SAF by 2030."</td>
+            </tr>
+            <tr>
+              <td class="score-cell">82 / 100</td>
+              <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
+              <td style="font-size:12px">"Our goal is 12.5% SAF usage by 2030."</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="detail-divider">Detailed assessment of claim 2 (highest-scoring) follows.</p>
+
+        <!-- Claim 2 -->
         <div class="claim-block">
-          "ambitious goals we've set to reach net-zero carbon emissions by 2050"
-          <div class="claim-source">Source: Ryanair Sustainability Report 2025, September 2025 · corporate.ryanair.com/wp-content/uploads/2025/09/Ryanair-Sustainability-Report-2025.pdf</div>
+          "We've developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement and the aviation industry's Destination 2050 initiative."
+          <div class="claim-source">Source: corporate.ryanair.com/sustainability/pathway-to-net-zero · retrieved 2026-06-26</div>
         </div>
 
-        <div class="score-section">
-          <div class="score-row">
-            <span class="score-label">Greenwashing score</span>
-            <span class="score-number">83 <span style="font-size:16px;font-weight:500;color:var(--muted)">/100</span></span>
+        <div class="claim2-score-row">
+          <span class="claim2-verdict">Confirmed greenwashing</span>
+          <span class="claim2-score">86 / 100</span>
+        </div>
+        <p class="claim2-meta">Range 82–90 · Confidence 86% · Trace af429cf9</p>
+
+        <!-- Key finding -->
+        <div class="key-finding-box">
+          <p class="key-finding-lbl">Key finding</p>
+          <p>Ryanair holds a D+ obstructive climate-lobbying rating from LobbyMap, meaning it actively opposes or delays the climate legislation its own net-zero pledge depends on — and its self-published pathway relies on 24% carbon offsetting, a basis expressly blacklisted for net-zero claims under the EmpCo Directive (EU 2024/825).</p>
+        </div>
+
+        <!-- Evidence -->
+        <div class="report-h2">Evidence</div>
+
+        <p class="ev-group-lbl">Contradicting evidence</p>
+        <div class="ev-num-list">
+          <div class="ev-num-row">
+            <div class="ev-num-badge">1</div>
+            <div>
+              <p class="ev-num-src">LobbyMap D+ (Obstructive) + EU Transparency Register</p>
+              <p class="ev-num-txt">LobbyMap rates Ryanair <strong>D+ (Obstructive)</strong> — actively opposing or delaying climate legislation while making green claims (confidence 0.85). Corroborated by the EU Transparency Register: Ryanair is an actively registered direct corporate lobbyist (reg. no. 002977215945-85, HQ Ireland, confidence 0.75). A company obstructing the policy framework its own 2050 pledge depends on cannot reconcile that pledge with its conduct. Under Prasine scoring, a D/D+ LobbyMap rating alone triggers CONFIRMED status.</p>
+              <p class="ev-wt ev-wt-contra">Independent trigger · confidence 0.85</p>
+            </div>
           </div>
-          <div class="score-bar-track">
-            <div class="score-bar-fill" style="width: 83%"></div>
+          <div class="ev-num-row">
+            <div class="ev-num-badge">2</div>
+            <div>
+              <p class="ev-num-src">UK ASA Ruling A20-529462 (2020)</p>
+              <p class="ev-num-txt">The Advertising Standards Authority found Ryanair's "lowest carbon emissions" claim <strong>CONFIRMED MISLEADING</strong> — Ryanair could not substantiate lower CO₂ per passenger than comparable airlines on a like-for-like basis. Establishes a documented prior violation within the same claim category. Under the Prasine framework, a prior ruling against an equivalent claim type independently triggers CONFIRMED status.</p>
+              <p class="ev-wt ev-wt-contra">Independent trigger · confidence 0.90</p>
+            </div>
           </div>
-          <div class="score-legend">
-            <span>Substantiated claim</span>
-            <span>Unverifiable claim</span>
-            <span>Misleading claim</span>
-            <span>Likely greenwashing</span>
-            <span style="color:var(--red-text);font-weight:600">Confirmed ▲</span>
+          <div class="ev-num-row">
+            <div class="ev-num-badge">3</div>
+            <div>
+              <p class="ev-num-src">Ryanair Self-Disclosure — Pathway to Net Zero (2024)</p>
+              <p class="ev-num-txt">Ryanair's own pathway document reveals that 24% of its net-zero plan relies on "offsetting and other economic measures" — expressly blacklisted under the EmpCo Directive. The document states no explicit baseline year, no 2035/2040 interim targets, no abatement-versus-certified-removal split, and no verified transition plan. The 34% SAF component currently sits at the EU-mandated 2% against a &gt;10% 2030 target.</p>
+              <p class="ev-wt ev-wt-contra">Substantiation failure · confidence 0.95</p>
+            </div>
+          </div>
+          <div class="ev-num-row">
+            <div class="ev-num-badge">4</div>
+            <div>
+              <p class="ev-num-src">European Commission CPC Investigation (2024)</p>
+              <p class="ev-num-txt">The EC and national consumer protection authorities launched a coordinated investigation under CPC Regulation 2017/2394 into Ryanair's environmental claims. On 6 November 2025, Ryanair was among 21 airlines that reached a formal settlement with the CPC Network, committing to remove or revise misleading environmental claims. A concluded regulatory determination.</p>
+              <p class="ev-wt ev-wt-contra">Regulatory settlement · confidence 0.70</p>
+            </div>
           </div>
         </div>
 
-        <div class="evidence-list">
-          <div class="evidence-item">
-            <div class="ev-icon lobby">🏛</div>
-            <div class="ev-body">
-              <div class="ev-source">LobbyMap — Corporate Climate Lobbying</div>
-              <div class="ev-detail">Score: D+ (Obstructive). Ryanair actively opposes climate legislation while making a net-zero pledge — the primary greenwashing signal in the Prasine framework.</div>
+        <p class="ev-group-lbl">Legislative framework</p>
+        <div class="ev-num-list">
+          <div class="ev-num-row">
+            <div class="ev-num-badge">5</div>
+            <div>
+              <p class="ev-num-src">EmpCo Directive (EU 2024/825) — Blacklisted Claim Type</p>
+              <p class="ev-num-txt">In force since March 2024, the EmpCo Directive amends UCPD Annex I to require that net-zero claims demonstrate: a baseline emissions year, interim targets, a split between abatement and certified permanent removal, and a verified transition plan. Claims based on carbon offsetting are expressly blacklisted. Ryanair's pathway fails every requirement. EUR-Lex CELEX:32024L0825.</p>
+              <p class="ev-wt ev-wt-neutral">Substantiation failure · confidence 0.95</p>
             </div>
-            <span class="ev-verdict ev-contra">Contradicts · 0.85</span>
           </div>
-
-          <div class="evidence-item">
-            <div class="ev-icon ruling">⚖️</div>
-            <div class="ev-body">
-              <div class="ev-source">UK ASA Ruling A20-529462, 2020</div>
-              <div class="ev-detail">ASA found Ryanair's prior "lowest carbon emissions" claim unsubstantiated. Establishes a documented pattern of emissions claims that fail regulatory scrutiny.</div>
+          <div class="ev-num-row">
+            <div class="ev-num-badge">6</div>
+            <div>
+              <p class="ev-num-src">CSRD (EU 2022/2464) — Mandatory Emissions Disclosure</p>
+              <p class="ev-num-txt">CSRD requires mandatory disclosure of scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024. A net-zero claim that cannot be cross-referenced against a CSRD-compliant baseline constitutes a material substantiation gap. EUR-Lex CELEX:32022L2464.</p>
+              <p class="ev-wt ev-wt-neutral">Data gap · confidence 0.95</p>
             </div>
-            <span class="ev-verdict ev-contra">Contradicts · 0.90</span>
-          </div>
-
-          <div class="evidence-item">
-            <div class="ev-icon ruling">⚖️</div>
-            <div class="ev-body">
-              <div class="ev-source">EC CPC Network Settlement — Nov 2025</div>
-              <div class="ev-detail">The EC CPC Network investigation concluded Nov 2025 with Ryanair (and 20 other airlines) committing to remove or revise misleading environmental claims. A concluded regulatory commitment — not a pending investigation.</div>
-            </div>
-            <span class="ev-verdict ev-contra">Contradicts · 0.80</span>
-          </div>
-
-          <div class="evidence-item">
-            <div class="ev-icon absent">○</div>
-            <div class="ev-body">
-              <div class="ev-source">EmpCo Directive (EU 2024/825) — Substantiation Failure</div>
-              <div class="ev-detail">Net-zero claim discloses no baseline emissions year, no interim targets (2030/2035/2040), no abatement-vs-removal split, no verified transition plan. Blacklisted under amended UCPD Annex I.</div>
-            </div>
-            <span class="ev-verdict ev-contra">Contradicts · 0.95</span>
           </div>
         </div>
+
+        <p class="ev-group-lbl">Mitigating evidence</p>
+        <div class="ev-num-list">
+          <div class="ev-num-row">
+            <div class="ev-num-badge">7</div>
+            <div>
+              <p class="ev-num-src">SBTi — Interim Targets Set (net-zero: none) · TPI — Below 2°C</p>
+              <p class="ev-num-txt">SBTi records interim reduction targets classified as 1.5°C but <em>net-zero target: none</em> — neutral for the assessed net-zero commitment (confidence 0.70). TPI rates the 2050 pathway "Below 2 Degrees" at Management Quality Level 2 (Acknowledging) — Paris-compatible but not 1.5°C-aligned. Neither displaces the three independent confirmed triggers.</p>
+              <p class="ev-wt ev-wt-support">Partial mitigation — insufficient to rebut · confidence 0.70–0.75</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assessment -->
+        <div class="report-h2">Assessment</div>
+        <div class="assess-paras">
+          <p>The decisive finding is the contradiction between Ryanair's net-zero pledge and its own lobbying conduct. LobbyMap classifies Ryanair D+ (Obstructive) — actively opposing the climate legislation required to deliver any net-zero pathway. A company obstructing the policy framework its 2050 pledge depends on cannot reconcile that pledge with its conduct. Under Prasine scoring, this alone confirms greenwashing. The EU Transparency Register confirms this engagement is operationalised at the institutional level.</p>
+          <p>Two further independent triggers reinforce the verdict. The ASA found an equivalent prior emissions claim CONFIRMED MISLEADING (A20-529462, 2020), establishing a documented pattern. Ryanair's own pathway document then fails the EmpCo Directive on every substantiation requirement: no baseline year, no 2035/2040 interim targets, no abatement-versus-certified-removal split, and 24% reliance on offsetting — expressly blacklisted. The self-published pathway is internally inconsistent and materially behind its own 2030 SAF trajectory.</p>
+          <p>Mitigating evidence (SBTi interim targets, TPI Below 2°C rating) is genuine but cannot override three independent confirmed triggers. These signals place the score in the lower-to-mid confirmed band (82–90) rather than higher. The November 2025 CPC settlement — Ryanair among 21 airlines that committed to revise misleading environmental claims — adds a concluded regulatory determination on top of the existing finding.</p>
+        </div>
+
+        <!-- Dimensional scoring -->
+        <div class="report-h2">Dimensional scoring</div>
+        <p class="dim-note">Higher score = stronger greenwashing evidence. Claim 2 of 5.</p>
+        <table class="rpt-table">
+          <thead><tr><th>Dimension</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>Substantiation failure</td><td>90 / 100</td></tr>
+            <tr><td>Lobbying contradiction</td><td>88 / 100</td></tr>
+            <tr><td>Prior violations</td><td>85 / 100</td></tr>
+            <tr><td>Target credibility gap</td><td>82 / 100</td></tr>
+            <tr><td>Emissions discrepancy</td><td>55 / 100</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Data gaps -->
+        <div class="report-h2">Data gaps</div>
+        <table class="rpt-table">
+          <thead><tr><th>Source</th><th>Status</th><th>Impact</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>EU ETS Verified Emissions (EUTL)</td>
+              <td>Not registered</td>
+              <td style="font-size:12px">Aviation emissions reported through a separate scheme. Scope 1 absolute emissions could not be independently verified. Does not affect the lobbying, prior-violation, or substantiation triggers — each independently sufficient.</td>
+            </tr>
+            <tr>
+              <td>Scope 1, 2 and 3 absolute emissions</td>
+              <td>Not in source document</td>
+              <td style="font-size:12px">No verified baseline provided in the pathway document, preventing cross-check against CSRD-mandated disclosure.</td>
+            </tr>
+            <tr>
+              <td>SBTi net-zero validation</td>
+              <td>Status: none</td>
+              <td style="font-size:12px">No validated net-zero target exists to corroborate the assessed claim. Absence of validation does not itself trigger a score increase, but removes a potential mitigant.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Sources -->
+        <div class="report-h2">Sources</div>
+        <ol class="sources-ol">
+          <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-26. https://lobbymap.org/</li>
+          <li>EU Transparency Register — Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-06-26</li>
+          <li>UK ASA Ruling A20-529462 — Ryanair Holdings Ltd, 2020-09-16. https://www.asa.org.uk/rulings/ryanair-ltd-g21-1080990.html</li>
+          <li>Ryanair — Pathway to Net Zero, corporate.ryanair.com/sustainability/pathway-to-net-zero, retrieved 2026-06-26</li>
+          <li>European Commission / CPC Network — Coordinated Action on Airline Environmental Claims, 2024–2025</li>
+          <li>Directive (EU) 2024/825 (EmpCo) — EUR-Lex CELEX:32024L0825</li>
+          <li>Directive (EU) 2022/2464 (CSRD) — EUR-Lex CELEX:32022L2464</li>
+          <li>Science Based Targets initiative — Companies Taking Action, accessed 2026-06-26</li>
+          <li>Transition Pathway Initiative — Corporates, accessed 2026-06-26</li>
+        </ol>
+
       </div>
     </div>
 
