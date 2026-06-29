@@ -330,7 +330,7 @@ export default function HomePage() {
         <div className="doc-container">
           <h2 className="index-heading">The Index</h2>
           <p className="index-sub">
-            6 EU companies assessed — full Opus pipeline across 5 sectors. Evidence drawn from 22 open data sources per run.
+            6 EU companies assessed across 5 sectors. Evidence drawn from 22 open data sources per run.
           </p>
           <div className="index-stats">
             <span className="index-stat"><strong>3</strong> confirmed</span>
@@ -359,15 +359,18 @@ export default function HomePage() {
                 { company: 'IKEA Group',           slug: 'ikea-group',           sector: 'Retail',    score: 43, label: 'Misleading claim',    badge: 'misleading'   },
                 { company: 'H&M Group',            slug: 'h-m-group',            sector: 'Fashion',   score: 20, label: 'Substantiated claim', badge: 'substantiated'},
               ].map(({ company, slug, sector, score, label, badge }) => (
-                <tr key={company} style={{ cursor: 'pointer' }} onClick={undefined}>
-                  <td style={{ fontWeight: 500 }}>
-                    <a href={`/reports/${slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      {company}
+                <tr key={company}>
+                  <td colSpan={4} style={{ padding: 0, border: 'none' }}>
+                    <a
+                      href={`/reports/${slug}`}
+                      style={{ display: 'table', width: '100%', tableLayout: 'fixed', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                    >
+                      <span style={{ display: 'table-cell', padding: '10px 12px', fontWeight: 500 }}>{company}</span>
+                      <span style={{ display: 'table-cell', padding: '10px 12px', color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</span>
+                      <span style={{ display: 'table-cell', padding: '10px 12px', fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</span>
+                      <span style={{ display: 'table-cell', padding: '10px 12px' }}><span className={`verdict-badge badge-${badge}`}>{label}</span></span>
                     </a>
                   </td>
-                  <td style={{ color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</td>
-                  <td style={{ fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</td>
-                  <td><a href={`/reports/${slug}`} style={{ textDecoration: 'none' }}><span className={`verdict-badge badge-${badge}`}>{label}</span></a></td>
                 </tr>
               ))}
             </tbody>
