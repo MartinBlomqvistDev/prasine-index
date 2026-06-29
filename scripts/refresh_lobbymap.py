@@ -27,9 +27,9 @@ _DATA_DIR = Path(__file__).parent.parent / "data"
 _DEST = _DATA_DIR / "lobbymap_companies.csv"
 
 # LobbyMap company database CSV download URL.
-# LobbyMap updates this annually; check the page below for the current URL.
-# The URL below is the direct link to the bulk company scores CSV as of 2024.
-# If it returns a 404, check: https://lobbymap.org/report
+# InfluenceMap rebranded to lobbymap.org in 2025. The bulk CSV is no longer
+# at a stable public URL — it may require a free account at lobbymap.org.
+# If this 404s, see print_manual_instructions() below.
 _LM_CSV_URL = "https://lobbymap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
 
 
@@ -100,13 +100,13 @@ def print_manual_instructions() -> None:
     """Print manual download instructions."""
     print()
     print("Manual download steps:")
-    print("  1. Go to https://lobbymap.org/")
-    print("  2. Look for 'Download Company Scores' or 'Bulk Data Download'")
-    print("  3. Download the CSV of all companies")
-    print(f"  4. Save to: {_DEST}")
+    print("  1. Go to https://lobbymap.org/LobbyMapScores")
+    print("  2. Create a free account if required, then log in")
+    print("  3. Look for a bulk data download / export option")
+    print(f"  4. Save the CSV to: {_DEST}")
     print()
-    print("Alternative: annual reports with company data at:")
-    print("  https://lobbymap.org/report")
+    print("Expected columns: Organization, Performance Band, Sector, Engagement Intensity")
+    print("The ingest handles column name variants across vintages.")
 
 
 if __name__ == "__main__":
