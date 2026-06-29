@@ -31,8 +31,10 @@ _DATA_DIR = Path(__file__).parent.parent / "data"
 _DEST = _DATA_DIR / "gogel_companies.csv"
 
 # Urgewald GOGEL public download URL.
-# Updated annually — check https://gogel.org/ if this 404s.
-# Format: GOGEL{YEAR}_PublicDownload_{MonthYear}.csv
+# As of 2025, GOGEL requires free account registration at gogel.org to download data.
+# The 2024 public CSV may still be accessible; 2025 data requires login.
+# If this 404s: register at https://gogel.org/user/register then download from
+# https://gogel.org/ after logging in.
 _GOGEL_CSV_URL = (
     "https://gogel.org/sites/default/files/download_public/GOGEL2024_PublicDownload_Oct2024.csv"
 )
@@ -87,12 +89,11 @@ def download_gogel_csv() -> None:
     except Exception as exc:
         print(f"  Download failed: {exc}")
         print(
-            "\nTo get GOGEL data manually:\n"
-            "  1. Go to https://gogel.org/\n"
-            "  2. Download the Public Download CSV\n"
-            f"  3. Save to: {_DEST}\n"
-            "\nAlternatively check:\n"
-            "  https://www.urgewald.org/gogel"
+            "\nGOGEL now requires a free account to download data:\n"
+            "  1. Register at https://gogel.org/user/register\n"
+            "  2. Log in and go to the data download section\n"
+            "  3. Download the company CSV (GOGEL 2025)\n"
+            f"  4. Save to: {_DEST}\n"
         )
         sys.exit(1)
 
