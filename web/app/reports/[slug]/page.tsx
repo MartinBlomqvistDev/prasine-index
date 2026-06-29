@@ -74,6 +74,113 @@ function renderInline(text: string): React.ReactNode[] {
   )
 }
 
+// ── Evidence parsers ─────────────────────────────────────────────────────────
+
+function extractUrl(text: string): string | undefined {
+  return text.match(/(https?:\/\/[^\s*),\]]+)/)?.[1]
+}
+
+function extractConf(text: string): number {
+  const m = text.match(/\(confidence ([\d.]+)\)/) ?? text.match(/confidence ([\d.]+)/i) ?? text.match(/Confidence: ([\d.]+)/)
+  return m ? parseFloat(m[1]) : 0
+}
+
+function normaliseSupports(raw: string): 'Yes' | 'No' | 'N/A' {
+  const s = raw.toLowerCase().trim()
+  if (s === 'yes') return 'Yes'
+  if (s === 'no') return 'No'
+  return 'N/A'
+}
+
+// Format A: **[N] Source — type.** Body. *Source: name, date, url.* Supports claim: x (confidence y).
+function parseNumberedEvidence(section: string): EvidenceItem[] {
+  return section
+    .split(/\n\n(?=\*\*\[\d+\])/)
+    .filter(c => /^\*\*\[\d+\]/.test(c.trim()))
+    .map(chunk => {
+      const hm = chunk.match(/^\*\*\[(\d+)\] ([^*]+)\*\* ([\s\S]+)$/)
+      if (!hm) return null
+      const num = parseInt(hm[1])
+      const source = hm[2].trim().replace(/\.$/, '')
+      let body = hm[3].trim()
+      const url = extractUrl(body)
+      const conf = extractConf(body)
+      const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1] ?? 'N/A'
+      const supports = normaliseSupports(supRaw)
+      body = body
+        .replace(/\*Source:[^*]+\*/g, '')
+        .replace(/Supports claim:[^.]+\./gi, '')
+        .replace(/\(confidence[\d\s.]+\)/gi, '')
+        .replace(/https?:\/\/\S+/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+      return { num, source, body, supports, confidence: conf, url }
+    })
+    .filter((e): e is NonNullable<typeof e> => e !== null)
+}
+
+// Format B: **Contradicting the claim:** / **Supporting the claim:** with - bullet items
+function parseBulletEvidence(section: string): EvidenceItem[] {
+  const items: EvidenceItem[] = []
+  let num = 1
+  let currentSupports: 'Yes' | 'No' | 'N/A' = 'N/A'
+  for (const line of section.split('\n')) {
+    const heading = line.match(/^\*\*(Contradicting|Supporting|Regulatory|Context)/i)
+    if (heading) {
+      const h = heading[1].toLowerCase()
+      currentSupports = h === 'contradicting' ? 'No' : h === 'supporting' ? 'Yes' : 'N/A'
+      continue
+    }
+    if (!line.startsWith('- ')) continue
+    let body = line.slice(2).trim()
+    const url = extractUrl(body)
+    const conf = extractConf(body)
+    // Extract source from *Source name, date, url* at end
+    const srcMatch = body.match(/\*([^*]+https?:\/\/[^\s*]+)\*$/) ?? body.match(/\*([^*,]+),\s*[^,*]+,\s*https?:\/\/[^\s*]+\*$/)
+    const source = srcMatch
+      ? srcMatch[1].replace(/https?:\/\/\S+/, '').replace(/,\s*$/, '').trim()
+      : 'Source'
+    body = body
+      .replace(/\*[^*]+\*$/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\(confidence[\d\s.]+\)/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim()
+    items.push({ num: num++, source, body, supports: currentSupports, confidence: conf, url })
+  }
+  return items
+}
+
+// Format C: **Source description.** Body paragraph. (Category, url; confidence N)
+function parseParagraphEvidence(section: string): EvidenceItem[] {
+  return section
+    .split(/\n\n/)
+    .filter(p => /^\*\*[^[*]/.test(p.trim()))
+    .map((p, i) => {
+      const srcMatch = p.match(/^\*\*([^*]+)\*\*/)
+      const source = srcMatch?.[1]?.replace(/\.$/, '').trim() ?? 'Source'
+      let body = p.replace(/^\*\*[^*]+\*\*/, '').trim()
+      const url = extractUrl(body)
+      const conf = extractConf(body)
+      const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1]
+      const supports: 'Yes' | 'No' | 'N/A' = supRaw ? normaliseSupports(supRaw) : 'N/A'
+      body = body
+        .replace(/\([^)]*https?:\/\/[^)]*\)/g, '')
+        .replace(/\*[^*]+\*/g, '')
+        .replace(/Supports claim:[^.]+\./gi, '')
+        .replace(/https?:\/\/\S+/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim()
+      return { num: i + 1, source, body, supports, confidence: conf, url }
+    })
+}
+
+function parseEvidence(section: string): EvidenceItem[] {
+  if (/\*\*\[\d+\]/.test(section))           return parseNumberedEvidence(section)
+  if (/\*\*Contradicting|\*\*Supporting/i.test(section)) return parseBulletEvidence(section)
+  return parseParagraphEvidence(section)
+}
+
 // ── Parser ───────────────────────────────────────────────────────────────────
 
 function parseReport(md: string): ParsedReport {
@@ -124,33 +231,7 @@ function parseReport(md: string): ParsedReport {
   const evEnd = md.indexOf('### Assessment')
   const evSection = evStart > -1 && evEnd > -1 ? md.slice(evStart, evEnd) : ''
 
-  const evidence: EvidenceItem[] = evSection
-    .split(/\n\n(?=\*\*\[\d+\])/)
-    .filter(chunk => /^\*\*\[\d+\]/.test(chunk.trim()))
-    .map(chunk => {
-      const hm = chunk.match(/^\*\*\[(\d+)\] ([^*]+)\*\* ([\s\S]+)$/)
-      if (!hm) return null
-      const num = parseInt(hm[1])
-      const source = hm[2].trim().replace(/\.$/, '')
-      let body = hm[3].trim()
-
-      const supportsMatch = body.match(/Supports claim: ([^.]+)\./)
-      const supports = supportsMatch?.[1]?.trim() ?? 'N/A'
-      const confMatch = body.match(/Confidence: ([\d.]+)\./)
-      const conf = parseFloat(confMatch?.[1] ?? '0')
-      const urlMatch = body.match(/(https?:\/\/\S+)$/)
-      const url = urlMatch?.[1]
-
-      // Clean body: strip trailing metadata
-      body = body
-        .replace(/\s*Supports claim: [^.]+\.\s*/g, ' ')
-        .replace(/\s*Confidence: [\d.]+\.\s*/g, ' ')
-        .replace(/(https?:\/\/\S+)$/, '')
-        .trim()
-
-      return { num, source, body, supports, confidence: conf, url }
-    })
-    .filter((e): e is NonNullable<typeof e> => e !== null)
+  const evidence: EvidenceItem[] = parseEvidence(evSection)
 
   // Assessment paragraphs
   const assStart = md.indexOf('### Assessment')
