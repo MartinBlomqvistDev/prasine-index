@@ -4,19 +4,27 @@ Run this script whenever you want fresh data (report published annually in May):
 
     python scripts/refresh_fossil_finance.py
 
-Banking on Climate Chaos tracks fossil fuel financing by the world's 60 largest
+Banking on Climate Chaos tracks fossil fuel financing by the world's 65 largest
 private-sector banks from 2016 onwards. The annual report and underlying data are
 published by a coalition of NGOs including RAN, Sierra Club, and Oil Change International.
 
-The bulk data is available as a free CSV/Excel download from their website.
-No account required.
+As of 2026, no bulk CSV is available for direct download. The data must be extracted
+from the annual league tables PDF. For BOCC 2026, the league tables PDF is at:
+  https://www.bankingonclimatechaos.org/wp-content/uploads/2026/06/BOCC26_League-Tables-OG-expansion.pdf
+
+The NZBA membership data was added from Reclaim Finance's O&G Policy Tracker:
+  https://oilgaspolicytracker.org/ (download as XLSX, use 'InFilter' column)
 
 Saves to data/fossil_finance_banks.csv. Run refresh_cache() from ingest.fossil_finance
 to reload without restarting.
 
+CSV columns produced:
+  Bank, Total Fossil Fuel Financing (USD Billion), Oil and Gas Financing ($bn),
+  Net Zero Commitment, Period
+
 Sources:
   https://www.bankingonclimatechaos.org/
-  https://www.bankingonclimatechaos.org/bankingonclimatechaos2024/
+  https://oilgaspolicytracker.org/
 """
 
 from __future__ import annotations
@@ -28,8 +36,9 @@ from pathlib import Path
 _DATA_DIR = Path(__file__).parent.parent / "data"
 _DEST = _DATA_DIR / "fossil_finance_banks.csv"
 
-# Direct CSV download URL. Updated each May when the annual report is published.
-# If this 404s, check: https://www.bankingonclimatechaos.org/
+# No stable CSV download URL as of 2026 — data is extracted from the annual league tables PDF.
+# For future refreshes, check the BOCC site for a companion data download. If none exists,
+# download the league tables PDF and extract the first table with pdfplumber (see module docstring).
 _BOCC_CSV_URL = (
     "https://www.bankingonclimatechaos.org/wp-content/themes/bocc-2021/inc/bcc-data-2024.csv"
 )
@@ -99,10 +108,16 @@ def download_bocc_csv() -> None:
 
 def print_manual_instructions() -> None:
     print()
-    print("Manual download steps:")
-    print("  1. Go to https://www.bankingonclimatechaos.org/")
-    print("  2. Download the underlying data (usually a CSV or Excel file)")
-    print(f"  3. Save the CSV to: {_DEST}")
+    print("Manual extraction steps (no bulk CSV available as of 2026):")
+    print("  1. Download the league tables PDF from bankingonclimatechaos.org")
+    print("  2. Use pdfplumber to extract Table 0 from pages 2-5 (first 65-row table)")
+    print("  3. Columns: Bank, 2021, 2022, 2023, 2024, 2025, Grand Total")
+    print("  4. Optionally enrich with NZBA data from oilgaspolicytracker.org")
+    print(f"  5. Save as: {_DEST}")
+    print()
+    print("  Expected CSV columns:")
+    print("    Bank, Total Fossil Fuel Financing (USD Billion),")
+    print("    Oil and Gas Financing ($bn), Net Zero Commitment, Period")
 
 
 if __name__ == "__main__":
