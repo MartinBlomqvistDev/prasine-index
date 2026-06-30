@@ -170,7 +170,7 @@ async def run(
     company_name: str,
     source_url: str,
     claim_text: str | None = None,
-    max_claims: int = 5,
+    max_claims: int = 7,
     judge_model: str = "claude-haiku-4-5-20251001",
     report_model: str = "claude-haiku-4-5-20251001",
     dry_run: bool = False,
@@ -320,9 +320,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max-claims",
         type=int,
-        default=5,
+        default=7,
         help="Maximum number of claims to assess across all discovered pages. "
-        "Caps token spend. Default: 5.",
+        "Caps token spend. Default: 7 (covers all meaningful claim categories).",
     )
     parser.add_argument(
         "--judge-model",
