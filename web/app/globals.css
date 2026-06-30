@@ -282,7 +282,7 @@ h1, h2 {
 }
 .data-gaps-table td:nth-child(2) {
   font-family: 'Space Mono', monospace; font-size: 11px;
-  white-space: nowrap; padding-right: 16px;
+  padding-right: 16px; word-break: break-word;
 }
 
 /* ── Reasoning ── */

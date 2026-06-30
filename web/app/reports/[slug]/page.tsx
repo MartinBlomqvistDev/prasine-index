@@ -448,24 +448,26 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           {r.dataGaps.length > 0 && (
             <>
               <h2>Data gaps</h2>
-              <table className="data-gaps-table">
-                <thead>
-                  <tr><th>Source</th><th>Detail</th></tr>
-                </thead>
-                <tbody>
-                  {r.dataGaps.map((gap, i) => {
-                    const boldMatch = gap.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/)
-                    return (
-                      <tr key={i}>
-                        <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                          {boldMatch?.[1] ?? '—'}
-                        </td>
-                        <td>{boldMatch?.[2] ?? gap}</td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+              <div style={{ overflowX: 'auto' }}>
+                <table className="data-gaps-table">
+                  <thead>
+                    <tr><th>Source</th><th>Detail</th></tr>
+                  </thead>
+                  <tbody>
+                    {r.dataGaps.map((gap, i) => {
+                      const boldMatch = gap.match(/^\*\*([^*]+)\*\*:?\s*(.*)$/)
+                      return (
+                        <tr key={i}>
+                          <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {boldMatch?.[1] ?? '—'}
+                          </td>
+                          <td>{boldMatch?.[2] ?? gap}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </>
           )}
 
