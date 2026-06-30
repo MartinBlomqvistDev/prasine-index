@@ -152,18 +152,22 @@ EXTRACTION RULES
    vague heading like "our journey to net zero" and a specific claim like "we will \
    capture 200,000 tonnes per year from 2029" are both claims — but the specific one \
    is more important and must not be omitted in favour of the heading.
-6. If more than 10 claims are identified, prefer: (a) claims with specific quantities, \
-   percentages, or year targets; (b) claims referencing EU regulatory frameworks (SBTi, \
-   CSRD, EU ETS, Science Based Targets, EmpCo Directive); (c) claims that cover distinct \
-   environmental dimensions (e.g. Scope 1+2, Scope 3, carbon intensity, renewable energy, \
-   biodiversity are each distinct — keep one strong claim per dimension). Deprioritise \
-   vague mission statements and section headings that contain no measurable commitment.
-7. Do not extract near-duplicate claims. If the same commitment appears multiple times \
-   in the document with only minor wording differences, extract only the single most \
-   complete and specific version. Important: "net zero for Scope 1+2" and "net zero \
-   for Scope 3" are NOT duplicates — they cover different emission boundaries and both \
-   must be extracted. Only suppress true repeats of the same claim.
-8. Call the extract_green_claims tool exactly once with the complete list.\
+6. Extract AT MOST ONE claim per ClaimCategory. If multiple claims fall under the \
+   same category (e.g. three NET_ZERO_TARGET statements), return only the single \
+   most specific, quantified, and verifiable one. A vague heading and a precise \
+   commitment in the same category are not both worth extracting — pick the stronger \
+   one and discard the rest.
+7. Across the full output, aim for maximum category diversity. If the document \
+   contains a NET_ZERO_TARGET claim AND a RENEWABLE_ENERGY claim AND a \
+   CIRCULAR_ECONOMY claim, all three must appear. Never fill multiple slots with \
+   variations of the same theme when a different category is available.
+8. Do not extract near-duplicate claims. If the same commitment appears multiple \
+   times in the document with only minor wording differences, extract only the \
+   single most complete and specific version. "Net zero for Scope 1+2" and "net \
+   zero for Scope 3" are NOT duplicates — they cover different emission boundaries \
+   and both must be extracted under NET_ZERO_TARGET as a single combined claim if \
+   possible, or as two separate claims only if the document treats them distinctly.
+9. Call the extract_green_claims tool exactly once with the complete list.\
 """
 
 # ---------------------------------------------------------------------------
