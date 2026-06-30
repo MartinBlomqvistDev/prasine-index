@@ -136,9 +136,41 @@ class _LinkExtractor(HTMLParser):
             self._buf.append(data)
 
 
+# URL path substrings that indicate the most substantive sustainability pages.
+# Matched separately from keyword scoring and given a large bonus so these
+# pages consistently beat generic "responsibility" landing pages.
+_HIGH_VALUE_URL_PATTERNS: tuple[str, ...] = (
+    "net-zero",
+    "netzero",
+    "getting-to-net-zero",
+    "climate-transition",
+    "transition-plan",
+    "climate-plan",
+    "climate-action",
+    "scope-3",
+    "scope3",
+    "carbon-footprint",
+    "carbon-reduction",
+    "emissions-target",
+    "ghg-target",
+    "greenhouse",
+    "csrd",
+    "sustainability-report",
+    "climate-report",
+    "esg-report",
+    "nettonoll",
+    "klimatplan",
+    "hallbarhetsredovisning",
+    "hållbarhetsredovisning",
+)
+
+
 def _score_link(url: str, anchor: str) -> int:
-    text = urlparse(url).path.lower() + " " + anchor.lower()
-    return sum(1 for kw in _SUSTAINABILITY_KEYWORDS if kw in text)
+    path = urlparse(url).path.lower()
+    text = path + " " + anchor.lower()
+    base = sum(1 for kw in _SUSTAINABILITY_KEYWORDS if kw in text)
+    bonus = 5 if any(p in path for p in _HIGH_VALUE_URL_PATTERNS) else 0
+    return base + bonus
 
 
 def extract_relevant_links(html: str, base_url: str, max_links: int = 5) -> list[str]:

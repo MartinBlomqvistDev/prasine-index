@@ -163,6 +163,36 @@ def _deduplicate_claims(claims: list[Claim], containment_threshold: float = 0.80
     return [c for c, _ in kept]
 
 
+def _diversify_claims(claims: list[Claim], max_claims: int) -> list[Claim]:
+    """Select up to max_claims with category diversity.
+
+    Claims must already be sorted by priority (highest first). Pass 1 picks
+    the top-scoring claim from each distinct category. Pass 2 fills any
+    remaining slots with the next highest overall. Falls back gracefully to
+    top-N when the pool lacks diversity.
+    """
+    selected: list[Claim] = []
+    seen_categories: set[str] = set()
+    remainder: list[Claim] = []
+
+    for claim in claims:
+        if len(selected) >= max_claims:
+            break
+        cat = claim.claim_category.value
+        if cat not in seen_categories:
+            seen_categories.add(cat)
+            selected.append(claim)
+        else:
+            remainder.append(claim)
+
+    for claim in remainder:
+        if len(selected) >= max_claims:
+            break
+        selected.append(claim)
+
+    return selected
+
+
 def _claim_priority_score(claim: Claim) -> int:
     """Return a priority score for a claim — higher means more worth verifying.
 
@@ -495,7 +525,7 @@ class Pipeline:
                 extra={"operation": "pipeline_claims_generic_fallback"},
             )
             filtered = ranked
-        selected = filtered[:max_claims]
+        selected = _diversify_claims(filtered, max_claims)
 
         logger.info(
             f"run_from_url: {len(all_claims)} claims extracted, "
@@ -596,7 +626,7 @@ class Pipeline:
                 extra={"operation": "pipeline_claims_generic_fallback"},
             )
             filtered = ranked
-        return filtered[:max_claims]
+        return _diversify_claims(filtered, max_claims)
 
     async def _run_claim_pipeline(self, claim: Claim) -> PipelineResult | None:
         """Run agents 2–7 for a single extracted claim.

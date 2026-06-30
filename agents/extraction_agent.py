@@ -152,7 +152,18 @@ EXTRACTION RULES
    vague heading like "our journey to net zero" and a specific claim like "we will \
    capture 200,000 tonnes per year from 2029" are both claims — but the specific one \
    is more important and must not be omitted in favour of the heading.
-6. Call the extract_green_claims tool exactly once with the complete list.\
+6. If more than 10 claims are identified, prefer: (a) claims with specific quantities, \
+   percentages, or year targets; (b) claims referencing EU regulatory frameworks (SBTi, \
+   CSRD, EU ETS, Science Based Targets, EmpCo Directive); (c) claims that cover distinct \
+   environmental dimensions (e.g. Scope 1+2, Scope 3, carbon intensity, renewable energy, \
+   biodiversity are each distinct — keep one strong claim per dimension). Deprioritise \
+   vague mission statements and section headings that contain no measurable commitment.
+7. Do not extract near-duplicate claims. If the same commitment appears multiple times \
+   in the document with only minor wording differences, extract only the single most \
+   complete and specific version. Important: "net zero for Scope 1+2" and "net zero \
+   for Scope 3" are NOT duplicates — they cover different emission boundaries and both \
+   must be extracted. Only suppress true repeats of the same claim.
+8. Call the extract_green_claims tool exactly once with the complete list.\
 """
 
 # ---------------------------------------------------------------------------
