@@ -193,7 +193,8 @@ def extract_relevant_links(html: str, base_url: str, max_links: int = 5) -> list
     parser = _LinkExtractor()
     try:
         parser.feed(html)
-    except Exception:
+    except Exception as exc:
+        logger.debug(f"extract_relevant_links: HTML parse error for {base_url}: {exc}")
         return []
 
     seen: set[str] = {base_url.rstrip("/")}

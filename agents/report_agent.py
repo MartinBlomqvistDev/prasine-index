@@ -40,6 +40,24 @@ __all__ = [
 
 logger = get_logger(__name__)
 
+_REQUIRED_SECTIONS = (
+    "### The Claim",
+    "### Evidence",
+    "### Assessment",
+    "### Key Finding",
+    "### Disclaimer",
+)
+
+
+def _validate_report_sections(markdown: str, trace_id: object) -> None:
+    missing = [s for s in _REQUIRED_SECTIONS if s not in markdown]
+    if missing:
+        logger.warning(
+            f"Report missing required sections: {missing}",
+            extra={"operation": "report_section_missing", "trace_id": str(trace_id)},
+        )
+
+
 _SYSTEM_PROMPT = """\
 You are the report writer for Prasine Index, an independent EU corporate \
 greenwashing accountability system. Your reports are read by investigative \
@@ -239,6 +257,7 @@ class ReportAgent:
 
         async with agent_error_boundary(agent=AgentName.REPORT.value, operation="run"):
             report_markdown, tokens_used = await self._call_llm(input)
+            _validate_report_sections(report_markdown, input.claim.trace_id)
 
             logger.info(
                 f"Report generated ({len(report_markdown)} chars)",

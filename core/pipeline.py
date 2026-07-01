@@ -741,6 +741,14 @@ class Pipeline:
                     "error_type": type(exc).__name__,
                 },
             )
+            try:
+                await self._transition_claim_status(
+                    claim=claim,
+                    to_status=ClaimStatus.FAILED,
+                    transitioned_by=type(exc).__name__,
+                )
+            except Exception:
+                pass
             return None
 
     async def _fetch_and_populate(self, extraction_input: ExtractionInput) -> ExtractionInput:

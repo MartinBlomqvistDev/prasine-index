@@ -20,10 +20,12 @@ from __future__ import annotations
 import contextlib
 import csv
 import os
+import time
 from pathlib import Path
 
 from core.logger import get_logger
 from models.claim import Claim
+from models.company import Company
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
 __all__ = ["fetch_lobby_map_data", "refresh_cache"]
@@ -131,6 +133,8 @@ class _LobbyMapRecord:
 # Module-level cache: {normalised_company: _LobbyMapRecord}
 _cache_by_name: dict[str, _LobbyMapRecord] | None = None
 _cache_by_ticker: dict[str, _LobbyMapRecord] | None = None
+_cache_loaded_at: float = 0.0
+_CACHE_TTL_S: float = 86_400.0  # 24 hours
 
 
 def refresh_cache() -> None:
@@ -138,9 +142,10 @@ def refresh_cache() -> None:
 
     Call this after running scripts/refresh_lobbymap.py.
     """
-    global _cache_by_name, _cache_by_ticker
+    global _cache_by_name, _cache_by_ticker, _cache_loaded_at
     _cache_by_name = None
     _cache_by_ticker = None
+    _cache_loaded_at = 0.0
     logger.info("LobbyMap cache cleared.", extra={"operation": "lobbymap_cache_reset"})
 
 
@@ -180,11 +185,19 @@ def _normalise_name(name: str) -> str:
 
 
 def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]]:
-    """Return module-level caches, loading from disk on first call."""
-    global _cache_by_name, _cache_by_ticker
+    """Return module-level caches, loading from disk on first call or after TTL expiry."""
+    global _cache_by_name, _cache_by_ticker, _cache_loaded_at
 
     if _cache_by_name is not None:
-        return _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
+        age = time.monotonic() - _cache_loaded_at
+        if age < _CACHE_TTL_S:
+            return _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
+        logger.info(
+            f"LobbyMap cache expired after {age / 3600:.1f}h — reloading from disk.",
+            extra={"operation": "lobbymap_cache_expired"},
+        )
+        _cache_by_name = None
+        _cache_by_ticker = None
 
     if not _LM_CSV.exists():
         _cache_by_name = {}
@@ -233,6 +246,7 @@ def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]
 
     _cache_by_name = by_name
     _cache_by_ticker = by_ticker
+    _cache_loaded_at = time.monotonic()
 
     logger.info(
         f"LobbyMap cache loaded: {len(by_name)} companies",
@@ -269,7 +283,7 @@ def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
     return None
 
 
-async def fetch_lobby_map_data(claim: Claim, company: object) -> list[Evidence]:
+async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]:
     """Return LobbyMap lobbying alignment evidence for a company.
 
     Looks up the company's climate policy engagement score. Obstructive

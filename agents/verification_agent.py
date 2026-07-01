@@ -25,6 +25,7 @@ framework.
 
 from __future__ import annotations
 
+import asyncio
 import functools
 import operator
 import time
@@ -72,14 +73,30 @@ __all__ = [
 logger = get_logger(__name__)
 
 _SLOW_NODE_THRESHOLD_S = 20.0
+_NODE_HARD_TIMEOUT_S = 45.0
 
 
 def _with_timing(node_name: str, fn: Any) -> Any:
-    """Wrap a LangGraph node to emit a WARNING if it exceeds _SLOW_NODE_THRESHOLD_S."""
+    """Wrap a LangGraph node with a slow-node warning and a hard 45s timeout."""
 
     async def _wrapped(state: VerificationState) -> dict[str, Any]:
         t0 = time.monotonic()
-        result: dict[str, Any] = cast("dict[str, Any]", await fn(state))
+        try:
+            result: dict[str, Any] = cast(
+                "dict[str, Any]",
+                await asyncio.wait_for(fn(state), timeout=_NODE_HARD_TIMEOUT_S),
+            )
+        except asyncio.TimeoutError:
+            logger.warning(
+                f"TIMEOUT: {node_name} exceeded {_NODE_HARD_TIMEOUT_S:.0f}s hard limit — "
+                "skipping source, evidence marked as data gap",
+                extra={
+                    "operation": "verification_node_timeout",
+                    "node": node_name,
+                    "outcome": AgentOutcome.PARTIAL.value,
+                },
+            )
+            return {"evidence": [], "data_gaps": [f"{node_name}: timed out after {_NODE_HARD_TIMEOUT_S:.0f}s"]}
         elapsed = time.monotonic() - t0
         if elapsed > _SLOW_NODE_THRESHOLD_S:
             logger.warning(

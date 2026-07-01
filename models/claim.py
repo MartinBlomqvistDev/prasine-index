@@ -34,6 +34,7 @@ class ClaimStatus(StrEnum):
     SCORED = "SCORED"
     PUBLISHED = "PUBLISHED"
     MONITORING = "MONITORING"
+    FAILED = "FAILED"
 
 
 class ClaimCategory(StrEnum):
