@@ -402,7 +402,7 @@ class DiscoveryAgent:
                     # Discover sustainability-relevant subpages from raw HTML.
                     # Only one level deep — subpages of subpages are not followed.
                     if url in {u for u, _ in initial_urls}:
-                        for sub_url in extract_relevant_links(doc.raw_content, url, max_links=5):
+                        for sub_url in extract_relevant_links(doc.raw_content, url, max_links=20):
                             if sub_url not in queued:
                                 queued.add(sub_url)
                                 pending.append((sub_url, SourceType.IR_PAGE))

@@ -418,8 +418,8 @@ class Pipeline:
         company_id: uuid.UUID,
         source_url: str,
         source_type: SourceType = SourceType.IR_PAGE,
-        max_subpages: int = 5,
-        max_claims: int = 5,
+        max_subpages: int = 20,
+        max_claims: int = 7,
     ) -> list[PipelineResult]:
         """Fetch a URL, discover relevant sustainability subpages, run pipeline on top claims.
 
@@ -552,8 +552,8 @@ class Pipeline:
         company_id: uuid.UUID,
         source_url: str,
         source_type: SourceType = SourceType.IR_PAGE,
-        max_subpages: int = 5,
-        max_claims: int = 5,
+        max_subpages: int = 20,
+        max_claims: int = 7,
     ) -> list[Claim]:
         """Fetch a URL and return ranked extracted claims WITHOUT running verification/judge/report.
 
