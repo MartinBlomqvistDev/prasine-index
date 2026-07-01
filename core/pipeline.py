@@ -19,6 +19,7 @@ from typing import Any
 
 import anthropic
 import httpx
+from playwright.async_api import async_playwright
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 
@@ -78,6 +79,170 @@ def _html_to_text(html: str) -> str:
     extractor = _TextExtractor()
     extractor.feed(html)
     return extractor.get_text()
+
+
+# Below this character count, httpx content is treated as a JS-rendered SPA shell
+# and Playwright takes over.
+_SPA_THRESHOLD = 500
+
+_FETCH_HEADERS: dict[str, str] = {
+    "User-Agent": (
+        "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
+        "+https://github.com/MartinBlomqvistDev/prasine-index)"
+    ),
+    "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
+    "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
+}
+
+
+async def _fetch_pages(
+    source_url: str,
+    http_client: httpx.AsyncClient,
+    max_subpages: int,
+) -> list[tuple[str, str]]:
+    """Fetch an entry URL and its sustainability subpages.
+
+    Tries httpx first (fast, no overhead). If the entry page yields fewer than
+    _SPA_THRESHOLD chars after HTML-to-text, the page is assumed to be a
+    JS-rendered SPA and Playwright takes over for the full crawl.
+
+    Args:
+        source_url: Entry-point URL.
+        http_client: Shared async HTTP client.
+        max_subpages: Maximum additional subpages to follow.
+
+    Returns:
+        List of (url, extracted_text) pairs, entry page first.
+
+    Raises:
+        RuntimeError: If the entry page cannot be fetched.
+    """
+    try:
+        resp = await http_client.get(source_url, headers=_FETCH_HEADERS)
+        resp.raise_for_status()
+    except httpx.HTTPError as exc:
+        raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
+
+    raw_html = resp.text
+    entry_text = _html_to_text(raw_html)[:_MAX_FETCH_CHARS]
+
+    if len(entry_text) < _SPA_THRESHOLD:
+        _log = get_logger(__name__)
+        _log.info(
+            f"_fetch_pages: thin content ({len(entry_text)} chars) at {source_url} "
+            "— switching to Playwright for JS rendering",
+            extra={"operation": "pipeline_playwright_fallback", "url": source_url},
+        )
+        return await _fetch_pages_playwright(source_url, raw_html, max_subpages)
+
+    # Static site path — httpx for all subpages.
+    pages: list[tuple[str, str]] = []
+    if entry_text:
+        pages.append((source_url, entry_text))
+
+    seen: set[str] = {source_url.rstrip("/")}
+    for sub_url in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
+        if sub_url in seen:
+            continue
+        seen.add(sub_url)
+        try:
+            sub_resp = await http_client.get(sub_url, headers=_FETCH_HEADERS)
+            sub_resp.raise_for_status()
+            sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
+            if sub_text:
+                pages.append((sub_url, sub_text))
+        except Exception as exc:
+            get_logger(__name__).warning(
+                f"_fetch_pages: skipping subpage {sub_url}: {exc}",
+                extra={"operation": "pipeline_subpage_failed", "url": sub_url},
+            )
+
+    return pages
+
+
+async def _fetch_pages_playwright(
+    source_url: str,
+    server_html: str,
+    max_subpages: int,
+) -> list[tuple[str, str]]:
+    """Render an entry URL and its subpages with a headless Chromium browser.
+
+    Used when httpx returns thin content from a JS-rendered SPA. Launches one
+    browser instance, renders the entry page (waiting 3 s for hydration), then
+    follows subpage links and renders each one in sequence.
+
+    Link extraction prefers the rendered DOM over the server HTML, falling back
+    to server HTML when the rendered DOM yields fewer links (handles SPAs where
+    the nav links are already in the server response for SEO).
+
+    Args:
+        source_url: Entry-point URL.
+        server_html: Raw HTML from the initial httpx fetch — used as fallback
+            source for link extraction.
+        max_subpages: Maximum subpages to render.
+
+    Returns:
+        List of (url, extracted_text) pairs.
+    """
+    _log = get_logger(__name__)
+    pages: list[tuple[str, str]] = []
+    seen: set[str] = {source_url.rstrip("/")}
+
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch(headless=True)
+        ctx = await browser.new_context(
+            user_agent=_FETCH_HEADERS["User-Agent"],
+            locale="en-GB",
+        )
+        try:
+            # Render entry page and wait for JS hydration.
+            page = await ctx.new_page()
+            await page.goto(source_url, wait_until="domcontentloaded", timeout=30_000)
+            await page.wait_for_timeout(3_000)
+            rendered_html = await page.content()
+            entry_text = _html_to_text(rendered_html)[:_MAX_FETCH_CHARS]
+            if entry_text:
+                pages.append((source_url, entry_text))
+            await page.close()
+
+            # Prefer rendered-DOM links (catches JS-injected <a> tags); fall back
+            # to server HTML links when the server already has them for SEO.
+            rendered_links = list(
+                extract_relevant_links(rendered_html, source_url, max_links=max_subpages)
+            )
+            server_links = list(
+                extract_relevant_links(server_html, source_url, max_links=max_subpages)
+            )
+            sub_urls = rendered_links if len(rendered_links) >= len(server_links) else server_links
+
+            for sub_url in sub_urls:
+                if sub_url in seen:
+                    continue
+                seen.add(sub_url)
+                try:
+                    sub_page = await ctx.new_page()
+                    await sub_page.goto(sub_url, wait_until="domcontentloaded", timeout=30_000)
+                    await sub_page.wait_for_timeout(2_000)
+                    sub_text = _html_to_text(await sub_page.content())[:_MAX_FETCH_CHARS]
+                    if sub_text:
+                        pages.append((sub_url, sub_text))
+                        _log.info(
+                            f"_fetch_pages_playwright: rendered {sub_url}",
+                            extra={"operation": "pipeline_playwright_subpage", "url": sub_url},
+                        )
+                    await sub_page.close()
+                except Exception as exc:
+                    _log.warning(
+                        f"_fetch_pages_playwright: skipping {sub_url}: {exc}",
+                        extra={
+                            "operation": "pipeline_playwright_subpage_failed",
+                            "url": sub_url,
+                        },
+                    )
+        finally:
+            await browser.close()
+
+    return pages
 
 
 logger = get_logger(__name__)
@@ -438,53 +603,12 @@ class Pipeline:
         Returns:
             List of :py:class:`PipelineResult` for the top *max_claims* claims.
         """
-        _headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-                "+https://github.com/MartinBlomqvistDev/prasine-index)"
-            ),
-            "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
-            "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
-        }
-
-        # --- Phase 1: fetch all pages (cheap) ---
+        # --- Phase 1: fetch all pages (cheap; Playwright fallback for SPAs) ---
         logger.info(
             f"run_from_url: fetching {source_url}",
             extra={"operation": "pipeline_run_from_url", "url": source_url},
         )
-        try:
-            resp = await self._http_client.get(source_url, headers=_headers)
-            resp.raise_for_status()
-        except httpx.HTTPError as exc:
-            raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
-
-        raw_html = resp.text
-        pages: list[tuple[str, str]] = []  # (url, extracted_text)
-        entry_text = _html_to_text(raw_html)[:_MAX_FETCH_CHARS]
-        if entry_text:
-            pages.append((source_url, entry_text))
-
-        seen: set[str] = {source_url.rstrip("/")}
-        for sub_url in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
-            if sub_url in seen:
-                continue
-            seen.add(sub_url)
-            try:
-                sub_resp = await self._http_client.get(sub_url, headers=_headers)
-                sub_resp.raise_for_status()
-                sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
-                if sub_text:
-                    pages.append((sub_url, sub_text))
-                    logger.info(
-                        f"run_from_url: discovered subpage {sub_url}",
-                        extra={"operation": "pipeline_subpage_fetched", "url": sub_url},
-                    )
-            except Exception as exc:
-                logger.warning(
-                    f"run_from_url: skipping subpage {sub_url}: {exc}",
-                    extra={"operation": "pipeline_subpage_failed", "url": sub_url},
-                )
-
+        pages = await _fetch_pages(source_url, self._http_client, max_subpages)
         logger.info(
             f"run_from_url: {len(pages)} page(s) fetched for {source_url}",
             extra={"operation": "pipeline_run_from_url_pages", "count": len(pages)},
@@ -566,39 +690,7 @@ class Pipeline:
         Returns:
             Ranked list of extracted :py:class:`~models.claim.Claim` objects.
         """
-        _headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-                "+https://github.com/MartinBlomqvistDev/prasine-index)"
-            ),
-            "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
-            "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
-        }
-
-        try:
-            resp = await self._http_client.get(source_url, headers=_headers)
-            resp.raise_for_status()
-        except httpx.HTTPError as exc:
-            raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
-
-        pages: list[tuple[str, str]] = []
-        entry_text = _html_to_text(resp.text)[:_MAX_FETCH_CHARS]
-        if entry_text:
-            pages.append((source_url, entry_text))
-
-        seen: set[str] = {source_url.rstrip("/")}
-        for sub_url in extract_relevant_links(resp.text, source_url, max_links=max_subpages):
-            if sub_url in seen:
-                continue
-            seen.add(sub_url)
-            try:
-                sub_resp = await self._http_client.get(sub_url, headers=_headers)
-                sub_resp.raise_for_status()
-                sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
-                if sub_text:
-                    pages.append((sub_url, sub_text))
-            except Exception:
-                pass
+        pages = await _fetch_pages(source_url, self._http_client, max_subpages)
 
         all_claims: list[Claim] = []
         for page_url, page_content in pages:
@@ -767,17 +859,7 @@ class Pipeline:
             extra={"operation": "pipeline_fetch_document", "url": url},
         )
         try:
-            response = await self._http_client.get(
-                url,
-                headers={
-                    "User-Agent": (
-                        "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-                        "+https://github.com/MartinBlomqvistDev/prasine-index)"
-                    ),
-                    "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
-                    "Accept-Language": "en-GB,en;q=0.9",
-                },
-            )
+            response = await self._http_client.get(url, headers=_FETCH_HEADERS)
             response.raise_for_status()
         except httpx.HTTPError as exc:
             raise RuntimeError(f"Failed to fetch {url}: {exc}") from exc
@@ -788,9 +870,15 @@ class Pipeline:
                 f"{url} returned a PDF. Download it and pass the text via --claim instead."
             )
 
-        raw_text = _html_to_text(response.text)
-        if len(raw_text) > _MAX_FETCH_CHARS:
-            raw_text = raw_text[:_MAX_FETCH_CHARS]
+        raw_text = _html_to_text(response.text)[:_MAX_FETCH_CHARS]
+        if len(raw_text) < _SPA_THRESHOLD:
+            logger.info(
+                f"_fetch_and_populate: thin content ({len(raw_text)} chars) at {url} "
+                "— switching to Playwright",
+                extra={"operation": "pipeline_playwright_fallback", "url": url},
+            )
+            pages = await _fetch_pages_playwright(url, response.text, max_subpages=0)
+            raw_text = pages[0][1] if pages else raw_text
 
         logger.info(
             f"Fetched {len(raw_text)} chars from {url}",

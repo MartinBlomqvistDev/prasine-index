@@ -45,6 +45,10 @@ pydantic>=2.9.0
 # httpx — async HTTP client for ingest modules and Lobbying Agent
 httpx>=0.27.0
 
+# playwright — headless Chromium fallback for JS-rendered (SPA) pages
+# After install: playwright install chromium
+playwright>=1.40.0
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
