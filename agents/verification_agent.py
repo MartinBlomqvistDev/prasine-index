@@ -96,7 +96,10 @@ def _with_timing(node_name: str, fn: Any) -> Any:
                     "outcome": AgentOutcome.PARTIAL.value,
                 },
             )
-            return {"evidence": [], "data_gaps": [f"{node_name}: timed out after {_NODE_HARD_TIMEOUT_S:.0f}s"]}
+            return {
+                "evidence": [],
+                "data_gaps": [f"{node_name}: timed out after {_NODE_HARD_TIMEOUT_S:.0f}s"],
+            }
         elapsed = time.monotonic() - t0
         if elapsed > _SLOW_NODE_THRESHOLD_S:
             logger.warning(
