@@ -29,7 +29,7 @@ function renderInline(text: string): React.ReactNode[] {
 }
 
 export default function HomePage() {
-  const summaries = loadReportSummaries(SLUGS)
+  const summaries = loadReportSummaries(SLUGS).sort((a, b) => b.score - a.score)
 
   const featuredPath = join(process.cwd(), '..', 'docs', 'reports', 'ryanair-holdings-plc.md')
   const featured = existsSync(featuredPath)
