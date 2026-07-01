@@ -254,26 +254,26 @@ async def run(
         for i, r in enumerate(results, start=1):
             out_path = _REPORTS_DIR / f"{slug}-{i}.md"
             out_path.write_text(r.report_markdown or "No report generated.", encoding="utf-8")
-            print(f"\n{'─' * 60}")
-            print(f"Claim {i}/{len(results)} — {company_name}")
+            print(f"\n{'-' * 60}")
+            print(f"Claim {i}/{len(results)} -- {company_name}")
             print(f"  Verdict : {r.score.verdict.value}")
             print(f"  Score   : {r.score.score:.0f}/100")
             print(f"  Text    : {(r.claim.raw_text or '')[:120]}")
             print(f"  Report  : {out_path}")
-            print(f"{'─' * 60}\n")
+            print(f"{'-' * 60}\n")
 
         # Aggregate all claims into a company-level score.
         company_score = aggregate_claim_scores(company_name, company_id, results)
         n = company_score.claim_count
-        print(f"\n{'═' * 60}")
-        print(f"Company Assessment — {company_name}")
+        print(f"\n{'=' * 60}")
+        print(f"Company Assessment -- {company_name}")
         print(
             f"  Overall score : {company_score.score:.0f}/100  "
             f"(confidence-weighted, {n} claim{'s' if n != 1 else ''})"
         )
-        print(f"  Score range   : {company_score.score_low:.0f}–{company_score.score_high:.0f}")
+        print(f"  Score range   : {company_score.score_low:.0f}-{company_score.score_high:.0f}")
         print(f"  Verdict       : {company_score.verdict.value}")
-        print(f"{'═' * 60}\n")
+        print(f"{'=' * 60}\n")
 
         # Write the canonical report: aggregate header + highest-scoring claim detail + manifest.
         best = max(results, key=lambda r: r.score.score)
