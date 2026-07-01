@@ -64,7 +64,7 @@ Mitigating factors — SBTi "Targets set" status and TPI's "Below 2 Degrees" 205
 
 **(b) Green Claims Directive (enforcement from September 2026):** Under GCD mandatory substantiation requirements, this claim would require independent third-party verification of the net-zero pathway, interim milestones, and removal mechanisms before publication. As currently structured, the claim is not ready for GCD scrutiny and would likely fail it, given the absence of any independently verified transition plan.
 
-**Under EmpCo Directive Article [X]**, this claim is subject to enforcement by national consumer authorities. Complaints may be filed with the relevant national consumer protection authority — in Ryanair's home jurisdiction, the Competition and Consumer Protection Commission (CCPC) of Ireland, or with the UK Advertising Standards Authority given its prior jurisdiction over an equivalent Ryanair claim.
+**Under UCPD Article 11 (as amended by the EmpCo Directive, EU 2024/825)**, this claim is subject to enforcement by national consumer authorities. Complaints may be filed with the relevant national consumer protection authority — in Ryanair's home jurisdiction, the Competition and Consumer Protection Commission (CCPC) of Ireland, or with the UK Advertising Standards Authority given its prior jurisdiction over an equivalent Ryanair claim.
 
 ### Key Finding
 Ryanair Holdings plc's Net Zero by 2050 pledge is contradicted by its own LobbyMap D+ (Obstructive) climate policy engagement rating — a company actively documented as opposing or delaying climate legislation is simultaneously marketing a net-zero commitment it cannot structurally substantiate, and has a prior ASA ruling (2020) finding a comparable emissions claim misleading.

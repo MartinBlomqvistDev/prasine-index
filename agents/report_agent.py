@@ -106,9 +106,9 @@ claim, make this the lead finding.]
 (b) Green Claims Directive (enforcement begins September 2026): Under mandatory substantiation
     requirements, would this claim require independent verification? State whether the claim
     appears ready for GCD scrutiny or would likely fail it.
-(c) If empco_violation=True, include: "Under EmpCo Directive Article [X], this claim is
-    subject to enforcement by national consumer authorities. Complaints may be filed with
-    [relevant national authority]."
+(c) If empco_violation=True, include: "Under UCPD Article 11 (as amended by the EmpCo
+    Directive, EU 2024/825), this claim is subject to enforcement by national consumer
+    protection authorities. Complaints may be filed with [relevant national authority]."
 If the claim is clearly out of EmpCo scope (e.g. a non-environmental claim), omit this section.]
 
 ### Key Finding
