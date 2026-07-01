@@ -11,7 +11,12 @@ import uuid
 
 import pytest
 
-from core.pipeline import _claim_priority_score, _deduplicate_claims, _diversify_claims
+from core.pipeline import (
+    _MAX_CLAIMS_PER_CATEGORY,
+    _claim_priority_score,
+    _deduplicate_claims,
+    _diversify_claims,
+)
 from models.claim import Claim, ClaimCategory, SourceType
 
 # ---------------------------------------------------------------------------
@@ -145,23 +150,30 @@ class TestDiversifyClaims:
         assert len(result) == 2
 
     def test_respects_max_claims(self) -> None:
+        # Per-category cap hits before max_claims when all claims share a category.
         claims = [_claim(f"Claim {i}", ClaimCategory.NET_ZERO_TARGET) for i in range(10)]
-        result = _diversify_claims(claims, max_claims=3)
-        assert len(result) == 3
+        result = _diversify_claims(claims, max_claims=7)
+        assert len(result) == _MAX_CLAIMS_PER_CATEGORY
 
-    def test_one_per_category_first_pass(self) -> None:
+    def test_per_category_cap_enforced(self) -> None:
+        # No category may appear more than _MAX_CLAIMS_PER_CATEGORY times,
+        # even when max_claims is large enough to admit more.
         claims = [
             _claim("Net zero A.", ClaimCategory.NET_ZERO_TARGET),
             _claim("Net zero B.", ClaimCategory.NET_ZERO_TARGET),
+            _claim("Net zero C.", ClaimCategory.NET_ZERO_TARGET),
             _claim("Renewable A.", ClaimCategory.RENEWABLE_ENERGY),
             _claim("Renewable B.", ClaimCategory.RENEWABLE_ENERGY),
             _claim("SBTi validated.", ClaimCategory.SCIENCE_BASED_TARGETS),
         ]
-        result = _diversify_claims(claims, max_claims=3)
-        categories = [c.claim_category.value for c in result]
-        assert len(set(categories)) == 3, "First 3 slots must be distinct categories"
+        result = _diversify_claims(claims, max_claims=7)
+        from collections import Counter
 
-    def test_fills_remaining_slots_after_diversity_pass(self) -> None:
+        counts = Counter(c.claim_category.value for c in result)
+        assert max(counts.values()) <= _MAX_CLAIMS_PER_CATEGORY
+
+    def test_cap_drops_excess_same_category(self) -> None:
+        # Third NET_ZERO_TARGET is dropped; only 3 claims survive (2 NET_ZERO + 1 RENEWABLE).
         claims = [
             _claim("Net zero A.", ClaimCategory.NET_ZERO_TARGET),
             _claim("Renewable A.", ClaimCategory.RENEWABLE_ENERGY),
@@ -169,9 +181,9 @@ class TestDiversifyClaims:
             _claim("Net zero C.", ClaimCategory.NET_ZERO_TARGET),
         ]
         result = _diversify_claims(claims, max_claims=4)
-        assert len(result) == 4
+        assert len(result) == 3
         categories = [c.claim_category.value for c in result]
-        assert categories.count(ClaimCategory.NET_ZERO_TARGET.value) == 3
+        assert categories.count(ClaimCategory.NET_ZERO_TARGET.value) == _MAX_CLAIMS_PER_CATEGORY
 
     def test_max_claims_zero_returns_empty(self) -> None:
         claims = [_claim("Net zero by 2040.", ClaimCategory.NET_ZERO_TARGET)]

@@ -164,32 +164,27 @@ def _deduplicate_claims(claims: list[Claim], containment_threshold: float = 0.80
     return [c for c, _ in kept]
 
 
-def _diversify_claims(claims: list[Claim], max_claims: int) -> list[Claim]:
-    """Select up to max_claims with category diversity.
+_MAX_CLAIMS_PER_CATEGORY = 2
 
-    Claims must already be sorted by priority (highest first). Pass 1 picks
-    the top-scoring claim from each distinct category. Pass 2 fills any
-    remaining slots with the next highest overall. Falls back gracefully to
-    top-N when the pool lacks diversity.
+
+def _diversify_claims(claims: list[Claim], max_claims: int) -> list[Claim]:
+    """Select up to max_claims with category diversity and a per-category cap.
+
+    Claims must already be sorted by priority (highest first). Each category
+    contributes at most _MAX_CLAIMS_PER_CATEGORY claims — preventing a
+    dominant category (e.g. NET_ZERO_TARGET) from consuming all Opus slots
+    when a company repeats the same claim type across multiple pages.
     """
     selected: list[Claim] = []
-    seen_categories: set[str] = set()
-    remainder: list[Claim] = []
+    category_counts: dict[str, int] = {}
 
     for claim in claims:
         if len(selected) >= max_claims:
             break
         cat = claim.claim_category.value
-        if cat not in seen_categories:
-            seen_categories.add(cat)
+        if category_counts.get(cat, 0) < _MAX_CLAIMS_PER_CATEGORY:
+            category_counts[cat] = category_counts.get(cat, 0) + 1
             selected.append(claim)
-        else:
-            remainder.append(claim)
-
-    for claim in remainder:
-        if len(selected) >= max_claims:
-            break
-        selected.append(claim)
 
     return selected
 
