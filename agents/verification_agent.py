@@ -86,7 +86,7 @@ def _with_timing(node_name: str, fn: Any) -> Any:
                 "dict[str, Any]",
                 await asyncio.wait_for(fn(state), timeout=_NODE_HARD_TIMEOUT_S),
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.warning(
                 f"TIMEOUT: {node_name} exceeded {_NODE_HARD_TIMEOUT_S:.0f}s hard limit — "
                 "skipping source, evidence marked as data gap",

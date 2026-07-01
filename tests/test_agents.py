@@ -15,8 +15,6 @@ from __future__ import annotations
 import time
 import uuid
 
-import pytest
-
 from models.claim import Claim, ClaimCategory, ClaimStatus, SourceType
 
 # ---------------------------------------------------------------------------

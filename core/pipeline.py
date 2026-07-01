@@ -9,6 +9,7 @@ trail of everything that succeeded.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import re
 import uuid
@@ -741,14 +742,12 @@ class Pipeline:
                     "error_type": type(exc).__name__,
                 },
             )
-            try:
+            with contextlib.suppress(Exception):
                 await self._transition_claim_status(
                     claim=claim,
                     to_status=ClaimStatus.FAILED,
                     transitioned_by=type(exc).__name__,
                 )
-            except Exception:
-                pass
             return None
 
     async def _fetch_and_populate(self, extraction_input: ExtractionInput) -> ExtractionInput:
