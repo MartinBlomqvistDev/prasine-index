@@ -321,8 +321,9 @@ if __name__ == "__main__":
         "--max-claims",
         type=int,
         default=7,
-        help="Maximum number of claims to assess across all discovered pages. "
-        "Caps token spend. Default: 7 (covers all meaningful claim categories).",
+        help="Ceiling on claims sent through the full pipeline (verification + judge + report). "
+        "Extraction targets a larger candidate pool and deduplicates before this cap is applied "
+        "— actual Opus calls may be fewer. Cost: ~$0.17/claim. Default: 7.",
     )
     parser.add_argument(
         "--judge-model",
