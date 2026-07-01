@@ -1,6 +1,50 @@
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 import ApplyForm from './apply-form'
+import { parseReport, verdictFromScore, loadReportSummaries } from '../lib/parse-report'
+
+const SLUGS = [
+  'ryanair-holdings-plc',
+  'bp-plc',
+  'glencore-plc',
+  'enel-spa',
+  'ikea-group',
+  'h-m-group',
+]
+
+function verdictFromString(v: string): { cls: string; label: string } {
+  const u = v.toUpperCase()
+  if (u.includes('CONFIRMED'))    return { cls: 'confirmed',    label: 'Confirmed'          }
+  if (u.includes('LIKELY'))       return { cls: 'greenwashing', label: 'Likely greenwashing' }
+  if (u.includes('MISLEADING'))   return { cls: 'misleading',   label: 'Misleading claim'   }
+  if (u.includes('UNVERIFIABLE')) return { cls: 'insufficient', label: 'Unverifiable claim'  }
+  return                                 { cls: 'substantiated', label: 'Substantiated claim' }
+}
+
+function renderInline(text: string): React.ReactNode[] {
+  const parts = text.split(/\*\*([^*]+)\*\*/g)
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+  )
+}
 
 export default function HomePage() {
+  const summaries = loadReportSummaries(SLUGS)
+
+  const featuredPath = join(process.cwd(), '..', 'docs', 'reports', 'ryanair-holdings-plc.md')
+  const featured = existsSync(featuredPath)
+    ? parseReport(readFileSync(featuredPath, 'utf-8'))
+    : null
+
+  const counts = { confirmed: 0, likely: 0, misleading: 0, substantiated: 0 }
+  for (const s of summaries) {
+    const u = s.verdict.toUpperCase()
+    if (u.includes('CONFIRMED'))    counts.confirmed++
+    else if (u.includes('LIKELY'))  counts.likely++
+    else if (u.includes('MISLEADING') || u.includes('UNVERIFIABLE')) counts.misleading++
+    else counts.substantiated++
+  }
+
   return (
     <>
       {/* ── Nav ── */}
@@ -29,318 +73,129 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Report ── */}
-      <section className="report-section">
-        <div className="doc-container">
+      {/* ── Featured report (dynamic) ── */}
+      {featured && (
+        <section className="report-section">
+          <div className="doc-container">
 
-          <div className="report-meta">
-            <span className="report-label">Assessment</span>
-            <span className="report-date">26 June 2026</span>
-          </div>
-
-          <h1 className="report-company">Ryanair Holdings plc</h1>
-          <p className="report-details">Ireland · Aviation · CSRD obligated · Assessed 2026-06-26</p>
-
-          {/* ── Aggregate summary ── */}
-          <div className="report-verdict-line" style={{ marginTop: '1.5rem' }}>
-            <span className="verdict-word confirmed">Confirmed greenwashing</span>
-            <span className="verdict-score">83 / 100</span>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.25rem' }}>
-            Confidence-weighted aggregate across 5 claims · range 80–89
-          </p>
-
-          {/* ── Claim overview table ── */}
-          <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
-            <thead>
-              <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>84 / 100</td>
-                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}>&ldquo;the ambitious goals we&apos;ve set to reach net-zero carbon emissions by 2050&rdquo;</td>
-              </tr>
-              <tr style={{ background: 'var(--surface-alt, #f7f7f7)' }}>
-                <td><strong>86 / 100</strong></td>
-                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}><strong>&ldquo;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal by 2050, which aligns with the Paris Agreement&hellip;&rdquo; &mdash; detailed below</strong></td>
-              </tr>
-              <tr>
-                <td>82 / 100</td>
-                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}>&ldquo;Work with suppliers to increase sustainable aviation fuel (SAF) with industry-leading SAF goals &gt;10% by 2030.&rdquo;</td>
-              </tr>
-              <tr>
-                <td>82 / 100</td>
-                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}>&ldquo;By appointing best-in class researchers, we&apos;ll achieve our goal of powering 12.5% of our flights with SAF by 2030.&rdquo;</td>
-              </tr>
-              <tr>
-                <td>82 / 100</td>
-                <td><span className="verdict-badge badge-confirmed">Confirmed</span></td>
-                <td style={{ fontSize: 12 }}>&ldquo;Our goal is 12.5% SAF usage by 2030.&rdquo;</td>
-              </tr>
-            </tbody>
-          </table>
-
-          {/* ── Claim detail divider ── */}
-          <p style={{ fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
-            Detailed assessment of claim 2 (highest-scoring) follows.
-          </p>
-
-          <div className="report-claim">
-            <div className="claim-attr">Claim extracted from corporate.ryanair.com/sustainability/pathway-to-net-zero</div>
-            <blockquote>
-              &quot;We&apos;ve developed a pathway to achieve our net-zero carbon emissions goal
-              by 2050, which aligns with the Paris Agreement and the aviation industry&apos;s
-              Destination 2050 initiative.&quot;
-            </blockquote>
-          </div>
-
-          <div className="report-verdict-line">
-            <span className="verdict-word confirmed">Confirmed greenwashing</span>
-            <span className="verdict-score">86 / 100</span>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Range 82–90 · Confidence 86% · Trace af429cf9</p>
-
-          <div className="report-body">
-
-            <div className="key-finding">
-              <p className="key-finding-label">Key finding</p>
-              <p>
-                Ryanair holds a D+ obstructive climate-lobbying rating from LobbyMap, meaning it
-                actively opposes or delays the climate legislation its own net-zero pledge depends
-                on — and its self-published pathway relies on 24% carbon offsetting, a basis
-                expressly blacklisted for net-zero claims under the EmpCo Directive (EU 2024/825).
-              </p>
+            <div className="report-meta">
+              <span className="report-label">Assessment</span>
+              {featured.publishDate && <span className="report-date">{featured.publishDate}</span>}
             </div>
 
-            <h2>Evidence</h2>
+            <h1 className="report-company">{featured.company}</h1>
+            <p className="report-details">
+              {featured.claimCount} claim{featured.claimCount !== 1 ? 's' : ''} assessed · Prasine Index
+              {featured.traceId && (
+                <> · <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11 }}>trace {featured.traceId.slice(0, 8)}</span></>
+              )}
+            </p>
 
-            <p className="ev-group-label">Contradicting evidence</p>
-            <div className="evidence-doc">
-              <div className="ev-entry">
-                <div className="ev-number">1</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">LobbyMap D+ (Obstructive) + EU Transparency Register</p>
-                  <p className="ev-finding">
-                    LobbyMap rates Ryanair <strong>D+ (Obstructive)</strong> — actively opposing
-                    or delaying climate legislation while making green claims (confidence 0.85).
-                    This is corroborated by the EU Transparency Register, which confirms Ryanair
-                    is an actively registered direct corporate lobbyist (reg. no. 002977215945-85,
-                    HQ Ireland, confidence 0.75). A company obstructing the policy framework its
-                    own 2050 pledge depends on cannot reconcile that pledge with its conduct.
-                    Under Prasine scoring, a D/D+ LobbyMap rating alone triggers CONFIRMED status.
-                  </p>
-                  <p className="ev-weight contra">Independent trigger · confidence 0.85</p>
-                </div>
+            <div className="report-verdict-line" style={{ marginTop: '1.5rem' }}>
+              <span className={`verdict-word ${verdictFromString(featured.verdict).cls}`}>
+                {verdictFromString(featured.verdict).label === 'Confirmed'
+                  ? 'Confirmed greenwashing'
+                  : verdictFromString(featured.verdict).label}
+              </span>
+              <span className="verdict-score">{featured.overallScore} / 100</span>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.25rem' }}>
+              Aggregate across {featured.claimCount} claim{featured.claimCount !== 1 ? 's' : ''} · range {featured.scoreRange}
+            </p>
+
+            {featured.claims.length > 0 && (
+              <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
+                <thead>
+                  <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
+                </thead>
+                <tbody>
+                  {featured.claims.map(c => {
+                    const isDetail = c.score === featured.detailScore
+                    const vf = verdictFromScore(c.score)
+                    return (
+                      <tr key={c.num} style={isDetail ? { background: 'var(--surface-alt, #f7f7f7)' } : {}}>
+                        <td style={isDetail ? { fontWeight: 700 } : {}}>{c.score} / 100</td>
+                        <td><span className={`verdict-badge badge-${vf.cls}`}>{vf.label}</span></td>
+                        <td style={{ fontSize: 12 }}>
+                          {isDetail
+                            ? <strong>&ldquo;{c.text}&rdquo; &mdash; detailed below</strong>
+                            : <>&ldquo;{c.text}&rdquo;</>}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+
+            <p style={{ fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
+              Detailed assessment of highest-scoring claim ({featured.detailScore} / 100) follows.
+            </p>
+
+            {featured.claim && (
+              <div className="report-claim">
+                {featured.claimSource && <div className="claim-attr">{featured.claimSource}</div>}
+                <blockquote>&ldquo;{featured.claim}&rdquo;</blockquote>
               </div>
+            )}
 
-              <div className="ev-entry">
-                <div className="ev-number">2</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">UK ASA Ruling G20-1089921 (2020)</p>
-                  <p className="ev-finding">
-                    The Advertising Standards Authority found Ryanair&apos;s &quot;lowest carbon
-                    emissions&quot; claim <strong>CONFIRMED MISLEADING</strong> — Ryanair could
-                    not substantiate lower CO₂ per passenger than comparable airlines on a
-                    like-for-like basis. This establishes a documented prior violation within the
-                    same claim category. Under the Prasine framework, a prior ruling against an
-                    equivalent claim type independently triggers CONFIRMED status.
-                  </p>
-                  <p className="ev-weight contra">Independent trigger · confidence 0.90</p>
-                </div>
-              </div>
+            <div className="report-verdict-line">
+              <span className={`verdict-word ${verdictFromString(featured.detailVerdict).cls}`}>
+                {verdictFromString(featured.detailVerdict).label === 'Confirmed'
+                  ? 'Confirmed greenwashing'
+                  : verdictFromString(featured.detailVerdict).label}
+              </span>
+              <span className="verdict-score">{featured.detailScore} / 100</span>
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+              Range {featured.detailRange} · Confidence {featured.detailConfidence}%
+            </p>
 
-              <div className="ev-entry">
-                <div className="ev-number">3</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">Ryanair Self-Disclosure — Pathway to Net Zero (2024)</p>
-                  <p className="ev-finding">
-                    Ryanair&apos;s own pathway document reveals that 24% of its net-zero plan
-                    relies on &ldquo;offsetting and other economic measures&rdquo; — a basis
-                    expressly blacklisted under the EmpCo Directive. The document states no
-                    explicit baseline year, no 2035/2040 interim targets, no
-                    abatement-versus-certified-removal split, and no verified transition plan.
-                    It also contradicts itself: prioritises carbon reduction over offsetting
-                    while assigning nearly a quarter of the pathway to offsets. The 34% SAF
-                    component currently sits at the EU-mandated 2% against a &gt;10% 2030 target.
-                  </p>
-                  <p className="ev-weight contra">Substantiation failure · confidence 0.95</p>
+            <div className="report-body">
+              {featured.keyFinding && (
+                <div className="key-finding">
+                  <p className="key-finding-label">Key finding</p>
+                  <p>{renderInline(featured.keyFinding)}</p>
                 </div>
-              </div>
+              )}
 
-              <div className="ev-entry">
-                <div className="ev-number">4</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">European Commission CPC Investigation (2024)</p>
-                  <p className="ev-finding">
-                    The EC and national consumer protection authorities launched a coordinated
-                    investigation under CPC Regulation 2017/2394 into Ryanair&apos;s environmental
-                    claims on carbon emissions, offsetting, and sustainability credentials.
-                    On 6 November 2025, Ryanair was among 21 airlines that reached a formal
-                    settlement with the CPC Network, committing to remove or revise misleading
-                    environmental claims. No fine was issued, but the settlement constitutes a
-                    concluded regulatory determination.
-                  </p>
-                  <p className="ev-weight contra">Regulatory settlement · confidence 0.70</p>
-                </div>
+              {featured.assessmentParas.length > 0 && (
+                <>
+                  <h2>Assessment</h2>
+                  <div className="report-reasoning">
+                    {featured.assessmentParas.map((para, i) => (
+                      <p key={i}>{renderInline(para)}</p>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div style={{ marginTop: '1.5rem' }}>
+                <a href="/reports/ryanair-holdings-plc" className="nav-btn">
+                  Full evidence chain and data sources
+                </a>
               </div>
             </div>
 
-            <p className="ev-group-label">Legislative framework</p>
-            <div className="evidence-doc">
-              <div className="ev-entry">
-                <div className="ev-number">5</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">EmpCo Directive (EU 2024/825) — Blacklisted Claim Type</p>
-                  <p className="ev-finding">
-                    In force since March 2024, the EmpCo Directive amends UCPD Annex I to require
-                    that net-zero claims demonstrate: a baseline emissions year, interim targets,
-                    a split between abatement and certified permanent removal, and a verified
-                    transition plan. Claims based on carbon offsetting are expressly blacklisted.
-                    Ryanair&apos;s pathway fails every requirement. EUR-Lex CELEX:32024L0825.
-                  </p>
-                  <p className="ev-weight legislative">Substantiation failure · confidence 0.95</p>
-                </div>
-              </div>
-
-              <div className="ev-entry">
-                <div className="ev-number">6</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">CSRD (EU 2022/2464) — Mandatory Emissions Disclosure</p>
-                  <p className="ev-finding">
-                    CSRD requires mandatory disclosure of scope 1, 2, and 3 GHG emissions under
-                    ESRS E1 from FY2024. A net-zero claim that cannot be cross-referenced against
-                    a CSRD-compliant baseline constitutes a material substantiation gap. EUR-Lex
-                    CELEX:32022L2464.
-                  </p>
-                  <p className="ev-weight legislative">Data gap · confidence 0.95</p>
-                </div>
-              </div>
-            </div>
-
-            <p className="ev-group-label">Mitigating evidence</p>
-            <div className="evidence-doc">
-              <div className="ev-entry">
-                <div className="ev-number">7</div>
-                <div className="ev-content">
-                  <p className="ev-source-name">SBTi — Interim Targets Set (net-zero: none) · TPI — Below 2°C</p>
-                  <p className="ev-finding">
-                    SBTi records interim reduction targets classified as 1.5°C but{' '}
-                    <em>net-zero target: none</em> — neutral for the assessed net-zero commitment
-                    (confidence 0.70). TPI rates the 2050 pathway &ldquo;Below 2 Degrees&rdquo;
-                    at Management Quality Level 2 (Acknowledging) — Paris-compatible but not
-                    1.5°C-aligned and weak on governance (confidence 0.75). Neither displaces the
-                    three independent confirmed triggers.
-                  </p>
-                  <p className="ev-weight support">Partial mitigation — insufficient to rebut · confidence 0.70–0.75</p>
-                </div>
-              </div>
-            </div>
-
-            <h2>Assessment</h2>
-            <div className="report-reasoning">
-              <p>
-                The decisive finding is the contradiction between Ryanair&apos;s net-zero pledge
-                and its own lobbying conduct. LobbyMap classifies Ryanair D+ (Obstructive) —
-                actively opposing the climate legislation required to deliver any net-zero pathway.
-                A company obstructing the policy framework its 2050 pledge depends on cannot
-                reconcile that pledge with its conduct. Under Prasine scoring, this alone confirms
-                greenwashing. The EU Transparency Register confirms this engagement is
-                operationalised at the institutional level.
-              </p>
-              <p>
-                Two further independent triggers reinforce the verdict. The ASA found an equivalent
-                prior emissions claim CONFIRMED MISLEADING (G20-1089921, 2020), establishing a
-                documented pattern. Ryanair&apos;s own pathway document then fails the EmpCo
-                Directive on every substantiation requirement: no baseline year, no 2035/2040
-                interim targets, no abatement-versus-certified-removal split, and 24% reliance on
-                offsetting — expressly blacklisted. The self-published pathway is internally
-                inconsistent and materially behind its own 2030 SAF trajectory.
-              </p>
-              <p>
-                Mitigating evidence (SBTi interim targets, TPI Below 2°C rating) is genuine but
-                cannot override three independent confirmed triggers. These signals place the score
-                in the lower-to-mid confirmed band (82–90) rather than higher. The November 2025
-                CPC settlement — Ryanair among 21 airlines that committed to revise misleading
-                environmental claims — adds a concluded regulatory determination on top of the
-                existing finding.
-              </p>
-            </div>
-
-            <h2>Dimensional scoring</h2>
-            <p className="dimension-note">Higher score = stronger greenwashing evidence. Claim 2 of 5.</p>
-            <table className="dimension-table">
-              <thead>
-                <tr><th>Dimension</th><th>Score</th></tr>
-              </thead>
-              <tbody>
-                <tr><td>Substantiation failure</td><td>90 / 100</td></tr>
-                <tr><td>Lobbying contradiction</td><td>88 / 100</td></tr>
-                <tr><td>Prior violations</td><td>85 / 100</td></tr>
-                <tr><td>Target credibility gap</td><td>82 / 100</td></tr>
-                <tr><td>Emissions discrepancy</td><td>55 / 100</td></tr>
-              </tbody>
-            </table>
-
-            <h2>Data gaps</h2>
-            <table className="data-gaps-table">
-              <thead>
-                <tr><th>Source</th><th>Status</th><th>Impact</th></tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>EU ETS Verified Emissions (EUTL)</td>
-                  <td>Not registered</td>
-                  <td>Aviation emissions reported through a separate scheme. Scope 1 absolute emissions could not be independently verified. Does not affect the lobbying, prior-violation, or substantiation triggers — each independently sufficient.</td>
-                </tr>
-                <tr>
-                  <td>Scope 1, 2 and 3 absolute emissions</td>
-                  <td>Not in source document</td>
-                  <td>No verified baseline provided in the pathway document, preventing cross-check against CSRD-mandated disclosure.</td>
-                </tr>
-                <tr>
-                  <td>SBTi net-zero validation</td>
-                  <td>Status: none</td>
-                  <td>No validated net-zero target exists to corroborate the assessed claim. Neutral — absence of validation does not itself trigger a score increase, but removes a potential mitigant.</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <h2>Sources</h2>
-            <ol className="sources-list">
-              <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-06-26. https://lobbymap.org/</li>
-              <li>EU Transparency Register — Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-06-26</li>
-              <li>UK ASA Ruling G20-1089921 — Ryanair DAC, 2020-02-05. https://www.asa.org.uk/rulings/ryanair-dac-g20-1089921-ryanair-dac.html</li>
-              <li>Ryanair — Pathway to Net Zero, corporate.ryanair.com/sustainability/pathway-to-net-zero, retrieved 2026-06-26</li>
-              <li>European Commission / CPC Network — Coordinated Action on Airline Environmental Claims, 2024–2025</li>
-              <li>Directive (EU) 2024/825 (EmpCo) — EUR-Lex CELEX:32024L0825</li>
-              <li>Directive (EU) 2022/2464 (CSRD) — EUR-Lex CELEX:32022L2464</li>
-              <li>Science Based Targets initiative — Companies Taking Action, accessed 2026-06-26</li>
-              <li>Transition Pathway Initiative — Corporates, accessed 2026-06-26</li>
-            </ol>
           </div>
+        </section>
+      )}
 
-        </div>
-      </section>
-
-      {/* ── Index ── */}
+      {/* ── Index (dynamic) ── */}
       <section id="index" className="index-section">
         <div className="doc-container">
           <h2 className="index-heading">The Index</h2>
           <p className="index-sub">
-            6 EU companies assessed across 5 sectors. Evidence drawn from 22 open data sources per run.
+            {summaries.length} EU companies assessed across multiple sectors. Evidence drawn from 22 open data sources per run.
           </p>
           <div className="index-stats">
-            <span className="index-stat"><strong>3</strong> confirmed</span>
+            <span className="index-stat"><strong>{counts.confirmed}</strong> confirmed</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>1</strong> likely greenwashing</span>
+            <span className="index-stat"><strong>{counts.likely}</strong> likely greenwashing</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>1</strong> misleading claim</span>
+            <span className="index-stat"><strong>{counts.misleading}</strong> misleading / unverifiable</span>
             <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>1</strong> substantiated claim</span>
+            <span className="index-stat"><strong>{counts.substantiated}</strong> substantiated</span>
           </div>
           <table className="assessments-table">
             <thead>
@@ -352,28 +207,26 @@ export default function HomePage() {
               </tr>
             </thead>
             <tbody>
-              {[
-                { company: 'BP plc',               slug: 'bp-plc',               sector: 'Oil & Gas', score: 87, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Glencore plc',         slug: 'glencore-plc',         sector: 'Mining',    score: 83, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Ryanair Holdings plc', slug: 'ryanair-holdings-plc', sector: 'Aviation',  score: 83, label: 'Confirmed',          badge: 'confirmed'    },
-                { company: 'Enel SpA',             slug: 'enel-spa',             sector: 'Energy',    score: 58, label: 'Likely greenwashing', badge: 'greenwashing' },
-                { company: 'IKEA Group',           slug: 'ikea-group',           sector: 'Retail',    score: 43, label: 'Misleading claim',    badge: 'misleading'   },
-                { company: 'H&M Group',            slug: 'h-m-group',            sector: 'Fashion',   score: 20, label: 'Substantiated claim', badge: 'substantiated'},
-              ].map(({ company, slug, sector, score, label, badge }) => (
-                <tr key={company}>
-                  <td colSpan={4} style={{ padding: 0, border: 'none' }}>
-                    <a
-                      href={`/reports/${slug}`}
-                      style={{ display: 'table', width: '100%', tableLayout: 'fixed', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
-                    >
-                      <span style={{ display: 'table-cell', padding: '10px 12px', fontWeight: 500 }}>{company}</span>
-                      <span style={{ display: 'table-cell', padding: '10px 12px', color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</span>
-                      <span style={{ display: 'table-cell', padding: '10px 12px', fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</span>
-                      <span style={{ display: 'table-cell', padding: '10px 12px' }}><span className={`verdict-badge badge-${badge}`}>{label}</span></span>
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {summaries.map(({ company, slug, sector, score, verdict }) => {
+                const vf = verdictFromString(verdict)
+                return (
+                  <tr key={slug}>
+                    <td colSpan={4} style={{ padding: 0, border: 'none' }}>
+                      <a
+                        href={`/reports/${slug}`}
+                        style={{ display: 'table', width: '100%', tableLayout: 'fixed', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+                      >
+                        <span style={{ display: 'table-cell', padding: '10px 12px', fontWeight: 500 }}>{company}</span>
+                        <span style={{ display: 'table-cell', padding: '10px 12px', color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</span>
+                        <span style={{ display: 'table-cell', padding: '10px 12px', fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</span>
+                        <span style={{ display: 'table-cell', padding: '10px 12px' }}>
+                          <span className={`verdict-badge badge-${vf.cls}`}>{vf.label}</span>
+                        </span>
+                      </a>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
           <p className="index-note">

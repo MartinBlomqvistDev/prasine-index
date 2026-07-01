@@ -1,57 +1,8 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { notFound } from 'next/navigation'
+import { type ParsedReport, type EvidenceItem, type ClaimRow, parseReport, verdictFromScore } from '../../../lib/parse-report'
 
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface EvidenceItem {
-  num: number
-  source: string
-  body: string
-  supports: 'Yes' | 'No' | 'N/A' | string
-  confidence: number
-  url?: string
-}
-
-interface ClaimRow {
-  num: number
-  score: number
-  verdict: string
-  text: string
-}
-
-interface ParsedReport {
-  company: string
-  claimCount: number
-  overallScore: number
-  scoreRange: string
-  verdict: string
-  confidence: number
-  claims: ClaimRow[]
-  // Featured claim detail
-  detailVerdict: string
-  detailScore: number
-  detailRange: string
-  detailConfidence: number
-  publishDate: string
-  traceId: string
-  claim: string
-  claimSource: string
-  evidence: EvidenceItem[]
-  assessmentParas: string[]
-  keyFinding: string
-  dataGaps: string[]
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function verdictFromScore(score: number): { cls: string; label: string } {
-  if (score <= 20) return { cls: 'substantiated', label: 'Substantiated claim' }
-  if (score <= 40) return { cls: 'insufficient',  label: 'Unverifiable claim'  }
-  if (score <= 60) return { cls: 'misleading',    label: 'Misleading claim'    }
-  if (score <= 80) return { cls: 'greenwashing',  label: 'Likely greenwashing' }
-  return             { cls: 'confirmed',    label: 'Confirmed greenwashing' }
-}
 
 function evidenceWeight(supports: string): string {
   if (supports === 'No') return 'contra'
@@ -66,7 +17,6 @@ function evidenceWeightLabel(supports: string, confidence: number): string {
   return `Context · ${pct}%`
 }
 
-// Render a paragraph that may contain **bold** spans
 function renderInline(text: string): React.ReactNode[] {
   const parts = text.split(/\*\*([^*]+)\*\*/g)
   return parts.map((part, i) =>
@@ -74,201 +24,13 @@ function renderInline(text: string): React.ReactNode[] {
   )
 }
 
-// ── Evidence parsers ─────────────────────────────────────────────────────────
-
-function extractUrl(text: string): string | undefined {
-  return text.match(/(https?:\/\/[^\s*),\]]+)/)?.[1]
-}
-
-function extractConf(text: string): number {
-  const m = text.match(/\(confidence ([\d.]+)\)/) ?? text.match(/confidence ([\d.]+)/i) ?? text.match(/Confidence: ([\d.]+)/)
-  return m ? parseFloat(m[1]) : 0
-}
-
-function normaliseSupports(raw: string): 'Yes' | 'No' | 'N/A' {
-  const s = raw.toLowerCase().trim()
-  if (s === 'yes') return 'Yes'
-  if (s === 'no') return 'No'
-  return 'N/A'
-}
-
-// Format A: **[N] Source — type.** Body. *Source: name, date, url.* Supports claim: x (confidence y).
-function parseNumberedEvidence(section: string): EvidenceItem[] {
-  return section
-    .split(/\n\n(?=\*\*\[\d+\])/)
-    .filter(c => /^\*\*\[\d+\]/.test(c.trim()))
-    .map(chunk => {
-      const hm = chunk.match(/^\*\*\[(\d+)\] ([^*]+)\*\* ([\s\S]+)$/)
-      if (!hm) return null
-      const num = parseInt(hm[1])
-      const source = hm[2].trim().replace(/\.$/, '')
-      let body = hm[3].trim()
-      const url = extractUrl(body)
-      const conf = extractConf(body)
-      const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1] ?? 'N/A'
-      const supports = normaliseSupports(supRaw)
-      body = body
-        .replace(/\*Source:[^*]+\*/g, '')
-        .replace(/Supports claim:[^.]+\./gi, '')
-        .replace(/\(confidence[\d\s.]+\)/gi, '')
-        .replace(/https?:\/\/\S+/g, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-      return { num, source, body, supports, confidence: conf, url }
-    })
-    .filter((e): e is NonNullable<typeof e> => e !== null)
-}
-
-// Format B: **Contradicting the claim:** / **Supporting the claim:** with - bullet items
-function parseBulletEvidence(section: string): EvidenceItem[] {
-  const items: EvidenceItem[] = []
-  let num = 1
-  let currentSupports: 'Yes' | 'No' | 'N/A' = 'N/A'
-  for (const line of section.split('\n')) {
-    const heading = line.match(/^\*\*(Contradicting|Supporting|Regulatory|Context)/i)
-    if (heading) {
-      const h = heading[1].toLowerCase()
-      currentSupports = h === 'contradicting' ? 'No' : h === 'supporting' ? 'Yes' : 'N/A'
-      continue
-    }
-    if (!line.startsWith('- ')) continue
-    let body = line.slice(2).trim()
-    const url = extractUrl(body)
-    const conf = extractConf(body)
-    // Extract source from *Source name, date, url* at end
-    const srcMatch = body.match(/\*([^*]+https?:\/\/[^\s*]+)\*$/) ?? body.match(/\*([^*,]+),\s*[^,*]+,\s*https?:\/\/[^\s*]+\*$/)
-    const source = srcMatch
-      ? srcMatch[1].replace(/https?:\/\/\S+/, '').replace(/,\s*$/, '').trim()
-      : 'Source'
-    body = body
-      .replace(/\*[^*]+\*$/g, '')
-      .replace(/https?:\/\/\S+/g, '')
-      .replace(/\(confidence[\d\s.]+\)/gi, '')
-      .replace(/\s{2,}/g, ' ')
-      .trim()
-    items.push({ num: num++, source, body, supports: currentSupports, confidence: conf, url })
-  }
-  return items
-}
-
-// Format C: **Source description.** Body paragraph. (Category, url; confidence N)
-function parseParagraphEvidence(section: string): EvidenceItem[] {
-  return section
-    .split(/\n\n/)
-    .filter(p => /^\*\*[^[*]/.test(p.trim()))
-    .map((p, i) => {
-      const srcMatch = p.match(/^\*\*([^*]+)\*\*/)
-      const source = srcMatch?.[1]?.replace(/\.$/, '').trim() ?? 'Source'
-      let body = p.replace(/^\*\*[^*]+\*\*/, '').trim()
-      const url = extractUrl(body)
-      const conf = extractConf(body)
-      const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1]
-      const supports: 'Yes' | 'No' | 'N/A' = supRaw ? normaliseSupports(supRaw) : 'N/A'
-      body = body
-        .replace(/\([^)]*https?:\/\/[^)]*\)/g, '')
-        .replace(/\*[^*]+\*/g, '')
-        .replace(/Supports claim:[^.]+\./gi, '')
-        .replace(/https?:\/\/\S+/g, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-      return { num: i + 1, source, body, supports, confidence: conf, url }
-    })
-}
-
-function parseEvidence(section: string): EvidenceItem[] {
-  if (/\*\*\[\d+\]/.test(section))           return parseNumberedEvidence(section)
-  if (/\*\*Contradicting|\*\*Supporting/i.test(section)) return parseBulletEvidence(section)
-  return parseParagraphEvidence(section)
-}
-
-// ── Parser ───────────────────────────────────────────────────────────────────
-
-function parseReport(md: string): ParsedReport {
-  // Aggregate header: "## Company — Company Assessment (N claims)"
-  const headerMatch = md.match(/^## (.+?) — Company Assessment \((\d+) claim/m)
-  const company = headerMatch?.[1] ?? 'Unknown Company'
-  const claimCount = parseInt(headerMatch?.[2] ?? '1')
-
-  const overallScore = parseInt(md.match(/\*\*Overall Score: (\d+)\/100\*\*/)?.[1] ?? '0')
-  const scoreRange = md.match(/\*\*Score range:\*\* ([^\n]+)/)?.[1]?.trim() ?? ''
-  const verdict = md.match(/\*\*Verdict:\*\* ([^\n*]+)/)?.[1]?.trim() ?? ''
-  const confidence = parseInt(md.match(/\*\*Confidence:\*\* (\d+)%/)?.[1] ?? '0')
-
-  // Claims table rows (skip header and separator)
-  const claims: ClaimRow[] = md
-    .split('\n')
-    .filter(l => /^\| \d+/.test(l))
-    .map(l => {
-      const cells = l.split('|').map(c => c.trim()).filter(Boolean)
-      return {
-        num: parseInt(cells[0]),
-        score: parseInt(cells[1]),
-        verdict: cells[2],
-        text: cells[3] ?? '',
-      }
-    })
-
-  // Detail header: "**Verdict: X** | Score: N/100 (range: A–B) | Confidence: C%"
-  const detailHeader = md.match(/\*\*Verdict: ([^*]+)\*\* \| Score: ([\d.]+)\/100 \(range: ([^)]+)\) \| Confidence: (\d+)%/)
-  const detailVerdict = detailHeader?.[1]?.trim() ?? verdict
-  const detailScore = parseFloat(detailHeader?.[2] ?? String(overallScore))
-  const detailRange = detailHeader?.[3]?.trim() ?? scoreRange
-  const detailConfidence = parseInt(detailHeader?.[4] ?? String(confidence))
-
-  const publishMatch = md.match(/\*Published: ([^|]+) \| Prasine Index \| Trace ID: ([^*\n]+)\*/)
-  const publishDate = publishMatch?.[1]?.trim() ?? ''
-  const traceId = publishMatch?.[2]?.trim() ?? ''
-
-  // Claim blockquote: > "..."
-  const claimMatch = md.match(/> "([^"]+)"/)
-  const claim = claimMatch?.[1] ?? ''
-
-  // Claim source line: *Source: ...*
-  const claimSource = md.match(/\*Source: ([^\n*]+)\*/)?.[1]?.trim() ?? ''
-
-  // Evidence section
-  const evStart = md.indexOf('### Evidence')
-  const evEnd = md.indexOf('### Assessment')
-  const evSection = evStart > -1 && evEnd > -1 ? md.slice(evStart, evEnd) : ''
-
-  const evidence: EvidenceItem[] = parseEvidence(evSection)
-
-  // Assessment paragraphs
-  const assStart = md.indexOf('### Assessment')
-  const kfStart = md.indexOf('### Key Finding')
-  const assessmentParas = assStart > -1 && kfStart > -1
-    ? md.slice(assStart + '### Assessment\n'.length, kfStart)
-        .split(/\n\n+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0 && !p.startsWith('#'))
-    : []
-
-  // Key Finding
-  const dgStart = md.indexOf('### Data Gaps')
-  const keyFinding = kfStart > -1
-    ? md.slice(kfStart + '### Key Finding\n'.length, dgStart > -1 ? dgStart : undefined)
-        .split(/\n\n+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 0 && !p.startsWith('#'))
-        .join(' ')
-    : ''
-
-  // Data Gaps
-  const methStart = md.indexOf('### Methodology')
-  const dataGapsRaw = dgStart > -1
-    ? md.slice(dgStart + '### Data Gaps\n'.length, methStart > -1 ? methStart : undefined)
-    : ''
-  const dataGaps = dataGapsRaw
-    .split('\n')
-    .filter(l => l.startsWith('- '))
-    .map(l => l.slice(2).trim())
-
-  return {
-    company, claimCount, overallScore, scoreRange, verdict, confidence, claims,
-    detailVerdict, detailScore, detailRange, detailConfidence,
-    publishDate, traceId, claim, claimSource,
-    evidence, assessmentParas, keyFinding, dataGaps,
-  }
+function verdictFromString(v: string): { cls: string; label: string } {
+  const u = v.toUpperCase()
+  if (u.includes('CONFIRMED'))   return { cls: 'confirmed',    label: 'Confirmed greenwashing' }
+  if (u.includes('LIKELY'))      return { cls: 'greenwashing', label: 'Likely greenwashing'    }
+  if (u.includes('MISLEADING'))  return { cls: 'misleading',   label: 'Misleading claim'       }
+  if (u.includes('UNVERIFIABLE'))return { cls: 'insufficient', label: 'Unverifiable claim'     }
+  return                                { cls: 'substantiated', label: 'Substantiated claim'    }
 }
 
 // ── Static params ─────────────────────────────────────────────────────────────
@@ -302,8 +64,8 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
   const md = readFileSync(reportPath, 'utf-8')
   const r = parseReport(md)
-  const agg    = verdictFromScore(r.overallScore)
-  const detail = verdictFromScore(r.detailScore)
+  const agg    = verdictFromString(r.verdict)
+  const detail = verdictFromString(r.detailVerdict)
 
   return (
     <>
@@ -339,7 +101,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           <span className="verdict-score">{r.overallScore} / 100</span>
         </div>
         <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.5rem' }}>
-          Confidence-weighted aggregate across {r.claimCount} claim{r.claimCount !== 1 ? 's' : ''} · range {r.scoreRange}
+          Aggregate across {r.claimCount} claim{r.claimCount !== 1 ? 's' : ''} · range {r.scoreRange}
         </p>
 
         {/* ── Claim overview table ── */}
