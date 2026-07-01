@@ -12,9 +12,10 @@ function evidenceWeight(supports: string): string {
 
 function evidenceWeightLabel(supports: string, confidence: number): string {
   const pct = Math.round(confidence * 100)
-  if (supports === 'No') return `Contradicts · ${pct}%`
-  if (supports === 'Yes') return `Supports · ${pct}%`
-  return `Context · ${pct}%`
+  const confStr = pct > 0 ? ` · ${pct}%` : ''
+  if (supports === 'No') return `Contradicts${confStr}`
+  if (supports === 'Yes') return `Supports${confStr}`
+  return `Context${confStr}`
 }
 
 function renderInline(text: string): React.ReactNode[] {
