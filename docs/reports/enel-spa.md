@@ -1,9 +1,9 @@
 ## Enel SpA — Company Assessment (5 claims)
 
-**Overall Score: 58/100** (confidence-weighted across 5 claims)  
-**Score range:** 46–67  
-**Verdict:** LIKELY_GREENWASHING  
-**Confidence:** 63%
+**Overall Score: 61/100** (top-3 severity-weighted across 5 claims)
+**Score range:** 49–70
+**Verdict:** LIKELY_GREENWASHING
+**Confidence:** 66%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|

@@ -1,9 +1,9 @@
 ## Ryanair Holdings plc — Company Assessment (7 claims)
 
-**Overall Score: 84/100** (confidence-weighted across 7 claims)  
-**Score range:** 81–89  
-**Verdict:** CONFIRMED_GREENWASHING  
-**Confidence:** 85%
+**Overall Score: 86/100** (top-3 severity-weighted across 7 claims)
+**Score range:** 82–90
+**Verdict:** CONFIRMED_GREENWASHING
+**Confidence:** 86%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|

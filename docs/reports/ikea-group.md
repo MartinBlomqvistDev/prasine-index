@@ -1,8 +1,8 @@
 ## IKEA Group — Company Assessment (5 claims)
 
-**Overall Score: 43/100** (confidence-weighted across 5 claims)  
-**Score range:** 32–54  
-**Verdict:** MISLEADING_CLAIM  
+**Overall Score: 45/100** (top-3 severity-weighted across 5 claims)
+**Score range:** 33–56
+**Verdict:** MISLEADING_CLAIM
 **Confidence:** 62%
 
 | # | Score | Verdict | Claim |

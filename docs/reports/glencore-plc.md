@@ -1,9 +1,9 @@
 ## Glencore plc — Company Assessment (5 claims)
 
-**Overall Score: 83/100** (confidence-weighted across 5 claims)  
-**Score range:** 76–88  
-**Verdict:** CONFIRMED_GREENWASHING  
-**Confidence:** 80%
+**Overall Score: 89/100** (top-3 severity-weighted across 5 claims)
+**Score range:** 83–93
+**Verdict:** CONFIRMED_GREENWASHING
+**Confidence:** 85%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|

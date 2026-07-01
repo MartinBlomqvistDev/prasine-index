@@ -1,9 +1,9 @@
 ## H&M Group — Company Assessment (5 claims)
 
-**Overall Score: 20/100** (confidence-weighted across 5 claims)  
-**Score range:** 13–37  
-**Verdict:** SUBSTANTIATED_CLAIM  
-**Confidence:** 72%
+**Overall Score: 22/100** (top-3 severity-weighted across 5 claims)
+**Score range:** 15–39
+**Verdict:** SUBSTANTIATED_CLAIM
+**Confidence:** 69%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|

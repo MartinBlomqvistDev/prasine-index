@@ -19,6 +19,32 @@ _SEVERITY: dict[ScoreVerdict, int] = {
     ScoreVerdict.CONFIRMED_GREENWASHING: 4,
 }
 
+# Score is computed from the top K claims by severity. The remaining claims
+# appear in the report for context but don't drive the headline number.
+# Rationale: a verified freshwater reduction shouldn't dilute the score for
+# a confirmed net-zero greenwashing claim — they're different signal types.
+_SCORE_TOP_K = 3
+
+
+def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, float]:
+    """Return (score, low, high, confidence) weighted by confidence × score."""
+    weights = [s.confidence * s.score for s in subset]
+    total = sum(weights)
+    if total == 0:
+        n = len(subset)
+        return (
+            sum(s.score for s in subset) / n,
+            sum((s.score_low or s.score) for s in subset) / n,
+            sum((s.score_high or s.score) for s in subset) / n,
+            0.0,
+        )
+    return (
+        sum(s.score * w for s, w in zip(subset, weights, strict=True)) / total,
+        sum((s.score_low or s.score) * w for s, w in zip(subset, weights, strict=True)) / total,
+        sum((s.score_high or s.score) * w for s, w in zip(subset, weights, strict=True)) / total,
+        sum(s.confidence * w for s, w in zip(subset, weights, strict=True)) / total,
+    )
+
 
 def aggregate_claim_scores(
     company_name: str,
@@ -33,8 +59,8 @@ def aggregate_claim_scores(
         results: Non-empty list of completed pipeline results.
 
     Returns:
-        A :py:class:`~models.company_score.CompanyScore` with confidence-weighted
-        score and highest-severity verdict.
+        A :py:class:`~models.company_score.CompanyScore` with top-K severity-weighted
+        score and highest-severity dominant verdict across all claims.
 
     Raises:
         ValueError: If *results* is empty.
@@ -54,30 +80,11 @@ def aggregate_claim_scores(
         for r in results
     ]
 
-    # Weight each claim by confidence × score so high-severity confirmed claims
-    # dominate the aggregate rather than being averaged down by substantiated ones.
-    weights = [s.confidence * s.score for s in summaries]
-    total_weight = sum(weights)
-    if total_weight == 0:
-        n = len(summaries)
-        agg_score = sum(s.score for s in summaries) / n
-        agg_low = sum((s.score_low or s.score) for s in summaries) / n
-        agg_high = sum((s.score_high or s.score) for s in summaries) / n
-        agg_conf = 0.0
-    else:
-        agg_score = sum(s.score * w for s, w in zip(summaries, weights, strict=True)) / total_weight
-        agg_low = (
-            sum((s.score_low or s.score) * w for s, w in zip(summaries, weights, strict=True))
-            / total_weight
-        )
-        agg_high = (
-            sum((s.score_high or s.score) * w for s, w in zip(summaries, weights, strict=True))
-            / total_weight
-        )
-        agg_conf = (
-            sum(s.confidence * w for s, w in zip(summaries, weights, strict=True)) / total_weight
-        )
+    # Score on the top-K most severe claims only.
+    top_k = sorted(summaries, key=lambda s: s.score, reverse=True)[:_SCORE_TOP_K]
+    agg_score, agg_low, agg_high, agg_conf = _weighted_agg(top_k)
 
+    # Dominant verdict from ALL claims — worst-case finding across the full assessment.
     dominant = max(summaries, key=lambda s: _SEVERITY[s.verdict]).verdict
 
     return CompanyScore(
