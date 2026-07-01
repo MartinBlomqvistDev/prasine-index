@@ -171,8 +171,8 @@ async def run(
     source_url: str,
     claim_text: str | None = None,
     max_claims: int = 7,
-    judge_model: str = "claude-haiku-4-5-20251001",
-    report_model: str = "claude-haiku-4-5-20251001",
+    judge_model: str = "claude-opus-4-8",
+    report_model: str = "claude-sonnet-5",
     dry_run: bool = False,
     extract_only: bool = False,
 ) -> None:
@@ -326,15 +326,15 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--judge-model",
-        default="claude-haiku-4-5-20251001",
-        help="Anthropic model ID for the Judge Agent. Default: claude-haiku-4-5-20251001. "
-        "Use claude-opus-4-8 for production-quality legally-citable output.",
+        default="claude-opus-4-8",
+        help="Anthropic model ID for the Judge Agent. Default: claude-opus-4-8. "
+        "Do not downgrade without running eval — judge output is legally citable.",
     )
     parser.add_argument(
         "--report-model",
-        default="claude-haiku-4-5-20251001",
-        help="Anthropic model ID for the Report Agent. Default: claude-haiku-4-5-20251001. "
-        "Use claude-opus-4-8 for showcase or client-facing reports.",
+        default="claude-sonnet-5",
+        help="Anthropic model ID for the Report Agent. Default: claude-sonnet-5 "
+        "(template-following task; 60%% cheaper than Opus with equivalent quality).",
     )
     parser.add_argument(
         "--dry-run",
