@@ -1,68 +1,78 @@
-## H&M Group — Company Assessment (5 claims)
+## H&M Group — Company Assessment (7 claims)
 
-**Overall Score: 22/100** (top-3 severity-weighted across 5 claims)
-**Score range:** 15–39
-**Verdict:** SUBSTANTIATED_CLAIM
-**Confidence:** 69%
+**Overall Score: 40/100** (top-3 severity-weighted across 7 claims)  
+**Score range:** 29–52  
+**Verdict:** MISLEADING_CLAIM  
+**Confidence:** 62%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|
-| 1 | 18/100 | SUBSTANTIATED_CLAIM | In 2022, we signed a multi-year deal with Climeworks for direct air capture and storage with final delivery in 2033. |
-| 2 | 22/100 | SUBSTANTIATED_CLAIM | We are committed to reducing our emissions beyond 2030, by at least 90 percent by 2040 compared with 2019. |
-| 3 | 22/100 | SUBSTANTIATED_CLAIM | In 2023, we joined Frontier, an advance market commitment that speeds up the development of carbon removal technologies  |
-| 4 | 22/100 | SUBSTANTIATED_CLAIM | In 2025, we reported a 41 percent reduction in scope 1 and 2 GHG emissions since 2019, our baseline year. |
-| 5 | 18/100 | SUBSTANTIATED_CLAIM | We are supporting the first three levels of our supply chain (also known as tiers 1, 2 and 3) to phase out these boilers |
+| 1 | 52/100 | MISLEADING_CLAIM | Target 2040: Achieve net-zero by reducing absolute scope 1, 2 and 3 emissions by at least 90 percent against a 2019 base |
+| 2 | 22/100 | UNVERIFIABLE_CLAIM | In 2022, we signed a multi-year deal with Climeworks for direct air capture and storage with final delivery in 2033. |
+| 3 | 24/100 | UNVERIFIABLE_CLAIM | The Sustainability-Linked Finance Framework includes the H&M group's 2030 goals for share of recycled materials in comme |
+| 4 | 33/100 | UNVERIFIABLE_CLAIM | Target 2030: Reduce absolute scope 1, 2 and 3 greenhouse gas emissions by 56 percent against a 2019 baseline. |
+| 5 | 22/100 | UNVERIFIABLE_CLAIM | Reduce absolute freshwater use in wet processing units: 2022 baseline, -10% by 2025, -30% by 2030 |
+| 6 | 24/100 | UNVERIFIABLE_CLAIM | H&M Group has science-based targets to reduce our emissions by 56% by 2030. |
+| 7 | 22/100 | UNVERIFIABLE_CLAIM | We are supporting the first three levels of our supply chain (also known as tiers 1, 2 and 3) to phase out these boilers |
 
 ---
 
-*Detailed assessment of the highest-scoring claim (score: 22/100) follows.*
+*Detailed assessment of the highest-scoring claim (score: 52/100) follows.*
 
 ---
 ## H&M Group — Greenwashing Assessment
-**Verdict: SUBSTANTIATED_CLAIM** | Score: 22.0/100 (range: 15–40) | Confidence: 70%
-*Published: 2026-06-29 | Prasine Index | Trace ID: 99521b1d-d51c-4e94-9d85-a3e424a5d6b3*
+**Verdict: MISLEADING_CLAIM** | Score: 52.0/100 (range: 40–60) | Confidence: 60%
+*Published: 2026-07-01 | Prasine Index | Trace ID: fe58c180-0ba8-450a-983a-6d7fbf612fc5*
 
 ### The Claim
-> "We are committed to reducing our emissions beyond 2030, by at least 90 percent by 2040 compared with 2019."
-*Source: Investor relations / sustainability webpage, https://hmgroup.com/sustainability/circularity-and-climate/climate, retrieved 2026-06-29*
+> "Target 2040: Achieve net-zero by reducing absolute scope 1, 2 and 3 emissions by at least 90 percent against a 2019 baseline, and balance out any remaining emissions with permanent carbon removals."
+*Source: IR_PAGE, https://hmgroup.com/sustainability/leading-the-change/goals-and-ambitions, 2024*
 
 ### Evidence
 
-**[3] Science Based Targets initiative (SBTi) — Target Record.** H&M Group holds SBTi status "Targets set" with a 1.5°C temperature classification, and a net-zero target recorded as validated ("Targets set"). The SBTi net-zero validation applies directly to a long-term decarbonisation claim of this type. *Source: SBTi, year not stated, https://sciencebasedtargets.org/companies-taking-action.* Supports claim: yes (confidence 0.70).
+**EUR-Lex, EmpCo Directive (EU 2024/825), 2024** — Establishes that net-zero claims must demonstrate residual emissions will be permanently removed via certified carbon removals, not offset credits, and that generic net-zero pledges lacking a credible, verifiable transition plan are automatically unfair commercial practices under the amended UCPD Annex I. Confidence: 0.95. URL: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825
 
-**[4] H&M Group Self-Reported Disclosure — Source Document (2025).** This record confirms a 2019 baseline year and a "verified science-based long-term target to reduce GHG emissions by 90 percent by 2040 (Scope 1, 2 and 3)." It documents interim 2030 checkpoints requiring 56 percent reductions for both Scope 1&2 and Scope 3, and reports 2025 progress of a 41 percent reduction in Scope 1&2 and a 35 percent reduction in Scope 3 (excluding use-phase) against 2019. It identifies certified permanent-removal mechanisms — a multi-year direct air capture agreement with Climeworks (delivery 2033) and fourteen offtake agreements via Frontier (delivery 2030) — and states that H&M "does not use carbon offsetting to achieve reduction targets" and does not claim removal credits against its reduction targets. The document does not disclose the quantitative split between abatement and certified removals required to meet the 2040 target, and provides no standalone verified transition plan. *Source: H&M Group disclosure, 2025, https://hmgroup.com/sustainability/circularity-and-climate/climate.* Supports claim: yes (confidence 0.85).
+**EUR-Lex, CSRD (2022/2464), 2022** — Requires large companies to disclose Scope 1, 2 and 3 GHG emissions under ESRS E1; a net-zero claim inconsistent with or absent from mandatory CSRD disclosure constitutes a material inconsistency. Confidence: 0.95. URL: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464
 
-**[1] EmpCo Directive (EU 2024/825) — Legislative Record.** Amends UCPD Annex I; in force since March 2024. Net-zero claims must demonstrate residual emissions will be permanently removed by certified carbon removals, not offset credits; claims based solely on offsetting are blacklisted. *Source: EUR-Lex, 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825.* Supports claim: inconclusive.
+**SBTi, target record (year not specified)** — Confirms H&M Group status "Targets set," temperature classification 1.5°C, with a net-zero target component recorded as "Targets set." Supports the existence of a validated target trajectory. Confidence: 0.70. URL: https://sciencebasedtargets.org/companies-taking-action
 
-**[2] CSRD (Directive 2022/2464) — Legislative Record.** Large companies must disclose Scope 1, 2 and 3 emissions under ESRS E1; a claim absent from or inconsistent with mandatory disclosure constitutes a material inconsistency. *Source: EUR-Lex, 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464.* Supports claim: inconclusive.
+**Source document analysis, 2024** — Confirms the 2040 net-zero target exists with a named baseline year (2019) and reduction percentage (90%), interim progress of 41% (Scope 1+2) and 35% (Scope 3), but finds no disclosed absolute baseline emissions figures (MT CO2e), no abatement-to-removal split, no description of certified permanent removal mechanisms (DAC, BECCS, biochar), and no verified transition plan. Confidence: 0.95. URL: https://hmgroup.com/sustainability/leading-the-change/goals-and-ambitions
 
 ### Assessment
-The claim is a specific, quantified, forward-looking emissions reduction target — a 90 percent absolute reduction by 2040 against a 2019 baseline — rather than a vague net-zero aspiration. Two independent sources support it. SBTi (SBTi, year not stated) records H&M Group with a validated net-zero target and a 1.5°C classification. The company disclosure (H&M Group, 2025) corroborates the target's scope (Scope 1, 2 and 3), confirms the 2019 baseline, documents interim 2030 checkpoints, and reports actual delivery to date (41 percent Scope 1&2 and 35 percent Scope 3 reductions since 2019), which is broadly on track toward the 56 percent 2030 interim target.
+H&M Group operates no installations registered under the EU ETS, so the EUTL ground-truth emissions database — Prasine's primary verification source — could not be used to independently check absolute emissions against the claim. This is a confirmed data gap, not evidence of concealment.
 
-On the central legal test, the claim aligns with rather than contravenes the EmpCo Directive (EUR-Lex, 2024): H&M relies on certified permanent removals (Climeworks DAC; Frontier offtakes), explicitly disavows offsetting, and does not net removal credits against reduction targets. No contradicting evidence was identified. No LobbyMap or Transparency Register record was found, so there is no lobbying contradiction to report. No prior regulatory ruling against H&M's claims appears in the evidence.
+The claim itself is better-constructed than many corporate net-zero pledges: it names a specific baseline year (2019), a specific reduction percentage (90% absolute, covering Scope 1, 2 and 3), reports interim progress (41% Scope 1+2, 35% Scope 3), specifies permanent removals rather than offset credits (aligning with the EmpCo Directive's core distinction), and references SBTi validation. The SBTi record confirms "Targets set" status with a 1.5°C classification and a net-zero target component, providing moderate support (confidence 0.70).
 
-Two residual weaknesses prevent a higher (cleaner) score. First, the disclosure (H&M Group, 2025) does not state the quantitative split between abatement and certified removals required to reach the 2040 target. Second, no standalone verified transition plan document is provided. Scope 3 — which dominates apparel-sector footprints — carries the greatest execution risk against the 2030 interim checkpoint. These factors place the score at 22, near the upper end of the SUBSTANTIATED band, with a plausible range of 15–40 should the unspecified allocation and missing transition plan resolve unfavourably.
+However, the source document analysis (confidence 0.95) identifies material substantiation gaps: no disclosed absolute baseline emissions in MT CO2e, no breakdown of the abatement-to-removal split, and no description of the certified removal mechanisms (e.g. DAC, BECCS, biochar) that would underpin the "permanent carbon removals" language. Without these disclosures, the claim cannot be independently verified against the EmpCo Directive's substantiation standard, despite its structural sophistication relative to generic pledges.
 
-This is not a repeat claim; it is the first assessment of this specific claim. H&M Group's prior 12 assessed claims show a STABLE score trend with zero repeats.
+This is not a repeat claim — H&M Group has one prior Prasine assessment and no history of repeat violations on this specific claim, which is a mitigating factor. No lobbying contradiction was identified, as H&M is not listed in the EU Transparency Register and LobbyMap data was unavailable (neutral, not obstructive).
+
+### Regulatory Exposure
+**(a) EmpCo Directive (EU 2024/825):** This claim does not rely on offset credits — it specifies "permanent carbon removals," which is directionally compliant with EmpCo's core requirement distinguishing certified removals from offsets. However, the absence of disclosed baseline emissions figures, removal mechanism detail, and a verified transition plan means the claim **does not meet the mandatory substantiation standard** required under the amended UCPD Annex I. This claim violates the EmpCo Directive's substantiation requirement as currently disclosed, though it is not a blacklisted "generic pledge" per se given its specificity on baseline year and percentage.
+
+**(b) Green Claims Directive (enforcement begins September 2026):** Under GCD's mandatory independent verification requirements, this claim would require third-party substantiation of the baseline emissions figure, the abatement-to-removal ratio, and the certified removal methodology before publication. As currently disclosed, the claim would **likely fail GCD scrutiny** absent additional disclosure of these elements.
+
+**Under UCPD Article 11 (as amended by the EmpCo Directive, EU 2024/825), this claim is subject to enforcement by national consumer protection authorities.** As H&M Group's EU operations span multiple member states, complaints may be filed with the relevant national consumer protection authority in the jurisdiction where the claim is published or marketed (e.g., Sweden's Konsumentverket, given H&M Group's headquarters location).
 
 ### Key Finding
-H&M Group's 90-percent-by-2040 reduction target is corroborated by SBTi net-zero validation and a detailed self-disclosure showing a clear 2019 baseline, interim 2030 checkpoints, demonstrated progress, and EmpCo-compliant reliance on certified permanent removals rather than offsets — but the company has not disclosed how much of the 2040 target depends on abatement versus removals, nor published a standalone verified transition plan.
+H&M Group's 2040 net-zero target is more specific than typical corporate pledges — naming a baseline year, reduction percentage, and interim progress — but fails the EmpCo Directive's substantiation standard because it discloses no absolute baseline emissions figures and no detail on the certified permanent removal mechanisms it will rely on.
 
 ### Data Gaps
-- **EU ETS (EUTL):** No installation IDs registered for H&M Group. This is expected — apparel retail is not a heavy industrial point-source sector — and the absence is treated as neutral, not contradicting. Independent regulatory ground-truth emissions data is therefore unavailable, which is the primary reason confidence is capped at 70 percent.
-- **Abatement/removal allocation:** The split between direct abatement and certified removals needed to meet the 2040 target was not disclosed in the available evidence and could not be verified.
-- **Transition plan:** No standalone verified transition plan document was available for assessment.
-- **CSRD disclosure (ESRS E1):** Not directly examined in this assessment; consistency between the claim and mandatory CSRD reporting could not be independently confirmed.
-- **Primary corroboration is partly self-reported:** The most detailed substantiation (H&M Group, 2025) is a company disclosure. While the underlying targets are SBTi-verified, the reported progress figures are not independently audited within the available evidence.
+- **EU ETS EUTL:** No installation IDs registered for H&M Group. As an apparel retailer without ETS-covered installations, ground-truth verified emissions data could not be checked against the claim. This lowers overall confidence in the assessment to 60%, since absolute emissions figures underlying the 90% reduction claim remain unverified by an independent regulatory dataset.
+- **LobbyMap:** No record found; H&M Group is not listed in the EU Transparency Register. Treated as neutral rather than obstructive, but the absence means a potential contradiction between climate lobbying activity and public claims could not be assessed.
+- **SBTi net-zero validation:** The record reports net-zero target status as "Targets set" rather than "Targets set — near-term and net-zero validated," leaving ambiguity as to whether the 2040 net-zero component itself, as distinct from interim SBTi targets, has been independently validated.
 
 ### Methodology Note
-Prasine Index scored this claim by querying legislative records (EUR-Lex), the Science Based Targets initiative, EU ETS / EUTL verified emissions data, LobbyMap and the EU Transparency Register, and company self-disclosures, then weighting each source by independence and reliability. Scores run from 0 (confirmed greenwashing) to 100 (fully substantiated and verified); the 15–40 band denotes a SUBSTANTIATED claim with residual evidentiary gaps. This claim received 22.0, reflecting two independent supporting sources and full EmpCo-Directive alignment, offset by an undisclosed abatement/removal split and the absence of a verified transition plan; sub-scores were EMISSIONS_DISCREPANCY 25.0, SUBSTANTIATION_FAILURE 30.0, PRIOR_VIOLATIONS 20.0, and TARGET_CREDIBILITY_GAP 25.0. Confidence is 70 percent given the partly self-reported corroboration and the unavailability of EU ETS ground-truth data for this sector. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+This assessment scored the claim across five weighted dimensions: emissions discrepancy (35/100), substantiation failure (62/100), target credibility gap (55/100), prior violations (15/100), and lobbying contradiction (0/100, no data available). Sources used were EUR-Lex regulatory texts (EmpCo Directive, CSRD), the SBTi corporate target database, and a source document analysis of H&M Group's own published sustainability disclosures. The composite score of 52/100 places this claim in the MISLEADING_CLAIM band (46–60), reflecting a claim with above-average structural specificity that nonetheless lacks the disclosure depth required for full substantiation. Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/
+
+### Disclaimer
+*This report is investigative research produced by an automated evidence aggregation pipeline. The Prasine Index score represents an evidence-based assessment, not a legal determination. Every finding references a named primary source: EU regulatory records, documented NGO databases, or prior enforcement rulings, all independently verifiable. Prasine Index does not constitute legal advice.*
 
 ---
 
 ### Data Manifest
 
-*Sources active at assessment time — 2026-06-29 11:36 UTC*
+*Sources active at assessment time — 2026-07-01 21:05 UTC*
 
 | Source | SHA-256 (16 hex) |
 | ------ | ---------------- |
