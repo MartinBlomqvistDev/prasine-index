@@ -172,6 +172,16 @@ class GreenwashingScore(BaseModel):
         default_factory=list,
         description="IDs of all Evidence records provided to the Judge Agent; enables full evidence chain reconstruction.",
     )
+    empco_violation: bool | None = Field(
+        default=None,
+        description=(
+            "Whether this claim violates the EmpCo Directive (EU 2024/825). "
+            "True = confirmed violation (e.g. offset-based net-zero claim without certified permanent removals, "
+            "or a claim that fails the mandatory substantiation standard). "
+            "False = no EmpCo violation found. "
+            "None = not assessed (insufficient data, claim type out of scope, or pre-EmpCo archive)."
+        ),
+    )
 
     @model_validator(mode="after")
     def _validate_breakdown_scores(self) -> GreenwashingScore:

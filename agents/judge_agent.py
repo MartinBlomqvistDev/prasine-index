@@ -134,6 +134,19 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                     "would not exceed this value. Omit only if data is unambiguous."
                 ),
             },
+            "empco_violation": {
+                "type": "boolean",
+                "description": (
+                    "Whether this claim violates the EmpCo Directive (EU 2024/825). "
+                    "Set True if the claim: (1) makes a net-zero or carbon-neutral assertion "
+                    "relying on carbon offsets without certified permanent removals; or "
+                    "(2) lacks any specific measurable commitment, audited baseline, or "
+                    "timeline — failing the mandatory substantiation standard in amended "
+                    "UCPD Annex I. Set False only when you have positively assessed that "
+                    "the claim meets EmpCo substantiation requirements. Omit if the claim "
+                    "type is outside EmpCo scope or if data is insufficient to assess."
+                ),
+            },
         },
         "required": ["score", "score_breakdown", "verdict", "reasoning", "confidence"],
     },
@@ -610,6 +623,9 @@ class JudgeAgent:
                 else None,
                 score_high=float(verdict["score_high"])
                 if verdict.get("score_high") is not None
+                else None,
+                empco_violation=bool(verdict["empco_violation"])
+                if verdict.get("empco_violation") is not None
                 else None,
                 judge_model_id=self._model_id,
                 evidence_ids=[e.id for e in input.verification.evidence],

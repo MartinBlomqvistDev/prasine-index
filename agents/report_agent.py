@@ -73,9 +73,23 @@ Use the following Markdown structure:
 by source name. If the claim is a repeat, say so explicitly. If lobbying contradicts the
 claim, make this the lead finding.]
 
+### Regulatory Exposure
+[Assess the claim against current EU enforcement law. Address:
+(a) EmpCo Directive (EU 2024/825, in force March 2024): Does the claim fail the mandatory
+    substantiation standard? Does it rely on carbon offsets without certified permanent
+    removals? State plainly: "This claim violates / does not violate / cannot be assessed
+    against the EmpCo Directive."
+(b) Green Claims Directive (enforcement begins September 2026): Under mandatory substantiation
+    requirements, would this claim require independent verification? State whether the claim
+    appears ready for GCD scrutiny or would likely fail it.
+(c) If empco_violation=True, include: "Under EmpCo Directive Article [X], this claim is
+    subject to enforcement by national consumer authorities. Complaints may be filed with
+    [relevant national authority]."
+If the claim is clearly out of EmpCo scope (e.g. a non-environmental claim), omit this section.]
+
 ### Key Finding
 [One or two sentences. The single most important thing a journalist needs to know.
-If lobbying contradiction is confirmed, lead with that.]
+If lobbying contradiction is confirmed, lead with that. If empco_violation=True, note it here.]
 
 ### Data Gaps
 [List any sources that could not be queried or returned insufficient data.
@@ -336,6 +350,7 @@ def _build_report_prompt(input: ReportInput) -> str:
             else ""
         ),
         f"CONFIDENCE: {score.confidence * 100:.0f}%",
+        f"EMPCO_VIOLATION: {('YES' if score.empco_violation else 'NO') if score.empco_violation is not None else 'NOT_ASSESSED'}",
         "",
         "JUDGE REASONING:",
         score.reasoning,
