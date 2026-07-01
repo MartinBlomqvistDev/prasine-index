@@ -127,7 +127,7 @@ def _build_aggregate_header(
         f"## {company_name} — Company Assessment ({n} claim{'s' if n != 1 else ''})",
         "",
         f"**Overall Score: {company_score.score:.0f}/100** "
-        f"(confidence-weighted across {n} claim{'s' if n != 1 else ''})  ",
+        f"(top-3 severity-weighted across {n} claim{'s' if n != 1 else ''})  ",
         f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f}  ",
         f"**Verdict:** {company_score.verdict.value}  ",
         f"**Confidence:** {company_score.confidence:.0%}",
@@ -269,7 +269,7 @@ async def run(
         print(f"Company Assessment -- {company_name}")
         print(
             f"  Overall score : {company_score.score:.0f}/100  "
-            f"(confidence-weighted, {n} claim{'s' if n != 1 else ''})"
+            f"(top-3 severity-weighted, {n} claim{'s' if n != 1 else ''})"
         )
         print(f"  Score range   : {company_score.score_low:.0f}-{company_score.score_high:.0f}")
         print(f"  Verdict       : {company_score.verdict.value}")
