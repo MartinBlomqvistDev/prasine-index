@@ -1,9 +1,9 @@
 ## BP plc — Company Assessment (7 claims)
 
-**Overall Score: 57/100** (confidence-weighted across 7 claims)  
-**Score range:** 49–68  
+**Overall Score: 68/100** (severity-weighted across 7 claims)  
+**Score range:** 61–76  
 **Verdict:** CONFIRMED_GREENWASHING  
-**Confidence:** 70%
+**Confidence:** 76%
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|
