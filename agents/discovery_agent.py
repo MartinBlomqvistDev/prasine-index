@@ -217,16 +217,16 @@ def extract_relevant_links(html: str, base_url: str, max_links: int = 5) -> list
 
     scored.sort(key=lambda x: x[0], reverse=True)
 
-    # Enforce path-prefix diversity: cap at 2 URLs per 2-segment path prefix so
-    # the returned set spans different site sections (e.g. /sustainability/climate
-    # and /sustainability/renewable count as the same prefix). Without this, all
-    # slots fill with variations of the same highest-scoring theme.
+    # Enforce path-prefix diversity: cap at 4 URLs per 2-segment path prefix.
+    # 4 (not 2) allows article/blog-heavy entry points (e.g. stories/articles/*)
+    # to surface enough distinct items while still preventing a single theme from
+    # monopolising all slots when a site has redundant subpage variations.
     prefix_counts: dict[str, int] = {}
     diverse: list[str] = []
     for _, url in scored:
         parts = urlparse(url).path.strip("/").split("/")
         prefix = "/".join(parts[:2])
-        if prefix_counts.get(prefix, 0) < 2:
+        if prefix_counts.get(prefix, 0) < 4:
             prefix_counts[prefix] = prefix_counts.get(prefix, 0) + 1
             diverse.append(url)
         if len(diverse) >= max_links:

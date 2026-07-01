@@ -10,6 +10,7 @@ trail of everything that succeeded.
 from __future__ import annotations
 
 import contextlib
+import io
 import json
 import re
 import uuid
@@ -81,6 +82,42 @@ def _html_to_text(html: str) -> str:
     return extractor.get_text()
 
 
+def _extract_pdf_text(content: bytes) -> str:
+    """Extract plain text from a PDF document using pypdf.
+
+    Iterates over all pages and joins their extracted text with newlines.
+    Output is capped at _MAX_FETCH_CHARS by the caller.
+
+    Args:
+        content: Raw PDF bytes.
+
+    Returns:
+        Extracted plain text, or an empty string if extraction fails.
+    """
+    try:
+        import pypdf
+
+        reader = pypdf.PdfReader(io.BytesIO(content))
+        parts: list[str] = []
+        for page in reader.pages:
+            page_text = page.extract_text() or ""
+            if page_text.strip():
+                parts.append(page_text.strip())
+        return "\n\n".join(parts)
+    except Exception as exc:
+        get_logger(__name__).warning(
+            f"_extract_pdf_text: extraction failed — {exc}",
+            extra={"operation": "pdf_extraction_failed", "error": str(exc)},
+        )
+        return ""
+
+
+def _is_pdf(response: httpx.Response) -> bool:
+    """Return True if the HTTP response contains a PDF document."""
+    ct = response.headers.get("content-type", "").lower()
+    return "pdf" in ct or response.content[:4] == b"%PDF"
+
+
 # Below this character count, httpx content is treated as a JS-rendered SPA shell
 # and Playwright takes over.
 _SPA_THRESHOLD = 500
@@ -122,6 +159,15 @@ async def _fetch_pages(
         resp.raise_for_status()
     except httpx.HTTPError as exc:
         raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
+
+    # PDF — extract text directly, no subpage discovery.
+    if _is_pdf(resp):
+        get_logger(__name__).info(
+            f"_fetch_pages: PDF detected at {source_url} — extracting text with pypdf",
+            extra={"operation": "pipeline_pdf_fetch", "url": source_url},
+        )
+        pdf_text = _extract_pdf_text(resp.content)[:_MAX_FETCH_CHARS]
+        return [(source_url, pdf_text)] if pdf_text else []
 
     raw_html = resp.text
     entry_text = _html_to_text(raw_html)[:_MAX_FETCH_CHARS]
@@ -864,21 +910,22 @@ class Pipeline:
         except httpx.HTTPError as exc:
             raise RuntimeError(f"Failed to fetch {url}: {exc}") from exc
 
-        content_type = response.headers.get("content-type", "").lower()
-        if "pdf" in content_type or response.content[:4] == b"%PDF":
-            raise RuntimeError(
-                f"{url} returned a PDF. Download it and pass the text via --claim instead."
-            )
-
-        raw_text = _html_to_text(response.text)[:_MAX_FETCH_CHARS]
-        if len(raw_text) < _SPA_THRESHOLD:
+        if _is_pdf(response):
             logger.info(
-                f"_fetch_and_populate: thin content ({len(raw_text)} chars) at {url} "
-                "— switching to Playwright",
-                extra={"operation": "pipeline_playwright_fallback", "url": url},
+                f"_fetch_and_populate: PDF detected at {url} — extracting text with pypdf",
+                extra={"operation": "pipeline_pdf_fetch", "url": url},
             )
-            pages = await _fetch_pages_playwright(url, response.text, max_subpages=0)
-            raw_text = pages[0][1] if pages else raw_text
+            raw_text = _extract_pdf_text(response.content)[:_MAX_FETCH_CHARS]
+        else:
+            raw_text = _html_to_text(response.text)[:_MAX_FETCH_CHARS]
+            if len(raw_text) < _SPA_THRESHOLD:
+                logger.info(
+                    f"_fetch_and_populate: thin content ({len(raw_text)} chars) at {url} "
+                    "— switching to Playwright",
+                    extra={"operation": "pipeline_playwright_fallback", "url": url},
+                )
+                pages = await _fetch_pages_playwright(url, response.text, max_subpages=0)
+                raw_text = pages[0][1] if pages else raw_text
 
         logger.info(
             f"Fetched {len(raw_text)} chars from {url}",

@@ -29,6 +29,9 @@ import uuid
 import warnings
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 warnings.filterwarnings("ignore", message="Core Pydantic V1 functionality")
 warnings.filterwarnings("ignore", category=UserWarning, module="langchain_core")
 warnings.filterwarnings(

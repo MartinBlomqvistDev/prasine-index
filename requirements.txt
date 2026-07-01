@@ -49,6 +49,9 @@ httpx>=0.27.0
 # After install: playwright install chromium
 playwright>=1.40.0
 
+# pypdf — PDF text extraction for sustainability reports and annual reports
+pypdf>=5.0.0
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
