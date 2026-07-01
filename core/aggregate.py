@@ -54,7 +54,10 @@ def aggregate_claim_scores(
         for r in results
     ]
 
-    total_weight = sum(s.confidence for s in summaries)
+    # Weight each claim by confidence × score so high-severity confirmed claims
+    # dominate the aggregate rather than being averaged down by substantiated ones.
+    weights = [s.confidence * s.score for s in summaries]
+    total_weight = sum(weights)
     if total_weight == 0:
         n = len(summaries)
         agg_score = sum(s.score for s in summaries) / n
@@ -62,10 +65,18 @@ def aggregate_claim_scores(
         agg_high = sum((s.score_high or s.score) for s in summaries) / n
         agg_conf = 0.0
     else:
-        agg_score = sum(s.score * s.confidence for s in summaries) / total_weight
-        agg_low = sum((s.score_low or s.score) * s.confidence for s in summaries) / total_weight
-        agg_high = sum((s.score_high or s.score) * s.confidence for s in summaries) / total_weight
-        agg_conf = total_weight / len(summaries)
+        agg_score = sum(s.score * w for s, w in zip(summaries, weights, strict=True)) / total_weight
+        agg_low = (
+            sum((s.score_low or s.score) * w for s, w in zip(summaries, weights, strict=True))
+            / total_weight
+        )
+        agg_high = (
+            sum((s.score_high or s.score) * w for s, w in zip(summaries, weights, strict=True))
+            / total_weight
+        )
+        agg_conf = (
+            sum(s.confidence * w for s, w in zip(summaries, weights, strict=True)) / total_weight
+        )
 
     dominant = max(summaries, key=lambda s: _SEVERITY[s.verdict]).verdict
 
