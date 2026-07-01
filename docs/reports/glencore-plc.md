@@ -57,8 +57,8 @@ LobbyMap rates Glencore plc's climate policy engagement as D+ (Obstructive). Thi
 The EmpCo Directive (EU 2024/825), in force since March 2024, amends Annex I of the Unfair Commercial Practices Directive to blacklist environmental claims that are not substantiated by recognised scientific evidence. Net-zero claims must demonstrate that residual emissions will be addressed through certified permanent carbon removals — not offset credits. Generic net-zero pledges without a credible and verifiable transition plan are automatically classified as unfair commercial practices under the amended Annex I.
 *EUR-Lex, [32024L0825] EmpCo Directive (EU 2024/825), 2024, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024L0825*
 
-**[6] CSRD: mandatory emissions disclosure requirement**
-The Corporate Sustainability Reporting Directive (CSRD, 2022/2464) requires large companies to disclose Scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024 reporting. A net-zero claim that contradicts or is materially inconsistent with mandatory CSRD disclosures constitutes a material inconsistency under EU law. Glencore, as a company with more than 500 employees listed on EU-regulated markets, falls within CSRD scope.
+**[6] CSRD: disclosure obligation and applicability to Glencore**
+The Corporate Sustainability Reporting Directive (CSRD, 2022/2464) requires mandatory ESRS E1 emissions disclosures from large companies on EU-regulated markets. Glencore plc is incorporated in Jersey and listed on the London Stock Exchange and Johannesburg Stock Exchange — neither is an EU-regulated market, so the direct FY2024 mandate does not apply. The route that applies to non-EU parent companies with net turnover exceeding €150M in the EU (which Glencore meets) begins in FY2028, with first reports due 2029. If Glencore's EU subsidiaries independently meet the large-company threshold, those entities may have earlier obligations, but no group-level CSRD disclosure currently exists or is required for FY2024. A net-zero claim materially inconsistent with future mandatory disclosures will constitute a legal inconsistency once reporting begins.
 *EUR-Lex, [32022L2464] CSRD, 2022, https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022L2464*
 
 **[7] Source document: offset reliance and substantiation deficiencies confirmed**
@@ -115,7 +115,7 @@ Glencore conditions its 2050 net-zero ambition on "a supportive policy environme
 
 - **SBTi Validation:** No SBTi record was returned for Glencore plc. It cannot be confirmed whether Glencore has submitted targets to the Science Based Targets initiative. The absence of an SBTi validation record is consistent with — but does not independently establish — a lack of third-party-validated science-based targets.
 
-- **CSRD Disclosure (FY2024):** CSRD-compliant ESRS E1 disclosures for Glencore's FY2024 reporting period were not available at the time of this assessment. When published, these disclosures should be cross-referenced against the interim targets and offset-reliance statements in the assessed claim.
+- **CSRD (scope clarification):** Glencore plc is incorporated in Jersey and listed on LSE and JSE — not EU-regulated markets. The FY2024 CSRD mandate does not apply directly. The non-EU parent route (net EU turnover >€150M) begins FY2028. No group-level ESRS E1 disclosure is currently required or available. This source is not a data gap in the usual sense; the absence of a disclosure reflects the current inapplicability of the mandate, not a pipeline retrieval failure.
 
 ---
 
