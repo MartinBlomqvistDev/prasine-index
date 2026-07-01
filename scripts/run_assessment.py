@@ -177,18 +177,21 @@ async def run(
     extract_only: bool = False,
 ) -> None:
     if dry_run:
-        print(f"[dry-run] Would assess: {company_name}")
-        print(f"[dry-run] Source URL : {source_url}")
-        print(f"[dry-run] Claim text : {claim_text or '(discover from URL)'}")
-        print(f"[dry-run] Max claims : {max_claims}")
-        print(f"[dry-run] Judge model: {judge_model}")
-        print("[dry-run] No tokens spent. Pass without --dry-run to run the full pipeline.")
+        print("Prasine Index — Dry Run")
+        print(f"  Company     : {company_name}")
+        print(f"  URL         : {source_url}")
+        print(f"  Claim       : {claim_text or '(discover from URL)'}")
+        print(f"  Max claims  : {max_claims}")
+        print(f"  Judge model : {judge_model}")
+        print("  Cost        : $0.00 (no tokens spent)")
+        print("\nRe-run without --dry-run to run the full pipeline.")
         return
 
     if extract_only:
-        print(f"[extract-only] Fetching and extracting claims for: {company_name}")
-        print(f"[extract-only] URL: {source_url}")
-        print("[extract-only] Spending ~$0.01 on Haiku extraction only — no judge/report.\n")
+        print("Prasine Index — Claim Extraction Preview")
+        print(f"  Company : {company_name}")
+        print(f"  URL     : {source_url}")
+        print("  Cost    : ~$0.01 (Haiku extraction only; no verification or scoring)\n")
         await init_db()
         company_id = uuid.uuid5(uuid.NAMESPACE_DNS, company_name.lower())
         pipeline = Pipeline(config=PipelineConfig())
@@ -202,15 +205,13 @@ async def run(
         if not claims:
             print("No claims extracted — page may be JS-rendered or contain no green claims.")
             return
-        print(f"Top {len(claims)} claim(s) found:\n")
+        print(f"{len(claims)} claim(s) extracted:\n")
         for i, claim in enumerate(claims, start=1):
             text_preview = (claim.raw_text or "")[:200].replace("\n", " ")
-            print(f"  [{i}] {text_preview}")
-            print(f"       source: {claim.source_url}")
+            print(f"  {i}. {text_preview}")
+            print(f"     Source: {claim.source_url}")
             print()
-        print(
-            "Review the claims above, then re-run without --extract-only to run the full pipeline."
-        )
+        print("Re-run without --extract-only to run the full pipeline.")
         return
 
     await init_db()
@@ -233,8 +234,12 @@ async def run(
             results = await pipeline.run_from_document(extraction_input)
         else:
             print(
-                f"No --claim provided — fetching {source_url} "
-                f"and discovering sustainability subpages (cap: {max_claims} claims)..."
+                f"Prasine Index — Full Assessment\n"
+                f"  Company     : {company_name}\n"
+                f"  URL         : {source_url}\n"
+                f"  Max claims  : {max_claims}\n"
+                f"  Judge model : {judge_model}\n"
+                f"  Report model: {report_model}\n"
             )
             results = await pipeline.run_from_url(company_id, source_url, max_claims=max_claims)
 
@@ -249,26 +254,26 @@ async def run(
         for i, r in enumerate(results, start=1):
             out_path = _REPORTS_DIR / f"{slug}-{i}.md"
             out_path.write_text(r.report_markdown or "No report generated.", encoding="utf-8")
-            print(f"\n{'=' * 60}")
-            print(f"Company : {company_name}  [claim {i}/{len(results)}]")
-            print(f"Verdict : {r.score.verdict.value}")
-            print(f"Score   : {r.score.score:.0f}/100")
-            print(f"Claim   : {(r.claim.raw_text or '')[:120]}")
-            print(f"Report  : {out_path}")
-            print(f"{'=' * 60}\n")
+            print(f"\n{'─' * 60}")
+            print(f"Claim {i}/{len(results)} — {company_name}")
+            print(f"  Verdict : {r.score.verdict.value}")
+            print(f"  Score   : {r.score.score:.0f}/100")
+            print(f"  Text    : {(r.claim.raw_text or '')[:120]}")
+            print(f"  Report  : {out_path}")
+            print(f"{'─' * 60}\n")
 
         # Aggregate all claims into a company-level score.
         company_score = aggregate_claim_scores(company_name, company_id, results)
-        print(f"\n{'=' * 60}")
-        print(f"COMPANY ASSESSMENT: {company_name}")
+        n = company_score.claim_count
+        print(f"\n{'═' * 60}")
+        print(f"Company Assessment — {company_name}")
         print(
-            f"Overall Score : {company_score.score:.0f}/100  "
-            f"(confidence-weighted, {company_score.claim_count} claim"
-            f"{'s' if company_score.claim_count != 1 else ''})"
+            f"  Overall score : {company_score.score:.0f}/100  "
+            f"(confidence-weighted, {n} claim{'s' if n != 1 else ''})"
         )
-        print(f"Score range   : {company_score.score_low:.0f}–{company_score.score_high:.0f}")
-        print(f"Verdict       : {company_score.verdict.value}")
-        print(f"{'=' * 60}\n")
+        print(f"  Score range   : {company_score.score_low:.0f}–{company_score.score_high:.0f}")
+        print(f"  Verdict       : {company_score.verdict.value}")
+        print(f"{'═' * 60}\n")
 
         # Write the canonical report: aggregate header + highest-scoring claim detail + manifest.
         best = max(results, key=lambda r: r.score.score)
@@ -352,9 +357,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.refresh_data:
-        print("Refreshing data sources...")
+        print("Refreshing data sources...\n")
         _refresh_data()
-        print("\nData refresh complete. Running assessment...\n")
+        print("\nData refresh complete.\n")
 
     asyncio.run(
         run(
