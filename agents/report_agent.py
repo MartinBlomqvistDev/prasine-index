@@ -390,13 +390,33 @@ def _build_report_prompt(input: ReportInput) -> str:
         "SCORE BREAKDOWN:",
     ]
 
+    _dim_labels = {
+        "EMISSIONS_DISCREPANCY": "emissions discrepancy",
+        "SUBSTANTIATION_FAILURE": "substantiation failure",
+        "LOBBYING_CONTRADICTION": "lobbying contradiction",
+        "PRIOR_VIOLATIONS": "prior violations",
+        "TARGET_CREDIBILITY_GAP": "target credibility gap",
+    }
+    _src_labels = {
+        "SOURCE_DOCUMENT": "source document",
+        "LOBBY_MAP": "LobbyMap",
+        "EUR_LEX": "EUR-Lex",
+        "EU_TRANSPARENCY_REGISTER": "EU Transparency Register",
+        "ENFORCEMENT_RULING": "enforcement ruling",
+        "EU_ETS": "EU ETS",
+        "SBTI": "SBTi",
+        "EPRTR": "E-PRTR",
+        "IR_PAGE": "investor relations page",
+    }
     for dim, dim_score in score.score_breakdown.items():
-        parts.append(f"  {dim}: {dim_score:.1f}/100")
+        label = _dim_labels.get(dim, dim.lower().replace("_", " "))
+        parts.append(f"  {label}: {dim_score:.1f}/100")
 
     parts += ["", "EVIDENCE RECORDS:"]
     for i, ev in enumerate(vr.evidence, 1):
+        src = _src_labels.get(ev.source.value, ev.source.value.replace("_", " ").title())
         parts.append(
-            f"[{i}] {ev.source.value} | {ev.evidence_type.value} | Year: {ev.data_year or 'N/A'} | "
+            f"[{i}] {src} | Year: {ev.data_year or 'not specified'} | "
             f"Retrieved: {ev.retrieved_at.date().isoformat()} | "
             f"Supports claim: {ev.supports_claim} | Confidence: {ev.confidence:.2f}"
         )

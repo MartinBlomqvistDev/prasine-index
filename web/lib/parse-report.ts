@@ -56,6 +56,42 @@ export function verdictFromScore(score: number): { cls: string; label: string } 
   return             { cls: 'confirmed',    label: 'Confirmed greenwashing' }
 }
 
+const ENUM_LABELS: Record<string, string> = {
+  SOURCE_DOCUMENT:          'source document',
+  LOBBY_MAP:                'LobbyMap',
+  EUR_LEX:                  'EUR-Lex',
+  EU_TRANSPARENCY_REGISTER: 'EU Transparency Register',
+  ENFORCEMENT_RULING:       'enforcement ruling',
+  ENFORCEMENT:              'enforcement record',
+  EMISSIONS_DISCREPANCY:    'emissions discrepancy',
+  LOBBYING_RECORD:          'lobbying record',
+  LEGISLATIVE_RECORD:       'legislative record',
+  IR_PAGE:                  'investor relations page',
+  EU_ETS:                   'EU ETS',
+  SBTI:                     'SBTi',
+  EPRTR:                    'E-PRTR',
+  CA100:                    'CA100+',
+  FOSSIL_FINANCE:           'Fossil Finance Tracker',
+  COAL_EXIT:                'Global Coal Exit List',
+  EU_INNOVATION_FUND:       'EU Innovation Fund',
+  TPI:                      'TPI',
+  GCPT:                     'GCPT',
+  EGT:                      'EGT',
+  GOGEL:                    'GOGEL',
+  EDGAR:                    'EDGAR/JRC',
+  CONFIRMED_GREENWASHING:   'confirmed greenwashing',
+  MISLEADING_CLAIM:         'misleading claim',
+  UNVERIFIABLE_CLAIM:       'unverifiable claim',
+  SUBSTANTIATED_CLAIM:      'substantiated claim',
+  LIKELY_GREENWASHING:      'likely greenwashing',
+}
+
+function humanizeText(text: string): string {
+  return text.replace(/\b([A-Z][A-Z]*_[A-Z][A-Z_]*)\b/g, (m) =>
+    ENUM_LABELS[m] ?? m.toLowerCase().replace(/_/g, ' ')
+  )
+}
+
 function extractUrl(text: string): string | undefined {
   return text.match(/(https?:\/\/[^\s*),\]]+)/)?.[1]
 }
@@ -146,9 +182,12 @@ function parseParagraphEvidence(section: string): EvidenceItem[] {
       const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1]
       const supports: 'Yes' | 'No' | 'N/A' = supRaw ? normaliseSupports(supRaw) : 'N/A'
       body = body
+        .replace(/^[—–-]\s*/, '')
         .replace(/\([^)]*https?:\/\/[^)]*\)/g, '')
         .replace(/\*[^*]+\*/g, '')
         .replace(/Supports claim:[^.]+\./gi, '')
+        .replace(/\s*Source:\s*[A-Z][A-Z_]+\b[^]*$/g, '')
+        .replace(/\(confidence[\d\s.]+\)/gi, '')
         .replace(/https?:\/\/\S+/g, '')
         .replace(/\s{2,}/g, ' ')
         .trim()
@@ -201,7 +240,7 @@ export function parseReport(md: string): ParsedReport {
 
   const claimMatch = md.match(/> "([^"]+)"/)
   const claim = claimMatch?.[1] ?? ''
-  const claimSource = md.match(/\*Source: ([^\n*]+)\*/)?.[1]?.trim() ?? ''
+  const claimSource = humanizeText(md.match(/\*Source: ([^\n*]+)\*/)?.[1]?.trim() ?? '')
 
   const evStart = md.indexOf('### Evidence')
   const evEnd = md.indexOf('### Assessment')
@@ -215,19 +254,21 @@ export function parseReport(md: string): ParsedReport {
       ? md
           .slice(assStart + '### Assessment\n'.length, kfStart)
           .split(/\n\n+/)
-          .map(p => p.trim())
-          .filter(p => p.length > 0 && !p.startsWith('#'))
+          .map(p => humanizeText(p.trim()))
+          .filter(p => p.length > 0 && !p.startsWith('#') && !/^-{3,}$/.test(p))
       : []
 
   const dgStart = md.indexOf('### Data Gaps')
   const keyFinding =
     kfStart > -1
-      ? md
-          .slice(kfStart + '### Key Finding\n'.length, dgStart > -1 ? dgStart : undefined)
-          .split(/\n\n+/)
-          .map(p => p.trim())
-          .filter(p => p.length > 0 && !p.startsWith('#'))
-          .join(' ')
+      ? humanizeText(
+          md
+            .slice(kfStart + '### Key Finding\n'.length, dgStart > -1 ? dgStart : undefined)
+            .split(/\n\n+/)
+            .map(p => p.trim())
+            .filter(p => p.length > 0 && !p.startsWith('#') && !/^-{3,}$/.test(p))
+            .join(' ')
+        )
       : ''
 
   const methStart = md.indexOf('### Methodology')
