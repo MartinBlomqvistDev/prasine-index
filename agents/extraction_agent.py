@@ -570,6 +570,8 @@ class ExtractionAgent:
                     normalised_text=_normalise_text(raw_text),
                     claim_category=ClaimCategory(
                         raw.get("claim_category", ClaimCategory.OTHER.value)
+                        if raw.get("claim_category") in ClaimCategory._value2member_map_
+                        else ClaimCategory.OTHER
                     ),
                     page_reference=raw.get("page_reference") or None,
                     publication_date=input.publication_date,

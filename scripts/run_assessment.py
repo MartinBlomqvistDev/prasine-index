@@ -234,7 +234,7 @@ async def run(
         else:
             print(
                 f"No --claim provided — fetching {source_url} "
-                f"and discovering sustainability subpages (max 5, claims capped at {max_claims})..."
+                f"and discovering sustainability subpages (cap: {max_claims} claims)..."
             )
             results = await pipeline.run_from_url(company_id, source_url, max_claims=max_claims)
 
