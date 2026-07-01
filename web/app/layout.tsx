@@ -16,6 +16,7 @@ const outfit = Outfit({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://prasineindex.com'),
   title: 'Prasine Index — EU Greenwashing Intelligence',
   description:
     'AI-verified analysis of EU corporate sustainability claims. Every assertion cited. Every data gap disclosed.',
@@ -23,6 +24,8 @@ export const metadata: Metadata = {
     title: 'Prasine Index',
     description: 'EU greenwashing intelligence for compliance teams.',
     siteName: 'Prasine Index',
+    url: 'https://prasineindex.com',
+    type: 'website',
   },
 }
 
