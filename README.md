@@ -4,7 +4,7 @@
 
 **Automated EU corporate greenwashing monitoring and scoring.**
 
-Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain structured for ESG analysts, compliance teams, and regulators.
+Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain — every finding references a named, independently verifiable primary source.
 
 *Prasine* — from Latin/Greek *prasinus* (green).
 
@@ -286,7 +286,7 @@ python scripts/run_assessment.py --company "Shell plc" \
 python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" --max-claims 10
 
-# Use Opus for judge and report (recommended for client-facing or legally-citable output):
+# Use Opus for judge and report (recommended for citable output):
 python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" \
     --judge-model claude-opus-4-8 \

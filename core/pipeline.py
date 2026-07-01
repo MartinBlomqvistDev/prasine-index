@@ -524,7 +524,7 @@ class Pipeline:
         )
         self._context_agent = ContextAgent()
         self._verification_agent = VerificationAgent(client=self._anthropic_client)
-        self._lobbying_agent = LobbyingAgent(http_client=self._http_client)
+        self._lobbying_agent = LobbyingAgent()
         self._judge_agent = JudgeAgent(
             client=self._anthropic_client,
             model_id=self._config.judge_model,

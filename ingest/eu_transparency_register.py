@@ -32,7 +32,12 @@ from core.logger import get_logger
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_eu_transparency_register_data", "refresh_cache"]
+__all__ = [
+    "fetch_eu_transparency_register_data",
+    "lookup_registration",
+    "refresh_cache",
+    "register_export_available",
+]
 
 logger = get_logger(__name__)
 
@@ -210,6 +215,42 @@ def _lookup(company_name: str) -> _TRRecord | None:
                 return record
 
     return None
+
+
+def register_export_available() -> bool:
+    """Return True if the local Transparency Register export is loaded and non-empty.
+
+    Used by callers to distinguish "company not found in the register export"
+    (a genuine negative lookup) from "the export file is missing" (a data gap
+    that must never be reported as non-registration).
+    """
+    return bool(_get_cache())
+
+
+def lookup_registration(company_name: str) -> dict[str, str] | None:
+    """Look up a company in the local Transparency Register export by name.
+
+    Public wrapper around the internal cache lookup, used by the Lobbying
+    Agent. Matching normalises legal suffixes and falls back to substring
+    containment, so a miss is not proof of non-registration.
+
+    Args:
+        company_name: Company name to look up.
+
+    Returns:
+        A dict with keys ``reg_number``, ``name``, ``status``, ``category``,
+        ``country``, or None if no match was found.
+    """
+    record = _lookup(company_name)
+    if record is None:
+        return None
+    return {
+        "reg_number": record.reg_number,
+        "name": record.name,
+        "status": record.status,
+        "category": record.category,
+        "country": record.country,
+    }
 
 
 async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> list[Evidence]:

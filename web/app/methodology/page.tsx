@@ -14,7 +14,7 @@ export default function MethodologyPage() {
           </div>
           <div className="nav-links">
             <a href="/methodology" className="nav-link" style={{ color: 'var(--text)' }}>Methodology</a>
-            <a href="/#apply" className="nav-btn">Request an assessment</a>
+            <a href="/#apply" className="nav-btn">Get in touch</a>
           </div>
         </div>
       </nav>

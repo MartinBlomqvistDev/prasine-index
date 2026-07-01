@@ -53,7 +53,7 @@ export default function HomePage() {
           <div className="nav-logo"><span>P</span>rasine Index</div>
           <div className="nav-links">
             <a href="/methodology" className="nav-link">Methodology</a>
-            <a href="#apply" className="nav-btn">Request an assessment</a>
+            <a href="#apply" className="nav-btn">Get in touch</a>
           </div>
         </div>
       </nav>
@@ -63,9 +63,9 @@ export default function HomePage() {
         <div className="doc-container">
           <p className="intro-text">
             Prasine Index verifies EU corporate sustainability claims against enforcement
-            records, regulatory filings, lobbying data, and open climate datasets. Get in
-            touch with a company and a claim. I run the full evidence pipeline and deliver
-            a cited assessment report — built for journalists, NGOs, law firms, and activist investors.
+            records, regulatory filings, lobbying data, and open climate datasets. Every
+            finding cites a named, independently verifiable primary source — research
+            built for journalists, NGOs, and researchers investigating greenwashing.
           </p>
           <p className="intro-sub">
             Example output: what a Prasine Index assessment looks like.
@@ -238,12 +238,11 @@ export default function HomePage() {
       {/* ── Apply ── */}
       <section id="apply" className="apply-section">
         <div className="doc-container">
-          <h2>Request an assessment</h2>
+          <h2>Suggest a company</h2>
           <p className="apply-sub">
-            I&apos;m running a limited number of pilot assessments for journalists, NGOs,
-            legal researchers, and analysts. Get in touch — send a company, a claim, or
-            just describe what you&apos;re investigating. I&apos;ll come back with whether
-            it&apos;s a fit and what&apos;s involved.
+            Investigating a company&apos;s green claims? Send a company, a claim, or
+            just describe what you&apos;re looking into — if it fits the index,
+            I&apos;ll run it through the pipeline and publish the evidence chain.
           </p>
           <ApplyForm />
         </div>
