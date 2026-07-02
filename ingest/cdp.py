@@ -177,6 +177,9 @@ def _normalise_name(name: str) -> str:
         " group",
         " holding",
         " holdings",
+        " a/s",
+        " as",
+        " ab",
     ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()

@@ -130,6 +130,21 @@ async def _fetch_pages(
         resp = await http_client.get(source_url, headers=_FETCH_HEADERS)
         resp.raise_for_status()
     except httpx.HTTPError as exc:
+        # WAF/bot-blocked entry pages (403 for the self-identified PrasineIndex
+        # UA) are common on large corporate sites — a real browser via
+        # Playwright usually passes. Try that before declaring failure.
+        get_logger(__name__).warning(
+            f"_fetch_pages: httpx failed for {source_url} ({exc}) — trying Playwright",
+            extra={"operation": "pipeline_httpx_blocked", "url": source_url},
+        )
+        try:
+            pages = await _fetch_pages_playwright(source_url, "", max_subpages)
+        except Exception as pw_exc:
+            raise RuntimeError(
+                f"Failed to fetch {source_url}: httpx: {exc}; playwright: {pw_exc}"
+            ) from exc
+        if pages:
+            return pages
         raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
 
     # PDF — extract text directly, no subpage discovery.
@@ -227,8 +242,15 @@ async def _fetch_pages_playwright(
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
+        # A standard browser UA, not the self-identified PrasineIndex one:
+        # Playwright is specifically the fallback for pages that block the
+        # bot UA (Azure WAF and friends), so announcing a bot here would
+        # defeat the fallback's purpose.
         ctx = await browser.new_context(
-            user_agent=_FETCH_HEADERS["User-Agent"],
+            user_agent=(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            ),
             locale="en-GB",
         )
         try:

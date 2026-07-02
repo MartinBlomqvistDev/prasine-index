@@ -66,6 +66,33 @@ class TestNormaliseName:
         assert tr_normalise(name) == name.lower()
 
 
+class TestNordicSuffixes:
+    """Regression: 'Ørsted A/S' failed SBTi lookup because ' a/s' was not
+    stripped — the pipeline then reported 'no SBTi record' for a company
+    with a validated 1.5°C net-zero target. Caught pre-publication 2026-07-02."""
+
+    def test_orsted_normalises_across_all_modules(self) -> None:
+        from ingest.cdp import _normalise_name as cdp_norm
+        from ingest.eprtr import _normalise_name as eprtr_norm
+        from ingest.fossil_finance import _normalise_name as ff_norm
+        from ingest.lobby_map import _normalise_name as lm_norm
+        from ingest.sbti import _normalise_name as sbti_norm
+
+        for norm in (sbti_norm, cdp_norm, eprtr_norm, ff_norm, lm_norm):
+            assert norm("Ørsted A/S") == "ørsted"
+            assert norm("SSAB AB") == "ssab"
+
+    def test_slug_handles_danish_o(self) -> None:
+        import sys
+        from pathlib import Path as _P
+
+        sys.path.insert(0, str(_P(__file__).parent.parent / "scripts"))
+        from run_assessment import _slug
+
+        assert _slug("Ørsted A/S") == "orsted-a-s"
+        assert _slug("H&M Group") == "h-m-group"
+
+
 class TestEnforcementLookup:
     def test_ryanair_matches_known_rulings(self) -> None:
         company = SimpleNamespace(name="Ryanair Holdings plc")
