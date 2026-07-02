@@ -36,6 +36,9 @@ class AgentName(StrEnum):
     LOBBYING = "LOBBYING"
     JUDGE = "JUDGE"
     REPORT = "REPORT"
+    # Orchestrator-level events (e.g. a claim failing mid-pipeline) that
+    # cannot be attributed to a single agent step.
+    PIPELINE = "PIPELINE"
 
 
 class AgentOutcome(StrEnum):

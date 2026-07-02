@@ -336,6 +336,14 @@ class ReportAgent:
             ) from exc
 
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
+
+        if response.stop_reason == "max_tokens":
+            logger.warning(
+                f"Report truncated at max_tokens={self._max_tokens} — the published "
+                "report may be missing trailing sections (disclaimer, methodology)",
+                extra={"operation": "report_truncated", "max_tokens": self._max_tokens},
+            )
+
         report_text = "".join(block.text for block in response.content if hasattr(block, "text"))
 
         if not report_text.strip():

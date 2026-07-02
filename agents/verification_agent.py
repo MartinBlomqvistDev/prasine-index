@@ -1094,6 +1094,45 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Node registry — single source of truth for graph construction AND trace
+# metadata, so the two can never drift apart (each node appears exactly once).
+# fetch_source_document is registered separately in _build_verification_graph
+# because it needs the shared Anthropic client injected via functools.partial.
+# ---------------------------------------------------------------------------
+
+_STATIC_NODES: list[tuple[str, Any]] = [
+    ("fetch_eu_ets", _node_fetch_eu_ets),
+    ("fetch_cdp", _node_fetch_cdp),
+    ("fetch_sbti", _node_fetch_sbti),
+    ("fetch_eprtr", _node_fetch_eprtr),
+    ("fetch_lobby_map", _node_fetch_lobby_map),
+    ("fetch_enforcement", _node_fetch_enforcement),
+    ("fetch_ca100", _node_fetch_ca100),
+    ("fetch_fossil_finance", _node_fetch_fossil_finance),
+    ("fetch_coal_exit", _node_fetch_coal_exit),
+    ("fetch_eurlex", _node_fetch_eurlex),
+    ("fetch_eu_innovation_fund", _node_fetch_eu_innovation_fund),
+    ("fetch_gogel", _node_fetch_gogel),
+    ("fetch_eea_national", _node_fetch_eea_national),
+    ("fetch_eu_transparency_register", _node_fetch_eu_transparency_register),
+    ("fetch_eurostat", _node_fetch_eurostat),
+    ("fetch_climate_trace", _node_fetch_climate_trace),
+    ("fetch_tpi", _node_fetch_tpi),
+    ("fetch_gcpt", _node_fetch_gcpt),
+    ("fetch_egt", _node_fetch_egt),
+    ("fetch_goget", _node_fetch_goget),
+    ("fetch_edgar", _node_fetch_edgar),
+]
+
+_ALL_NODE_NAMES: list[str] = ["fetch_source_document"] + [name for name, _ in _STATIC_NODES]
+
+# Human-readable source identifiers derived from the node names.
+_SOURCES_QUERIED: list[str] = sorted(
+    name.removeprefix("fetch_").upper() for name in _ALL_NODE_NAMES
+)
+
+
+# ---------------------------------------------------------------------------
 # Graph construction
 # ---------------------------------------------------------------------------
 
@@ -1130,88 +1169,15 @@ def _build_verification_graph(
         functools.partial(_node_fetch_source_document, client=anthropic_client),
     )
     graph.add_node("fetch_source_document", source_doc_node)
-    graph.add_node("fetch_eu_ets", _with_timing("fetch_eu_ets", _node_fetch_eu_ets))
-    graph.add_node("fetch_cdp", _with_timing("fetch_cdp", _node_fetch_cdp))
-    graph.add_node("fetch_sbti", _with_timing("fetch_sbti", _node_fetch_sbti))
-    graph.add_node("fetch_eprtr", _with_timing("fetch_eprtr", _node_fetch_eprtr))
-    graph.add_node("fetch_lobby_map", _with_timing("fetch_lobby_map", _node_fetch_lobby_map))
-    graph.add_node("fetch_enforcement", _with_timing("fetch_enforcement", _node_fetch_enforcement))
-    graph.add_node("fetch_ca100", _with_timing("fetch_ca100", _node_fetch_ca100))
-    graph.add_node(
-        "fetch_fossil_finance", _with_timing("fetch_fossil_finance", _node_fetch_fossil_finance)
-    )
-    graph.add_node("fetch_coal_exit", _with_timing("fetch_coal_exit", _node_fetch_coal_exit))
-    graph.add_node("fetch_eurlex", _with_timing("fetch_eurlex", _node_fetch_eurlex))
-    graph.add_node(
-        "fetch_eu_innovation_fund",
-        _with_timing("fetch_eu_innovation_fund", _node_fetch_eu_innovation_fund),
-    )
-    graph.add_node("fetch_gogel", _with_timing("fetch_gogel", _node_fetch_gogel))
-    graph.add_node(
-        "fetch_eea_national", _with_timing("fetch_eea_national", _node_fetch_eea_national)
-    )
-    graph.add_node(
-        "fetch_eu_transparency_register",
-        _with_timing("fetch_eu_transparency_register", _node_fetch_eu_transparency_register),
-    )
-    graph.add_node("fetch_eurostat", _with_timing("fetch_eurostat", _node_fetch_eurostat))
-    graph.add_node(
-        "fetch_climate_trace", _with_timing("fetch_climate_trace", _node_fetch_climate_trace)
-    )
-    graph.add_node("fetch_tpi", _with_timing("fetch_tpi", _node_fetch_tpi))
-    graph.add_node("fetch_gcpt", _with_timing("fetch_gcpt", _node_fetch_gcpt))
-    graph.add_node("fetch_egt", _with_timing("fetch_egt", _node_fetch_egt))
-    graph.add_node("fetch_goget", _with_timing("fetch_goget", _node_fetch_goget))
-    graph.add_node("fetch_edgar", _with_timing("fetch_edgar", _node_fetch_edgar))
+    for name, fn in _STATIC_NODES:
+        graph.add_node(name, _with_timing(name, fn))
     graph.add_node("aggregate", _node_aggregate)
 
-    # Fan out from START to all fetch nodes — LangGraph runs these in parallel
-    graph.add_edge(START, "fetch_source_document")
-    graph.add_edge(START, "fetch_eu_ets")
-    graph.add_edge(START, "fetch_cdp")
-    graph.add_edge(START, "fetch_sbti")
-    graph.add_edge(START, "fetch_eprtr")
-    graph.add_edge(START, "fetch_lobby_map")
-    graph.add_edge(START, "fetch_enforcement")
-    graph.add_edge(START, "fetch_ca100")
-    graph.add_edge(START, "fetch_fossil_finance")
-    graph.add_edge(START, "fetch_coal_exit")
-    graph.add_edge(START, "fetch_eurlex")
-    graph.add_edge(START, "fetch_eu_innovation_fund")
-    graph.add_edge(START, "fetch_gogel")
-    graph.add_edge(START, "fetch_eea_national")
-    graph.add_edge(START, "fetch_eu_transparency_register")
-    graph.add_edge(START, "fetch_eurostat")
-    graph.add_edge(START, "fetch_climate_trace")
-    graph.add_edge(START, "fetch_tpi")
-    graph.add_edge(START, "fetch_gcpt")
-    graph.add_edge(START, "fetch_egt")
-    graph.add_edge(START, "fetch_goget")
-    graph.add_edge(START, "fetch_edgar")
-
-    # All fetch nodes converge at aggregate
-    graph.add_edge("fetch_source_document", "aggregate")
-    graph.add_edge("fetch_eu_ets", "aggregate")
-    graph.add_edge("fetch_cdp", "aggregate")
-    graph.add_edge("fetch_sbti", "aggregate")
-    graph.add_edge("fetch_eprtr", "aggregate")
-    graph.add_edge("fetch_lobby_map", "aggregate")
-    graph.add_edge("fetch_enforcement", "aggregate")
-    graph.add_edge("fetch_ca100", "aggregate")
-    graph.add_edge("fetch_fossil_finance", "aggregate")
-    graph.add_edge("fetch_coal_exit", "aggregate")
-    graph.add_edge("fetch_eurlex", "aggregate")
-    graph.add_edge("fetch_eu_innovation_fund", "aggregate")
-    graph.add_edge("fetch_gogel", "aggregate")
-    graph.add_edge("fetch_eea_national", "aggregate")
-    graph.add_edge("fetch_eu_transparency_register", "aggregate")
-    graph.add_edge("fetch_eurostat", "aggregate")
-    graph.add_edge("fetch_climate_trace", "aggregate")
-    graph.add_edge("fetch_tpi", "aggregate")
-    graph.add_edge("fetch_gcpt", "aggregate")
-    graph.add_edge("fetch_egt", "aggregate")
-    graph.add_edge("fetch_goget", "aggregate")
-    graph.add_edge("fetch_edgar", "aggregate")
+    # Fan out from START to all fetch nodes (LangGraph runs these in
+    # parallel), then converge every fetch node on the aggregate step.
+    for name in _ALL_NODE_NAMES:
+        graph.add_edge(START, name)
+        graph.add_edge(name, "aggregate")
 
     graph.add_edge("aggregate", END)
 
@@ -1346,30 +1312,7 @@ class VerificationAgent:
             metadata={
                 "evidence_count": len(result.evidence) if result else 0,
                 "data_gap_count": len(result.data_gaps) if result else 0,
-                "sources_queried": [
-                    "SOURCE_DOCUMENT",
-                    "EU_ETS",
-                    "CDP",
-                    "SBTI",
-                    "EPRTR",
-                    "LOBBY_MAP",
-                    "ENFORCEMENT",
-                    "CA100",
-                    "FOSSIL_FINANCE",
-                    "COAL_EXIT",
-                    "EUR_LEX",
-                    "EU_INNOVATION_FUND",
-                    "GOGEL",
-                    "EEA_NATIONAL",
-                    "EU_TRANSPARENCY_REGISTER",
-                    "EUROSTAT",
-                    "CLIMATE_TRACE",
-                    "TPI",
-                    "GCPT",
-                    "EGT",
-                    "GOGET",
-                    "EDGAR",
-                ],
+                "sources_queried": _SOURCES_QUERIED,
             },
         )
 

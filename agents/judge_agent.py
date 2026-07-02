@@ -583,6 +583,18 @@ class JudgeAgent:
 
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
+        if response.stop_reason == "max_tokens":
+            raise LLMError(
+                message=(
+                    f"Judge response truncated at max_tokens={self._max_tokens} — "
+                    "the verdict tool call is incomplete. Increase max_tokens rather "
+                    "than retrying the same request."
+                ),
+                agent=AgentName.JUDGE.value,
+                retryable=False,
+                llm_model_id=self._model_id,
+            )
+
         tool_block = next(
             (b for b in response.content if b.type == "tool_use"),
             None,

@@ -9,6 +9,7 @@ trail of everything that succeeded.
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import io
 import json
@@ -36,7 +37,7 @@ from core.textutil import html_to_text as _html_to_text
 from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
 from models.company import Company
 from models.score import GreenwashingScore
-from models.trace import AgentName, AgentTrace
+from models.trace import AgentName, AgentOutcome, AgentTrace
 
 __all__ = [
     "Pipeline",
@@ -45,6 +46,11 @@ __all__ = [
 ]
 
 _MAX_FETCH_CHARS = 40_000
+
+# PDFs get a higher cap: a single investor-facing ESG PDF often IS the whole
+# assessment source, and claims beyond a 40k cut-off would be invisible.
+# 150k chars ≈ 40k tokens — comfortably within Haiku's extraction context.
+_MAX_PDF_CHARS = 150_000
 
 
 def _extract_pdf_text(content: bytes) -> str:
@@ -131,7 +137,7 @@ async def _fetch_pages(
             f"_fetch_pages: PDF detected at {source_url} — extracting text with pypdf",
             extra={"operation": "pipeline_pdf_fetch", "url": source_url},
         )
-        pdf_text = _extract_pdf_text(resp.content)[:_MAX_FETCH_CHARS]
+        pdf_text = _extract_pdf_text(resp.content)[:_MAX_PDF_CHARS]
         return [(source_url, pdf_text)] if pdf_text else []
 
     raw_html = resp.text
@@ -144,29 +150,48 @@ async def _fetch_pages(
             "— switching to Playwright for JS rendering",
             extra={"operation": "pipeline_playwright_fallback", "url": source_url},
         )
-        return await _fetch_pages_playwright(source_url, raw_html, max_subpages)
+        try:
+            return await _fetch_pages_playwright(source_url, raw_html, max_subpages)
+        except Exception as exc:
+            # Playwright unavailable (browser not installed, launch failure)
+            # must not kill the whole assessment — degrade to whatever the
+            # static fetch produced and let extraction judge its usefulness.
+            _log.warning(
+                f"_fetch_pages: Playwright failed ({exc}) — falling back to "
+                f"static httpx content ({len(entry_text)} chars)",
+                extra={"operation": "pipeline_playwright_failed", "url": source_url},
+            )
 
-    # Static site path — httpx for all subpages.
+    # Static site path — httpx for all subpages, fetched concurrently.
     pages: list[tuple[str, str]] = []
     if entry_text:
         pages.append((source_url, entry_text))
 
     seen: set[str] = {source_url.rstrip("/")}
-    for sub_url in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
-        if sub_url in seen:
-            continue
-        seen.add(sub_url)
-        try:
-            sub_resp = await http_client.get(sub_url, headers=_FETCH_HEADERS)
-            sub_resp.raise_for_status()
-            sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
-            if sub_text:
-                pages.append((sub_url, sub_text))
-        except Exception as exc:
-            get_logger(__name__).warning(
-                f"_fetch_pages: skipping subpage {sub_url}: {exc}",
-                extra={"operation": "pipeline_subpage_failed", "url": sub_url},
-            )
+    sub_urls: list[str] = []
+    for u in extract_relevant_links(raw_html, source_url, max_links=max_subpages):
+        if u not in seen:
+            seen.add(u)
+            sub_urls.append(u)
+
+    semaphore = asyncio.Semaphore(5)
+
+    async def _fetch_sub(sub_url: str) -> tuple[str, str] | None:
+        async with semaphore:
+            try:
+                sub_resp = await http_client.get(sub_url, headers=_FETCH_HEADERS)
+                sub_resp.raise_for_status()
+                sub_text = _html_to_text(sub_resp.text)[:_MAX_FETCH_CHARS]
+                return (sub_url, sub_text) if sub_text else None
+            except Exception as exc:
+                get_logger(__name__).warning(
+                    f"_fetch_pages: skipping subpage {sub_url}: {exc}",
+                    extra={"operation": "pipeline_subpage_failed", "url": sub_url},
+                )
+                return None
+
+    fetched = await asyncio.gather(*(_fetch_sub(u) for u in sub_urls))
+    pages.extend(page for page in fetched if page is not None)
 
     return pages
 
@@ -278,7 +303,9 @@ _CATEGORY_WEIGHT: dict[str, int] = {
 
 # Regex patterns that indicate a specific, verifiable claim.
 _SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
-    re.compile(r"\d{1,3}[,\s]?\d{3}"),  # large numbers (e.g. 200,000)
+    # Large numbers require a thousands separator or 5+ digits so bare year
+    # targets (2029) don't double-count — years have their own pattern below.
+    re.compile(r"\d{1,3}[,\s]\d{3}|\d{5,}"),  # large numbers (e.g. 200,000)
     re.compile(r"\d+\s*%"),  # percentages
     re.compile(r"20[2-9]\d"),  # year targets (2020-2099)
     re.compile(r"\bzero\b|\bnoll\b", re.I),  # zero-emissions language
@@ -297,7 +324,7 @@ _SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
 # pipeline doesn't return empty results for legitimate but weakly-cached pages.
 _MIN_CLAIM_PRIORITY = 2
 
-_HAS_LARGE_NUMBER = re.compile(r"\d{1,3}[,\s]?\d{3}")
+_HAS_LARGE_NUMBER = re.compile(r"\d{1,3}[,\s]\d{3}|\d{5,}")
 _HAS_YEAR = re.compile(r"20[2-9]\d")
 _HAS_TECHNOLOGY = re.compile(
     r"\bccs\b|\bcapture\b|\binfångning\b|\binfangning\b|\bhydrogen\b|\bvätgas\b"
@@ -867,6 +894,24 @@ class Pipeline:
                     "error_type": type(exc).__name__,
                 },
             )
+            # Persist a FAILURE trace so trace_log records failed claims too —
+            # without this, the audit trail only contains successful steps
+            # (survivorship bias in observability).
+            failure_trace = AgentTrace(
+                trace_id=claim.trace_id,
+                claim_id=claim.id,
+                agent=AgentName.PIPELINE,
+                outcome=AgentOutcome.FAILURE,
+                started_at=datetime.now(UTC),
+                completed_at=datetime.now(UTC),
+                error_type=type(exc).__name__,
+                error_message=str(exc)[:500],
+                input_schema="models.claim.Claim",
+                output_schema=None,
+                metadata={"claim_preview": (claim.raw_text or "")[:120]},
+            )
+            with contextlib.suppress(Exception):
+                await self._persist_trace(failure_trace)
             with contextlib.suppress(Exception):
                 await self._transition_claim_status(
                     claim=claim,
@@ -907,7 +952,7 @@ class Pipeline:
                 f"_fetch_and_populate: PDF detected at {url} — extracting text with pypdf",
                 extra={"operation": "pipeline_pdf_fetch", "url": url},
             )
-            raw_text = _extract_pdf_text(response.content)[:_MAX_FETCH_CHARS]
+            raw_text = _extract_pdf_text(response.content)[:_MAX_PDF_CHARS]
         else:
             raw_text = _html_to_text(response.text)[:_MAX_FETCH_CHARS]
             if len(raw_text) < _SPA_THRESHOLD:
@@ -916,8 +961,15 @@ class Pipeline:
                     "— switching to Playwright",
                     extra={"operation": "pipeline_playwright_fallback", "url": url},
                 )
-                pages = await _fetch_pages_playwright(url, response.text, max_subpages=0)
-                raw_text = pages[0][1] if pages else raw_text
+                try:
+                    pages = await _fetch_pages_playwright(url, response.text, max_subpages=0)
+                    raw_text = pages[0][1] if pages else raw_text
+                except Exception as exc:
+                    logger.warning(
+                        f"_fetch_and_populate: Playwright failed ({exc}) — using "
+                        f"static httpx content ({len(raw_text)} chars)",
+                        extra={"operation": "pipeline_playwright_failed", "url": url},
+                    )
 
         logger.info(
             f"Fetched {len(raw_text)} chars from {url}",

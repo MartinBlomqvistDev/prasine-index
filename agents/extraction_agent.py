@@ -498,6 +498,18 @@ class ExtractionAgent:
 
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
+        if response.stop_reason == "max_tokens":
+            raise LLMError(
+                message=(
+                    f"Extraction response truncated at max_tokens={self._max_tokens} — "
+                    "the tool call is incomplete. Increase max_tokens for claim-dense "
+                    "documents rather than retrying the same request."
+                ),
+                agent=AgentName.EXTRACTION.value,
+                retryable=False,
+                llm_model_id=self._model_id,
+            )
+
         tool_block = next(
             (block for block in response.content if block.type == "tool_use"),
             None,

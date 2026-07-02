@@ -18,8 +18,16 @@ _SCORE_TOP_K = 3
 
 
 def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, float]:
-    """Return (score, low, high, confidence) weighted by confidence × score."""
-    weights = [s.confidence * s.score for s in subset]
+    """Return (score, low, high, confidence) as confidence-weighted means.
+
+    Weights are the judge's per-claim confidences only. Using score as its own
+    weight (the previous confidence × score scheme) double-counted severity —
+    the formula must be describable in one sentence for legal defensibility:
+    "the confidence-weighted mean of the three highest-scoring claims".
+    Severity protection comes from the band floor in the caller, not from
+    weight gymnastics here.
+    """
+    weights = [s.confidence for s in subset]
     total = sum(weights)
     if total == 0:
         n = len(subset)
