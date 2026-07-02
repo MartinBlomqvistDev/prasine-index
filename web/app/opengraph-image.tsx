@@ -1,81 +1,129 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'Prasine Index — EU Greenwashing Intelligence'
+export const alt = 'Prasine Index — EU corporate greenwashing monitor. Ryanair 86/100, Glencore 86/100, BP 80/100.'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+
+const VERDICTS = [
+  { company: 'Ryanair', score: 86, label: 'CONFIRMED GREENWASHING', color: '#8b1c1c' },
+  { company: 'Glencore', score: 86, label: 'CONFIRMED GREENWASHING', color: '#8b1c1c' },
+  { company: 'BP', score: 80, label: 'LIKELY GREENWASHING', color: '#92400e' },
+]
 
 export default function Image() {
   return new ImageResponse(
     (
       <div
         style={{
-          background: '#0f1a10',
+          background: '#f5f0e6',
           width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          padding: '80px',
+          padding: '64px 80px',
+          border: '14px solid #163820',
         }}
       >
         <div
           style={{
-            fontSize: 22,
-            fontWeight: 600,
-            letterSpacing: '0.15em',
-            color: '#4ade80',
-            textTransform: 'uppercase',
-            marginBottom: 24,
-          }}
-        >
-          prasineindex.com
-        </div>
-        <div
-          style={{
-            fontSize: 72,
-            fontWeight: 700,
-            color: '#f0fdf4',
-            lineHeight: 1.1,
-            marginBottom: 28,
-          }}
-        >
-          Prasine Index
-        </div>
-        <div
-          style={{
-            fontSize: 30,
-            color: '#86efac',
-            lineHeight: 1.4,
-            maxWidth: 700,
-          }}
-        >
-          AI-verified analysis of EU corporate sustainability claims.
-          Every assertion cited. Every data gap disclosed.
-        </div>
-        <div
-          style={{
-            marginTop: 48,
             display: 'flex',
-            gap: 32,
+            alignItems: 'center',
+            gap: 14,
+            fontSize: 20,
+            fontWeight: 700,
+            letterSpacing: '0.14em',
+            color: '#1a4024',
+            marginBottom: 20,
           }}
         >
-          {['EmpCo Directive', 'Green Claims Directive', 'CSRD'].map((label) => (
-            <div
-              key={label}
-              style={{
-                background: '#14532d',
-                color: '#4ade80',
-                fontSize: 16,
-                fontWeight: 600,
-                padding: '8px 20px',
-                borderRadius: 6,
-                letterSpacing: '0.05em',
-              }}
-            >
-              {label}
+          <div style={{ width: 36, height: 3, background: '#1a4024', display: 'flex' }} />
+          PRASINE INDEX · EU GREENWASHING MONITOR
+        </div>
+
+        <div
+          style={{
+            fontSize: 64,
+            fontWeight: 700,
+            color: '#1a160d',
+            lineHeight: 1.08,
+            letterSpacing: '-0.02em',
+            marginBottom: 40,
+            display: 'flex',
+          }}
+        >
+          Every green claim. Verified against reality.
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {VERDICTS.map((v) => (
+            <div key={v.company} style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+              <div
+                style={{
+                  width: 190,
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: '#1a160d',
+                  display: 'flex',
+                }}
+              >
+                {v.company}
+              </div>
+              <div
+                style={{
+                  flex: 1,
+                  height: 14,
+                  background: '#d0c8b8',
+                  display: 'flex',
+                }}
+              >
+                <div
+                  style={{
+                    width: `${v.score}%`,
+                    height: '100%',
+                    background: v.color,
+                    display: 'flex',
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  width: 130,
+                  fontSize: 30,
+                  fontWeight: 700,
+                  color: v.color,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                }}
+              >
+                {v.score}/100
+              </div>
+              <div
+                style={{
+                  width: 330,
+                  fontSize: 17,
+                  fontWeight: 700,
+                  letterSpacing: '0.06em',
+                  color: v.color,
+                  display: 'flex',
+                }}
+              >
+                {v.label}
+              </div>
             </div>
           ))}
+        </div>
+
+        <div
+          style={{
+            marginTop: 44,
+            fontSize: 22,
+            color: '#6b5f4e',
+            display: 'flex',
+          }}
+        >
+          22 EU data sources · every finding cites a verifiable primary source · prasineindex.com
         </div>
       </div>
     ),
