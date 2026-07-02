@@ -690,10 +690,16 @@ class Pipeline:
         )
 
         # --- Phase 2: extract claims from all pages (cheap) ---
+        # ONE trace_id for the whole run, shared by every page's extraction and
+        # every claim's downstream pipeline. This is what lets the Context
+        # Agent exclude the entire in-flight run from "prior assessment"
+        # history — with per-document trace_ids, claims scored earlier in the
+        # same batch leaked into later claims' history as fake priors.
+        run_trace_id = uuid.uuid4()
         all_claims: list[Claim] = []
         for page_url, page_content in pages:
             extraction_input = ExtractionInput(
-                trace_id=uuid.uuid4(),
+                trace_id=run_trace_id,
                 company_id=company_id,
                 source_url=page_url,
                 source_type=source_type,
@@ -780,10 +786,11 @@ class Pipeline:
         """
         pages = await _fetch_pages(source_url, self._http_client, max_subpages)
 
+        run_trace_id = uuid.uuid4()
         all_claims: list[Claim] = []
         for page_url, page_content in pages:
             extraction_input = ExtractionInput(
-                trace_id=uuid.uuid4(),
+                trace_id=run_trace_id,
                 company_id=company_id,
                 source_url=page_url,
                 source_type=source_type,

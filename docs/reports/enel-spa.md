@@ -12,7 +12,7 @@
 | 3 | 44/100 | MISLEADING_CLAIM | 1.5°C SBTi certified GHG emissions targets for Scope 1&3 Integrated Power with -100% reduction vs 2017 by 2040 and no ne |
 | 4 | 52/100 | MISLEADING_CLAIM | 1.5°C SBTi certified GHG emissions targets for Additional Scope 1, 2 & 3 Emissions with neutralization of residual amoun |
 | 5 | 58/100 | MISLEADING_CLAIM | Exit gas retail by 2040 pushing on electrification of uses. 100% sales from GHG free sources by 2040 |
-| 6 | 22/100 | SUBSTANTIATED_CLAIM | Coal power plants consolidated capacity reduced from 16.8 GW in 2015 to 1.0 GW in 2025, representing -95% reduction; con |
+| 6 | 22/100 | UNVERIFIABLE_CLAIM | Coal power plants consolidated capacity reduced from 16.8 GW in 2015 to 1.0 GW in 2025, representing -95% reduction; con |
 | 7 | 34/100 | UNVERIFIABLE_CLAIM | Supply chain emissions reduction with 1.5°C SBTi certified targets: -55% by 2030 and -90% by 2040 for Additional Scope 1 |
 
 ---

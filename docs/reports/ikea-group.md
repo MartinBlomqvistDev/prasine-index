@@ -11,7 +11,7 @@
 | 2 | 47/100 | MISLEADING_CLAIM | By enabling investments towards a resilient net-zero society. |
 | 3 | 24/100 | UNVERIFIABLE_CLAIM | We are committed to halving greenhouse gas (GHG) emissions across the IKEA value chain (scopes 1, 2 and 3) by FY30, and  |
 | 4 | 54/100 | MISLEADING_CLAIM | We will neutralise the remaining emissions through removing and storing carbon within the IKEA value chain through fores |
-| 5 | 22/100 | SUBSTANTIATED_CLAIM | IKEA has a goal to reduce emissions from product use at home by 70% compared to baseline FY16. |
+| 5 | 22/100 | UNVERIFIABLE_CLAIM | IKEA has a goal to reduce emissions from product use at home by 70% compared to baseline FY16. |
 | 6 | 49/100 | MISLEADING_CLAIM | 100M EUR investment in removing and storing carbon |
 | 7 | 33/100 | UNVERIFIABLE_CLAIM | Striving towards electrification, 100% renewable energy and continually improving efficiency |
 
