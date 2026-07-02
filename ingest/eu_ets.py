@@ -52,28 +52,34 @@ _EUTL_LEGACY_CSV: Path = Path(
 # Number of most recent years to include in the trend summary.
 _YEARS_TO_RETRIEVE: int = 5
 
-# Module-level cache: {numeric_installation_id: [(year, emissions_tco2e), ...]} asc by year.
-_emissions_cache: dict[int, list[tuple[int, float]]] | None = None
+# Module-level cache keyed by (registry_code, numeric_id) — installation
+# numbers are only unique WITHIN a national registry (1,271 numeric IDs occur
+# in more than one country in the 2026 daily snapshot), so an unscoped key
+# would silently merge emissions from unrelated installations across borders.
+_emissions_cache: dict[tuple[str, int], list[tuple[int, float]]] | None = None
 
 
-def _parse_installation_id(raw_id: str) -> int | None:
-    """Convert an installation ID in any supported format to its numeric form.
+def _parse_installation_id(raw_id: str) -> tuple[str | None, int] | None:
+    """Split an installation ID into (registry_code, numeric_id).
 
     Accepts:
-    - Numeric string: "201078" → 201078
-    - euets.info prefixed: "IE_201078" → 201078
+    - Prefixed (euets.info convention): "SE_495" → ("SE", 495)
+    - Plain numeric: "495" → (None, 495) — resolvable only if the number is
+      unambiguous across registries.
 
     Args:
         raw_id: Installation ID as stored in Company.eu_ets_installation_ids.
 
     Returns:
-        Integer numeric ID, or None if unparseable.
+        Tuple of (registry_code | None, numeric_id), or None if unparseable.
     """
     raw_id = raw_id.strip()
+    registry: str | None = None
     if "_" in raw_id:
-        raw_id = raw_id.split("_", 1)[1]
+        registry, raw_id = raw_id.split("_", 1)
+        registry = registry.strip().upper() or None
     try:
-        return int(raw_id)
+        return registry, int(raw_id)
     except ValueError:
         return None
 
@@ -89,7 +95,7 @@ def _load_daily_cache() -> dict[int, list[tuple[int, float]]]:
     if not path.exists():
         return {}
 
-    data: dict[int, list[tuple[int, float]]] = {}
+    data: dict[tuple[str, int], list[tuple[int, float]]] = {}
     with path.open(encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
@@ -105,9 +111,10 @@ def _load_daily_cache() -> dict[int, list[tuple[int, float]]]:
             try:
                 inst_id = int(row["INSTALLATION_IDENTIFIER"])
                 year = int(row["PERIOD_YEAR"])
+                registry = row["REGISTRY_CODE"].strip().upper()
             except (ValueError, KeyError):
                 continue
-            data.setdefault(inst_id, []).append((year, emissions))
+            data.setdefault((registry, inst_id), []).append((year, emissions))
 
     for inst_id in data:
         data[inst_id].sort(key=lambda t: t[0])
@@ -125,7 +132,7 @@ def _load_legacy_cache() -> dict[int, list[tuple[int, float]]]:
     if not path.exists():
         return {}
 
-    data: dict[int, list[tuple[int, float]]] = {}
+    data: dict[tuple[str, int], list[tuple[int, float]]] = {}
     with path.open(encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
@@ -139,10 +146,10 @@ def _load_legacy_cache() -> dict[int, list[tuple[int, float]]]:
                 year = int(row["year"])
             except (ValueError, KeyError):
                 continue
-            numeric_id = _parse_installation_id(row.get("installation_id", ""))
-            if numeric_id is None:
-                continue
-            data.setdefault(numeric_id, []).append((year, emissions))
+            parsed = _parse_installation_id(row.get("installation_id", ""))
+            if parsed is None or parsed[0] is None:
+                continue  # legacy rows must carry the registry prefix
+            data.setdefault((parsed[0], parsed[1]), []).append((year, emissions))
 
     for inst_id in data:
         data[inst_id].sort(key=lambda t: t[0])
@@ -163,7 +170,7 @@ def refresh_cache() -> None:
     )
 
 
-def _get_cache() -> dict[int, list[tuple[int, float]]]:
+def _get_cache() -> dict[tuple[str, int], list[tuple[int, float]]]:
     """Return the module-level emissions cache, loading it on first call.
 
     Prefers the daily official registry snapshot; falls back to the legacy
@@ -219,17 +226,34 @@ async def fetch_eu_ets_data(
     evidence_records: list[Evidence] = []
 
     for raw_id in installation_ids:
-        numeric_id = _parse_installation_id(raw_id)
-        if numeric_id is None:
+        parsed = _parse_installation_id(raw_id)
+        if parsed is None:
             logger.warning(
                 f"Could not parse installation ID: {raw_id}",
                 extra={"operation": "eu_ets_bad_id"},
             )
             continue
+        registry, numeric_id = parsed
+        if registry is not None:
+            history = cache.get((registry, numeric_id), [])
+        else:
+            # Unprefixed ID: usable only if the number is unique across
+            # registries — otherwise we cannot know which installation is
+            # meant and must not guess.
+            candidates = [k for k in cache if k[1] == numeric_id]
+            if len(candidates) > 1:
+                logger.warning(
+                    f"Installation ID {raw_id} is ambiguous across "
+                    f"{len(candidates)} registries — store it with a registry "
+                    "prefix (e.g. SE_495) to resolve. Skipping.",
+                    extra={"operation": "eu_ets_ambiguous_id"},
+                )
+                continue
+            history = cache.get(candidates[0], []) if candidates else []
         record = _build_evidence(
             claim=claim,
             display_id=raw_id,
-            history=cache.get(numeric_id, []),
+            history=history,
         )
         if record is not None:
             evidence_records.append(record)
@@ -266,7 +290,7 @@ def _build_evidence(
         return None
 
     most_recent_year, most_recent_emissions = history[-1]
-    oldest_year, oldest_emissions = history[0]
+    oldest_year, _oldest_emissions = history[0]
 
     # Full history for Judge — critical for long-period claims ("since 2006").
     # Show all years if ≤12, otherwise show oldest + most recent N years.
@@ -288,14 +312,25 @@ def _build_evidence(
         history=history,
     )
 
-    # Directional framing for the Judge.
-    if len(history) >= 2:
+    # Directional framing for the Judge. The headline trend is computed from
+    # 2013 (EU ETS phase 3) onward when possible: phase 1–2 years (2005–2012)
+    # had narrower activity/gas scope, so a 2005 baseline can show a large
+    # "increase" that is a reporting-scope artefact, not real emissions growth.
+    # The full history (including pre-2013 years) is still shown alongside.
+    trend_base = [(y, e) for y, e in history if y >= 2013] or history
+    base_year, base_emissions = trend_base[0]
+    if len(history) >= 2 and base_year != most_recent_year:
         pct_change = (
-            ((most_recent_emissions - oldest_emissions) / oldest_emissions * 100)
-            if oldest_emissions
+            ((most_recent_emissions - base_emissions) / base_emissions * 100)
+            if base_emissions
             else 0
         )
-        direction = f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% from {oldest_year} to {most_recent_year}"
+        direction = (
+            f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% "
+            f"from {base_year} to {most_recent_year}"
+        )
+        if base_year != oldest_year:
+            direction += " (trend baseline 2013 — earlier ETS phases had narrower reporting scope)"
     else:
         direction = "insufficient data for trend"
 
