@@ -10,6 +10,7 @@ const SLUGS = [
   'enel-spa',
   'ikea-group',
   'h-m-group',
+  'orsted-a-s',
 ]
 
 function verdictFromString(v: string): { cls: string; label: string } {
