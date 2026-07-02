@@ -84,7 +84,7 @@ def _parse_installation_id(raw_id: str) -> tuple[str | None, int] | None:
         return None
 
 
-def _load_daily_cache() -> dict[int, list[tuple[int, float]]]:
+def _load_daily_cache() -> dict[tuple[str, int], list[tuple[int, float]]]:
     """Parse operators_yearly_activity_daily.csv into the emissions lookup.
 
     Skips rows where VERIFIED_EMISSIONS is -1 (no data / not in scope for
@@ -116,17 +116,17 @@ def _load_daily_cache() -> dict[int, list[tuple[int, float]]]:
                 continue
             data.setdefault((registry, inst_id), []).append((year, emissions))
 
-    for inst_id in data:
-        data[inst_id].sort(key=lambda t: t[0])
+    for key in data:
+        data[key].sort(key=lambda t: t[0])
 
     return data
 
 
-def _load_legacy_cache() -> dict[int, list[tuple[int, float]]]:
+def _load_legacy_cache() -> dict[tuple[str, int], list[tuple[int, float]]]:
     """Parse compliance.csv (euets.info format) into the emissions lookup.
 
     Filters to reportedInSystem_id == 'euets' and converts the prefixed
-    installation IDs (e.g. IE_201078) to numeric form for a uniform cache key.
+    installation IDs (e.g. IE_201078) to (registry, numeric) cache keys.
     """
     path = _EUTL_LEGACY_CSV
     if not path.exists():
@@ -151,8 +151,8 @@ def _load_legacy_cache() -> dict[int, list[tuple[int, float]]]:
                 continue  # legacy rows must carry the registry prefix
             data.setdefault((parsed[0], parsed[1]), []).append((year, emissions))
 
-    for inst_id in data:
-        data[inst_id].sort(key=lambda t: t[0])
+    for key in data:
+        data[key].sort(key=lambda t: t[0])
 
     return data
 
