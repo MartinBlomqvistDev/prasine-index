@@ -15,7 +15,6 @@ import json
 import re
 import uuid
 from datetime import UTC, datetime
-from html.parser import HTMLParser
 from typing import Any
 
 import anthropic
@@ -33,6 +32,7 @@ from agents.report_agent import ReportAgent, ReportInput
 from agents.verification_agent import VerificationAgent, VerificationInput
 from core.database import get_session
 from core.logger import bind_trace_context, get_logger
+from core.textutil import html_to_text as _html_to_text
 from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
 from models.company import Company
 from models.score import GreenwashingScore
@@ -44,42 +44,7 @@ __all__ = [
     "PipelineResult",
 ]
 
-# ---------------------------------------------------------------------------
-# HTML → plain text utility (used when pipeline fetches a URL directly)
-# ---------------------------------------------------------------------------
-
-_SKIP_TAGS = frozenset(
-    {"script", "style", "nav", "footer", "header", "noscript", "iframe", "aside", "form"}
-)
 _MAX_FETCH_CHARS = 40_000
-
-
-class _TextExtractor(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__()
-        self._skip_depth = 0
-        self._parts: list[str] = []
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag.lower() in _SKIP_TAGS:
-            self._skip_depth += 1
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag.lower() in _SKIP_TAGS:
-            self._skip_depth = max(0, self._skip_depth - 1)
-
-    def handle_data(self, data: str) -> None:
-        if self._skip_depth == 0 and data.strip():
-            self._parts.append(data.strip())
-
-    def get_text(self) -> str:
-        return re.sub(r"\n{3,}", "\n\n", "\n".join(self._parts)).strip()
-
-
-def _html_to_text(html: str) -> str:
-    extractor = _TextExtractor()
-    extractor.feed(html)
-    return extractor.get_text()
 
 
 def _extract_pdf_text(content: bytes) -> str:
@@ -512,6 +477,12 @@ class Pipeline:
         self._owns_anthropic = anthropic_client is None
         self._owns_http = http_client is None
 
+        # Per-run failure accounting, reset at the start of each run_* call.
+        # Callers (run_assessment.py) read these after a run to disclose
+        # incomplete claims and partial audit trails in the published output.
+        self.last_run_failed_claims: list[str] = []
+        self.last_run_persist_failures: int = 0
+
         self._anthropic_client = anthropic_client or anthropic.AsyncAnthropic()
         self._http_client = http_client or httpx.AsyncClient(
             timeout=httpx.Timeout(30.0),
@@ -566,6 +537,9 @@ class Pipeline:
         Returns:
             List of :py:class:`PipelineResult` instances, one per extracted claim.
         """
+        self.last_run_failed_claims = []
+        self.last_run_persist_failures = 0
+
         logger.info(
             "Pipeline starting from document",
             extra={
@@ -592,6 +566,8 @@ class Pipeline:
             result = await self._run_claim_pipeline(claim)
             if result is not None:
                 results.append(result)
+            else:
+                self.last_run_failed_claims.append((claim.raw_text or "")[:120])
 
         return results
 
@@ -649,6 +625,9 @@ class Pipeline:
         Returns:
             List of :py:class:`PipelineResult` for the top *max_claims* claims.
         """
+        self.last_run_failed_claims = []
+        self.last_run_persist_failures = 0
+
         # --- Phase 1: fetch all pages (cheap; Playwright fallback for SPAs) ---
         logger.info(
             f"run_from_url: fetching {source_url}",
@@ -710,6 +689,19 @@ class Pipeline:
             result = await self._run_claim_pipeline(claim)
             if result is not None:
                 all_results.append(result)
+            else:
+                self.last_run_failed_claims.append((claim.raw_text or "")[:120])
+
+        if self.last_run_failed_claims:
+            logger.warning(
+                f"run_from_url: {len(self.last_run_failed_claims)} of {len(selected)} "
+                "claim(s) failed and are excluded from the results",
+                extra={
+                    "operation": "pipeline_claims_failed",
+                    "failed": len(self.last_run_failed_claims),
+                    "attempted": len(selected),
+                },
+            )
 
         return all_results
 
@@ -972,6 +964,7 @@ class Pipeline:
                 )
         except Exception as exc:
             # Trace persistence failures are non-fatal; the pipeline continues.
+            self.last_run_persist_failures += 1
             logger.warning(
                 f"Failed to persist trace {trace.id}: {exc}",
                 extra={"operation": "persist_trace_failed", "error_type": type(exc).__name__},
@@ -1004,6 +997,7 @@ class Pipeline:
                     _claim_to_params(claim),
                 )
         except Exception as exc:
+            self.last_run_persist_failures += 1
             logger.warning(
                 f"Failed to persist claim {claim.id}: {exc}",
                 extra={"operation": "persist_claim_failed", "error_type": type(exc).__name__},
@@ -1048,6 +1042,7 @@ class Pipeline:
                     },
                 )
         except Exception as exc:
+            self.last_run_persist_failures += 1
             logger.warning(
                 f"Failed to persist score {score.id}: {exc}",
                 extra={"operation": "persist_score_failed", "error_type": type(exc).__name__},
@@ -1080,6 +1075,7 @@ class Pipeline:
                     },
                 )
         except Exception as exc:
+            self.last_run_persist_failures += 1
             logger.warning(
                 f"Failed to persist report for claim {claim.id}: {exc}",
                 extra={"operation": "persist_report_failed", "error_type": type(exc).__name__},
@@ -1130,6 +1126,7 @@ class Pipeline:
                     {"status": to_status.value, "claim_id": str(claim.id)},
                 )
         except Exception as exc:
+            self.last_run_persist_failures += 1
             logger.warning(
                 f"Failed to transition claim {claim.id} to {to_status}: {exc}",
                 extra={"operation": "transition_claim_failed", "error_type": type(exc).__name__},

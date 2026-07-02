@@ -201,8 +201,12 @@ class ContextAgent:
         """
         async with get_session() as session:
             company = await self._fetch_company(session, input.company_id)
-            claim_stats = await self._fetch_claim_stats(session, input.company_id)
-            score_stats = await self._fetch_score_stats(session, input.company_id)
+            claim_stats = await self._fetch_claim_stats(
+                session, input.company_id, input.claim.trace_id
+            )
+            score_stats = await self._fetch_score_stats(
+                session, input.company_id, input.claim.trace_id
+            )
             similar_ids = await self._find_similar_claims(session, input.claim)
 
         trend = _compute_score_trend(score_stats["score_history"])
@@ -285,6 +289,7 @@ class ContextAgent:
         self,
         session: AsyncSession,
         company_id: uuid.UUID,
+        current_trace_id: uuid.UUID,
     ) -> dict[str, Any]:
         """Aggregate claim statistics for the company.
 
@@ -292,11 +297,15 @@ class ContextAgent:
         timestamp of the most recent completed assessment. Only claims that
         have reached SCORED status or beyond are included — DETECTED claims
         that are still in the pipeline are excluded to avoid inflating the
-        count with in-flight work.
+        count with in-flight work. Claims sharing the current trace_id are
+        also excluded: sibling claims scored earlier in the same batch run
+        are not "prior assessments" and must not contaminate the history the
+        Judge Agent reasons over.
 
         Args:
             session: Active async database session.
             company_id: UUID of the company.
+            current_trace_id: Trace ID of the in-flight run to exclude.
 
         Returns:
             A dict with keys ``total`` (int), ``repeat_count`` (int), and
@@ -310,9 +319,10 @@ class ContextAgent:
                 "  MAX(detected_at)                     AS last_assessed_at "
                 "FROM claims "
                 "WHERE company_id = :company_id "
+                "  AND trace_id != :current_trace_id "
                 "  AND status IN ('SCORED', 'PUBLISHED', 'MONITORING')"
             ),
-            {"company_id": str(company_id)},
+            {"company_id": str(company_id), "current_trace_id": str(current_trace_id)},
         )
         row = result.mappings().one()
         return {
@@ -325,17 +335,21 @@ class ContextAgent:
         self,
         session: AsyncSession,
         company_id: uuid.UUID,
+        current_trace_id: uuid.UUID,
     ) -> dict[str, Any]:
         """Aggregate greenwashing score statistics and history for the company.
 
         Retrieves the average score, the worst (highest) score, and the
         chronological sequence of scores used to compute the trend. The
-        score history is limited to the ten most recent scored periods to
-        keep the trend computation bounded.
+        score history is limited to the ten most recent scored periods
+        (fetched newest-first, then reversed into chronological order).
+        Scores from the current run's trace_id are excluded so sibling
+        claims in the same batch do not contaminate the history.
 
         Args:
             session: Active async database session.
             company_id: UUID of the company.
+            current_trace_id: Trace ID of the in-flight run to exclude.
 
         Returns:
             A dict with keys ``average`` (float | None), ``worst``
@@ -345,9 +359,10 @@ class ContextAgent:
             text(
                 "SELECT AVG(score) AS average, MAX(score) AS worst "
                 "FROM greenwashing_scores "
-                "WHERE company_id = :company_id"
+                "WHERE company_id = :company_id "
+                "  AND trace_id != :current_trace_id"
             ),
-            {"company_id": str(company_id)},
+            {"company_id": str(company_id), "current_trace_id": str(current_trace_id)},
         )
         agg_row = agg_result.mappings().one()
 
@@ -355,12 +370,14 @@ class ContextAgent:
             text(
                 "SELECT score FROM greenwashing_scores "
                 "WHERE company_id = :company_id "
-                "ORDER BY scored_at ASC "
+                "  AND trace_id != :current_trace_id "
+                "ORDER BY scored_at DESC "
                 "LIMIT 10"
             ),
-            {"company_id": str(company_id)},
+            {"company_id": str(company_id), "current_trace_id": str(current_trace_id)},
         )
         score_history = [float(r["score"]) for r in history_result.mappings().all()]
+        score_history.reverse()  # chronological order for the trend regression
 
         return {
             "average": float(agg_row["average"]) if agg_row["average"] is not None else None,
@@ -417,6 +434,7 @@ class ContextAgent:
                     "WHERE company_id = :company_id "
                     "  AND status IN ('SCORED', 'PUBLISHED', 'MONITORING') "
                     "  AND id != :claim_id "
+                    "  AND trace_id != :trace_id "
                     "  AND embedding IS NOT NULL "
                     "  AND embedding <=> ( "
                     "      SELECT embedding FROM claims WHERE id = :claim_id "
@@ -429,6 +447,7 @@ class ContextAgent:
                 {
                     "company_id": str(claim.company_id),
                     "claim_id": str(claim.id),
+                    "trace_id": str(claim.trace_id),
                     "threshold": _SIMILARITY_THRESHOLD,
                     "limit": _MAX_SIMILAR_CLAIMS,
                 },

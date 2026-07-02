@@ -71,7 +71,7 @@ def _refresh_data() -> None:
 
     refresh_scripts = [
         "refresh_sbti.py",
-        "refresh_LobbyMap.py",
+        "refresh_lobbymap.py",
         "refresh_ca100.py",
         "refresh_eutl.py",
         "refresh_eprtr.py",
@@ -104,7 +104,7 @@ def _refresh_data() -> None:
             # Each refresh script exposes a main download function with a predictable name.
             for fn_name in (
                 "download_sbti",
-                "download_LobbyMap_csv",
+                "download_lobbymap_csv",
                 "download_ca100_csv",
                 "main",
                 "download_bocc_csv",
@@ -124,6 +124,8 @@ def _build_aggregate_header(
     company_name: str,
     company_score: CompanyScore,
     results: list[PipelineResult],
+    failed_claims: list[str] | None = None,
+    persist_failures: int = 0,
 ) -> str:
     n = company_score.claim_count
     lines = [
@@ -139,6 +141,17 @@ def _build_aggregate_header(
         lines.append(
             "\n*Score floored at the bottom of the worst claim's verdict band — "
             "a severe finding cannot be averaged away by milder claims.*"
+        )
+    if failed_claims:
+        lines.append(
+            f"\n*{len(failed_claims)} additional claim(s) could not be completed "
+            "and are excluded from this assessment.*"
+        )
+    if persist_failures:
+        lines.append(
+            f"\n*{persist_failures} database persistence operation(s) failed during "
+            "this run — the published report is complete but the stored audit trail "
+            "may be partial.*"
         )
     lines += [
         "",
@@ -286,9 +299,25 @@ async def run(
         print(f"{'=' * 60}\n")
 
         # Write the canonical report: aggregate header + highest-scoring claim detail + manifest.
+        if pipeline.last_run_failed_claims:
+            print(f"WARNING: {len(pipeline.last_run_failed_claims)} claim(s) failed mid-pipeline:")
+            for failed in pipeline.last_run_failed_claims:
+                print(f"  - {failed}")
+        if pipeline.last_run_persist_failures:
+            print(
+                f"WARNING: {pipeline.last_run_persist_failures} persistence operation(s) "
+                "failed — audit trail may be partial."
+            )
+
         best = max(results, key=lambda r: r.score.score)
         best_path = _REPORTS_DIR / f"{slug}.md"
-        header = _build_aggregate_header(company_name, company_score, results)
+        header = _build_aggregate_header(
+            company_name,
+            company_score,
+            results,
+            failed_claims=pipeline.last_run_failed_claims,
+            persist_failures=pipeline.last_run_persist_failures,
+        )
         manifest = build_manifest()
         manifest_path = _REPORTS_DIR / f"{slug}-manifest.json"
         manifest_path.write_text(manifest.to_json(), encoding="utf-8")

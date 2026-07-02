@@ -15,7 +15,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, Header, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import text
@@ -192,6 +192,7 @@ async def health() -> HealthResponse:
 )
 async def assess_document(
     request: AssessDocumentRequest,
+    x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> AssessDocumentResponse:
     """Submit a document for greenwashing assessment.
 
@@ -219,6 +220,21 @@ async def assess_document(
         HTTPException 400: If the request is malformed.
         HTTPException 500: If a critical pipeline step fails.
     """
+    # POST /assess spends real LLM tokens and writes to the database — it is
+    # never open. PRASINE_API_KEY must be configured, and the caller must
+    # present it in the X-API-Key header. Read-only GET endpoints stay open.
+    configured_key = os.environ.get("PRASINE_API_KEY")
+    if not configured_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Assessment endpoint disabled: PRASINE_API_KEY is not configured.",
+        )
+    if x_api_key != configured_key:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing X-API-Key header.",
+        )
+
     publication_date = None
     if request.publication_date:
         try:

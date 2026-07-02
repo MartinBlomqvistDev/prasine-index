@@ -26,6 +26,7 @@ from agents.extraction_agent import ExtractionInput
 from core.database import get_session
 from core.logger import bind_trace_context, get_logger
 from core.retry import DataSourceError, RetryConfig, agent_error_boundary, retry_async
+from core.textutil import html_to_text
 from models.claim import SourceType
 from models.company import Company
 from models.trace import AgentName, AgentOutcome, AgentTrace
@@ -397,13 +398,13 @@ class DiscoveryAgent:
         async with agent_error_boundary(agent=AgentName.DISCOVERY.value, operation="run"):
             for url, source_type in pending:
                 sources_checked += 1
-                doc = await self._check_url(company, url, source_type, trace_id)
+                doc, raw_html = await self._check_url(company, url, source_type, trace_id)
                 if doc is not None:
                     documents.append(doc)
                     # Discover sustainability-relevant subpages from raw HTML.
                     # Only one level deep — subpages of subpages are not followed.
                     if url in {u for u, _ in initial_urls}:
-                        for sub_url in extract_relevant_links(doc.raw_content, url, max_links=20):
+                        for sub_url in extract_relevant_links(raw_html or "", url, max_links=20):
                             if sub_url not in queued:
                                 queued.add(sub_url)
                                 pending.append((sub_url, SourceType.IR_PAGE))
@@ -458,8 +459,14 @@ class DiscoveryAgent:
         url: str,
         source_type: SourceType,
         trace_id: uuid.UUID,
-    ) -> DiscoveredDocument | None:
+    ) -> tuple[DiscoveredDocument | None, str | None]:
         """Fetch a URL and return a DiscoveredDocument if content has changed.
+
+        The stored ``raw_content`` and the change-detection hash both use the
+        HTML-stripped plain text, not the raw markup: the Extraction Agent
+        should never pay tokens for markup, and hashing the text makes change
+        detection robust against markup-only noise (CSRF tokens, timestamps).
+        The raw HTML is returned separately for subpage link extraction only.
 
         Args:
             company: The company that owns this URL.
@@ -468,17 +475,18 @@ class DiscoveryAgent:
             trace_id: The trace ID for this discovery run.
 
         Returns:
-            A :py:class:`DiscoveredDocument` if the content has changed since
-            the last check, or None if the content is unchanged.
+            A tuple of (document, raw_html). The document is None if the
+            fetch failed or the content is unchanged; raw_html is None only
+            when the fetch failed.
         """
         try:
-            content, final_url = await self._fetch_url(url)
+            raw_html, final_url = await self._fetch_url(url)
         except DataSourceError as exc:
             logger.warning(
                 f"Failed to fetch {url}: {exc.message}",
                 extra={"operation": "discovery_fetch_failed", "error_type": type(exc).__name__},
             )
-            return None
+            return None, None
 
         if final_url.rstrip("/") != url.rstrip("/"):
             logger.warning(
@@ -490,7 +498,8 @@ class DiscoveryAgent:
                 },
             )
 
-        content_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        text = html_to_text(raw_html)
+        content_hash = hashlib.sha256(text.encode("utf-8")).hexdigest()
         last_known_hash = await self._load_last_hash(url)
 
         if last_known_hash == content_hash:
@@ -498,7 +507,7 @@ class DiscoveryAgent:
                 f"No change detected at {url}",
                 extra={"operation": "discovery_no_change"},
             )
-            return None
+            return None, raw_html
 
         await self._save_hash(url, content_hash)
         logger.info(
@@ -511,10 +520,10 @@ class DiscoveryAgent:
             source_url=url,
             final_url=final_url,
             source_type=source_type,
-            raw_content=content[:_MAX_CONTENT_CHARS],
+            raw_content=text[:_MAX_CONTENT_CHARS],
             content_hash=content_hash,
             trace_id=trace_id,
-        )
+        ), raw_html
 
     @retry_async(config=RetryConfig.DEFAULT_HTTP, operation="discovery_fetch_url")
     async def _fetch_url(self, url: str) -> tuple[str, str]:
