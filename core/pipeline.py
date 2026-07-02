@@ -36,6 +36,7 @@ from core.logger import bind_trace_context, get_logger
 from core.textutil import html_to_text as _html_to_text
 from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
 from models.company import Company
+from models.evidence import VerificationResult
 from models.score import GreenwashingScore
 from models.trace import AgentName, AgentOutcome, AgentTrace
 
@@ -820,6 +821,7 @@ class Pipeline:
             )
             traces.append(verification_trace)
             await self._persist_trace(verification_trace)
+            await self._persist_evidence(verification_result)
 
             # Step 3: Lobbying (non-fatal if skipped)
             lobbying_result = await self._lobbying_agent.run(
@@ -1053,6 +1055,61 @@ class Pipeline:
             logger.warning(
                 f"Failed to persist claim {claim.id}: {exc}",
                 extra={"operation": "persist_claim_failed", "error_type": type(exc).__name__},
+            )
+
+    async def _persist_evidence(self, verification: VerificationResult) -> None:
+        """Write all Evidence records from a verification pass to the database.
+
+        Every data point the Verification Agent gathered — including the full
+        parsed upstream response in ``raw_data`` — is persisted so a published
+        verdict can be reconstructed from exactly what the pipeline saw at run
+        time. Write-once: existing rows are never updated (ON CONFLICT DO
+        NOTHING), preserving the audit chain.
+
+        Args:
+            verification: The sealed verification result whose evidence to persist.
+        """
+        if not self._config.persist_claims or not verification.evidence:
+            return
+        try:
+            async with get_session() as session:
+                await session.execute(
+                    text(
+                        "INSERT INTO evidence "
+                        "(id, claim_id, trace_id, source, evidence_type, source_url, "
+                        " retrieved_at, raw_data, summary, data_year, supports_claim, "
+                        " confidence) "
+                        "VALUES "
+                        "(:id, :claim_id, :trace_id, :source, :evidence_type, :source_url, "
+                        " :retrieved_at, :raw_data, :summary, :data_year, :supports_claim, "
+                        " :confidence) "
+                        "ON CONFLICT (id) DO NOTHING"
+                    ),
+                    [
+                        {
+                            "id": str(ev.id),
+                            "claim_id": str(ev.claim_id),
+                            "trace_id": str(ev.trace_id),
+                            "source": ev.source.value,
+                            "evidence_type": ev.evidence_type.value,
+                            "source_url": ev.source_url,
+                            "retrieved_at": ev.retrieved_at,
+                            # default=str: upstream raw_data may contain dates
+                            # or Decimals that json.dumps cannot serialise.
+                            "raw_data": json.dumps(ev.raw_data, default=str),
+                            "summary": ev.summary,
+                            "data_year": ev.data_year,
+                            "supports_claim": ev.supports_claim,
+                            "confidence": ev.confidence,
+                        }
+                        for ev in verification.evidence
+                    ],
+                )
+        except Exception as exc:
+            self.last_run_persist_failures += 1
+            logger.warning(
+                f"Failed to persist {len(verification.evidence)} evidence record(s): {exc}",
+                extra={"operation": "persist_evidence_failed", "error_type": type(exc).__name__},
             )
 
     async def _persist_score(self, score: GreenwashingScore) -> None:

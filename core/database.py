@@ -372,6 +372,26 @@ async def _create_schema(conn: AsyncConnection) -> None:
             published_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
         """,
+        # Evidence — one row per data point gathered by the Verification Agent.
+        # raw_data preserves the parsed upstream response verbatim so any
+        # published verdict can be reconstructed from what the pipeline
+        # actually saw at run time (reproducibility / legal citability).
+        """
+        CREATE TABLE IF NOT EXISTS evidence (
+            id             UUID PRIMARY KEY,
+            claim_id       UUID NOT NULL REFERENCES claims(id),
+            trace_id       UUID NOT NULL,
+            source         TEXT NOT NULL,
+            evidence_type  TEXT NOT NULL,
+            source_url     TEXT,
+            retrieved_at   TIMESTAMPTZ NOT NULL,
+            raw_data       JSONB NOT NULL DEFAULT '{}',
+            summary        TEXT NOT NULL,
+            data_year      INTEGER,
+            supports_claim BOOLEAN,
+            confidence     FLOAT NOT NULL
+        )
+        """,
         # Trace log — structured execution log per agent step
         """
         CREATE TABLE IF NOT EXISTS trace_log (
@@ -423,6 +443,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
         "claims",
         "claim_lifecycle",
         "greenwashing_scores",
+        "evidence",
         "reports",
         "trace_log",
         "discovery_state",
