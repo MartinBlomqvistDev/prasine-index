@@ -138,13 +138,13 @@ async def _fetch_pages(
             extra={"operation": "pipeline_httpx_blocked", "url": source_url},
         )
         try:
-            pages = await _fetch_pages_playwright(source_url, "", max_subpages)
+            pw_pages = await _fetch_pages_playwright(source_url, "", max_subpages)
         except Exception as pw_exc:
             raise RuntimeError(
                 f"Failed to fetch {source_url}: httpx: {exc}; playwright: {pw_exc}"
             ) from exc
-        if pages:
-            return pages
+        if pw_pages:
+            return pw_pages
         raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
 
     # PDF — extract text directly, no subpage discovery.
