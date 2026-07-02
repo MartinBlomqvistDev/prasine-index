@@ -134,6 +134,13 @@ def _build_aggregate_header(
         f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f}  ",
         f"**Verdict:** {company_score.verdict.value}  ",
         f"**Confidence:** {company_score.confidence:.0%}",
+    ]
+    if company_score.floor_applied:
+        lines.append(
+            "\n*Score floored at the bottom of the worst claim's verdict band — "
+            "a severe finding cannot be averaged away by milder claims.*"
+        )
+    lines += [
         "",
         "| # | Score | Verdict | Claim |",
         "|---|-------|---------|-------|",

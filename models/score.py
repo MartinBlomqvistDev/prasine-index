@@ -18,6 +18,8 @@ __all__ = [
     "GreenwashingScore",
     "ScoreCategory",
     "ScoreVerdict",
+    "band_floor",
+    "verdict_for_score",
 ]
 
 
@@ -55,6 +57,55 @@ class ScoreVerdict(StrEnum):
     MISLEADING_CLAIM = "MISLEADING_CLAIM"
     LIKELY_GREENWASHING = "LIKELY_GREENWASHING"
     CONFIRMED_GREENWASHING = "CONFIRMED_GREENWASHING"
+
+
+def verdict_for_score(score: float) -> ScoreVerdict:
+    """Derive the verdict band from a numeric score.
+
+    The numeric score is the single source of truth for the verdict, at both
+    claim level (Judge Agent) and company level (aggregate). Bands:
+    0–20 SUBSTANTIATED_CLAIM, 21–40 UNVERIFIABLE_CLAIM, 41–60 MISLEADING_CLAIM,
+    61–80 LIKELY_GREENWASHING, 81–100 CONFIRMED_GREENWASHING.
+
+    Args:
+        score: Greenwashing score in [0.0, 100.0].
+
+    Returns:
+        The :py:class:`ScoreVerdict` band for the score.
+    """
+    if score <= 20.0:
+        return ScoreVerdict.SUBSTANTIATED_CLAIM
+    if score <= 40.0:
+        return ScoreVerdict.UNVERIFIABLE_CLAIM
+    if score <= 60.0:
+        return ScoreVerdict.MISLEADING_CLAIM
+    if score <= 80.0:
+        return ScoreVerdict.LIKELY_GREENWASHING
+    return ScoreVerdict.CONFIRMED_GREENWASHING
+
+
+def band_floor(score: float) -> float:
+    """Return the lower bound of the verdict band the score falls in.
+
+    Used by the company-level aggregate: a confirmed (or otherwise severe)
+    finding cannot be averaged away, so the company score is floored at the
+    bottom of the worst claim's band. Floors: 0, 21, 41, 61, 81.
+
+    Args:
+        score: Greenwashing score in [0.0, 100.0].
+
+    Returns:
+        The band floor as a float.
+    """
+    if score <= 20.0:
+        return 0.0
+    if score <= 40.0:
+        return 21.0
+    if score <= 60.0:
+        return 41.0
+    if score <= 80.0:
+        return 61.0
+    return 81.0
 
 
 def _utc_now() -> datetime:

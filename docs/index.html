@@ -846,7 +846,7 @@
       <!-- ── Pipeline Assessments ── -->
       <div style="grid-column: 1 / -1; padding: 4px 0 12px;">
         <div class="section-label">5 more company assessments</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments, run 2026-07-01 with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates; verdict badges derive from the numeric score. Ryanair (86/100) is featured above.</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments, run 2026-07-01 with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates, floored at the worst claim's verdict band; verdict badges derive from the numeric score. Ryanair (86/100) is featured above.</div>
       </div>
 
       <!-- BP plc -->
@@ -856,17 +856,17 @@
             <div class="mini-company">BP plc</div>
             <div class="mini-meta">GB · Oil &amp; Gas · CSRD obligated · 2026-07-01</div>
           </div>
-          <span class="verdict-badge verdict-greenwashing">Likely greenwashing</span>
+          <span class="verdict-badge verdict-confirmed">Confirmed greenwashing</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
             "Our aim is to reduce to net zero the carbon intensity of the energy products we sell by 2050 or sooner…"
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--orange-text)">80</div>
+            <div class="mini-score-num" style="color:var(--red-text)">81</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill bar-orange" style="width:80%"></div></div>
-              <div class="mini-verdict-label">LIKELY GREENWASHING · 61–80 · 7 CLAIMS</div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-red" style="width:81%"></div></div>
+              <div class="mini-verdict-label">CONFIRMED GREENWASHING · 81–100 · 7 CLAIMS</div>
             </div>
           </div>
           <div class="mini-evidence">
@@ -884,7 +884,7 @@
             </div>
           </div>
           <details class="score-expand">
-            <summary>Why 80/100?</summary>
+            <summary>Why 81/100?</summary>
             <div class="score-expand-body">
               <div class="sw-row"><span class="sw-source">GOGEL — actively expanding O&G capacity, LNG expansion confirmed</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
               <div class="sw-row"><span class="sw-source">GOGET — 163 fields, 10 with FID (Angola, Trinidad, US, Egypt)</span><span class="sw-badge sw-contra">Contradicts · 0.87</span></div>
@@ -892,7 +892,7 @@
               <div class="sw-row"><span class="sw-source">TPI 2022 — Not Aligned at 2025, 2035 and 2050</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
               <div class="sw-row"><span class="sw-source">EGT — 3 European gas assets in active development</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
               <div class="sw-row"><span class="sw-source">Source document — no interim 2035/2040 targets, no removal/abatement split</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (86, 85, 62) = 80/100. The two net-zero claims individually score in the confirmed band (85–86: 10 FID extraction fields, ASA 2019 prior ruling, TPI Not Aligned); a substantiated freshwater claim (18/100) and verified methane target show the full spread. Confidence 82%.</p>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (86, 85, 62), floored at the confirmed band = 81/100. Two net-zero claims individually score CONFIRMED (85–86: 10 FID extraction fields, ASA 2019 prior ruling, TPI Not Aligned) — a confirmed finding cannot be averaged away; milder claims place the company at the bottom of the band. Confidence 82%.</p>
             </div>
           </details>
           <a href="reports/bp-plc.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1046,17 +1046,17 @@
             <div class="mini-company">H&amp;M Group</div>
             <div class="mini-meta">SE · Fashion · CSRD obligated · 2026-07-01</div>
           </div>
-          <span class="verdict-badge verdict-insufficient">Unverifiable claim</span>
+          <span class="verdict-badge verdict-misleading">Misleading claim</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
             "Target 2040: Achieve net-zero by reducing absolute scope 1, 2 and 3 emissions by at least 90 percent against a 2019 baseline…"
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--blue-text)">40</div>
+            <div class="mini-score-num" style="color:var(--amber-text)">41</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill" style="width:40%; background:var(--blue-text)"></div></div>
-              <div class="mini-verdict-label">UNVERIFIABLE CLAIM · 21–40 · 7 CLAIMS</div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-amber" style="width:41%"></div></div>
+              <div class="mini-verdict-label">MISLEADING CLAIM · 41–60 · 7 CLAIMS</div>
             </div>
           </div>
           <div class="mini-evidence">
@@ -1074,13 +1074,13 @@
             </div>
           </div>
           <details class="score-expand">
-            <summary>Why 40/100?</summary>
+            <summary>Why 41/100?</summary>
             <div class="score-expand-body">
               <div class="sw-row"><span class="sw-source">Source document — no absolute baseline figures, no abatement/removal split, no removal mechanism detail</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
               <div class="sw-row"><span class="sw-source">SBTi — "Targets set", 1.5°C classification, net-zero component recorded</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
               <div class="sw-row"><span class="sw-source">EU ETS — no installations; ground-truth verification unavailable</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
               <div class="sw-row"><span class="sw-source">EU Transparency Register / LobbyMap — lookup unavailable this run</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (52, 33, 24) = 40/100. The 2040 net-zero claim scores MISLEADING (52/100) on substantiation gaps; the remaining six claims are UNVERIFIABLE — data gaps, not contradictions. Confidence 62%.</p>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (52, 33, 24), floored at the misleading band = 41/100. The 2040 net-zero claim scores MISLEADING (52/100) on substantiation gaps — a proven finding cannot be averaged away; the six UNVERIFIABLE claims (data gaps, not contradictions) place the company at the bottom of the band. Confidence 62%.</p>
             </div>
           </details>
           <a href="reports/h-m-group.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>

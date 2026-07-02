@@ -30,7 +30,7 @@ from models.claim import Claim
 from models.company import CompanyContext
 from models.evidence import EvidenceType, VerificationResult
 from models.lobbying import LobbyingRecord
-from models.score import GreenwashingScore, ScoreCategory, ScoreVerdict
+from models.score import GreenwashingScore, ScoreCategory, ScoreVerdict, verdict_for_score
 from models.trace import AgentName, AgentOutcome, AgentTrace
 
 __all__ = [
@@ -40,36 +40,6 @@ __all__ = [
 ]
 
 logger = get_logger(__name__)
-
-
-def _verdict_for_score(score: float) -> ScoreVerdict:
-    """Derive the verdict band from the numeric score.
-
-    The numeric score is the single source of truth for the verdict. The
-    LLM also states a verdict string in its tool call, but that string is
-    advisory only — this function decides the published band, so a
-    score/verdict mismatch can never reach a report.
-
-    Bands: 0–20 SUBSTANTIATED_CLAIM, 21–40 UNVERIFIABLE_CLAIM,
-    41–60 MISLEADING_CLAIM, 61–80 LIKELY_GREENWASHING,
-    81–100 CONFIRMED_GREENWASHING.
-
-    Args:
-        score: Overall greenwashing score in [0.0, 100.0].
-
-    Returns:
-        The :py:class:`~models.score.ScoreVerdict` band for the score.
-    """
-    if score <= 20.0:
-        return ScoreVerdict.SUBSTANTIATED_CLAIM
-    if score <= 40.0:
-        return ScoreVerdict.UNVERIFIABLE_CLAIM
-    if score <= 60.0:
-        return ScoreVerdict.MISLEADING_CLAIM
-    if score <= 80.0:
-        return ScoreVerdict.LIKELY_GREENWASHING
-    return ScoreVerdict.CONFIRMED_GREENWASHING
-
 
 _JUDGE_TOOL_NAME = "produce_verdict"
 
@@ -646,7 +616,7 @@ class JudgeAgent:
         """
         try:
             score_value = float(verdict["score"])
-            derived_verdict = _verdict_for_score(score_value)
+            derived_verdict = verdict_for_score(score_value)
             llm_verdict = verdict.get("verdict")
             if llm_verdict != derived_verdict.value:
                 logger.warning(

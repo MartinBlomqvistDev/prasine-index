@@ -6,18 +6,9 @@ import uuid
 
 from core.pipeline import PipelineResult
 from models.company_score import ClaimSummary, CompanyScore
-from models.score import ScoreVerdict
+from models.score import band_floor, verdict_for_score
 
 __all__ = ["aggregate_claim_scores"]
-
-# Severity order used to pick the dominant verdict.
-_SEVERITY: dict[ScoreVerdict, int] = {
-    ScoreVerdict.SUBSTANTIATED_CLAIM: 0,
-    ScoreVerdict.UNVERIFIABLE_CLAIM: 1,
-    ScoreVerdict.MISLEADING_CLAIM: 2,
-    ScoreVerdict.LIKELY_GREENWASHING: 3,
-    ScoreVerdict.CONFIRMED_GREENWASHING: 4,
-}
 
 # Score is computed from the top K claims by severity. The remaining claims
 # appear in the report for context but don't drive the headline number.
@@ -59,11 +50,18 @@ def aggregate_claim_scores(
         results: Non-empty list of completed pipeline results.
 
     Returns:
-        A :py:class:`~models.company_score.CompanyScore` with top-K severity-weighted
-        score and highest-severity dominant verdict across all claims.
+        A :py:class:`~models.company_score.CompanyScore` with a top-K
+        severity-weighted score, floored at the bottom of the worst claim's
+        verdict band, and a verdict derived from that final score.
 
     Raises:
         ValueError: If *results* is empty.
+
+    Aggregation rule: the score is the confidence-weighted mean of the top-K
+    highest-scoring claims, but it can never fall below the band floor of the
+    single worst claim — a confirmed finding cannot be averaged away. The
+    company verdict is always derived from the final numeric score, so score
+    and verdict can never disagree.
     """
     if not results:
         raise ValueError("Cannot aggregate an empty results list.")
@@ -84,8 +82,15 @@ def aggregate_claim_scores(
     top_k = sorted(summaries, key=lambda s: s.score, reverse=True)[:_SCORE_TOP_K]
     agg_score, agg_low, agg_high, agg_conf = _weighted_agg(top_k)
 
-    # Dominant verdict from ALL claims — worst-case finding across the full assessment.
-    dominant = max(summaries, key=lambda s: _SEVERITY[s.verdict]).verdict
+    # Floor at the worst claim's band: a confirmed (or otherwise severe)
+    # finding cannot be averaged away by milder claims.
+    worst_score = max(s.score for s in summaries)
+    floor = band_floor(worst_score)
+    floor_applied = agg_score < floor
+    if floor_applied:
+        agg_score = floor
+        agg_low = max(agg_low, floor)
+        agg_high = max(agg_high, floor)
 
     return CompanyScore(
         company_name=company_name,
@@ -93,8 +98,9 @@ def aggregate_claim_scores(
         score=round(agg_score, 1),
         score_low=round(agg_low, 1),
         score_high=round(agg_high, 1),
-        verdict=dominant,
+        verdict=verdict_for_score(round(agg_score, 1)),
         confidence=round(agg_conf, 3),
         claim_count=len(summaries),
         claims=summaries,
+        floor_applied=floor_applied,
     )

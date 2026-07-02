@@ -170,9 +170,11 @@ export default function MethodologyPage() {
           </table>
 
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: '1rem', lineHeight: 1.6 }}>
-            Multi-claim assessments produce a confidence-weighted aggregate score across
-            all claims. The displayed company-level verdict derives from this aggregate,
-            not from any individual claim score.
+            Multi-claim assessments produce a company score from the three highest-scoring
+            claims (confidence-weighted), floored at the bottom of the worst claim&apos;s
+            verdict band — a confirmed finding cannot be averaged away by milder claims.
+            The company-level verdict is always derived from this final score, so score
+            and verdict can never disagree.
           </p>
         </section>
 

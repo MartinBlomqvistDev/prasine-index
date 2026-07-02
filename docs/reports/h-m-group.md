@@ -1,9 +1,11 @@
 ## H&M Group — Company Assessment (7 claims)
 
-**Overall Score: 40/100** (top-3 severity-weighted across 7 claims)  
-**Score range:** 29–52  
+**Overall Score: 41/100** (top-3 severity-weighted across 7 claims)  
+**Score range:** 41–52  
 **Verdict:** MISLEADING_CLAIM  
 **Confidence:** 62%
+
+*Score floored at the bottom of the worst claim's verdict band — a severe finding cannot be averaged away by milder claims.*
 
 | # | Score | Verdict | Claim |
 |---|-------|---------|-------|
