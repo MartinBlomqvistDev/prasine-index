@@ -444,6 +444,51 @@
       padding-left: 8px;
     }
 
+    /* ── Calibration contrast panel ── */
+    .contrast-panel {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .contrast-side { padding: 24px 26px; }
+    .contrast-worst { background: linear-gradient(180deg, var(--red-dim) 0%, var(--bg) 55%); }
+    .contrast-best  { background: linear-gradient(180deg, var(--green-dim) 0%, var(--bg) 55%); }
+    .contrast-tag {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 16px;
+    }
+    .contrast-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .contrast-row { display: flex; align-items: center; gap: 12px; }
+    .contrast-co { width: 78px; font-size: 15px; font-weight: 700; color: var(--text); flex-shrink: 0; }
+    .contrast-bar-wrap { flex: 1; height: 10px; background: var(--border); overflow: hidden; }
+    .contrast-bar { display: block; height: 100%; }
+    .contrast-score {
+      width: 34px; text-align: right; font-family: 'Space Mono', monospace;
+      font-size: 20px; font-weight: 700; letter-spacing: -0.03em; flex-shrink: 0;
+    }
+    .contrast-verdict {
+      display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+      text-transform: uppercase; padding: 4px 12px; margin-bottom: 12px;
+    }
+    .contrast-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+    .contrast-divider {
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+      padding: 0 18px; background: var(--surface);
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--faint); line-height: 1.5; white-space: nowrap;
+    }
+    @media (max-width: 640px) {
+      .contrast-panel { grid-template-columns: 1fr; }
+      .contrast-divider {
+        border-left: none; border-right: none;
+        border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        padding: 12px 0;
+      }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .stats { flex-direction: column; }
@@ -835,13 +880,48 @@
 <!-- ── More verdicts ── -->
 <section id="more-verdicts">
   <div class="container">
-    <div class="section-label">More Assessments</div>
-    <h2>Across sectors and claim types.</h2>
+    <div class="section-label">Calibration</div>
+    <h2>One pipeline. Both ends of the scale.</h2>
     <p class="section-desc">
-      Oil majors, energy producers, a retailer, and a fashion brand — all multi-claim assessments backed by a canonical Markdown report.
+      The same seven-agent pipeline and the same 22 EU data sources produce this. The score is evidence, not editorial — confirmed greenwashing and a substantiated record, side by side.
     </p>
 
-    <div class="verdicts-grid">
+    <div class="contrast-panel">
+      <div class="contrast-side contrast-worst">
+        <div class="contrast-tag">Worst in the index</div>
+        <div class="contrast-rows">
+          <div class="contrast-row">
+            <span class="contrast-co">Ryanair</span>
+            <span class="contrast-bar-wrap"><span class="contrast-bar bar-red" style="width:86%"></span></span>
+            <span class="contrast-score" style="color:var(--red-text)">86</span>
+          </div>
+          <div class="contrast-row">
+            <span class="contrast-co">Glencore</span>
+            <span class="contrast-bar-wrap"><span class="contrast-bar bar-red" style="width:86%"></span></span>
+            <span class="contrast-score" style="color:var(--red-text)">86</span>
+          </div>
+        </div>
+        <div class="contrast-verdict verdict-confirmed">Confirmed greenwashing</div>
+        <p class="contrast-note">Net-zero pledges while actively expanding coal and obstructing the very climate legislation they depend on. Three independent confirmed triggers each, no counter-argument.</p>
+      </div>
+
+      <div class="contrast-divider"><span>same pipeline<br>same 22 sources</span></div>
+
+      <div class="contrast-side contrast-best">
+        <div class="contrast-tag">Best in the index</div>
+        <div class="contrast-rows">
+          <div class="contrast-row">
+            <span class="contrast-co">Ørsted</span>
+            <span class="contrast-bar-wrap"><span class="contrast-bar bar-green" style="width:18%"></span></span>
+            <span class="contrast-score" style="color:var(--green-text)">18</span>
+          </div>
+        </div>
+        <div class="contrast-verdict verdict-substantiated">Substantiated claim</div>
+        <p class="contrast-note">A 98% intensity-reduction claim backed by EU ETS verified data: Studstrupværket 2.23 Mt → 15,560 t, Esbjergværket 1.50 Mt → 0. All 7 claims substantiated, zero contradictions across fifteen source checks. The index can say yes.</p>
+      </div>
+    </div>
+
+    <div class="verdicts-grid" style="margin-top:48px;">
 
       <!-- ── Pipeline Assessments ── -->
       <div style="grid-column: 1 / -1; padding: 4px 0 12px;">
