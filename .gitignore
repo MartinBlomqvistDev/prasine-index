@@ -83,8 +83,6 @@ CLAUDE.md
 # Pipeline sub-reports — numbered artifacts, only canonicals belong in the repo
 # ---------------------------------------------------------------------------
 docs/reports/*-[0-9].md
-# Development / experimental report scratch — never belongs in the repo
-docs/reports/_dev/
 
 # ---------------------------------------------------------------------------
 # Logs and local data

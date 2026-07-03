@@ -318,6 +318,8 @@ The index spans the full scale by design: confirmed greenwashing at the top (Rya
 
 Reports are published to `docs/reports/` as Markdown — every factual assertion cited, every data gap disclosed.
 
+An earlier v1 of the index covered 18 companies with single-claim assessments (Haiku judge). Those runs are preserved under `docs/reports/_dev/` as a historical record; they are superseded by the 7-claim, Opus-judged assessments above and are not directly comparable.
+
 ---
 
 ## Getting Started
