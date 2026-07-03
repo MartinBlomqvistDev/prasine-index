@@ -301,28 +301,20 @@ Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (h
 
 ## Published Assessments
 
-Current results, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/):
+Current results, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/). Each is a 7-claim assessment scored by a Claude Opus 4.8 judge; the company verdict derives from the top-3 severity-weighted score, floored at the worst claim's band, so a confirmed finding can never be averaged away.
 
 | Company | Sector | Verdict | Score |
 | ------- | ------ | ------- | ----- |
-| Glencore plc | Mining | CONFIRMED_GREENWASHING | 87/100 |
-| Eni SpA | Oil & Gas | CONFIRMED_GREENWASHING | 85/100 |
-| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 83/100 |
-| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 82/100 |
-| KLM Royal Dutch Airlines | Aviation | LIKELY_GREENWASHING | 78/100 |
-| TotalEnergies SE | Oil & Gas | LIKELY_GREENWASHING | 75/100 |
-| Enel SpA | Energy | LIKELY_GREENWASHING | 68/100 |
-| RWE AG | Energy | MISLEADING_CLAIM | 58/100 |
-| Wizz Air Holdings plc | Aviation | MISLEADING_CLAIM | 56/100 |
-| LKAB | Steel | MISLEADING_CLAIM | 52/100 |
-| H&M Group | Fashion | MISLEADING_CLAIM | 48/100 |
-| Öresundskraft | Energy | MISLEADING_CLAIM | 48/100 |
-| Stegra | Steel | MISLEADING_CLAIM | 48/100 |
-| SSAB AB | Steel | UNVERIFIABLE_CLAIM | 42/100 |
-| Danone SA | Food | UNVERIFIABLE_CLAIM | 35/100 |
-| Ørsted A/S | Renewables | UNVERIFIABLE_CLAIM | 32/100 |
-| Securitas AB | Services | UNVERIFIABLE_CLAIM | 28/100 |
-| IKEA Group | Retail | UNVERIFIABLE_CLAIM | 22/100 |
+| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 86/100 |
+| Glencore plc | Mining | CONFIRMED_GREENWASHING | 86/100 |
+| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 81/100 |
+| Enel SpA | Energy | MISLEADING_CLAIM | 55/100 |
+| IKEA Group | Retail | MISLEADING_CLAIM | 50/100 |
+| SSAB AB | Steel | MISLEADING_CLAIM | 45/100 |
+| H&M Group | Fashion | MISLEADING_CLAIM | 41/100 |
+| Ørsted A/S | Renewables | SUBSTANTIATED_CLAIM | 18/100 |
+
+The index spans the full scale by design: confirmed greenwashing at the top (Ryanair — obstructive lobbying, a prior ASA ruling, and an EmpCo substantiation failure) down to a substantiated record at the bottom (Ørsted — a 98% intensity-reduction claim corroborated by EU ETS verified data showing its largest plants falling to near-zero). The same pipeline and the same 22 sources produce both ends. The score is evidence, not editorial.
 
 Reports are published to `docs/reports/` as Markdown — every factual assertion cited, every data gap disclosed.
 
