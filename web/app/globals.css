@@ -463,33 +463,6 @@ footer {
 .footer-inner a { color: var(--faint); }
 .footer-inner a:hover { color: var(--muted); }
 
-/* ── Dashboard ── */
-.dash-layout { display: flex; min-height: 100vh; }
-.dash-sidebar {
-  width: 210px; flex-shrink: 0;
-  border-right: 1px solid var(--border);
-  padding: 0;
-  position: sticky; top: 0; height: 100vh;
-}
-.dash-logo {
-  padding: 16px 20px;
-  font-size: 14px; font-weight: 600;
-  border-bottom: 1px solid var(--border);
-}
-.dash-logo span { color: var(--red); }
-.dash-nav-item {
-  display: block; padding: 10px 20px;
-  font-size: 13px; color: var(--muted);
-}
-.dash-nav-item:hover { color: var(--text); background: var(--surface); text-decoration: none; }
-.dash-nav-item.active { color: var(--text); font-weight: 600; }
-.dash-main { flex: 1; padding: 40px 48px; }
-.dash-header { margin-bottom: 32px; }
-.dash-header h1 {
-  font-size: 1.5rem; margin-bottom: 4px;
-  font-family: var(--font-fraunces, 'Fraunces', Georgia, serif);
-}
-.dash-header p { font-size: 13px; color: var(--muted); }
 
 .assessments-table { border: 1px solid var(--border); width: 100%; border-collapse: collapse; }
 .assessments-table th {
@@ -532,8 +505,6 @@ footer {
 }
 
 @media (max-width: 600px) {
-  .dash-sidebar { display: none; }
-  .dash-main { padding: 24px 16px; }
   .nav-btn { display: none; }
   .nav-btn:last-child { display: flex; }
 }
