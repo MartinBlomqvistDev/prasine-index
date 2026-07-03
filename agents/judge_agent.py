@@ -303,6 +303,15 @@ If key data sources were unavailable, state this explicitly in your reasoning. \
 Data gaps reduce confidence but do not automatically raise the score — the \
 absence of contradicting evidence is not the same as supporting evidence.
 
+CRITICAL — EU ETS mapping gaps are NOT company facts. A data gap that says \
+"no installation IDs mapped for this company in Prasine's registry" means \
+Prasine has not yet linked the company to its EU ETS installations. It does \
+NOT mean the company has no EU ETS installations. Never write that a company \
+"has no installation IDs" or that "no installations are registered for" it — \
+that would be a false statement about a company that may operate many ETS \
+installations. State only that verified EU ETS emissions could not be checked \
+in this assessment because the mapping is absent, and lower confidence accordingly.
+
 REPEAT CLAIM SIGNAL
 If the company has made equivalent claims previously (indicated in the context), \
 and the current assessment shows no material progress, this is a primary \

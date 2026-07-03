@@ -194,12 +194,20 @@ async def _node_fetch_eu_ets(state: VerificationState) -> dict[str, Any]:
 
     if not installation_ids:
         logger.info(
-            "EU ETS fetch skipped: no installation IDs registered for company",
+            "EU ETS fetch skipped: no installation IDs mapped for company in Prasine registry",
             extra={"operation": "fetch_eu_ets_skipped"},
         )
+        # CRITICAL wording: this is a Prasine data-mapping gap, NOT a statement
+        # that the company has no EU ETS installations. Many emitters (e.g.
+        # Ørsted's former DONG power plants) ARE in the EUTL but have not yet
+        # been mapped here. Never let this become a false negative in a report.
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EU_ETS}: no installation IDs registered"],
+            "data_gaps": [
+                f"{EvidenceSource.EU_ETS}: no installation IDs mapped for this company "
+                "in Prasine's registry (mapping gap — NOT evidence the company lacks "
+                "EU ETS installations)"
+            ],
         }
 
     try:
