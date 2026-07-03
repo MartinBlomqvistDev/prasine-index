@@ -290,6 +290,9 @@ export function parseReport(md: string): ParsedReport {
   }
 }
 
+// NOTE: must add an entry here whenever a company is added to SLUGS —
+// reports don't carry a machine-readable sector field, so this is the
+// single source of truth for the .com index table's Sector column.
 const SECTOR_MAP: Record<string, string> = {
   'ryanair-holdings-plc': 'Aviation',
   'bp-plc':               'Oil & Gas',
@@ -297,6 +300,8 @@ const SECTOR_MAP: Record<string, string> = {
   'enel-spa':             'Energy',
   'ikea-group':           'Retail',
   'h-m-group':            'Fashion',
+  'orsted-a-s':           'Renewables',
+  'ssab-ab':              'Steel',
 }
 
 export function loadReportSummaries(slugs: string[]): ReportSummary[] {

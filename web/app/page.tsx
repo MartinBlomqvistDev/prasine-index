@@ -183,6 +183,56 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* ── Calibration contrast ── */}
+      <section className="calibration-section">
+        <div className="doc-container">
+          <span className="report-label">Calibration</span>
+          <h2 className="calibration-heading">One pipeline. Both ends of the scale.</h2>
+          <p className="calibration-sub">
+            The same seven-agent pipeline and the same 22 EU data sources produce this. The
+            score is evidence, not editorial — confirmed greenwashing and a substantiated
+            record, side by side.
+          </p>
+          <div className="calibration-panel">
+            <div className="calibration-side calibration-worst">
+              <div className="calibration-tag">Worst in the index</div>
+              <div className="calibration-rows">
+                <div className="calibration-row">
+                  <span className="calibration-co">Ryanair</span>
+                  <span className="calibration-bar-wrap"><span className="calibration-bar bar-red" style={{ width: '86%' }} /></span>
+                  <span className="calibration-score" style={{ color: 'var(--red-text)' }}>86</span>
+                </div>
+              </div>
+              <span className="verdict-badge badge-confirmed">Confirmed greenwashing</span>
+              <p className="calibration-note">
+                A Net Zero 2050 pledge while rated D+ (obstructive) on the very climate
+                laws it depends on, a prior ASA ruling for misleading emissions claims,
+                and a net-zero pathway that fails EmpCo substantiation. Three independent
+                confirmed triggers, no counter-argument.
+              </p>
+            </div>
+            <div className="calibration-divider"><span>same pipeline<br />same 22 sources</span></div>
+            <div className="calibration-side calibration-best">
+              <div className="calibration-tag">Best in the index</div>
+              <div className="calibration-rows">
+                <div className="calibration-row">
+                  <span className="calibration-co">Ørsted</span>
+                  <span className="calibration-bar-wrap"><span className="calibration-bar bar-green" style={{ width: '18%' }} /></span>
+                  <span className="calibration-score" style={{ color: 'var(--green-text)' }}>18</span>
+                </div>
+              </div>
+              <span className="verdict-badge badge-substantiated">Substantiated claim</span>
+              <p className="calibration-note">
+                A 98% intensity-reduction claim backed by EU ETS verified data:
+                Studstrupv&aelig;rket 2.23 Mt &rarr; 15,560 t, Esbjergv&aelig;rket 1.50 Mt &rarr; 0.
+                All 7 claims substantiated, zero contradictions across fifteen source checks.
+                The index can say yes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Index (dynamic) ── */}
       <section id="index" className="index-section">
         <div className="doc-container">
