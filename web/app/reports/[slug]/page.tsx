@@ -45,6 +45,7 @@ export function generateStaticParams() {
     { slug: 'ikea-group' },
     { slug: 'h-m-group' },
     { slug: 'orsted-a-s' },
+    { slug: 'ssab-ab' },
   ]
 }
 

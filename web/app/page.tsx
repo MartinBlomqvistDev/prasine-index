@@ -11,6 +11,7 @@ const SLUGS = [
   'ikea-group',
   'h-m-group',
   'orsted-a-s',
+  'ssab-ab',
 ]
 
 function verdictFromString(v: string): { cls: string; label: string } {
