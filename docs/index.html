@@ -846,7 +846,7 @@
       <!-- ── Pipeline Assessments ── -->
       <div style="grid-column: 1 / -1; padding: 4px 0 12px;">
         <div class="section-label">7 more company assessments</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments run with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates, floored at the worst claim's verdict band; verdict badges derive from the numeric score. Ryanair (86/100) is featured above. The scale works both ways — Ørsted (25/100) shows what a substantiated record looks like.</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments run with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates, floored at the worst claim's verdict band; verdict badges derive from the numeric score. Ryanair (86/100) is featured above. The scale works both ways — Ørsted (18/100, SUBSTANTIATED) is backed by EU ETS verified data showing its largest plants falling to near-zero.</div>
       </div>
 
       <!-- BP plc -->
@@ -1091,44 +1091,45 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">Ørsted A/S</div>
-            <div class="mini-meta">DK · Renewables · CSRD obligated · 2026-07-02</div>
+            <div class="mini-meta">DK · Renewables · CSRD obligated · 2026-07-03</div>
           </div>
-          <span class="verdict-badge verdict-insufficient">Unverifiable claim</span>
+          <span class="verdict-badge verdict-substantiated">Substantiated claim</span>
         </div>
         <div class="mini-body">
           <div class="mini-claim">
             "we achieved a 98 % reduction in scope 1 and 2 emissions intensity by the end of 2025"
           </div>
           <div class="mini-score-row">
-            <div class="mini-score-num" style="color:var(--blue-text)">25</div>
+            <div class="mini-score-num" style="color:var(--green-text)">18</div>
             <div class="mini-score-wrap">
-              <div class="mini-bar-track"><div class="mini-bar-fill" style="width:25%; background:var(--blue-text)"></div></div>
-              <div class="mini-verdict-label">UNVERIFIABLE CLAIM · 21–40 · 7 CLAIMS</div>
+              <div class="mini-bar-track"><div class="mini-bar-fill bar-green" style="width:18%"></div></div>
+              <div class="mini-verdict-label">SUBSTANTIATED CLAIM · 0–20 · 7 CLAIMS</div>
             </div>
           </div>
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>Three claims SUBSTANTIATED (18/100)</strong> — the lowest company score in the index. SBTi confirms a validated 1.5°C net-zero 2040 target; LobbyMap rates engagement B (supportive); all 10 tracked coal units retired (GCPT). The index can say yes.</span>
+              <span><strong>The index can say yes — backed by EU-verified ground truth</strong> — all 7 claims SUBSTANTIATED, the lowest score in the index. EU ETS verified registry data shows Ørsted's largest plants collapsing to near-zero: Studstrupværket 2.23 Mt (2005) → 15,560 t (2025), Esbjergværket 1.50 Mt → 0. Structural decarbonisation, not accounting.</span>
             </div>
             <div class="mini-ev">
-              <span class="mini-ev-dot dot-amber"></span>
-              <span><strong>Unresolved tension: intensity vs. absolute emissions</strong> — E-PRTR shows regulated emissions nearly doubled 2023→2024 (2.2 → 4.1 Mt) while the claim cites a 98% intensity reduction. Mathematically compatible with output growth, but the disclosed methodology needed to reconcile it is absent — the EmpCo Directive's flagged risk pattern.</span>
+              <span class="mini-ev-dot dot-green"></span>
+              <span><strong>Five of five sources corroborate, zero contradict</strong> — SBTi validated 1.5°C net-zero 2040; all 10 coal units retiring (GCPT); minimal gas footprint (EGT); LobbyMap B rules out the obstruction pattern. None of fifteen evidence records contradicts the claim.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-gray"></span>
-              <span><strong>Decisive data gap: no EU ETS ground truth</strong> — no installation IDs registered, so the legally mandated verified emissions record could not be checked. Confidence capped at 58%.</span>
+              <span><strong>Honest residual gap</strong> — the methodology page returned HTTP 403, so the exact intensity denominator couldn't be verified; the score sits at the top of the substantiated band rather than the bottom. Confidence 77%.</span>
             </div>
           </div>
           <details class="score-expand">
-            <summary>Why 25/100?</summary>
+            <summary>Why 18/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">SBTi — Targets set, 1.5°C, net-zero 2040 validated</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
-              <div class="sw-row"><span class="sw-source">GCPT — all 10 tracked coal units retired or retiring</span><span class="sw-badge sw-support">Supports · 0.60</span></div>
-              <div class="sw-row"><span class="sw-source">LobbyMap — B band, supportive climate policy engagement</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
-              <div class="sw-row"><span class="sw-source">E-PRTR — regulated emissions up 2023→2024; intensity basis undisclosed</span><span class="sw-badge sw-contra">Tension · 0.75</span></div>
-              <div class="sw-row"><span class="sw-source">EU ETS — no installations; verified ground truth unavailable</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (28, 24, 22) = 25/100. Three claims scored SUBSTANTIATED (18/100) — validated targets and verified coal exit; four scored UNVERIFIABLE on data gaps, not contradictions. Confidence 58%.</p>
+              <div class="sw-row"><span class="sw-source">EU ETS DK_71 (Studstrup) — 2,227,935 → 15,560 tCO₂e, down 99%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS DK_80 (Esbjerg) — 1,502,942 → 0 tCO₂e, down 100%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">GCPT — all 10 coal units retiring; structural, not accounting</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi — validated 1.5°C net-zero 2040</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">LobbyMap — B band, supportive; no obstruction pattern</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Source document — methodology page HTTP 403</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (18, 18, 17) = 18/100 SUBSTANTIATED. Fifteen evidence checks, zero contradictions. The only reason the score isn't lower is an honest data gap — the 403-blocked methodology page — not any adverse finding. Confidence 77%.</p>
             </div>
           </details>
           <a href="reports/orsted-a-s.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
