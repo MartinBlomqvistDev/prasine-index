@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Prasine Index">
+  <title>Prasine Index</title>
+  <!-- Paper ground and deep green, taken from the site's own tokens
+       (--bg #f5f0e6, --text #1a160d, --green #163820). Prasine is a green, so
+       the accent carries the name rather than decorating it. -->
+  <rect width="32" height="32" rx="6" fill="#f5f0e6"/>
+  <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="5" fill="none"
+        stroke="#d0c8b8" stroke-width="1.5"/>
+  <text x="16" y="22" text-anchor="middle"
+        font-family="ui-serif, Georgia, 'Times New Roman', serif"
+        font-size="20" font-weight="700" fill="#163820">P</text>
+</svg>
