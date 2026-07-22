@@ -1,12 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Prasine Index">
   <title>Prasine Index</title>
   <!-- Paper ground and deep green, taken from the site's own tokens
-       (--bg #f5f0e6, --text #1a160d, --green #163820). Prasine is a green, so
-       the accent carries the name rather than decorating it. -->
+       (bg #f5f0e6, text #1a160d, green #163820). Prasine is a green, so the
+       accent carries the name rather than decorating it.
+
+       Two constraints this file has to respect:
+       1. No double hyphen anywhere in a comment. It is illegal in XML and makes
+          the whole SVG unparseable, so the token names are written bare above.
+       2. The P is an outlined path, not a text element. Favicons rasterise in an
+          isolated context where system font resolution is unreliable, so a text
+          glyph can silently drop out. Geometry always renders. -->
   <rect width="32" height="32" rx="6" fill="#f5f0e6"/>
   <rect x="1.25" y="1.25" width="29.5" height="29.5" rx="5" fill="none"
         stroke="#d0c8b8" stroke-width="1.5"/>
-  <text x="16" y="22" text-anchor="middle"
-        font-family="ui-serif, Georgia, 'Times New Roman', serif"
-        font-size="20" font-weight="700" fill="#163820">P</text>
+  <path fill="#163820" fill-rule="evenodd"
+        transform="translate(15.9 16) scale(1.2) translate(-15.9 -16)"
+        d="M9.8 7
+           L18.3 7
+           C21.3 7 22.8 9 22.8 11.75
+           C22.8 14.5 21.3 16.5 18.3 16.5
+           L15.2 16.5
+           L15.2 23.4
+           L18.4 23.4
+           L18.4 25
+           L9 25
+           L9 23.4
+           L12 23.4
+           L12 8.6
+           L9.8 8.6
+           Z
+           M15.2 10
+           L18 10
+           C19.6 10 20.4 10.7 20.4 11.75
+           C20.4 12.8 19.6 13.5 18 13.5
+           L15.2 13.5
+           Z"/>
 </svg>
