@@ -1,10 +1,10 @@
-"""Tests for ingest entity matching — the highest legal-risk code in the repo.
+"""Tests for ingest entity matching, the highest legal-risk code in the repo.
 
 A false-positive match against GCEL/GOGEL/enforcement data would publish an
 untrue statement about a named company. These tests pin the name-normalisation
 and lookup behaviour for the index companies. Pure-Python: the enforcement
 database is static and the Transparency Register lookup is tested against an
-injected cache — no data files, no network, no LLM.
+injected cache: no data files, no network, no LLM.
 """
 
 from __future__ import annotations
@@ -68,7 +68,7 @@ class TestNormaliseName:
 
 class TestNordicSuffixes:
     """Regression: 'Ørsted A/S' failed SBTi lookup because ' a/s' was not
-    stripped — the pipeline then reported 'no SBTi record' for a company
+    stripped: the pipeline then reported 'no SBTi record' for a company
     with a validated 1.5°C net-zero target. Caught pre-publication 2026-07-02."""
 
     def test_orsted_normalises_across_all_modules(self) -> None:
@@ -108,7 +108,7 @@ class TestEnforcementLookup:
 
     def test_short_name_does_not_substring_match(self) -> None:
         """Names shorter than 5 chars must not fuzzy-match into other keys."""
-        company = SimpleNamespace(name="Eon")  # norm 'eon' — inside 'exxon'? must not match
+        company = SimpleNamespace(name="Eon")  # norm 'eon', inside 'exxon'? must not match
         evidence = asyncio.run(fetch_enforcement_data(claim=_claim(), company=company))
         for e in evidence:
             assert "eon" in e.summary.lower()

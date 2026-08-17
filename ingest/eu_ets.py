@@ -52,7 +52,7 @@ _EUTL_LEGACY_CSV: Path = Path(
 # Number of most recent years to include in the trend summary.
 _YEARS_TO_RETRIEVE: int = 5
 
-# Module-level cache keyed by (registry_code, numeric_id) — installation
+# Module-level cache keyed by (registry_code, numeric_id): installation
 # numbers are only unique WITHIN a national registry (1,271 numeric IDs occur
 # in more than one country in the 2026 daily snapshot), so an unscoped key
 # would silently merge emissions from unrelated installations across borders.
@@ -64,7 +64,7 @@ def _parse_installation_id(raw_id: str) -> tuple[str | None, int] | None:
 
     Accepts:
     - Prefixed (euets.info convention): "SE_495" → ("SE", 495)
-    - Plain numeric: "495" → (None, 495) — resolvable only if the number is
+    - Plain numeric: "495" → (None, 495), resolvable only if the number is
       unambiguous across registries.
 
     Args:
@@ -238,13 +238,13 @@ async def fetch_eu_ets_data(
             history = cache.get((registry, numeric_id), [])
         else:
             # Unprefixed ID: usable only if the number is unique across
-            # registries — otherwise we cannot know which installation is
+            # registries: otherwise we cannot know which installation is
             # meant and must not guess.
             candidates = [k for k in cache if k[1] == numeric_id]
             if len(candidates) > 1:
                 logger.warning(
                     f"Installation ID {raw_id} is ambiguous across "
-                    f"{len(candidates)} registries — store it with a registry "
+                    f"{len(candidates)} registries; store it with a registry "
                     "prefix (e.g. SE_495) to resolve. Skipping.",
                     extra={"operation": "eu_ets_ambiguous_id"},
                 )
@@ -292,7 +292,7 @@ def _build_evidence(
     most_recent_year, most_recent_emissions = history[-1]
     oldest_year, _oldest_emissions = history[0]
 
-    # Full history for Judge — critical for long-period claims ("since 2006").
+    # Full history for Judge: critical for long-period claims ("since 2006").
     # Show all years if ≤12, otherwise show oldest + most recent N years.
     if len(history) <= 12:
         display_history = history
@@ -330,7 +330,7 @@ def _build_evidence(
             f"from {base_year} to {most_recent_year}"
         )
         if base_year != oldest_year:
-            direction += " (trend baseline 2013 — earlier ETS phases had narrower reporting scope)"
+            direction += " (trend baseline 2013; earlier ETS phases had narrower reporting scope)"
     else:
         direction = "insufficient data for trend"
 
@@ -390,7 +390,7 @@ def _assess_emissions_vs_claim(
     """Heuristically assess whether EU ETS emissions data supports the claim.
 
     EU ETS only tracks absolute verified emissions. Pure intensity claims (e.g.
-    "CO2 per tonne of product") cannot be assessed from this data — the function
+    "CO2 per tonne of product") cannot be assessed from this data; the function
     abstains rather than returning a misleading high-confidence contradiction.
 
     When the claim names a specific baseline year (e.g. "reduced 87% since 2006"),
@@ -409,7 +409,7 @@ def _assess_emissions_vs_claim(
     claim_lower = claim_text.lower()
 
     # EU ETS tracks absolute figures only. Pure intensity claims ("CO2 per tonne
-    # of product") must be abstained from — absolute trend direction is
+    # of product") must be abstained from: absolute trend direction is
     # meaningless and produces high-confidence wrong signals for heavy industry
     # (cement, steel) with growing production volumes.
     # Compound claims that include both intensity AND absolute/net-zero language
@@ -476,7 +476,7 @@ def _assess_emissions_vs_claim(
                     return True, 0.6  # trajectory plausibly reaches near-zero
                 if projected_em > most_recent_em * 0.5:
                     return False, 0.6  # trajectory clearly not approaching zero
-                return None, 0.5  # ambiguous — insufficient slope signal
+                return None, 0.5  # ambiguous, insufficient slope signal
         # Fall through to absolute comparison if slope window too small.
 
     trend_up = newest_em > oldest_em * 1.05  # >5% increase = meaningful up

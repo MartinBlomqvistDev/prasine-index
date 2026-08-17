@@ -89,7 +89,7 @@ class PrasineError(Exception):
 class NonRetryableError(PrasineError):
     """A pipeline failure that must not be retried.
 
-    Raised when retrying would be futile or harmful — for example, when the
+    Raised when retrying would be futile or harmful: for example, when the
     LLM returns a response that is structurally valid but semantically
     unacceptable (prompt-level failure rather than transient network error),
     or when a data source returns HTTP 400/401/403/404.
@@ -180,7 +180,7 @@ class ExtractionError(PrasineError):
 
     Raised when the LLM response cannot be parsed into the expected Pydantic
     model. This is distinct from LLMError (which covers API-level failures)
-    and is always non-retryable without prompt modification — the same prompt
+    and is always non-retryable without prompt modification; the same prompt
     will produce the same malformed output.
     """
 
@@ -335,7 +335,7 @@ RetryConfig.DEFAULT_HTTP = RetryConfig(
 """Retry policy for external HTTP data source calls (EU ETS, CDP, EUR-Lex).
 
 Retries on network-level failures and timeouts. HTTP 4xx and 5xx responses
-are handled by the ingest modules themselves — a 500 from an upstream API
+are handled by the ingest modules themselves: a 500 from an upstream API
 is wrapped in DataSourceError(retryable=True) before reaching this layer.
 """
 
@@ -349,7 +349,7 @@ RetryConfig.DEFAULT_DB = RetryConfig(
 )
 """Retry policy for database operations.
 
-Only one retry with a short delay — database connection failures are usually
+Only one retry with a short delay: database connection failures are usually
 transient pool exhaustion or a brief network hiccup. Longer retries here
 would hold up the pipeline unnecessarily.
 """
@@ -439,7 +439,7 @@ def retry_async(
                     await asyncio.sleep(delay)
 
                 except Exception:
-                    # Exception type not listed as retryable — propagate immediately
+                    # Exception type not listed as retryable: propagate immediately
                     raise
 
             raise RetryExhaustedError(

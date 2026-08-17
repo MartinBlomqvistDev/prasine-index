@@ -2,7 +2,7 @@
 
 Queries the Eurostat dissemination API (env_air_gge dataset) for country-level
 and sector-level greenhouse gas emissions. No bulk download or registration
-required — the API is free and publicly accessible.
+required: the API is free and publicly accessible.
 
 Used to:
   - Provide a country GHG total cross-check against EEA national data
@@ -14,7 +14,7 @@ Used to:
 API reference:
   https://ec.europa.eu/eurostat/web/user-guides/data-browser/api-data-access/api-getting-started
 
-Dataset: env_air_gge — GHG emissions by source sector (IPCC format)
+Dataset: env_air_gge: GHG emissions by source sector (IPCC format)
 Units: MIO_T (million tonnes CO2 equivalent)
 """
 
@@ -42,7 +42,7 @@ _HEADERS = {
     "User-Agent": "PrasineIndex/1.0 (EU greenwashing monitor)",
 }
 
-# Sectors to query — covers the full national inventory breakdown
+# Sectors to query: covers the full national inventory breakdown
 _SECTORS: dict[str, str] = {
     "TOTX4_MEMO": "Total (excl. LULUCF)",
     "CRF1": "Energy",
@@ -193,7 +193,7 @@ def _decode_response(data: dict[str, Any]) -> dict[str, dict[int, float]]:
         idx_map = dim.get("category", {}).get("index", {})
         label_map = dim.get("category", {}).get("label", {})
         if isinstance(idx_map, dict):
-            # {code: position} — sort by position
+            # {code: position}: sort by position
             ordered = sorted(idx_map.items(), key=lambda x: x[1])
             return [k for k, _ in ordered]
         # If index is a list, it's already ordered
@@ -238,7 +238,7 @@ def _decode_response(data: dict[str, Any]) -> dict[str, dict[int, float]]:
 
 
 def _fetch_sync(geo: str) -> dict[str, dict[int, float]]:
-    """Synchronous HTTP fetch — run via asyncio.to_thread."""
+    """Synchronous HTTP fetch, run via asyncio.to_thread."""
     url = _build_url(geo)
     req = urllib.request.Request(url, headers=_HEADERS)
     try:

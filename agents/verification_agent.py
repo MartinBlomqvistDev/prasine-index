@@ -88,7 +88,7 @@ def _with_timing(node_name: str, fn: Any) -> Any:
             )
         except TimeoutError:
             logger.warning(
-                f"TIMEOUT: {node_name} exceeded {_NODE_HARD_TIMEOUT_S:.0f}s hard limit — "
+                f"TIMEOUT: {node_name} exceeded {_NODE_HARD_TIMEOUT_S:.0f}s hard limit, "
                 "skipping source, evidence marked as data gap",
                 extra={
                     "operation": "verification_node_timeout",
@@ -104,7 +104,7 @@ def _with_timing(node_name: str, fn: Any) -> Any:
         if elapsed > _SLOW_NODE_THRESHOLD_S:
             logger.warning(
                 f"PARTIAL: {node_name} took {elapsed:.1f}s "
-                f"(threshold {_SLOW_NODE_THRESHOLD_S:.0f}s) — "
+                f"(threshold {_SLOW_NODE_THRESHOLD_S:.0f}s), "
                 "evidence from this source may be incomplete",
                 extra={
                     "operation": "verification_node_slow",
@@ -129,7 +129,7 @@ class VerificationState(TypedDict):
     The ``evidence`` and ``data_gaps`` fields use ``Annotated`` with
     ``operator.add`` as the reducer. This means each parallel fetch node
     returns a partial list, and LangGraph's runtime merges all partial lists
-    via concatenation — no node needs to know what the others returned.
+    via concatenation; no node needs to know what the others returned.
 
     Attributes:
         claim: The claim under verification. Read-only across all nodes.
@@ -205,7 +205,7 @@ async def _node_fetch_eu_ets(state: VerificationState) -> dict[str, Any]:
             "evidence": [],
             "data_gaps": [
                 f"{EvidenceSource.EU_ETS}: no installation IDs mapped for this company "
-                "in Prasine's registry (mapping gap — NOT evidence the company lacks "
+                "in Prasine's registry (mapping gap: NOT evidence the company lacks "
                 "EU ETS installations)"
             ],
         }
@@ -239,7 +239,7 @@ async def _node_fetch_eu_ets(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EU_ETS}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EU_ETS}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -287,7 +287,7 @@ async def _node_fetch_cdp(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.CDP}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.CDP}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -336,7 +336,7 @@ async def _node_fetch_eurlex(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EUR_LEX}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EUR_LEX}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -385,7 +385,7 @@ async def _node_fetch_sbti(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.SBTI}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.SBTI}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -435,7 +435,7 @@ async def _node_fetch_eprtr(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EPRTR}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EPRTR}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -466,7 +466,7 @@ async def _node_fetch_ca100(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.CA100}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.CA100}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -476,7 +476,7 @@ async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]
     Queries the fossil fuel financing database for banks and financial institutions.
     A bank providing hundreds of billions in fossil fuel financing while making
     net-zero or climate-positive claims is the canonical financial sector greenwashing
-    pattern — exemplified by the landmark ASA 2022 HSBC ruling.
+    pattern: exemplified by the landmark ASA 2022 HSBC ruling.
 
     Args:
         state: Current verification graph state.
@@ -498,7 +498,7 @@ async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.FOSSIL_FINANCE}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.FOSSIL_FINANCE}: unexpected error: {type(exc).__name__}"
             ],
         }
 
@@ -530,7 +530,7 @@ async def _node_fetch_coal_exit(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.COAL_EXIT}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.COAL_EXIT}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -540,7 +540,7 @@ async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
     Queries the static enforcement rulings database for confirmed bans, fines,
     misleading-claim rulings, and active investigations from ASA, ACM, AGCM, CMA,
     courts, and the European Commission. A confirmed ruling from a regulator is the
-    strongest possible evidence — it means an authority has already independently
+    strongest possible evidence: it means an authority has already independently
     determined that the company's green claims were unsubstantiated.
 
     Args:
@@ -567,7 +567,7 @@ async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.ENFORCEMENT}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.ENFORCEMENT}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -577,7 +577,7 @@ async def _node_fetch_lobby_map(state: VerificationState) -> dict[str, Any]:
     Queries the LobbyMap Company Climate Policy Engagement database for the
     company's lobbying alignment score (A+ to F). A company scoring in the
     obstructive range (D/E/F) while making green claims is a primary greenwashing
-    indicator — its lobbying activity actively undermines the climate policies it
+    indicator: its lobbying activity actively undermines the climate policies it
     publicly claims to support.
 
     Args:
@@ -617,7 +617,7 @@ async def _node_fetch_lobby_map(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.LOBBY_MAP}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.LOBBY_MAP}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -626,7 +626,7 @@ async def _node_fetch_eu_innovation_fund(state: VerificationState) -> dict[str, 
 
     Queries the local EU Innovation Fund projects CSV for grants awarded to
     this company. An Innovation Fund grant indicates independent EC technical
-    evaluation — partially mitigating evidence for CCS and clean-tech claims.
+    evaluation: partially mitigating evidence for CCS and clean-tech claims.
 
     Args:
         state: Current verification graph state.
@@ -656,7 +656,7 @@ async def _node_fetch_eu_innovation_fund(state: VerificationState) -> dict[str, 
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.EU_INNOVATION_FUND}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.EU_INNOVATION_FUND}: unexpected error: {type(exc).__name__}"
             ],
         }
 
@@ -692,7 +692,7 @@ async def _node_fetch_gogel(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.GOGEL}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.GOGEL}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -727,7 +727,7 @@ async def _node_fetch_eurostat(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EUROSTAT}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EUROSTAT}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -763,7 +763,7 @@ async def _node_fetch_eu_transparency_register(state: VerificationState) -> dict
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.EU_TRANSPARENCY_REGISTER}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.EU_TRANSPARENCY_REGISTER}: unexpected error: {type(exc).__name__}"
             ],
         }
 
@@ -799,9 +799,7 @@ async def _node_fetch_eea_national(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [
-                f"{EvidenceSource.EEA_NATIONAL}: unexpected error — {type(exc).__name__}"
-            ],
+            "data_gaps": [f"{EvidenceSource.EEA_NATIONAL}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -833,7 +831,7 @@ async def _node_fetch_edgar(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EDGAR}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EDGAR}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -865,7 +863,7 @@ async def _node_fetch_egt(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.EGT}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.EGT}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -874,7 +872,7 @@ async def _node_fetch_goget(state: VerificationState) -> dict[str, Any]:
 
     Checks whether the company owns O&G extraction fields in active development.
     FID on a new field means capital committed to decades of upstream fossil
-    fuel production — directly contradicts net-zero or phase-out claims.
+    fuel production; directly contradicts net-zero or phase-out claims.
 
     Args:
         state: Current verification graph state.
@@ -897,7 +895,7 @@ async def _node_fetch_goget(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.GOGET}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.GOGET}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -929,7 +927,7 @@ async def _node_fetch_gcpt(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.GCPT}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.GCPT}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -961,7 +959,7 @@ async def _node_fetch_tpi(state: VerificationState) -> dict[str, Any]:
         )
         return {
             "evidence": [],
-            "data_gaps": [f"{EvidenceSource.TPI}: unexpected error — {type(exc).__name__}"],
+            "data_gaps": [f"{EvidenceSource.TPI}: unexpected error: {type(exc).__name__}"],
         }
 
 
@@ -971,7 +969,7 @@ async def _node_fetch_climate_trace(state: VerificationState) -> dict[str, Any]:
     Queries the Climate TRACE v7 API for satellite/ML-derived emissions
     estimates independent of company self-reporting. A significant discrepancy
     between Climate TRACE facility estimates and company-disclosed figures is a
-    primary greenwashing signal — one of the few sources that can contradict a
+    primary greenwashing signal, one of the few sources that can contradict a
     company's own disclosure with independent evidence.
 
     Args:
@@ -999,7 +997,7 @@ async def _node_fetch_climate_trace(state: VerificationState) -> dict[str, Any]:
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.CLIMATE_TRACE}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.CLIMATE_TRACE}: unexpected error: {type(exc).__name__}"
             ],
         }
 
@@ -1012,7 +1010,7 @@ async def _node_fetch_source_document(
 
     When the claim references a specific corporate document (sustainability
     report, annual report, IR page), fetches that document and extracts
-    structured climate disclosures — emissions figures, baseline year, interim
+    structured climate disclosures: emissions figures, baseline year, interim
     targets, certified removal plan. This is the most direct verification step:
     comparing the claim against the document it explicitly cites.
 
@@ -1054,7 +1052,7 @@ async def _node_fetch_source_document(
         return {
             "evidence": [],
             "data_gaps": [
-                f"{EvidenceSource.SOURCE_DOCUMENT}: unexpected error — {type(exc).__name__}"
+                f"{EvidenceSource.SOURCE_DOCUMENT}: unexpected error: {type(exc).__name__}"
             ],
         }
 
@@ -1068,7 +1066,7 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
     shows in aggregate. This summary is provided as context to the Judge
     Agent alongside the individual evidence records.
 
-    The aggregate node does not call an LLM — the summary is constructed
+    The aggregate node does not call an LLM; the summary is constructed
     programmatically from the evidence records to keep this step fast and
     deterministic. The Judge Agent has the LLM reasoning step.
 
@@ -1088,7 +1086,7 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
     inconclusive = sum(1 for e in evidence if e.supports_claim is None)
 
     logger.info(
-        f"Evidence aggregation complete: {len(evidence)} record(s) — "
+        f"Evidence aggregation complete: {len(evidence)} record(s), "
         f"{supporting} supporting, {contradicting} contradicting, "
         f"{inconclusive} inconclusive; {len(data_gaps)} data gap(s)",
         extra={
@@ -1097,12 +1095,12 @@ async def _node_aggregate(state: VerificationState) -> dict[str, Any]:
         },
     )
 
-    # No state mutation needed — the agent reads the final state post-graph
+    # No state mutation needed: the agent reads the final state post-graph
     return {}
 
 
 # ---------------------------------------------------------------------------
-# Node registry — single source of truth for graph construction AND trace
+# Node registry: single source of truth for graph construction AND trace
 # metadata, so the two can never drift apart (each node appears exactly once).
 # fetch_source_document is registered separately in _build_verification_graph
 # because it needs the shared Anthropic client injected via functools.partial.
@@ -1206,7 +1204,7 @@ class VerificationAgent:
     ``operator.add`` reducer on the ``evidence`` list merges partial results
     as each node completes.
 
-    LangGraph is used here — and only here in the pipeline — because this
+    LangGraph is used here, and only here in the pipeline, because this
     agent has exactly the characteristics that benefit from a framework:
     multiple independent tools, parallel execution, partial-failure tolerance,
     and state that accumulates across branches. The other agents are
@@ -1223,7 +1221,7 @@ class VerificationAgent:
         Args:
             client: Shared Anthropic async client. Used by the source document
                 node to analyse fetched documents. Created internally if not
-                provided (not recommended in production — pass the pipeline's
+                provided (not recommended in production; pass the pipeline's
                 shared client to avoid redundant connections).
         """
         self._client = client or anthropic.AsyncAnthropic()

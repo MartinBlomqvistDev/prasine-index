@@ -4,7 +4,7 @@ Usage:
     python scripts/refresh_all.py
 
 Logs to logs/refresh_YYYY-MM-DD.log. Exits 0 if all scripts succeed,
-1 if any fail. Wire this single script into Windows Task Scheduler —
+1 if any fail. Wire this single script into Windows Task Scheduler;
 do not schedule individual refresh_*.py scripts.
 """
 
@@ -128,7 +128,7 @@ def main() -> None:
             + " ==="
         )
         if soft_failures:
-            emit("WARN (manual download required — existing data still usable):")
+            emit("WARN (manual download required: existing data still usable):")
             for name, _, detail in soft_failures:
                 emit(f"  {name}: {detail}")
         if hard_failures:

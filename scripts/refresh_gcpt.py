@@ -1,6 +1,6 @@
 """Refresh the GEM Global Coal Plant Tracker (GCPT) data.
 
-The GCPT requires a manual download — GEM uses a form with reCAPTCHA:
+The GCPT requires a manual download: GEM uses a form with reCAPTCHA:
 
     1. Go to: https://globalenergymonitor.org/projects/global-coal-plant-tracker/download-data/
     2. Fill in your name and email address.
@@ -46,7 +46,7 @@ def check_existing() -> None:
                 print(f"  WARNING: sheet '{_SHEET}' not found. Sheets: {wb.sheetnames}")
             wb.close()
         except ImportError:
-            print("  (openpyxl not installed — cannot inspect sheet)")
+            print("  (openpyxl not installed: cannot inspect sheet)")
         except Exception as exc:
             print(f"  WARNING: could not inspect file: {exc}")
     else:

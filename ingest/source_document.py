@@ -2,7 +2,7 @@
 
 When a claim references a company document (sustainability report, annual
 report, IR page), this module fetches that document and uses Claude Haiku
-with forced tool use to extract structured climate disclosures — scope 1/2/3
+with forced tool use to extract structured climate disclosures: scope 1/2/3
 emissions, net-zero baseline year, interim targets, and certified carbon
 removal plan.
 
@@ -160,7 +160,7 @@ You are a specialist in EU corporate climate disclosure analysis. \
 Read the company's source document and extract structured factual data \
 about what it actually discloses regarding climate and net-zero commitments.
 
-Be strictly factual — extract only what the document explicitly states. \
+Be strictly factual â€” extract only what the document explicitly states. \
 Do not infer or assume information that is not present.
 
 Under the EmpCo Directive (EU 2024/825), a net-zero claim requires: \

@@ -1,12 +1,12 @@
 """Global Oil and Gas Extraction Tracker (GOGET) ingest module for the Prasine Index.
 
-Loads the GEM Global Oil and Gas Extraction Tracker Excel file — facility-level
+Loads the GEM Global Oil and Gas Extraction Tracker Excel file: facility-level
 data on oil and gas extraction fields worldwide, including operator/owner
 attribution and development status.
 
 Complementary to the Urgewald GOGEL (company-level O&G expansion screening):
 GOGEL provides the company-level screen used by financial institutions; GOGET
-provides facility-level evidence with named fields and specific statuses —
+provides facility-level evidence with named fields and specific statuses,
 making it a stronger citation for claim-by-claim greenwashing reports.
 
 The key greenwashing signal: a company claiming fossil fuel phase-out or
@@ -15,23 +15,23 @@ fields (status "in-development" or "discovered") is directly contradicted.
 Each new field approved for development locks in decades of upstream emissions.
 
 Status values:
-  operating       — currently producing
-  in-development  — FID taken, under construction or commissioning
-  discovered      — discovered but pre-FID, development likely
-  mothballed      — paused, not yet abandoned
-  decommissioning — actively being wound down
-  abandoned       — development abandoned
+  operating: currently producing
+  in-development: FID taken, under construction or commissioning
+  discovered: discovered but pre-FID, development likely
+  mothballed: paused, not yet abandoned
+  decommissioning: actively being wound down
+  abandoned: development abandoned
 
 Greenwashing signal logic:
   in-development → supports_claim=False, confidence=0.87
-    (FID taken — capital committed to new fossil fuel extraction)
+    (FID taken, capital committed to new fossil fuel extraction)
   discovered (pre-FID) → supports_claim=False, confidence=0.72
     (active development likely; still contradicts net-zero trajectory)
   decommissioning only → supports_claim=True, confidence=0.55
   operating only → supports_claim=None, confidence=0.60
 
 Data file: data/Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx
-Refresh: scripts/refresh_goget.py (manual — form + reCAPTCHA required)
+Refresh: scripts/refresh_goget.py (manual: form + reCAPTCHA required)
 Coverage: Global oil & gas fields, March 2026 release
 """
 
@@ -127,7 +127,7 @@ def _load() -> list[_GOGETField]:
         import openpyxl
     except ImportError:
         logger.warning(
-            "openpyxl not installed — cannot load GOGET data.",
+            "openpyxl not installed: cannot load GOGET data.",
             extra={"operation": "goget_openpyxl_missing"},
         )
         _fields = []
@@ -188,7 +188,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     Finds all extraction fields operated or owned by the company and reports
     development pipeline, operating fields, and decommissioning activity.
     A company with fields in active development while claiming Paris alignment
-    or fossil fuel phase-out is directly contradicted — FID on a new field
+    or fossil fuel phase-out is directly contradicted: FID on a new field
     means capital committed to decades of upstream fossil fuel production.
 
     Args:
@@ -250,7 +250,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     if developing:
         dev_names = "; ".join(f"{f.name} ({f.country}, {f.fuel_type})" for f in developing[:5])
         lines.append(
-            f"IN DEVELOPMENT: {len(developing)} field(s) with FID — capital committed "
+            f"IN DEVELOPMENT: {len(developing)} field(s) with FID, capital committed "
             f"to new fossil fuel extraction. Examples: {dev_names}. "
             f"Each field locks in decades of upstream production, directly contradicting "
             f"any net-zero or fossil fuel phase-out claim."
@@ -272,7 +272,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     summary = " ".join(lines)
 
     logger.info(
-        f"GOGET: {company_name!r} — {len(developing)} developing, "
+        f"GOGET: {company_name!r}, {len(developing)} developing, "
         f"{len(discovered)} discovered, {len(operating)} operating",
         extra={"operation": "goget_match", "company": company_name},
     )

@@ -2,7 +2,7 @@
 
 Reads EU ETS installation IDs from EUTL24/operators_daily.csv and inserts
 each company with a deterministic UUID so eval cases can reference them
-consistently. Safe to re-run — uses INSERT ... ON CONFLICT DO NOTHING.
+consistently. Safe to re-run, uses INSERT ... ON CONFLICT DO NOTHING.
 
 Usage:
     python scripts/seed_eval_companies.py
@@ -28,7 +28,7 @@ _EUTL_OPERATORS = Path(__file__).parent.parent / "EUTL24" / "operators_daily.csv
 # ---------------------------------------------------------------------------
 # Company definitions with deterministic UUIDs
 # HSBC and Glencore have no EU ETS installations (bank / holding company)
-# Vestas has minimal installations — included with known IDs
+# Vestas has minimal installations: included with known IDs
 # ---------------------------------------------------------------------------
 
 EVAL_COMPANIES: list[dict[str, Any]] = [
@@ -140,7 +140,7 @@ EVAL_COMPANIES: list[dict[str, Any]] = [
         "isin": "GB0005405286",
         "ticker": "HSBA",
         "csrd_reporting": True,
-        "name_filters": [],  # bank — no EU ETS installations
+        "name_filters": [],  # bank, no EU ETS installations
     },
     {
         "id": "00000000-0000-0000-0000-000000000010",
@@ -202,7 +202,7 @@ EVAL_COMPANIES: list[dict[str, Any]] = [
         "isin": "JE00B4T3BW64",
         "ticker": "GLEN",
         "csrd_reporting": True,
-        "name_filters": [],  # holding company — installations under subsidiary names
+        "name_filters": [],  # holding company, installations under subsidiary names
     },
     {
         "id": "00000000-0000-0000-0000-000000000015",
@@ -261,7 +261,7 @@ EVAL_COMPANIES: list[dict[str, Any]] = [
     },
     {
         "id": "00000000-0000-0000-0000-000000000020",
-        "name": "BP plc (VW-017 duplicate)",  # GW-017 is also VW — reuse VW id
+        "name": "BP plc (VW-017 duplicate)",  # GW-017 is also VW, reuse VW id
         "country": "DE",
         "sector": "Automotive",
         "lei": None,
@@ -278,7 +278,7 @@ def _load_installation_ids() -> dict[str, list[int]]:
     id_map: dict[str, list[int]] = {c["id"]: [] for c in EVAL_COMPANIES}
 
     if not _EUTL_OPERATORS.exists():
-        print(f"WARNING: {_EUTL_OPERATORS} not found — seeding without installation IDs")
+        print(f"WARNING: {_EUTL_OPERATORS} not found: seeding without installation IDs")
         return id_map
 
     with _EUTL_OPERATORS.open(encoding="utf-8") as f:
@@ -304,10 +304,10 @@ def _load_installation_ids() -> dict[str, list[int]]:
 async def seed() -> None:
     id_map = _load_installation_ids()
 
-    # Ryanair is already seeded with correct IDs — skip it
+    # Ryanair is already seeded with correct IDs: skip it
     ryanair_id = "00000000-0000-0000-0000-000000000001"
 
-    # GW-017 reuses VW (same company) — skip the placeholder entry
+    # GW-017 reuses VW (same company): skip the placeholder entry
     skip_ids = {ryanair_id, "00000000-0000-0000-0000-000000000020"}
 
     async with get_session() as session:
@@ -345,7 +345,7 @@ async def seed() -> None:
                     "csrd_reporting": company["csrd_reporting"],
                 },
             )
-            print(f"  Seeded: {company['name']} — {len(installation_ids)} installations")
+            print(f"  Seeded: {company['name']}, {len(installation_ids)} installations")
 
     print("Done.")
 

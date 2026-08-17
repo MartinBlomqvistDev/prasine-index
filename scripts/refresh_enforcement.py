@@ -2,7 +2,7 @@
 
 Searches EC press releases and key national authority sites (ACM, ASA, CMA)
 for each company in the Prasine Index. Writes hits since the last run to
-data/enforcement_flags.json. Exits 0 always — failures are logged, not fatal.
+data/enforcement_flags.json. Exits 0 always; failures are logged, not fatal.
 
 Usage:
     python scripts/refresh_enforcement.py
@@ -120,7 +120,7 @@ def _check_company(
 def main() -> None:
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
-        print("[SKIP] ANTHROPIC_API_KEY not set — skipping enforcement check")
+        print("[SKIP] ANTHROPIC_API_KEY not set, skipping enforcement check")
         return
 
     try:
@@ -145,7 +145,7 @@ def main() -> None:
             print(f"  [FLAG] {company}: {len(actions)} new action(s)")
             for a in actions:
                 print(
-                    f"         {a.get('date', '?')} — {a.get('authority', '?')}: {a.get('summary', '')[:80]}"
+                    f"         {a.get('date', '?')}, {a.get('authority', '?')}: {a.get('summary', '')[:80]}"
                 )
         else:
             err = result.get("error")

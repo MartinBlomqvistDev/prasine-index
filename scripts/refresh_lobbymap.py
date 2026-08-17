@@ -6,7 +6,7 @@ Run this script whenever you want fresh LobbyMap data:
 
 LobbyMap publishes annual company-level climate lobbying scores (A+ to F)
 at lobbymap.org. The bulk company database is available as a free download
-from their website — no account required.
+from their website, no account required.
 
 The file is saved to data/lobbymap_companies.csv. The pipeline reloads
 automatically on next run. Run refresh_cache() from ingest.lobby_map to
@@ -28,7 +28,7 @@ _DEST = _DATA_DIR / "lobbymap_companies.csv"
 
 # LobbyMap company database CSV download URL.
 # InfluenceMap rebranded to lobbymap.org in 2025. The bulk CSV is no longer
-# at a stable public URL — it may require a free account at lobbymap.org.
+# at a stable public URL: it may require a free account at lobbymap.org.
 # If this 404s, see print_manual_instructions() below.
 _LM_CSV_URL = "https://lobbymap.org/site/data/000/017/InfluenceMap_Company_Scores.csv"
 
@@ -68,7 +68,7 @@ def download_lobbymap_csv() -> None:
         with urllib.request.urlopen(req, timeout=60) as response:
             data = response.read()
     except urllib.error.HTTPError as exc:
-        print(f"\nHTTP {exc.code} — {exc.reason}")
+        print(f"\nHTTP {exc.code}: {exc.reason}")
         print_manual_instructions()
         sys.exit(1)
     except urllib.error.URLError as exc:
@@ -77,7 +77,7 @@ def download_lobbymap_csv() -> None:
         sys.exit(1)
 
     if b"<html" in data[:200].lower():
-        print("\nReceived HTML — the URL may have changed or requires authentication.")
+        print("\nReceived HTML: the URL may have changed, or it requires authentication.")
         print_manual_instructions()
         sys.exit(1)
 

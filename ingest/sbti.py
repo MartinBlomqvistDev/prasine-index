@@ -5,7 +5,7 @@ downloaded via scripts/refresh_sbti.py. Provides target validation evidence for
 any claim containing science-based target language.
 
 SBTi data is a high-quality signal: targets are externally validated by SBTi,
-and withdrawn/removed status is a direct CONFIRMED_GREENWASHING indicator —
+and withdrawn/removed status is a direct CONFIRMED_GREENWASHING indicator:
 the company no longer has a valid commitment despite continuing to claim one.
 
 Data source: sciencebasedtargets.org/companies-taking-action
@@ -35,7 +35,7 @@ _SBTI_CSV: Path = Path(
     )
 )
 
-# SBTi Excel download (alternative to CSV — parsed at cache load time)
+# SBTi Excel download (alternative to CSV: parsed at cache load time)
 _SBTI_XLSX: Path = Path(
     os.environ.get(
         "SBTI_XLSX",
@@ -224,14 +224,14 @@ def _load_from_xlsx(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTi
         import openpyxl
     except ImportError:
         logger.warning(
-            "openpyxl not installed — cannot read SBTi XLSX. "
+            "openpyxl not installed: cannot read SBTi XLSX. "
             "Run: pip install openpyxl, or use the CSV download.",
             extra={"operation": "sbti_xlsx_missing_dep"},
         )
         return {}, {}
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-    # SBTi workbook has one main data sheet — use the first sheet.
+    # SBTi workbook has one main data sheet: use the first sheet.
     ws = wb.worksheets[0]
     rows = list(ws.iter_rows(values_only=True))
     if not rows:
@@ -291,7 +291,7 @@ def _get_cache() -> tuple[dict[str, _SBTiRecord], dict[str, _SBTiRecord]]:
     else:
         _cache_by_isin, _cache_by_name = {}, {}
         logger.info(
-            "SBTi data file not found — run scripts/refresh_sbti.py to download. "
+            "SBTi data file not found: run scripts/refresh_sbti.py to download. "
             f"Expected at: {_SBTI_CSV}",
             extra={"operation": "sbti_cache_missing"},
         )
@@ -369,7 +369,7 @@ async def fetch_sbti_data(claim: Claim, company: object) -> list[Evidence]:
     summary = _build_summary(name, record, is_sbti_claim)
 
     logger.info(
-        f"SBTi: {name!r} found — status={record.status!r}, "
+        f"SBTi: {name!r} found, status={record.status!r}, "
         f"temp={record.temp_classification!r}, removed={record.is_removed}",
         extra={"operation": "sbti_found", "company": name, "status": record.status},
     )
@@ -409,7 +409,7 @@ def _assess_record(record: _SBTiRecord, is_sbti_claim: bool) -> tuple[bool | Non
         Tuple of (supports_claim, confidence).
     """
     if record.is_removed:
-        # Company had a target but it was removed — directly contradicts SBTi claims.
+        # Company had a target but it was removed: directly contradicts SBTi claims.
         if is_sbti_claim:
             return False, 0.95
         # Even if not an SBTi claim, removed status is relevant negative context.
@@ -421,7 +421,7 @@ def _assess_record(record: _SBTiRecord, is_sbti_claim: bool) -> tuple[bool | Non
         # Active target supports general emissions reduction claims.
         return True, 0.70
 
-    # Status is something like "Committed" (no validated target yet) — neutral.
+    # Status is something like "Committed" (no validated target yet), neutral.
     if is_sbti_claim:
         return None, 0.65
 
@@ -456,5 +456,5 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
         f"SBTi target for {company_name}: status={status_display}, "
         f"temperature classification={temp_display}, "
         f"net-zero target={net_zero_display}{date_display}. "
-        f"{'Claim references SBTi — target is ' + ('active and validated' if record.is_active else 'committed but not yet validated') + '.' if is_sbti_claim else 'SBTi record provides context for emissions reduction claims.'}"
+        f"{'Claim references SBTi: target is ' + ('active and validated' if record.is_active else 'committed but not yet validated') + '.' if is_sbti_claim else 'SBTi record provides context for emissions reduction claims.'}"
     )

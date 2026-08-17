@@ -182,7 +182,7 @@ function parseParagraphEvidence(section: string): EvidenceItem[] {
       const supRaw = body.match(/Supports claim:\s*(\w+)/i)?.[1]
       const supports: 'Yes' | 'No' | 'N/A' = supRaw ? normaliseSupports(supRaw) : 'N/A'
       body = body
-        .replace(/^[—–-]\s*/, '')
+        .replace(/^[—–-]\s*/, '') // style-ok: strips leading dashes from report markdown
         .replace(/\([^)]*https?:\/\/[^)]*\)/g, '')
         .replace(/\*[^*]+\*/g, '')
         .replace(/Supports claim:[^.]+\./gi, '')
@@ -202,7 +202,7 @@ function parseEvidence(section: string): EvidenceItem[] {
 }
 
 export function parseReport(md: string): ParsedReport {
-  const headerMatch = md.match(/^## (.+?) — Company Assessment \((\d+) claim/m)
+  const headerMatch = md.match(/^## (.+?) — Company Assessment \((\d+) claim/m) // style-ok: matches the header written into docs/reports/*.md
   const company = headerMatch?.[1] ?? 'Unknown Company'
   const claimCount = parseInt(headerMatch?.[2] ?? '1')
 
@@ -290,8 +290,8 @@ export function parseReport(md: string): ParsedReport {
   }
 }
 
-// NOTE: must add an entry here whenever a company is added to SLUGS —
-// reports don't carry a machine-readable sector field, so this is the
+// NOTE: must add an entry here whenever a company is added to SLUGS.
+// Reports don't carry a machine-readable sector field, so this is the
 // single source of truth for the .com index table's Sector column.
 const SECTOR_MAP: Record<string, string> = {
   'ryanair-holdings-plc': 'Aviation',

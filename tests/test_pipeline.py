@@ -111,7 +111,7 @@ class TestDeduplicateClaims:
         assert len(result) == 2
 
     def test_distinct_texts_not_collapsed_at_any_threshold(self) -> None:
-        # Fully independent claims with no token overlap — never collapsed.
+        # Fully independent claims with no token overlap: never collapsed.
         a = _claim("Our renewable electricity procurement reached 100% globally.")
         b = _claim("Scope 3 supplier engagement programme covers 92% of spend.")
         result = _deduplicate_claims([a, b])
@@ -120,7 +120,7 @@ class TestDeduplicateClaims:
     def test_order_independent(self) -> None:
         # Short claim whose tokens are all contained in the longer version.
         # Function sorts by length before processing, so result is identical
-        # regardless of input order — and the longer version is always kept.
+        # regardless of input order: and the longer version is always kept.
         long = _claim(
             "We commit to achieving net zero carbon emissions by the year 2050 commitment."
         )
@@ -242,7 +242,7 @@ class TestClaimPriorityScore:
 
 
 # ---------------------------------------------------------------------------
-# GreenwashingScore — empco_violation field
+# GreenwashingScore: empco_violation field
 # ---------------------------------------------------------------------------
 
 

@@ -6,7 +6,7 @@ releases per company, complementing EU ETS verified CO2 data.
 
 E-PRTR covers all industrial facilities reporting under E-PRTR Regulation
 (EC) No 166/2006 and the successor Industrial Emissions Directive. It captures
-pollutants that EU ETS does not — methane (CH4), nitrous oxide (N2O), HFCs,
+pollutants that EU ETS does not: methane (CH4), nitrous oxide (N2O), HFCs,
 and non-GHG pollutants. A company claiming environmental leadership while
 reporting high or rising non-CO2 GHG releases to E-PRTR is a greenwashing signal.
 
@@ -55,7 +55,7 @@ _TRACKED_POLLUTANTS = frozenset(
         "ch4",
         "nitrous oxide (n2o)",
         "n2o",
-        # F-gases — CSV uses "hydro-fluorocarbons" (with hyphen)
+        # F-gases: CSV uses "hydro-fluorocarbons" (with hyphen)
         "hydro-fluorocarbons (hfcs)",
         "hydrofluorocarbons (hfcs)",
         "hfcs",
@@ -70,7 +70,7 @@ _TRACKED_POLLUTANTS = frozenset(
         "sf6",
         "nitrogen trifluoride (nf3)",
         "nf3",
-        # CO2 — relevant for non-EU-ETS industrial facilities
+        # CO2: relevant for non-EU-ETS industrial facilities
         "carbon dioxide (co2)",
         "carbon dioxide (co2) excluding biomass",
         "co2",
@@ -79,7 +79,7 @@ _TRACKED_POLLUTANTS = frozenset(
         "ghg",
         "carbon dioxide equivalent",
         "co2 equivalent",
-        # Major air pollutants — directly relevant to "environmental leadership" claims
+        # Major air pollutants: directly relevant to "environmental leadership" claims
         "nitrogen oxides (nox)",
         "nox",
         "non-methane volatile organic compounds (nmvoc)",
@@ -246,7 +246,7 @@ def _get_cache() -> tuple[
         _cache_by_parent = {}
         _cache_by_facility = {}
         logger.info(
-            "E-PRTR data file not found — run scripts/refresh_eprtr.py to download. "
+            "E-PRTR data file not found: run scripts/refresh_eprtr.py to download. "
             f"Expected at: {_EPRTR_CSV}",
             extra={"operation": "eprtr_cache_missing"},
         )
@@ -306,7 +306,7 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
     """Look up all E-PRTR records for a company by normalised name.
 
     Aggregates records across all matching parent company names and facility
-    names — a large company like IKEA may have multiple subsidiaries (e.g.
+    names: a large company like IKEA may have multiple subsidiaries (e.g.
     IKEA Industry Poland, IKEA Industry Lietuva) each stored under a different
     key. Returning only the first match would silently drop the others.
 
@@ -348,7 +348,7 @@ def _ghg_tonnes_by_year(records_by_year: dict[int, list[_EprtrRecord]]) -> dict[
     """Sum all tracked regulated emissions per year in tonnes.
 
     Covers GHGs (CH4, N2O, F-gases), CO2 from non-ETS industrial facilities,
-    and major air pollutants (NOX, NMVOC) — all reported to air medium only.
+    and major air pollutants (NOX, NMVOC), all reported to air medium only.
 
     Args:
         records_by_year: Year → list of release records.
@@ -369,7 +369,7 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
 
     Looks up the company's industrial facility releases from the E-PRTR dataset,
     aggregating across all subsidiary facilities. Tracked pollutants include GHGs
-    (CH4, N2O, F-gases), CO2 from non-EU-ETS facilities, NOX, and NMVOC — all
+    (CH4, N2O, F-gases), CO2 from non-EU-ETS facilities, NOX, and NMVOC, all
     reported to air. Rising industrial emissions while claiming environmental
     leadership is a greenwashing signal.
 
@@ -395,7 +395,7 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     ghg_by_year = _ghg_tonnes_by_year(records_by_year)
 
     if not ghg_by_year:
-        # Records found but no GHG releases to AIR — return empty so as not to confuse the Judge.
+        # Records found but no GHG releases to AIR: return empty so as not to confuse the Judge.
         return []
 
     years = sorted(ghg_by_year.keys())
@@ -415,7 +415,7 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     )
 
     logger.info(
-        f"E-PRTR: {name!r} — {latest_year} emissions={latest_tonnes:,.1f} t, trend={trend_text!r}",
+        f"E-PRTR: {name!r}, {latest_year} emissions={latest_tonnes:,.1f} t, trend={trend_text!r}",
         extra={
             "operation": "eprtr_found",
             "company": name,
@@ -453,9 +453,9 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
     value, and the median of the three earliest years as the baseline. This
     prevents a single first-disclosure year (where a new facility or pollutant
     type appears in the dataset for the first time) from being misread as a
-    genuine multi-year increase. E-PRTR reporting scope changes — e.g. a
+    genuine multi-year increase. E-PRTR reporting scope changes, for example a
     facility crossing the reporting threshold, or CO2 being added to a
-    facility's permit — are common and produce step-changes that are not
+    facility's permit, are common and produce step-changes that are not
     real emissions trends.
 
     Args:
@@ -466,7 +466,7 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
     """
     if len(ghg_by_year) < 2:
         year = next(iter(ghg_by_year.keys()))
-        return None, 0.4, f"Only one year of data ({year}) — trend cannot be assessed."
+        return None, 0.4, f"Only one year of data ({year}), trend cannot be assessed."
 
     years = sorted(ghg_by_year.keys())
     vals = [ghg_by_year[y] for y in years]
@@ -493,7 +493,7 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
                 0.45,
                 f"Regulated emissions to air: {'; '.join(f'{y}: {ghg_by_year[y]:,.1f} t' for y in years[-5:])}. "
                 f"NOTE: The {years[-1]} figure ({last_val:,.1f} t) is >{last_val / penultimate:.0f}x the prior year "
-                f"({years[-2]}: {penultimate:,.1f} t) — likely a first-disclosure event (new facility or "
+                f"({years[-2]}: {penultimate:,.1f} t): likely a first-disclosure event (new facility or "
                 f"pollutant type entering E-PRTR reporting scope), not a genuine emissions increase. "
                 f"Excluding {years[-1]}: prior trend {direction} {abs(prior_pct):.0f}% "
                 f"from {prior_years[0]} to {prior_years[-1]}. Treat {years[-1]} data with caution.",
@@ -503,7 +503,7 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
     last_year, last_val = years[-1], vals[-1]
 
     if first_val == 0:
-        return None, 0.4, "Baseline year has zero recorded emissions — trend unreliable."
+        return None, 0.4, "Baseline year has zero recorded emissions; trend unreliable."
 
     pct_change = (last_val - first_val) / first_val * 100
 

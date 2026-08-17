@@ -16,7 +16,7 @@ For greenwashing assessment:
   - Declining national trends do not excuse individual company inaction.
   - Rising national trends (e.g. energy sector rebound post-COVID) provide context.
 
-Data source: EEA — national emissions reported to UNFCCC
+Data source: EEA, national emissions reported to UNFCCC
   Dataset: eea_t_national-emissions-reported (UNFCCC reporting)
 Refresh: python scripts/refresh_eea_national.py
 """
@@ -114,7 +114,7 @@ def _get_cache() -> dict[str, dict[int, float]]:
     if not _EEA_CSV.exists():
         _cache = {}
         logger.info(
-            "EEA national data file not found — run scripts/refresh_eea_national.py. "
+            "EEA national data file not found: run scripts/refresh_eea_national.py. "
             f"Expected at: {_EEA_CSV}",
             extra={"operation": "eea_national_cache_missing"},
         )

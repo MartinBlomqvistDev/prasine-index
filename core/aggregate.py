@@ -13,7 +13,7 @@ __all__ = ["aggregate_claim_scores"]
 # Score is computed from the top K claims by severity. The remaining claims
 # appear in the report for context but don't drive the headline number.
 # Rationale: a verified freshwater reduction shouldn't dilute the score for
-# a confirmed net-zero greenwashing claim — they're different signal types.
+# a confirmed net-zero greenwashing claim: they're different signal types.
 _SCORE_TOP_K = 3
 
 
@@ -21,7 +21,7 @@ def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, floa
     """Return (score, low, high, confidence) as confidence-weighted means.
 
     Weights are the judge's per-claim confidences only. Using score as its own
-    weight (the previous confidence × score scheme) double-counted severity —
+    weight (the previous confidence × score scheme) double-counted severity:
     the formula must be describable in one sentence for legal defensibility:
     "the confidence-weighted mean of the three highest-scoring claims".
     Severity protection comes from the band floor in the caller, not from
@@ -67,7 +67,7 @@ def aggregate_claim_scores(
 
     Aggregation rule: the score is the confidence-weighted mean of the top-K
     highest-scoring claims, but it can never fall below the band floor of the
-    single worst claim — a confirmed finding cannot be averaged away. The
+    single worst claim; a confirmed finding cannot be averaged away. The
     company verdict is always derived from the final numeric score, so score
     and verdict can never disagree.
     """

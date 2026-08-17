@@ -1,4 +1,4 @@
-# Prasine Index — production Docker image.
+# Prasine Index: production Docker image.
 # Multi-stage build: dependencies in the builder stage, minimal runtime image.
 # Designed for deployment on Cloud Run, Fly.io, or any container platform.
 
@@ -52,7 +52,7 @@ USER prasine
 ENV PORT=8080
 EXPOSE 8080
 
-# Health check — verifies the API is accepting requests
+# Health check: verifies the API is accepting requests
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 

@@ -29,7 +29,7 @@ from pathlib import Path
 _DATA_DIR = Path(__file__).parent.parent / "data"
 _DEST = _DATA_DIR / "eu_innovation_fund_projects.csv"
 
-# EC Open Data Portal — Innovation Fund projects CSV.
+# EC Open Data Portal: Innovation Fund projects CSV.
 # If this URL returns 404, check:
 #   https://opendata.ec.europa.eu/dataset/innovation-fund-projects-and-grants
 # The dataset is updated after each call decision (Large-Scale, Pilots, etc.)
@@ -76,7 +76,7 @@ def download_eu_innovation_fund_csv() -> None:
                 data = response.read()
 
             if len(data) < 500:
-                print(f"  Response too small ({len(data)} bytes) — likely not a real CSV.")
+                print(f"  Response too small ({len(data)} bytes): likely not a real CSV.")
                 continue
 
             _DEST.write_bytes(data)
@@ -87,7 +87,7 @@ def download_eu_innovation_fund_csv() -> None:
                 row_count2 = len(lines) - 1
             except Exception:
                 row_count2 = "unknown"
-            print(f"  Saved {size_kb} KB — {row_count2} projects → {_DEST}")
+            print(f"  Saved {size_kb} KB, {row_count2} projects → {_DEST}")
             return
 
         except Exception as exc:

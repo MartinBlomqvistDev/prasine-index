@@ -1,7 +1,7 @@
 """Judge Agent for the Prasine Index pipeline.
 
-Receives the full evidence package — extracted claim, company context,
-verification results, and lobbying record — and uses the Anthropic SDK with
+Receives the full evidence package (extracted claim, company context,
+verification results, and lobbying record) and uses the Anthropic SDK with
 forced tool use to produce a calibrated GreenwashingScore with chain-of-thought
 reasoning. Uses raw Anthropic SDK because the judging logic is the most sensitive
 part of the pipeline: framework abstraction here would obscure what the model is
@@ -142,7 +142,7 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                     "Set True if the claim: (1) makes a net-zero or carbon-neutral assertion "
                     "relying on carbon offsets without certified permanent removals; or "
                     "(2) lacks any specific measurable commitment, audited baseline, or "
-                    "timeline — failing the mandatory substantiation standard in amended "
+                    "timeline â€” failing the mandatory substantiation standard in amended "
                     "UCPD Annex I. Set False only when you have positively assessed that "
                     "the claim meets EmpCo substantiation requirements. Omit if the claim "
                     "type is outside EmpCo scope or if data is insufficient to assess."
@@ -174,30 +174,30 @@ A greenwashing score measures the gap between a company's green claims and its \
 verified behaviour. Score 0 means the claim is fully backed by verified data. \
 Score 100 means the claim is directly and clearly contradicted by verified evidence.
 
-SCORE-TO-VERDICT BANDS — you MUST respect these:
-  0–20   → SUBSTANTIATED_CLAIM: verified data supports the claim; no material contradiction.
-  21–40  → UNVERIFIABLE_CLAIM: data gaps prevent a clear assessment in either
+SCORE-TO-VERDICT BANDS â€” you MUST respect these:
+  0â€“20   â†’ SUBSTANTIATED_CLAIM: verified data supports the claim; no material contradiction.
+  21â€“40  â†’ UNVERIFIABLE_CLAIM: data gaps prevent a clear assessment in either
             direction. Use ONLY when you genuinely cannot tell because the data
             needed to evaluate the claim is unavailable and the claim is at least
             plausible given the company's sector.
-  41–60  → MISLEADING_CLAIM: claim is directionally possible but exaggerates, omits
+  41â€“60  â†’ MISLEADING_CLAIM: claim is directionally possible but exaggerates, omits
             key context, or cannot be independently verified. Includes: vague
             aspirational claims without measurable targets; claims from non-emitting
             entities (banks, services) about financed or value-chain emissions that
             have no audited baseline; per-unit efficiency claims that mask rising
             absolute emissions.
-  61–80  → LIKELY_GREENWASHING: claim is materially contradicted by verified data
+  61â€“80  â†’ LIKELY_GREENWASHING: claim is materially contradicted by verified data
             from a regulatory source (EU ETS EUTL), or the claim is a forward
             commitment whose current trajectory is clearly inconsistent with delivery.
-  81–100 → CONFIRMED_GREENWASHING: claim is materially contradicted by verified
+  81â€“100 â†’ CONFIRMED_GREENWASHING: claim is materially contradicted by verified
             data AND at least one of the following conditions is met:
             (a) LOBBYING OBSTRUCTION: the company's LobbyMap score is D or D+
                 (Obstructive). A company actively obstructing the climate legislation
                 required to deliver its own net-zero pledge is irreconcilably
-                contradicting that pledge. D/D+ LobbyMap is sufficient — you do
+                contradicting that pledge. D/D+ LobbyMap is sufficient â€” you do
                 not need additional evidence of the specific legislation opposed.
             (b) CORE BUSINESS CONTRADICTION: the company's primary business
-                directly and irreconcilably contradicts the claim — e.g. a coal
+                directly and irreconcilably contradicts the claim â€” e.g. a coal
                 producer claiming net zero while actively expanding coal mining
                 and power capacity, or an oil major with multiple active FID
                 extraction projects spanning decades of future production.
@@ -209,54 +209,54 @@ SCORE-TO-VERDICT BANDS — you MUST respect these:
                 a documented pattern that confirms the current claim cannot be
                 trusted. ASA, ACM, AGCM, DGCCRF, and EC CPC rulings all qualify.
             (d) ACCUMULATED EVIDENCE WEIGHT: three or more independent
-                contradicting evidence items each with confidence ≥ 0.85, and
+                contradicting evidence items each with confidence â‰¥ 0.85, and
                 no meaningful mitigating supporting evidence (no supporting
-                source with confidence ≥ 0.70). When the weight of verified
+                source with confidence â‰¥ 0.70). When the weight of verified
                 contradictions is this concentrated and uncontested, the claim
                 is confirmed regardless of whether a specific ruling has been
                 issued yet.
 
 CRITICAL: Do not default to 72/LIKELY_GREENWASHING when uncertain. If you are
-uncertain, use UNVERIFIABLE_CLAIM (score 21–40) or MISLEADING_CLAIM (41–60).
-Reserve LIKELY_GREENWASHING (61–80) for cases where EU ETS data or other
+uncertain, use UNVERIFIABLE_CLAIM (score 21â€“40) or MISLEADING_CLAIM (41â€“60).
+Reserve LIKELY_GREENWASHING (61â€“80) for cases where EU ETS data or other
 verified evidence directly contradicts the claim.
 
-CONFIRMED TRIGGER IS A FLOOR — CRITICAL:
-When ANY ONE of conditions (a)–(d) for CONFIRMED_GREENWASHING is met, the
+CONFIRMED TRIGGER IS A FLOOR â€” CRITICAL:
+When ANY ONE of conditions (a)â€“(d) for CONFIRMED_GREENWASHING is met, the
 score CANNOT fall below 81. Mitigating evidence affects the position within the
-81–100 band (e.g. strong mitigating evidence → 81–84, none → 88–95) but it
-CANNOT pull the score back into the LIKELY_GREENWASHING band (≤80). A company
-with a D+ LobbyMap rating and two moderate supporting sources scores 81–84, NOT 78.
+81â€“100 band (e.g. strong mitigating evidence â†’ 81â€“84, none â†’ 88â€“95) but it
+CANNOT pull the score back into the LIKELY_GREENWASHING band (â‰¤80). A company
+with a D+ LobbyMap rating and two moderate supporting sources scores 81â€“84, NOT 78.
 Do not let partial mitigating evidence override a confirmed trigger.
 
 INTERIM TARGETS DO NOT MITIGATE NET-ZERO CLAIMS:
 SBTi "Targets set" (short-term interim reduction targets) and TPI pathway
-assessments below 1.5°C do NOT mitigate a net-zero 2050 claim. They address
+assessments below 1.5Â°C do NOT mitigate a net-zero 2050 claim. They address
 a different claim category. If a company has SBTi interim targets but the
-claim under assessment is a net-zero commitment, SBTi is NEUTRAL — it neither
+claim under assessment is a net-zero commitment, SBTi is NEUTRAL â€” it neither
 supports nor contradicts. Only SBTi net-zero validation (separately listed)
 would be mitigating for a net-zero claim.
 
-SUPPORTING EVIDENCE WEIGHT — CRITICAL
+SUPPORTING EVIDENCE WEIGHT â€” CRITICAL
 Supporting evidence ACTIVELY lowers the score. It is not merely the absence
 of contradiction. When multiple independent high-confidence sources confirm
 the claim, the score MUST reflect that:
 
   3+ independent sources with supports_claim=True (e.g. EU ETS declining
   trend + SBTi validated + CA100+ ALIGNED + LobbyMap A/B band)
-  → score 5–20, verdict SUBSTANTIATED_CLAIM.
+  â†’ score 5â€“20, verdict SUBSTANTIATED_CLAIM.
 
   2 supporting sources, no material contradiction
-  → score 15–30, verdict SUBSTANTIATED_CLAIM or borderline UNVERIFIABLE_CLAIM.
+  â†’ score 15â€“30, verdict SUBSTANTIATED_CLAIM or borderline UNVERIFIABLE_CLAIM.
 
   1 supporting source, remaining sources show "not found" (not contradicting)
-  → score 25–40, verdict UNVERIFIABLE_CLAIM.
+  â†’ score 25â€“40, verdict UNVERIFIABLE_CLAIM.
 
-"Not found in database" means the source has no data — it is NEUTRAL, not
+"Not found in database" means the source has no data â€” it is NEUTRAL, not
 contradicting. Do NOT treat missing data as a negative signal.
 
 RECOGNISING SUBSTANTIATED CLAIMS
-Score SUBSTANTIATED_CLAIM (0–20) when:
+Score SUBSTANTIATED_CLAIM (0â€“20) when:
 - EU ETS verified emissions show a clear long-run downward trend consistent
   with the claim (e.g. an energy company that has sold fossil assets shows
   dramatically lower absolute emissions over a multi-year period).
@@ -267,17 +267,17 @@ Score SUBSTANTIATED_CLAIM (0–20) when:
 - LobbyMap band is A+/A/A-/B+/B (supportive policy engagement).
 When EU ETS data supports the claim, score it as SUBSTANTIATED even if
 confidence is moderate. Do not inflate the score simply because other
-data sources returned no record — absence of data is not contradiction.
+data sources returned no record â€” absence of data is not contradiction.
 
 HANDLING NON-EMITTING COMPANIES (banks, services, insurers)
 These companies have no EU ETS installations. An unverifiable net-zero or
-climate-neutral claim from such a company — one with no audited methodology,
-no independently verified baseline, and no clear transition plan — is MISLEADING_CLAIM
-(41–60), not UNVERIFIABLE_CLAIM. The absence of any verification mechanism
+climate-neutral claim from such a company â€” one with no audited methodology,
+no independently verified baseline, and no clear transition plan â€” is MISLEADING_CLAIM
+(41â€“60), not UNVERIFIABLE_CLAIM. The absence of any verification mechanism
 is itself a substantiation failure under the EmpCo Directive (EU 2024/825) and UCPD Article 6.
 
 SCORING DIMENSIONS
-All dimensions are greenwashing evidence scores — higher = stronger evidence against the company.
+All dimensions are greenwashing evidence scores â€” higher = stronger evidence against the company.
 Assess each applicable dimension independently:
 - EMISSIONS_DISCREPANCY: Gap between verified emissions and what the claim implies. \
   EU ETS data is ground truth. High score = large, documented gap between reality \
@@ -292,22 +292,22 @@ Assess each applicable dimension independently:
 - LOBBYING_CONTRADICTION: Degree to which the company's lobbying activity \
   contradicts its green claims. High score = active obstruction of climate \
   legislation (D/D+ LobbyMap) while making green claims. This is the strongest \
-  greenwashing signal — if confirmed, push verdict to CONFIRMED_GREENWASHING.
+  greenwashing signal â€” if confirmed, push verdict to CONFIRMED_GREENWASHING.
 - TARGET_CREDIBILITY_GAP: Distance between the stated target and a credible \
-  1.5°C-aligned pathway. High score = target is inconsistent with science-based \
+  1.5Â°C-aligned pathway. High score = target is inconsistent with science-based \
   pathways or missing key elements (baseline, interim checkpoints, removal plan). \
   Low score = target is validated and consistent with Paris alignment.
 
 DATA GAP HANDLING
 If key data sources were unavailable, state this explicitly in your reasoning. \
-Data gaps reduce confidence but do not automatically raise the score — the \
+Data gaps reduce confidence but do not automatically raise the score â€” the \
 absence of contradicting evidence is not the same as supporting evidence.
 
-CRITICAL — EU ETS mapping gaps are NOT company facts. A data gap that says \
+CRITICAL â€” EU ETS mapping gaps are NOT company facts. A data gap that says \
 "no installation IDs mapped for this company in Prasine's registry" means \
 Prasine has not yet linked the company to its EU ETS installations. It does \
 NOT mean the company has no EU ETS installations. Never write that a company \
-"has no installation IDs" or that "no installations are registered for" it — \
+"has no installation IDs" or that "no installations are registered for" it â€” \
 that would be a false statement about a company that may operate many ETS \
 installations. State only that verified EU ETS emissions could not be checked \
 in this assessment because the mapping is absent, and lower confidence accordingly.
@@ -317,12 +317,12 @@ If the company has made equivalent claims previously (indicated in the context),
 and the current assessment shows no material progress, this is a primary \
 greenwashing signal. Weight it heavily in PRIOR_VIOLATIONS.
 
-WORKED EXAMPLES — calibrate your scoring against these
+WORKED EXAMPLES â€” calibrate your scoring against these
 
 EXAMPLE A: LIKELY_GREENWASHING (score 68, confidence 0.78)
 Claim: "We are driving growth in social, economic and environmental sustainability."
 Evidence:
-  [1] GCEL: company listed as actively expanding coal — 15 Mtpa mining + 2.4 GW power
+  [1] GCEL: company listed as actively expanding coal â€” 15 Mtpa mining + 2.4 GW power
       capacity expansion confirmed. supports_claim=False, confidence=0.90
   [2] E-PRTR: regulated emissions reduced 75% from 31.97 Mt (2007) to 8.07 Mt (2024),
       consistent year-on-year decline. supports_claim=True, confidence=0.75
@@ -332,17 +332,17 @@ Correct verdict: LIKELY_GREENWASHING, score=68, confidence=0.78
 Why: GCEL is the institutional coal-screen standard used by 400+ financial institutions.
 Active coal expansion is a direct, verified, forward-looking contradiction of any
 credible "environmental sustainability" claim. Two supporting sources (E-PRTR reductions,
-CA100+) provide mitigation — preventing CONFIRMED_GREENWASHING — but cannot neutralise
+CA100+) provide mitigation â€” preventing CONFIRMED_GREENWASHING â€” but cannot neutralise
 an active coal expansion that is irreconcilable with the claim. Score logic:
-  - Contradicting source (GCEL, conf=0.90) → strong push toward 80
-  - Two supporting sources → pull back ~12 points → final ~68
+  - Contradicting source (GCEL, conf=0.90) â†’ strong push toward 80
+  - Two supporting sources â†’ pull back ~12 points â†’ final ~68
   - Verdict: LIKELY_GREENWASHING not CONFIRMED_GREENWASHING because no lobbying contradiction and
     supporting evidence shows genuine historical progress.
 
 EXAMPLE B: CONFIRMED_GREENWASHING (score 83, confidence 0.86)
 Claim: "We are committed to reaching net-zero carbon emissions by 2050."
 Evidence:
-  [1] LobbyMap: D+ (Obstructive) — company actively opposes climate legislation.
+  [1] LobbyMap: D+ (Obstructive) â€” company actively opposes climate legislation.
       supports_claim=False, confidence=0.90
   [2] ENFORCEMENT (ASA, 2020): prior "lowest carbon emissions" claim ruled
       unsubstantiated. Ruling is against an equivalent prior claim of the same type.
@@ -351,18 +351,18 @@ Evidence:
       this company's environmental claims, same category as claim under assessment.
       supports_claim=False, confidence=0.80
   [4] EmpCo Directive (EU 2024/825): claim discloses no baseline year, no interim
-      targets, no abatement/removal split, no verified transition plan — explicitly
+      targets, no abatement/removal split, no verified transition plan â€” explicitly
       blacklisted under amended UCPD Annex I. supports_claim=False, confidence=0.95
   No supporting evidence from any queried source.
 Correct verdict: CONFIRMED_GREENWASHING, score=83, confidence=0.86
 Why: Conditions (a), (c), and (d) are all met independently.
-  (a) D+ LobbyMap = active obstruction of climate legislation → CONFIRMED trigger.
-  (c) Prior ASA ruling against equivalent emissions claim → CONFIRMED trigger.
-  (d) Four contradicting sources, three at confidence ≥ 0.85, zero supporting
-      evidence → CONFIRMED trigger.
+  (a) D+ LobbyMap = active obstruction of climate legislation â†’ CONFIRMED trigger.
+  (c) Prior ASA ruling against equivalent emissions claim â†’ CONFIRMED trigger.
+  (d) Four contradicting sources, three at confidence â‰¥ 0.85, zero supporting
+      evidence â†’ CONFIRMED trigger.
 Any single one of these would push the verdict above 80. With all three present
 and no mitigating evidence, the score reaches 83. Confidence is 0.86 (not higher)
-because the EC investigation has not yet issued a binding ruling — that would
+because the EC investigation has not yet issued a binding ruling â€” that would
 push score and confidence higher. Score does not reach 90+ because no binding
 EU court ruling on this specific claim yet exists.
 
@@ -370,18 +370,18 @@ EXAMPLE D: MISLEADING_CLAIM (score 48, confidence 0.62)
 Claim: "We are committed to being a responsible business and respecting human rights
 across our value chain."
 Evidence:
-  [1] E-PRTR: regulated emissions rose 9× over three years (2020–2023).
+  [1] E-PRTR: regulated emissions rose 9Ã— over three years (2020â€“2023).
       supports_claim=False, confidence=0.75
   [2] SBTi: no validated science-based target on file. supports_claim=False (gap),
       confidence=0.95
   [3] EmpCo Directive (EU 2024/825) / UCPD Article 6: claim provides no specific
-      targets, measurable baselines, or timelines — fails the EU substantiation standard.
+      targets, measurable baselines, or timelines â€” fails the EU substantiation standard.
   [4] LobbyMap: Band B (supportive, no contradiction). supports_claim=True,
       confidence=0.70
 Correct verdict: MISLEADING_CLAIM, score=48, confidence=0.62
 Why: The claim is aspirational with zero quantified targets, no audited baseline, and
 no independent certification. The E-PRTR upward trend and SBTi absence are
-contradicting signals, but the claim is so vague it cannot be fully falsified —
+contradicting signals, but the claim is so vague it cannot be fully falsified â€”
 it exaggerates through omission, not through a specific false assertion. LIKELY_GREENWASHING
 (61+) would require a specific factual claim directly contradicted by verified data
 (e.g. "we are net-zero" + EU ETS data showing positive emissions). Here the problem
@@ -439,7 +439,7 @@ class JudgeAgent:
     producing a final score, ensuring the chain-of-thought is preserved verbatim
     in the output for audit and citation.
 
-    Raw Anthropic SDK is used here — not LangGraph — because the judging logic
+    Raw Anthropic SDK is used here, not LangGraph, because the judging logic
     is the most legally sensitive step in the pipeline. Every token the model
     produces is either part of the chain-of-thought reasoning (preserved in the
     ``reasoning`` field) or part of the structured verdict. Framework abstraction
@@ -464,7 +464,7 @@ class JudgeAgent:
             client: Configured async Anthropic client.
             model_id: Model identifier. Defaults to ``claude-haiku-4-5-20251001``
                 for cost-efficient development. Switch to ``claude-opus-4-6`` for
-                production — the judge produces legally citable output and Opus
+                production: the judge produces legally citable output and Opus
                 reasoning quality matters for calibration.
             max_tokens: Maximum tokens. 8192 accommodates verbose chain-of-thought
                 reasoning for complex multi-source verdicts.
@@ -595,7 +595,7 @@ class JudgeAgent:
         if response.stop_reason == "max_tokens":
             raise LLMError(
                 message=(
-                    f"Judge response truncated at max_tokens={self._max_tokens} — "
+                    f"Judge response truncated at max_tokens={self._max_tokens}, "
                     "the verdict tool call is incomplete. Increase max_tokens rather "
                     "than retrying the same request."
                 ),
@@ -642,7 +642,7 @@ class JudgeAgent:
             if llm_verdict != derived_verdict.value:
                 logger.warning(
                     f"Judge verdict string {llm_verdict!r} does not match score "
-                    f"{score_value:.1f} — using score-derived {derived_verdict.value}",
+                    f"{score_value:.1f}, using score-derived {derived_verdict.value}",
                     extra={
                         "operation": "judge_verdict_mismatch",
                         "llm_verdict": llm_verdict,
@@ -655,7 +655,7 @@ class JudgeAgent:
             unknown_keys = [k for k in raw_breakdown if k not in valid_categories]
             if unknown_keys:
                 logger.warning(
-                    f"Judge returned unknown score_breakdown dimension(s) {unknown_keys} — dropped",
+                    f"Judge returned unknown score_breakdown dimension(s) {unknown_keys}, dropped",
                     extra={"operation": "judge_breakdown_unknown_keys", "keys": unknown_keys},
                 )
 

@@ -79,7 +79,7 @@ class Claim(BaseModel):
     """A single green claim extracted from a company document.
 
     This is the central entity in the Prasine Index pipeline. Every other model
-    — Evidence, GreenwashingScore, LobbyingRecord, AgentTrace — references a
+    (Evidence, GreenwashingScore, LobbyingRecord, AgentTrace) references a
     Claim by its ``id``. The ``trace_id`` follows the claim through all seven
     agents and links every AgentTrace row for full audit replay.
 
@@ -111,7 +111,7 @@ class Claim(BaseModel):
         previous_claim_id: ID of the most recent prior equivalent claim if
             ``is_repeat`` is True.
         modified_after_scoring: True if the company altered the claim text after
-            Prasine Index published a greenwashing score — a strong accountability
+            Prasine Index published a greenwashing score, a strong accountability
             signal that is flagged in the published report.
         original_scored_text: Verbatim claim text at the time of scoring,
             preserved for comparison when ``modified_after_scoring`` becomes True.

@@ -36,7 +36,7 @@ from pathlib import Path
 _DATA_DIR = Path(__file__).parent.parent / "data"
 _DEST = _DATA_DIR / "fossil_finance_banks.csv"
 
-# No stable CSV download URL as of 2026 — data is extracted from the annual league tables PDF.
+# No stable CSV download URL as of 2026: data is extracted from the annual league tables PDF.
 # For future refreshes, check the BOCC site for a companion data download. If none exists,
 # download the league tables PDF and extract the first table with pdfplumber (see module docstring).
 _BOCC_CSV_URL = (
@@ -78,7 +78,7 @@ def download_bocc_csv() -> None:
         with urllib.request.urlopen(req, timeout=60) as response:
             data = response.read()
     except urllib.error.HTTPError as exc:
-        print(f"\nHTTP {exc.code} — {exc.reason}")
+        print(f"\nHTTP {exc.code}: {exc.reason}")
         print_manual_instructions()
         sys.exit(1)
     except urllib.error.URLError as exc:
@@ -87,7 +87,7 @@ def download_bocc_csv() -> None:
         sys.exit(1)
 
     if b"<html" in data[:200].lower():
-        print("\nReceived HTML — URL may have changed.")
+        print("\nReceived HTML: the URL may have changed.")
         print_manual_instructions()
         sys.exit(1)
 

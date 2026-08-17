@@ -1,4 +1,4 @@
-# Prasine Index — developer convenience targets.
+# Prasine Index: developer convenience targets.
 # Assumes the virtual environment is active: source .venv/bin/activate
 
 .PHONY: install dev test lint format typecheck eval migrate db-start db-stop clean

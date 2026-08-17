@@ -6,7 +6,7 @@ scripts/refresh_eu_innovation_fund.py.
 
 The EU Innovation Fund is one of the world's largest clean-tech funding programmes,
 financing innovative low-carbon technologies across the EU. Grants are awarded by
-the European Commission after independent expert evaluation — a grant award
+the European Commission after independent expert evaluation; a grant award
 constitutes validated external interest in a project, though it does not constitute
 verified emissions reduction or project completion.
 
@@ -189,7 +189,7 @@ def _get_cache() -> tuple[
         _cache_by_name = {}
         _cache_by_promoter = {}
         logger.info(
-            "EU Innovation Fund data file not found — run scripts/refresh_eu_innovation_fund.py. "
+            "EU Innovation Fund data file not found: run scripts/refresh_eu_innovation_fund.py. "
             f"Expected at: {_EIF_CSV}",
             extra={"operation": "eif_cache_missing"},
         )
@@ -261,7 +261,7 @@ async def fetch_eu_innovation_fund_data(claim: Claim, company: object) -> list[E
     """Return EU Innovation Fund grant evidence for a company.
 
     A confirmed EC Innovation Fund grant indicates that independent technical
-    experts evaluated the project as viable — this is partially mitigating
+    experts evaluated the project as viable; this is partially mitigating
     evidence for CCS or clean-tech claims. It does not confirm delivered
     emissions reductions.
 
@@ -327,7 +327,7 @@ async def fetch_eu_innovation_fund_data(claim: Claim, company: object) -> list[E
                 },
                 summary=summary,
                 data_year=project.year,
-                # A grant is partially supporting — validates technology viability
+                # A grant is partially supporting: validates technology viability
                 # but doesn't confirm actual emissions reductions
                 supports_claim=None,
                 confidence=0.80,

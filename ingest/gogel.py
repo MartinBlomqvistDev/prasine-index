@@ -6,7 +6,7 @@ companies responsible for the majority of global oil and gas production,
 development, and expansion.
 
 A company on the GOGEL actively developing new upstream oil and gas while claiming
-a clean energy transition or Paris alignment is a primary greenwashing signal —
+a clean energy transition or Paris alignment is a primary greenwashing signal:
 the same pattern documented for BP, Shell, Equinor, TotalEnergies, and others.
 
 GOGEL is used by the GFANZ Net Zero Investment Framework, the Paris Aligned
@@ -14,7 +14,7 @@ Investment Initiative, and major institutional investors to screen fossil fuel
 expansion exposure. A company claiming 1.5°C alignment while listed as a
 GOGEL expander contradicts the most widely used oil and gas screen in ESG investing.
 
-Data source: Urgewald (urgewald.org) — published annually
+Data source: Urgewald (urgewald.org), published annually
 Refresh: python scripts/refresh_gogel.py
 """
 
@@ -244,7 +244,7 @@ def _get_cache() -> tuple[
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            "GOGEL data file not found — run scripts/refresh_gogel.py to download. "
+            "GOGEL data file not found: run scripts/refresh_gogel.py to download. "
             f"Expected at: {_GOGEL_CSV}",
             extra={"operation": "gogel_cache_missing"},
         )
@@ -338,7 +338,7 @@ async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
     summary = _build_summary(name, record)
 
     logger.info(
-        f"GOGEL: {name!r} found — expanding={record.is_expanding}, "
+        f"GOGEL: {name!r} found, expanding={record.is_expanding}, "
         f"phasing_out={record.is_phasing_out}",
         extra={
             "operation": "gogel_found",
@@ -378,7 +378,7 @@ def _assess_record(record: _GOGELRecord) -> tuple[bool | None, float]:
         return False, 0.90
     if record.is_phasing_out:
         return None, 0.55
-    # On GOGEL but status unclear — still a negative signal for clean claims
+    # On GOGEL but status unclear: still a negative signal for clean claims
     return False, 0.65
 
 
@@ -399,7 +399,7 @@ def _build_summary(company_name: str, record: _GOGELRecord) -> str:
             f"Any claim of clean energy transition or Paris alignment is directly "
             f"contradicted by this documented fossil fuel expansion. "
             f"GOGEL is used by 400+ financial institutions (GFANZ, PAII) as the "
-            f"standard oil and gas screen — this company fails it."
+            f"standard oil and gas screen; this company fails it."
         )
 
     if record.is_phasing_out:
@@ -414,7 +414,7 @@ def _build_summary(company_name: str, record: _GOGELRecord) -> str:
 
     return (
         f"Urgewald Global Oil and Gas Exit List: {company_name} is listed on GOGEL "
-        f"({capacity_str}). Expansion status unclear — classified as an oil and gas "
+        f"({capacity_str}). Expansion status unclear: classified as an oil and gas "
         f"company by Urgewald. Any clean energy transition claims require scrutiny "
         f"against this fossil fuel exposure."
     )

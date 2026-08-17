@@ -8,7 +8,7 @@ export default function ApplyForm() {
   if (state.succeeded) {
     return (
       <p className="apply-thanks">
-        Got it — I&apos;ll be in touch.
+        Got it. I&apos;ll be in touch.
       </p>
     )
   }

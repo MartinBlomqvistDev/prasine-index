@@ -2,7 +2,7 @@
 
 Runs after claim extraction and before verification. Queries PostgreSQL to
 retrieve the company's full claim history, aggregate greenwashing scores, and
-score trend — then uses pgvector cosine similarity to find prior claims
+score trend, then uses pgvector cosine similarity to find prior claims
 semantically equivalent to the current one. This longitudinal context is passed
 to both the Verification Agent and the Judge Agent, enabling the pipeline to
 treat repeat offenders differently from first-time filers.
@@ -106,7 +106,7 @@ class ContextAgent:
     undelivered commitment.
 
     The agent does not itself set ``Claim.is_repeat`` or
-    ``Claim.previous_claim_id`` — those mutations are applied by the pipeline
+    ``Claim.previous_claim_id``; those mutations are applied by the pipeline
     orchestrator using the ``similar_historical_claim_ids`` returned here,
     keeping the agent's responsibility narrowly scoped to data retrieval.
     """
@@ -257,7 +257,7 @@ class ContextAgent:
         row = result.mappings().one_or_none()
         if row is None:
             logger.info(
-                f"Company {company_id} not found in database — using stub record",
+                f"Company {company_id} not found in database, using stub record",
                 extra={"operation": "context_company_stub", "company_id": str(company_id)},
             )
             return Company(
@@ -295,7 +295,7 @@ class ContextAgent:
 
         Counts total assessed claims, the number flagged as repeats, and the
         timestamp of the most recent completed assessment. Only claims that
-        have reached SCORED status or beyond are included — DETECTED claims
+        have reached SCORED status or beyond are included; DETECTED claims
         that are still in the pipeline are excluded to avoid inflating the
         count with in-flight work. Claims sharing the current trace_id are
         also excluded: sibling claims scored earlier in the same batch run
@@ -399,7 +399,7 @@ class ContextAgent:
         similar first).
 
         The embedding for the current claim is not yet stored at this point in
-        the pipeline — it is generated and stored by the pipeline orchestrator
+        the pipeline; it is generated and stored by the pipeline orchestrator
         after context retrieval. This query therefore uses the stored embeddings
         of historical claims only; the current claim's normalised_text is sent
         to the embedding model inline.
@@ -470,7 +470,7 @@ class ContextAgent:
             # with an empty similar_ids list; the Judge Agent will note the
             # absence of repeat-claim context in its confidence weighting.
             logger.warning(
-                f"pgvector similarity search failed — proceeding without similar claims: {exc}",
+                f"pgvector similarity search failed, proceeding without similar claims: {exc}",
                 extra={
                     "operation": "context_similarity_failed",
                     "error_type": type(exc).__name__,

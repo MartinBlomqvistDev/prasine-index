@@ -1,4 +1,4 @@
-# Prasine Index — .gitignore
+# Prasine Index: .gitignore
 
 # Private planning docs and internal working files
 PRODUCT_ROADMAP.md
@@ -7,7 +7,7 @@ AGENTS.md
 WEB_AUDIT_HANDOFF_CLAUDE.md
 
 # ---------------------------------------------------------------------------
-# Environment and secrets — never commit
+# Environment and secrets: never commit
 # ---------------------------------------------------------------------------
 .env
 .env.*
@@ -80,7 +80,7 @@ CLAUDE.md
 .claude/
 
 # ---------------------------------------------------------------------------
-# Pipeline sub-reports — numbered artifacts, only canonicals belong in the repo
+# Pipeline sub-reports: numbered artifacts, only canonicals belong in the repo
 # ---------------------------------------------------------------------------
 docs/reports/*-[0-9].md
 
@@ -98,7 +98,7 @@ tmp_*.csv
 operators_daily.csv
 
 # ---------------------------------------------------------------------------
-# Large data files — downloaded by refresh_*.py scripts, not in version control
+# Large data files: downloaded by refresh_*.py scripts, not in version control
 # ---------------------------------------------------------------------------
 EUTL24/
 eutl_2024_202410/
@@ -122,7 +122,7 @@ data/GEM-EGT-Pipelines-*/
 *.db
 
 # ---------------------------------------------------------------------------
-# Alembic migrations (generated — commit deliberately)
+# Alembic migrations (generated: commit deliberately)
 # alembic/versions/ is intentionally NOT ignored
 # ---------------------------------------------------------------------------
 alembic.ini.local

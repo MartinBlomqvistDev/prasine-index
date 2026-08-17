@@ -12,7 +12,7 @@ recent submission year.
 Used to validate country-proportion claims (e.g. "our project covers X% of
 Sweden's total emissions") and to provide context on national emission trends.
 
-Data is published on the EEA Data Hub — free, no registration required.
+Data is published on the EEA Data Hub: free, no registration required.
 Saves to data/eea_t_national-emissions-reported_p_2025_v03_r00/UNFCCC_v28.csv.
 
 The data directory already contains a current copy (v03_r00, March 2025).
@@ -82,7 +82,7 @@ def download_eea_national() -> None:
                 data = response.read()
 
             if len(data) < 1000:
-                print(f"  Response too small ({len(data)} bytes) — skipping.")
+                print(f"  Response too small ({len(data)} bytes): skipping.")
                 continue
 
             zip_dest.write_bytes(data)
@@ -114,7 +114,7 @@ def download_eea_national() -> None:
         f"  3. Extract to: {_DATA_DIR}\n"
     )
     if _EXPECTED_CSV.exists():
-        print("Using existing data file — not a fatal error.")
+        print("Using existing data file, not a fatal error.")
     else:
         sys.exit(1)
 
@@ -124,7 +124,7 @@ def main() -> None:
     print("=" * 50)
     check_existing()
     if _EXPECTED_CSV.exists():
-        print("\nExisting data found — skipping download. Use --force to re-download.")
+        print("\nExisting data found, skipping download. Use --force to re-download.")
         print("(Pass --force as argument to override)")
         import sys
 

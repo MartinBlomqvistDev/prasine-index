@@ -8,7 +8,7 @@ Washington.
 
 LobbyMap independently assesses corporate climate policy engagement, scoring
 companies A+ (strongly supportive) to F (obstructive). A company scoring D or F
-while making green claims is a direct greenwashing signal — the company lobbies
+while making green claims is a direct greenwashing signal; the company lobbies
 against the legislation it publicly claims to support.
 
 Data source: LobbyMap (lobbymap.org)
@@ -71,10 +71,10 @@ _COL_YEAR = ("Year", "year", "Assessment Year", "ReportYear")
 # Score classification
 # ---------------------------------------------------------------------------
 
-# Bands that indicate obstructive lobbying — contradict green claims.
+# Bands that indicate obstructive lobbying: contradict green claims.
 _OBSTRUCTIVE_BANDS = frozenset({"d+", "d", "d-", "e+", "e", "e-", "f+", "f", "f-"})
 
-# Bands that indicate supportive engagement — support green claims.
+# Bands that indicate supportive engagement: support green claims.
 _SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
 
 # Bands that are neutral / inconclusive.
@@ -196,7 +196,7 @@ def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]
         if age < _CACHE_TTL_S:
             return _cache_by_name, _cache_by_ticker  # type: ignore[return-value]
         logger.info(
-            f"LobbyMap cache expired after {age / 3600:.1f}h — reloading from disk.",
+            f"LobbyMap cache expired after {age / 3600:.1f}h, reloading from disk.",
             extra={"operation": "lobbymap_cache_expired"},
         )
         _cache_by_name = None
@@ -206,7 +206,7 @@ def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            "LobbyMap data file not found — run scripts/refresh_lobbymap.py. "
+            "LobbyMap data file not found: run scripts/refresh_lobbymap.py. "
             f"Expected at: {_LM_CSV}",
             extra={"operation": "lobbymap_cache_missing"},
         )
@@ -291,7 +291,7 @@ async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]
 
     Looks up the company's climate policy engagement score. Obstructive
     lobbying (D/E/F band) while making green claims is a direct greenwashing
-    signal — the company works against the policies it publicly supports.
+    signal: the company works against the policies it publicly supports.
 
     Args:
         claim: The claim under assessment.
@@ -317,7 +317,7 @@ async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]
     summary = _build_summary(name, record)
 
     logger.info(
-        f"LobbyMap: {name!r} — band={record.band_normalised!r}, "
+        f"LobbyMap: {name!r}, band={record.band_normalised!r}, "
         f"obstructive={record.is_obstructive}, supportive={record.is_supportive}",
         extra={
             "operation": "lobbymap_found",
@@ -361,14 +361,14 @@ def _assess_record(record: _LobbyMapRecord) -> tuple[bool | None, float]:
         Tuple of (supports_claim, confidence).
     """
     if record.is_obstructive:
-        # Company lobbies against climate policy — directly contradicts green claims.
+        # Company lobbies against climate policy: directly contradicts green claims.
         return False, 0.85
 
     if record.is_supportive:
-        # Company actively supports climate policy — consistent with green claims.
+        # Company actively supports climate policy: consistent with green claims.
         return True, 0.75
 
-    # Neutral band — inconclusive, include with low confidence.
+    # Neutral band: inconclusive, include with low confidence.
     return None, 0.50
 
 
@@ -390,7 +390,7 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
         return (
             f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
             f"Active engagement classification: {engagement}. "
-            f"This score indicates obstructive engagement — the company actively opposes or "
+            f"This score indicates obstructive engagement: the company actively opposes or "
             f"delays climate legislation while making green claims. "
             f"This is a primary greenwashing indicator: stated climate commitments are "
             f"contradicted by the company's own lobbying activity."
@@ -400,12 +400,12 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
         return (
             f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
             f"Active engagement classification: {engagement}. "
-            f"This score indicates supportive engagement — the company's lobbying activity "
+            f"This score indicates supportive engagement: the company's lobbying activity "
             f"is broadly consistent with its public climate commitments."
         )
 
     return (
         f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
         f"Active engagement classification: {engagement}. "
-        f"This score indicates neutral or mixed engagement — inconclusive for greenwashing assessment."
+        f"This score indicates neutral or mixed engagement: inconclusive for greenwashing assessment."
     )

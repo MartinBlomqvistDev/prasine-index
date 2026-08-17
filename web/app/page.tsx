@@ -66,7 +66,7 @@ export default function HomePage() {
           <p className="intro-text">
             Prasine Index verifies EU corporate sustainability claims against enforcement
             records, regulatory filings, lobbying data, and open climate datasets. Every
-            finding cites a named, independently verifiable primary source — research
+            finding cites a named, independently verifiable primary source. Research
             built for journalists, NGOs, and researchers investigating greenwashing.
           </p>
           <p className="intro-sub">
@@ -190,7 +190,7 @@ export default function HomePage() {
           <h2 className="calibration-heading">One pipeline. Both ends of the scale.</h2>
           <p className="calibration-sub">
             The same seven-agent pipeline and the same 22 EU data sources produce this. The
-            score is evidence, not editorial — confirmed greenwashing and a substantiated
+            score is evidence, not editorial: confirmed greenwashing and a substantiated
             record, side by side.
           </p>
           <div className="calibration-panel">
@@ -293,7 +293,7 @@ export default function HomePage() {
           <h2>Suggest a company</h2>
           <p className="apply-sub">
             Investigating a company&apos;s green claims? Send a company, a claim, or
-            just describe what you&apos;re looking into — if it fits the index,
+            just describe what you&apos;re looking into. If it fits the index,
             I&apos;ll run it through the pipeline and publish the evidence chain.
           </p>
           <ApplyForm />
@@ -304,7 +304,7 @@ export default function HomePage() {
       <footer>
         <div className="footer-inner">
           <div>
-            <span>Prasine Index — Martin Blomqvist, 2026</span>
+            <span>Prasine Index · Martin Blomqvist, 2026</span>
             <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
               EU greenwashing analyst · Prasine Index
             </p>

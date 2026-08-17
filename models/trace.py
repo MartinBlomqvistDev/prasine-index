@@ -44,7 +44,7 @@ class AgentName(StrEnum):
 class AgentOutcome(StrEnum):
     """Terminal outcome of an agent execution step.
 
-    PARTIAL indicates the agent completed but with degraded output — for example,
+    PARTIAL indicates the agent completed but with degraded output, for example,
     the Verification Agent returning evidence from only a subset of queried sources
     due to upstream failures. The Judge Agent is designed to handle PARTIAL
     verification results gracefully.

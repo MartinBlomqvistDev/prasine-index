@@ -1,12 +1,12 @@
 """EDGAR (JRC) GHG emissions ingest module for the Prasine Index.
 
-Loads the JRC EDGAR 2025 GHG booklet — country-level and sector-level
+Loads the JRC EDGAR 2025 GHG booklet: country-level and sector-level
 greenhouse gas emissions from 1970 to 2024 for all world countries.
 
 EDGAR is the European Commission's Joint Research Centre independent emissions
 database. Unlike Eurostat and EEA which rely on self-reported national
 inventory submissions, EDGAR combines bottom-up activity data with independent
-cross-checks. It extends to 2024 — more recent than Eurostat (~2022) and
+cross-checks. It extends to 2024, more recent than Eurostat (~2022) and
 EEA National (~2023).
 
 Used to:
@@ -123,7 +123,7 @@ def _load_sync() -> tuple[dict[str, dict[int, float]], dict[str, dict[str, dict[
     try:
         import openpyxl
     except ImportError:
-        logger.warning("openpyxl not installed — cannot load EDGAR data.")
+        logger.warning("openpyxl not installed: cannot load EDGAR data.")
         return {}, {}
 
     try:
@@ -154,7 +154,7 @@ def _load_sync() -> tuple[dict[str, dict[int, float]], dict[str, dict[str, dict[
     except Exception as exc:
         logger.warning(f"EDGAR totals sheet failed: {exc}")
 
-    # --- Sector sheet (GHG total only — Substance == 'GHG') ---
+    # --- Sector sheet (GHG total only: Substance == 'GHG') ---
     sectors: dict[str, dict[str, dict[int, float]]] = {}
     try:
         ws2 = wb["GHG_by_sector_and_country"]
@@ -218,7 +218,7 @@ async def fetch_edgar_data(claim: Claim, company: object) -> list[Evidence]:
     """Return EDGAR JRC GHG national total and sector breakdown for a company's country.
 
     Provides the most recent available (2024) independent national GHG estimate
-    from JRC EDGAR — cross-checking Eurostat and EEA figures with the EU's
+    from JRC EDGAR, cross-checking Eurostat and EEA figures with the EU's
     own independent atmospheric/activity data. Covers full sector breakdown:
     Power Industry, Industrial Combustion, Transport, Buildings, Agriculture,
     Fuel Exploitation, Processes, Waste.
@@ -250,7 +250,7 @@ async def fetch_edgar_data(claim: Claim, company: object) -> list[Evidence]:
 
     country_totals = totals.get(country_key)
     if not country_totals:
-        # Fuzzy fallback — partial name match
+        # Fuzzy fallback: partial name match
         for key, data in totals.items():
             if country_key in key or key in country_key:
                 country_totals = data
@@ -302,7 +302,7 @@ async def fetch_edgar_data(claim: Claim, company: object) -> list[Evidence]:
     if sector_pcts:
         summary_parts.append(f"Sector shares ({latest_year}): {'; '.join(sector_pcts[:6])}.")
     summary_parts.append(
-        "EDGAR is JRC's independent cross-check of national inventory submissions — "
+        "EDGAR is JRC's independent cross-check of national inventory submissions; "
         "compare against Eurostat and EEA figures for consistency."
     )
 

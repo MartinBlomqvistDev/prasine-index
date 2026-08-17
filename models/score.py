@@ -45,11 +45,11 @@ class ScoreVerdict(StrEnum):
     and the public-facing API. The top three verdicts describe the *claim*;
     the bottom two describe the *company*. Bands are equal-width (20 points each).
 
-    0–20   SUBSTANTIATED_CLAIM    — verified data supports the claim.
-    21–40  UNVERIFIABLE_CLAIM     — data gaps prevent assessment either way.
-    41–60  MISLEADING_CLAIM       — claim misleads even if technically defensible.
-    61–80  LIKELY_GREENWASHING    — material contradictions found; no binding ruling.
-    81–100 CONFIRMED_GREENWASHING — binding ruling or multiple hard triggers.
+    0–20   SUBSTANTIATED_CLAIM   : verified data supports the claim.
+    21–40  UNVERIFIABLE_CLAIM    : data gaps prevent assessment either way.
+    41–60  MISLEADING_CLAIM      : claim misleads even if technically defensible.
+    61–80  LIKELY_GREENWASHING   : material contradictions found; no binding ruling.
+    81–100 CONFIRMED_GREENWASHING: binding ruling or multiple hard triggers.
     """
 
     SUBSTANTIATED_CLAIM = "SUBSTANTIATED_CLAIM"

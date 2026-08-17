@@ -7,10 +7,10 @@ content that does not change, this module returns the key legal standards as
 structured Evidence so the Judge Agent always has the regulatory baseline.
 
 Sources embedded here:
-- EmpCo Directive (EU 2024/825) — in force March 2024, amends UCPD Annex I
-- UCPD (Directive 2005/29/EC) Article 6 — misleading commercial practices
-- CSRD (Directive 2022/2464) — mandatory disclosure obligations
-- EU ETS Regulation 2003/87/EC — verified emissions as legal ground truth
+- EmpCo Directive (EU 2024/825), in force March 2024, amends UCPD Annex I
+- UCPD (Directive 2005/29/EC) Article 6: misleading commercial practices
+- CSRD (Directive 2022/2464): mandatory disclosure obligations
+- EU ETS Regulation 2003/87/EC: verified emissions as legal ground truth
 
 Note: The Green Claims Directive proposal (COM/2023/0166) was withdrawn by the
 European Commission in June 2025 before adoption. It is NOT cited here.
@@ -45,7 +45,7 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
         ),
         (
             "32022L2464",
-            "CSRD — Corporate Sustainability Reporting Directive (2022/2464)",
+            "CSRD: Corporate Sustainability Reporting Directive (2022/2464)",
             2022,
             "Large companies must disclose scope 1, 2 and 3 GHG emissions under ESRS E1. "
             "A net-zero claim that contradicts or is absent from the mandatory CSRD disclosure "
@@ -104,7 +104,7 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
     ClaimCategory.SUSTAINABLE_SUPPLY_CHAIN: [
         (
             "32022L2464",
-            "CSRD — Corporate Sustainability Reporting Directive (2022/2464)",
+            "CSRD: Corporate Sustainability Reporting Directive (2022/2464)",
             2022,
             "ESRS E1-6 requires disclosure of Scope 3 GHG emissions covering the full value "
             "chain. Supply chain sustainability claims must be consistent with CSRD Scope 3 "
@@ -133,7 +133,7 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
             "In force since March 2024. All explicit environmental claims must be substantiated "
             "by recognised scientific evidence, cover the full lifecycle where relevant, and not "
             "mislead consumers by omission. The amended UCPD Annex I blacklists generic "
-            "environmental claims — 'eco-friendly', 'green', 'sustainable' — without specific, "
+            "environmental claims such as 'eco-friendly', 'green' or 'sustainable', without specific, "
             "verifiable substantiation. UCPD Article 6(1) covers any claim that deceives the "
             "average consumer about the environmental impact of a product or trader.",
         ),
@@ -143,7 +143,7 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
 
 async def fetch_eurlex_data(
     claim: Claim,
-    company: object,  # Company — typed loosely to avoid circular import
+    company: object,  # Company, typed loosely to avoid circular import
 ) -> list[Evidence]:
     """Return EU regulatory standards applicable to the claim category.
 

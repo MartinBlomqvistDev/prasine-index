@@ -50,7 +50,7 @@ _MAX_FETCH_CHARS = 40_000
 
 # PDFs get a higher cap: a single investor-facing ESG PDF often IS the whole
 # assessment source, and claims beyond a 40k cut-off would be invisible.
-# 150k chars ≈ 40k tokens — comfortably within Haiku's extraction context.
+# 150k chars ≈ 40k tokens: comfortably within Haiku's extraction context.
 _MAX_PDF_CHARS = 150_000
 
 
@@ -78,7 +78,7 @@ def _extract_pdf_text(content: bytes) -> str:
         return "\n\n".join(parts)
     except Exception as exc:
         get_logger(__name__).warning(
-            f"_extract_pdf_text: extraction failed — {exc}",
+            f"_extract_pdf_text: extraction failed: {exc}",
             extra={"operation": "pdf_extraction_failed", "error": str(exc)},
         )
         return ""
@@ -131,10 +131,10 @@ async def _fetch_pages(
         resp.raise_for_status()
     except httpx.HTTPError as exc:
         # WAF/bot-blocked entry pages (403 for the self-identified PrasineIndex
-        # UA) are common on large corporate sites — a real browser via
+        # UA) are common on large corporate sites: a real browser via
         # Playwright usually passes. Try that before declaring failure.
         get_logger(__name__).warning(
-            f"_fetch_pages: httpx failed for {source_url} ({exc}) — trying Playwright",
+            f"_fetch_pages: httpx failed for {source_url} ({exc}), trying Playwright",
             extra={"operation": "pipeline_httpx_blocked", "url": source_url},
         )
         try:
@@ -147,10 +147,10 @@ async def _fetch_pages(
             return pw_pages
         raise RuntimeError(f"Failed to fetch {source_url}: {exc}") from exc
 
-    # PDF — extract text directly, no subpage discovery.
+    # PDF: extract text directly, no subpage discovery.
     if _is_pdf(resp):
         get_logger(__name__).info(
-            f"_fetch_pages: PDF detected at {source_url} — extracting text with pypdf",
+            f"_fetch_pages: PDF detected at {source_url}, extracting text with pypdf",
             extra={"operation": "pipeline_pdf_fetch", "url": source_url},
         )
         pdf_text = _extract_pdf_text(resp.content)[:_MAX_PDF_CHARS]
@@ -163,22 +163,22 @@ async def _fetch_pages(
         _log = get_logger(__name__)
         _log.info(
             f"_fetch_pages: thin content ({len(entry_text)} chars) at {source_url} "
-            "— switching to Playwright for JS rendering",
+            "and switching to Playwright for JS rendering",
             extra={"operation": "pipeline_playwright_fallback", "url": source_url},
         )
         try:
             return await _fetch_pages_playwright(source_url, raw_html, max_subpages)
         except Exception as exc:
             # Playwright unavailable (browser not installed, launch failure)
-            # must not kill the whole assessment — degrade to whatever the
+            # must not kill the whole assessment: degrade to whatever the
             # static fetch produced and let extraction judge its usefulness.
             _log.warning(
-                f"_fetch_pages: Playwright failed ({exc}) — falling back to "
+                f"_fetch_pages: Playwright failed ({exc}), falling back to "
                 f"static httpx content ({len(entry_text)} chars)",
                 extra={"operation": "pipeline_playwright_failed", "url": source_url},
             )
 
-    # Static site path — httpx for all subpages, fetched concurrently.
+    # Static site path: httpx for all subpages, fetched concurrently.
     pages: list[tuple[str, str]] = []
     if entry_text:
         pages.append((source_url, entry_text))
@@ -229,7 +229,7 @@ async def _fetch_pages_playwright(
 
     Args:
         source_url: Entry-point URL.
-        server_html: Raw HTML from the initial httpx fetch — used as fallback
+        server_html: Raw HTML from the initial httpx fetch, used as fallback
             source for link extraction.
         max_subpages: Maximum subpages to render.
 
@@ -311,7 +311,7 @@ logger = get_logger(__name__)
 # Claim priority scoring (used by run_from_url to pick the best N claims)
 # ---------------------------------------------------------------------------
 
-# Category priority — higher = more verifiable / higher greenwashing risk.
+# Category priority: higher = more verifiable / higher greenwashing risk.
 _CATEGORY_WEIGHT: dict[str, int] = {
     "NET_ZERO_TARGET": 10,
     "CARBON_NEUTRAL": 9,
@@ -327,7 +327,7 @@ _CATEGORY_WEIGHT: dict[str, int] = {
 # Regex patterns that indicate a specific, verifiable claim.
 _SPECIFICITY_PATTERNS: list[re.Pattern[str]] = [
     # Large numbers require a thousands separator or 5+ digits so bare year
-    # targets (2029) don't double-count — years have their own pattern below.
+    # targets (2029) don't double-count: years have their own pattern below.
     re.compile(r"\d{1,3}[,\s]\d{3}|\d{5,}"),  # large numbers (e.g. 200,000)
     re.compile(r"\d+\s*%"),  # percentages
     re.compile(r"20[2-9]\d"),  # year targets (2020-2099)
@@ -362,7 +362,7 @@ def _deduplicate_claims(claims: list[Claim], containment_threshold: float = 0.80
     When the same claim appears on multiple pages with minor wording variations,
     keeps the most specific (longest) version and discards near-duplicates.
     Two claims are duplicates if ≥80% of the shorter claim's tokens appear in
-    the longer one — this catches both exact repeats and truncated variants.
+    the longer one; this catches both exact repeats and truncated variants.
     """
 
     def _tokens(claim: Claim) -> frozenset[str]:
@@ -397,7 +397,7 @@ def _diversify_claims(claims: list[Claim], max_claims: int) -> list[Claim]:
     """Select up to max_claims with category diversity and a per-category cap.
 
     Claims must already be sorted by priority (highest first). Each category
-    contributes at most _MAX_CLAIMS_PER_CATEGORY claims — preventing a
+    contributes at most _MAX_CLAIMS_PER_CATEGORY claims, preventing a
     dominant category (e.g. NET_ZERO_TARGET) from consuming all Opus slots
     when a company repeats the same claim type across multiple pages.
     """
@@ -416,11 +416,11 @@ def _diversify_claims(claims: list[Claim], max_claims: int) -> list[Claim]:
 
 
 def _claim_priority_score(claim: Claim) -> int:
-    """Return a priority score for a claim — higher means more worth verifying.
+    """Return a priority score for a claim: higher means more worth verifying.
 
     Combines category weight with text specificity heuristics. A compound
     bonus (+5) is awarded when a claim has both a specific quantity AND a year
-    target — this combination (e.g. "capture 200,000 tonnes from 2029") marks
+    target: this combination (e.g. "capture 200,000 tonnes from 2029") marks
     the most concretely verifiable claims and must beat vague headings.
     """
     category_score = _CATEGORY_WEIGHT.get(claim.claim_category.value, 1)
@@ -661,12 +661,12 @@ class Pipeline:
         across *all* discovered pages first, ranks every extracted claim by
         category priority and text specificity, then runs the full expensive
         pipeline on only the top *max_claims* claims.  This guarantees that a
-        CCS target page or net-zero blog post — even if linked two levels deep —
+        CCS target page or net-zero blog post, even if linked two levels deep,
         beats vague "responsible business" copy from the landing page.
 
         Args:
             company_id: UUID of the company being assessed.
-            source_url: Entry-point URL — the main sustainability or IR page.
+            source_url: Entry-point URL: the main sustainability or IR page.
             source_type: Source type applied to all discovered pages.
             max_subpages: Maximum number of additional subpages to fetch.
             max_claims: Maximum number of claims to run through the full
@@ -693,7 +693,7 @@ class Pipeline:
         # ONE trace_id for the whole run, shared by every page's extraction and
         # every claim's downstream pipeline. This is what lets the Context
         # Agent exclude the entire in-flight run from "prior assessment"
-        # history — with per-document trace_ids, claims scored earlier in the
+        # history: with per-document trace_ids, claims scored earlier in the
         # same batch leaked into later claims' history as fake priors.
         run_trace_id = uuid.uuid4()
         all_claims: list[Claim] = []
@@ -925,7 +925,7 @@ class Pipeline:
                     "error_type": type(exc).__name__,
                 },
             )
-            # Persist a FAILURE trace so trace_log records failed claims too —
+            # Persist a FAILURE trace so trace_log records failed claims too;
             # without this, the audit trail only contains successful steps
             # (survivorship bias in observability).
             failure_trace = AgentTrace(
@@ -954,7 +954,7 @@ class Pipeline:
     async def _fetch_and_populate(self, extraction_input: ExtractionInput) -> ExtractionInput:
         """Fetch source_url and return a new ExtractionInput with raw_content populated.
 
-        Called when an ExtractionInput arrives without raw_content — i.e. the
+        Called when an ExtractionInput arrives without raw_content; i.e. the
         caller provided a URL but not pre-fetched text. Uses the pipeline's
         shared httpx client so connection pools are reused.
 
@@ -980,7 +980,7 @@ class Pipeline:
 
         if _is_pdf(response):
             logger.info(
-                f"_fetch_and_populate: PDF detected at {url} — extracting text with pypdf",
+                f"_fetch_and_populate: PDF detected at {url}, extracting text with pypdf",
                 extra={"operation": "pipeline_pdf_fetch", "url": url},
             )
             raw_text = _extract_pdf_text(response.content)[:_MAX_PDF_CHARS]
@@ -989,7 +989,7 @@ class Pipeline:
             if len(raw_text) < _SPA_THRESHOLD:
                 logger.info(
                     f"_fetch_and_populate: thin content ({len(raw_text)} chars) at {url} "
-                    "— switching to Playwright",
+                    "and switching to Playwright",
                     extra={"operation": "pipeline_playwright_fallback", "url": url},
                 )
                 try:
@@ -997,7 +997,7 @@ class Pipeline:
                     raw_text = pages[0][1] if pages else raw_text
                 except Exception as exc:
                     logger.warning(
-                        f"_fetch_and_populate: Playwright failed ({exc}) — using "
+                        f"_fetch_and_populate: Playwright failed ({exc}), using "
                         f"static httpx content ({len(raw_text)} chars)",
                         extra={"operation": "pipeline_playwright_failed", "url": url},
                     )
@@ -1089,8 +1089,8 @@ class Pipeline:
     async def _persist_evidence(self, verification: VerificationResult) -> None:
         """Write all Evidence records from a verification pass to the database.
 
-        Every data point the Verification Agent gathered — including the full
-        parsed upstream response in ``raw_data`` — is persisted so a published
+        Every data point the Verification Agent gathered, including the full
+        parsed upstream response in ``raw_data``, is persisted so a published
         verdict can be reconstructed from exactly what the pipeline saw at run
         time. Write-once: existing rows are never updated (ON CONFLICT DO
         NOTHING), preserving the audit chain.

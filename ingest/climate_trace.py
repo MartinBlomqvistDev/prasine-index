@@ -6,19 +6,19 @@ emissions estimates. No authentication or registration required.
 Climate TRACE is the only source in the pipeline that provides emissions
 estimates that are entirely independent of company self-reporting. Estimates
 are produced using remote sensing, satellite imagery, financial data, and
-machine learning — not regulatory filings or voluntary disclosure.
+machine learning, not regulatory filings or voluntary disclosure.
 
 This makes it the primary fallback when EU ETS has no registered installations
 for a company (e.g. smaller utilities, regional energy companies like Öresundskraft).
 
 Two queries per run:
-  1. /v7/sources — find installations for the specific company by name matching.
+  1. /v7/sources: find installations for the specific company by name matching.
      Returns facility-level independently estimated emissions.
-  2. /v7/sources/emissions — country-level aggregate for context
+  2. /v7/sources/emissions: country-level aggregate for context
      (cross-checks Eurostat and EEA national data).
 
 A discrepancy between Climate TRACE estimates and a company's self-reported
-figures is a strong greenwashing signal — one of the few sources that can
+figures is a strong greenwashing signal, one of the few sources that can
 contradict a company's own disclosure with independent evidence.
 
 API reference: https://api.climatetrace.org/v7/swagger/index.html
@@ -111,7 +111,7 @@ _COUNTRY_NAMES_LOWER: dict[str, str] = {
 _source_cache: dict[tuple[str, str], list[dict[str, Any]]] = {}
 _aggregate_cache: dict[str, dict[str, Any]] = {}
 
-# Max sources to fetch per country search — keeps API calls bounded
+# Max sources to fetch per country search: keeps API calls bounded
 _MAX_SOURCES = 300
 
 
@@ -204,10 +204,10 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
     """Return Climate TRACE independent emissions estimates for a company.
 
     Queries two endpoints:
-    1. Installation-level search — finds specific facilities attributed to
+    1. Installation-level search: finds specific facilities attributed to
        the company by name matching. These are independently estimated, not
        self-reported. A mismatch with company-claimed figures is a strong signal.
-    2. Country aggregate — provides the national total context for the
+    2. Country aggregate: provides the national total context for the
        company's country (cross-checks Eurostat and EEA national data).
 
     Args:
@@ -256,7 +256,7 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
             f"{total_emissions_mt:.3f} Mt CO2e (2023, 100yr GWP). "
             f"Installations: {installations_str}. "
             f"These estimates are derived from satellite imagery, remote sensing, "
-            f"and ML — independent of company self-reporting. A significant "
+            f"and ML, independent of company self-reporting. A significant "
             f"discrepancy with company-disclosed figures constitutes a primary "
             f"greenwashing signal."
         )
@@ -332,7 +332,7 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
                 f"Climate TRACE country aggregate ({gadm_id}, 2023, all sectors excl. "
                 f"forestry): {total_mt:.1f} Mt CO2e. "
                 f"Top sectors: {'; '.join(sector_lines) if sector_lines else 'not available'}. "
-                f"Climate TRACE uses independent satellite/ML estimates — "
+                f"Climate TRACE uses independent satellite/ML estimates: "
                 f"compare against Eurostat/EEA official figures for consistency."
             )
 

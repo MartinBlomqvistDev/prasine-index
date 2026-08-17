@@ -27,7 +27,7 @@ if config.config_file_name is not None:
 # MetaData for autogenerate support
 target_metadata = Base.metadata
 
-# Read DATABASE_URL from the environment — never hardcode credentials
+# Read DATABASE_URL from the environment: never hardcode credentials
 _database_url = os.environ.get(
     "DATABASE_URL",
     "postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index",

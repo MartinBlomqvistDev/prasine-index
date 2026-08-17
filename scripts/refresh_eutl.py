@@ -99,7 +99,7 @@ def main() -> None:
         try:
             _download_file(url, _EUTL24_DIR / filename)
         except Exception as exc:
-            # Static files failing is non-fatal — daily CSVs are the primary source
+            # Static files failing is non-fatal: daily CSVs are the primary source
             print(f"  WARNING ({filename}): {exc}", file=sys.stderr)
 
     # Reset the eu_ets module cache so the next pipeline run reads fresh data.

@@ -2,7 +2,7 @@
 
 Loads the Urgewald Global Coal Exit List from data/gcel_companies.csv, downloaded
 via scripts/refresh_gcel.py. The GCEL tracks approximately 1,000 companies that
-develop, mine, or burn coal — covering the full coal value chain.
+develop, mine, or burn coal, covering the full coal value chain.
 
 A company on the GCEL with an "expanding" classification while claiming a clean
 energy transition or climate leadership is a primary greenwashing signal: the
@@ -15,7 +15,7 @@ Framework and the Paris Aligned Investment Initiative to screen coal exposure.
 A company claiming alignment with 1.5°C while actively listed as a coal expander
 contradicts the most widely used coal screen in ESG investing.
 
-Data source: Urgewald (urgewald.org) — published annually at COP
+Data source: Urgewald (urgewald.org), published annually at COP
 Refresh: python scripts/refresh_gcel.py
 """
 
@@ -254,7 +254,7 @@ def _get_cache() -> tuple[
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            "GCEL data file not found — run scripts/refresh_gcel.py to download. "
+            "GCEL data file not found: run scripts/refresh_gcel.py to download. "
             f"Expected at: {_GCEL_CSV}",
             extra={"operation": "gcel_cache_missing"},
         )
@@ -347,7 +347,7 @@ async def fetch_coal_exit_data(claim: Claim, company: object) -> list[Evidence]:
     summary = _build_summary(name, record)
 
     logger.info(
-        f"GCEL: {name!r} found — expanding={record.is_expanding}, "
+        f"GCEL: {name!r} found, expanding={record.is_expanding}, "
         f"phasing_out={record.is_phasing_out}",
         extra={
             "operation": "gcel_found",
@@ -387,10 +387,10 @@ def _assess_record(record: _GCELRecord) -> tuple[bool | None, float]:
         return False, 0.90
 
     if record.is_phasing_out:
-        # On GCEL but with a documented phase-out plan — nuanced
+        # On GCEL but with a documented phase-out plan: nuanced
         return None, 0.55
 
-    # Listed on GCEL but expansion status unclear — still a negative signal
+    # Listed on GCEL but expansion status unclear: still a negative signal
     return False, 0.65
 
 
@@ -411,7 +411,7 @@ def _build_summary(company_name: str, record: _GCELRecord) -> str:
             f"Any claim of clean energy transition or Paris alignment is directly "
             f"contradicted by this documented coal expansion. "
             f"The GCEL is used by 400+ financial institutions (GFANZ, PAII) as the "
-            f"standard coal screen — this company fails it."
+            f"standard coal screen; this company fails it."
         )
 
     if record.is_phasing_out:
@@ -425,7 +425,7 @@ def _build_summary(company_name: str, record: _GCELRecord) -> str:
 
     return (
         f"Urgewald Global Coal Exit List: {company_name} is listed on the GCEL "
-        f"({capacity_str}). Expansion status unclear — classified as a coal company "
+        f"({capacity_str}). Expansion status unclear: classified as a coal company "
         f"by Urgewald. Any clean energy transition claims require scrutiny against "
         f"this coal exposure."
     )

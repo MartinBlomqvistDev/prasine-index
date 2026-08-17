@@ -11,7 +11,7 @@ thresholds. As of 2026, the register contains ~17,000 entries.
 
 For greenwashing assessment, TR registration is contextual evidence:
   - A fossil fuel company registered as an active EU lobbyist while claiming
-    climate leadership is worth flagging — especially when combined with
+    climate leadership is worth flagging, especially when combined with
     LobbyMap data showing their lobbying positions.
   - Registration alone does not indicate the direction of lobbying;
     the Judge Agent combines this with LobbyMap to assess whether
@@ -147,7 +147,7 @@ def _get_cache() -> dict[str, _TRRecord]:
     if not _TR_XLSX.exists():
         _cache_by_name = {}
         logger.info(
-            "EU TR XLSX not found — run scripts/refresh_eu_transparency_register.py. "
+            "EU TR XLSX not found: run scripts/refresh_eu_transparency_register.py. "
             f"Expected at: {_TR_XLSX}",
             extra={"operation": "eu_tr_cache_missing"},
         )
@@ -158,7 +158,7 @@ def _get_cache() -> dict[str, _TRRecord]:
     except ImportError:
         _cache_by_name = {}
         logger.warning(
-            "openpyxl not installed — cannot load EU TR XLSX. Run: pip install openpyxl",
+            "openpyxl not installed: cannot load EU TR XLSX. Run: pip install openpyxl",
             extra={"operation": "eu_tr_cache_no_openpyxl"},
         )
         return _cache_by_name
@@ -257,7 +257,7 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
     """Return EU Transparency Register evidence for a company.
 
     Checks whether the company is registered as an EU lobbyist. Registration
-    is contextual evidence — the Judge Agent weighs it alongside LobbyMap
+    is contextual evidence; the Judge Agent weighs it alongside LobbyMap
     data to assess whether the company is lobbying against the climate policies
     it publicly claims to support.
 
@@ -282,7 +282,7 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
     summary = _build_summary(name, record)
 
     logger.info(
-        f"EU TR: {name!r} found — category={record.category!r}, "
+        f"EU TR: {name!r} found, category={record.category!r}, "
         f"active={record.is_active}, country={record.country}",
         extra={"operation": "eu_tr_found", "company": name},
     )
@@ -303,7 +303,7 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
             },
             summary=summary,
             data_year=None,
-            # Contextual — direction of lobbying unknown from registration alone
+            # Contextual: direction of lobbying unknown from registration alone
             supports_claim=None,
             confidence=0.75,
         )
@@ -324,6 +324,6 @@ def _build_summary(company_name: str, record: _TRRecord) -> str:
         f"reg. no. {record.reg_number}). "
         f"Registration confirms the organisation actively engages EU institutions "
         f"on policy matters. The direction of lobbying (for or against climate policy) "
-        f"is not indicated by registration alone — cross-reference with LobbyMap "
+        f"is not indicated by registration alone; cross-reference with LobbyMap "
         f"data for lobbying positions."
     )

@@ -86,13 +86,13 @@ def weighted_agg(claims: list[ClaimData]) -> tuple[float, float, float, float]:
 def recompute(slug: str) -> None:
     main_path = REPORTS_DIR / f"{slug}.md"
     if not main_path.exists():
-        print(f"  SKIP  {slug} — no main report file")
+        print(f"  SKIP  {slug}, no main report file")
         return
 
     # Collect per-claim files
     claim_files = sorted(REPORTS_DIR.glob(f"{slug}-[0-9]*.md"))
     if not claim_files:
-        print(f"  SKIP  {slug} — no per-claim files")
+        print(f"  SKIP  {slug}, no per-claim files")
         return
 
     claims: list[ClaimData] = []
@@ -104,7 +104,7 @@ def recompute(slug: str) -> None:
             print(f"  WARN  could not parse {f.name}")
 
     if not claims:
-        print(f"  SKIP  {slug} — no parseable claims")
+        print(f"  SKIP  {slug}, no parseable claims")
         return
 
     # Top-K by score

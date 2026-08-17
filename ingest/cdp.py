@@ -11,14 +11,14 @@ source for:
   - Emissions reduction target disclosures
 
 A discrepancy between CDP self-reported data and EU ETS verified data is itself
-a greenwashing signal — the company told CDP one thing and the regulator records
+a greenwashing signal: the company told CDP one thing and the regulator records
 another.
 
 NOTE: Web scraping cdp.net is not viable. The site is a fully client-side Next.js
 app with no __NEXT_DATA__, no accessible JSON API endpoints, and no plain-HTML
 fallback. A headless browser (Playwright) would work but is not worth the
 dependency for a single letter grade. CDP bulk CSV requires free registration at
-data.cdp.net — one-time download, no paywall.
+data.cdp.net: one-time download, no paywall.
 
 Data source: data.cdp.net (annual open data download, free registration required)
 Refresh: python scripts/refresh_cdp.py
@@ -41,7 +41,7 @@ logger = get_logger(__name__)
 
 _PROJECT_ROOT = Path(__file__).parent.parent
 
-# Primary CDP bulk CSV — downloaded by scripts/refresh_cdp.py.
+# Primary CDP bulk CSV: downloaded by scripts/refresh_cdp.py.
 _CDP_CSV: Path = Path(
     os.environ.get(
         "CDP_CSV",
@@ -51,15 +51,15 @@ _CDP_CSV: Path = Path(
 
 # CDP score meanings for the Judge Agent.
 _SCORE_DESCRIPTIONS: dict[str, str] = {
-    "A": "Leadership — company discloses comprehensively and takes best-practice action",
-    "A-": "Leadership — near-best-practice disclosure and action",
-    "B": "Management — taking coordinated action on climate issues",
-    "B-": "Management — coordinated action with some gaps",
-    "C": "Awareness — some climate disclosure but limited action",
-    "C-": "Awareness — minimal disclosure",
-    "D": "Disclosure — responding to CDP but not disclosing meaningfully",
-    "D-": "Disclosure — minimum response only",
-    "F": "Non-disclosure — failed to respond or responded insufficiently",
+    "A": "Leadership: company discloses comprehensively and takes best-practice action",
+    "A-": "Leadership: near-best-practice disclosure and action",
+    "B": "Management: taking coordinated action on climate issues",
+    "B-": "Management: coordinated action with some gaps",
+    "C": "Awareness: some climate disclosure but limited action",
+    "C-": "Awareness: minimal disclosure",
+    "D": "Disclosure: responding to CDP but not disclosing meaningfully",
+    "D-": "Disclosure: minimum response only",
+    "F": "Non-disclosure: failed to respond or responded insufficiently",
     "N/A": "Not applicable or data not available",
 }
 
@@ -85,7 +85,7 @@ _COL_ORG = (
 _COL_ISIN = ("ISIN", "isin", "Primary ISIN", "ISIN Code")
 _COL_LEI = ("LEI", "lei", "Primary LEI", "LEI Code")
 _COL_SCORE = (
-    "Score",  # 2023/2024 — current standard column name
+    "Score",  # 2023/2024, current standard column name
     "Climate Change Score",  # 2021/2022 format
     "2024 Score",
     "2023 Score",
@@ -97,14 +97,14 @@ _COL_SCORE = (
 )
 _COL_YEAR = ("Reporting Year", "Year", "Survey Year", "year", "Disclosure Year")
 _COL_SECTOR = (
-    "Primary Sector",  # 2023/2024 — current
+    "Primary Sector",  # 2023/2024, current
     "Sector",  # older formats
     "Industry Sector",
     "sector",
     "Industry",
 )
 _COL_COUNTRY = (
-    "Country/Area",  # 2023/2024 — current
+    "Country/Area",  # 2023/2024, current
     "Country",  # older formats
     "HQ Country",
     "country",
@@ -200,7 +200,7 @@ def _get_cache() -> tuple[
     if not _CDP_CSV.exists():
         _cache_by_isin, _cache_by_lei, _cache_by_name = {}, {}, {}
         logger.info(
-            "CDP bulk CSV not found — run scripts/refresh_cdp.py to download. "
+            "CDP bulk CSV not found: run scripts/refresh_cdp.py to download. "
             f"Expected at: {_CDP_CSV}",
             extra={"operation": "cdp_cache_missing"},
         )
@@ -296,7 +296,7 @@ async def fetch_cdp_data(claim: Claim, company: Company) -> list[Evidence]:
     summary = _build_summary(company.name, record)
 
     logger.info(
-        f"CDP: {company.name!r} found — score={record.score!r}, year={record.year}",
+        f"CDP: {company.name!r} found, score={record.score!r}, year={record.year}",
         extra={"operation": "cdp_found", "company_id": str(company.id)},
     )
 
@@ -342,7 +342,7 @@ def _assess_record(record: _CDPRecord, claim: Claim) -> tuple[bool | None, float
         return False, 0.65
     if score in ("N/A", "", "NOT APPLICABLE"):
         return None, 0.4
-    # B, C range — neutral signal
+    # B, C range: neutral signal
     return None, 0.55
 
 

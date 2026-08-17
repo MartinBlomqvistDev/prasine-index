@@ -201,7 +201,7 @@ class VerificationResult(BaseModel):
 
     This model is the complete handover from the Verification Agent to the
     Judge Agent. It contains all gathered evidence, an overall assessment
-    narrative, and an explicit list of data gaps — sources that were queried
+    narrative, and an explicit list of data gaps: sources that were queried
     but failed or returned no usable data.
 
     This model is frozen: the verification record is sealed before being

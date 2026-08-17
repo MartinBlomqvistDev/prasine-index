@@ -22,7 +22,7 @@ _DATA_DIR = _PROJECT_ROOT / "data"
 # Each entry: (key, base_dir, glob_pattern).
 # base_dir is _DATA_DIR for everything in data/, _PROJECT_ROOT for EUTL
 # (which lives in EUTL24/ at the project root, downloaded by refresh_eutl.py).
-# Large files are hashed too — ~2s per 500 MB file, acceptable at run time.
+# Large files are hashed too: ~2s per 500 MB file, acceptable at run time.
 _PATTERNS: list[tuple[str, Path, str]] = [
     ("sbti", _DATA_DIR, "sbti_companies*"),
     ("lobbymap", _DATA_DIR, "lobbymap_companies.csv"),
@@ -113,7 +113,7 @@ def manifest_to_markdown(manifest: DataManifest) -> str:
     lines = [
         "### Data Manifest",
         "",
-        f"*Sources active at assessment time — {ts}*",
+        f"*Sources active at assessment time, {ts}*",
         "",
         "| Source | SHA-256 (16 hex) |",
         "| ------ | ---------------- |",

@@ -6,7 +6,7 @@ Run this script whenever you want fresh SBTi data:
 
 SBTi publishes bulk data as an Excel file (no authentication required).
 The file is saved to data/sbti_companies.xlsx. The pipeline loads this
-automatically — ingest/sbti.py checks for xlsx if csv is absent.
+automatically: ingest/sbti.py checks for xlsx if csv is absent.
 
 Run refresh_cache() from ingest.sbti to reload without restarting the API.
 
@@ -22,7 +22,7 @@ from pathlib import Path
 
 _DATA_DIR = Path(__file__).parent.parent / "data"
 
-# SBTi bulk Excel download — confirmed working 2026-04-07, no auth required.
+# SBTi bulk Excel download: confirmed working 2026-04-07, no auth required.
 # If this 404s, check: https://sciencebasedtargets.org/companies-taking-action
 _SBTI_XLSX_URL = "https://files.sciencebasedtargets.org/production/files/companies-excel.xlsx"
 _SBTI_DEST = _DATA_DIR / "sbti_companies.xlsx"
@@ -58,7 +58,7 @@ def download_sbti() -> None:
     size_kb = len(data) // 1024
     print(f"  Downloaded {size_kb} KB -> {_SBTI_DEST}")
     print("Done. Run ingest.sbti.refresh_cache() or restart the API to reload.")
-    print("Note: requires openpyxl — run: pip install openpyxl")
+    print("Note: requires openpyxl, run: pip install openpyxl")
 
 
 if __name__ == "__main__":

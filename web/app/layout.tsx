@@ -17,12 +17,12 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://prasineindex.com'),
-  title: 'Prasine Index — EU Greenwashing Intelligence',
+  title: 'Prasine Index | EU Greenwashing Intelligence',
   description:
     'AI-verified analysis of EU corporate sustainability claims. Every assertion cited. Every data gap disclosed.',
   openGraph: {
     title: 'Prasine Index',
-    description: 'EU corporate greenwashing monitoring — every finding cites a verifiable primary source.',
+    description: 'EU corporate greenwashing monitoring. Every finding cites a verifiable primary source.',
     siteName: 'Prasine Index',
     url: 'https://prasineindex.com',
     type: 'website',

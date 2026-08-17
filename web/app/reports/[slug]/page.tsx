@@ -53,8 +53,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const name = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   return {
-    title: `${name} — Prasine Index`,
-    description: `EU greenwashing assessment for ${name} — evidence from 22 open data sources.`,
+    title: `${name} | Prasine Index`,
+    description: `EU greenwashing assessment for ${name}: evidence from 22 open data sources.`,
   }
 }
 
@@ -224,7 +224,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
                       return (
                         <tr key={i}>
                           <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-                            {boldMatch?.[1] ?? '—'}
+                            {boldMatch?.[1] ?? 'n/a'}
                           </td>
                           <td>{boldMatch?.[2] ?? gap}</td>
                         </tr>
@@ -243,7 +243,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
               <ol className="sources-list">
                 {r.evidence.filter(e => e.url).map(ev => (
                   <li key={ev.num}>
-                    {ev.source} — <a href={ev.url} target="_blank" rel="noopener">{ev.url}</a>
+                    {ev.source}: <a href={ev.url} target="_blank" rel="noopener">{ev.url}</a>
                   </li>
                 ))}
               </ol>
@@ -255,7 +255,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
       <footer>
         <div className="footer-inner">
-          <span>© 2026 Prasine Index — Martin Blomqvist</span>
+          <span>© 2026 Prasine Index · Martin Blomqvist</span>
           <div style={{ display: 'flex', gap: 20 }}>
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
             <a href="mailto:cm.blomqvist@gmail.com">Contact</a>

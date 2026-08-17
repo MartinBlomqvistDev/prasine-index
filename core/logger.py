@@ -25,7 +25,7 @@ __all__ = [
 
 
 # ---------------------------------------------------------------------------
-# Pipeline context variables — set by each agent at entry, read by formatter
+# Pipeline context variables: set by each agent at entry, read by formatter
 # ---------------------------------------------------------------------------
 
 trace_id_var: contextvars.ContextVar[str] = contextvars.ContextVar("trace_id", default="-")

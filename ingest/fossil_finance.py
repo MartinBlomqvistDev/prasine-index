@@ -1,4 +1,4 @@
-"""Banking on Climate Chaos — fossil fuel financing database ingest module.
+"""Banking on Climate Chaos: fossil fuel financing database ingest module.
 
 Loads the Banking on Climate Chaos annual report data from
 data/fossil_finance_banks.csv, downloaded via scripts/refresh_fossil_finance.py.
@@ -176,7 +176,7 @@ def _get_cache() -> dict[str, _FossilFinanceRecord]:
     if not _CSV.exists():
         _cache_by_name = {}
         logger.info(
-            "Fossil finance data file not found — run scripts/refresh_fossil_finance.py. "
+            "Fossil finance data file not found: run scripts/refresh_fossil_finance.py. "
             f"Expected at: {_CSV}",
             extra={"operation": "fossil_finance_cache_missing"},
         )
@@ -229,7 +229,7 @@ async def fetch_fossil_finance_data(claim: Claim, company: object) -> list[Evide
     financing hundreds of billions in fossil fuel expansion are engaging in the
     most direct form of financial sector greenwashing.
 
-    Only returns evidence for companies found in the database — typically banks,
+    Only returns evidence for companies found in the database: typically banks,
     asset managers, and insurance companies. Manufacturing and energy companies
     will not be found here (those are covered by EU ETS, E-PRTR, etc.).
 
@@ -254,7 +254,7 @@ async def fetch_fossil_finance_data(claim: Claim, company: object) -> list[Evide
     summary = _build_summary(name, record)
 
     logger.info(
-        f"Fossil finance: {name!r} — total={record.total_bn}bn, nz_pledge={record.has_nz_pledge}",
+        f"Fossil finance: {name!r}, total={record.total_bn}bn, nz_pledge={record.has_nz_pledge}",
         extra={
             "operation": "fossil_finance_found",
             "company": name,
@@ -297,7 +297,7 @@ def _assess_record(record: _FossilFinanceRecord) -> tuple[bool | None, float]:
     total = record.total_bn
 
     if total is None:
-        # In database but no financing figure — existence alone is notable
+        # In database but no financing figure: existence alone is notable
         return None, 0.45
 
     if total >= _HIGH_FINANCING_THRESHOLD:
@@ -311,7 +311,7 @@ def _assess_record(record: _FossilFinanceRecord) -> tuple[bool | None, float]:
             return False, 0.75
         return False, 0.65
 
-    # Lower-end financing — still notable but less directly contradicting
+    # Lower-end financing: still notable but less directly contradicting
     return None, 0.50
 
 
@@ -324,7 +324,7 @@ def _build_summary(company_name: str, record: _FossilFinanceRecord) -> str:
 
     return (
         f"Banking on Climate Chaos: {company_name} provided {total_str} in fossil fuel "
-        f"financing ({record.year_range}){(' — ' + breakdown) if breakdown else ''}. "
+        f"financing ({record.year_range}){(', ' + breakdown) if breakdown else ''}. "
         f"{nz_str} ranks among the world's largest financiers of fossil fuel "
         f"expansion. Any green banking or climate-leadership claim is directly "
         f"contradicted by this financing record."

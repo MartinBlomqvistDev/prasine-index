@@ -31,7 +31,7 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # Test database — separate instance for the test suite
+  # Test database: separate instance for the test suite
   # ---------------------------------------------------------------------------
   db_test:
     image: pgvector/pgvector:pg16

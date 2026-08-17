@@ -1,7 +1,7 @@
 """TPI (Transition Pathway Initiative) company assessment ingest module.
 
-Loads the TPI Company Latest Assessments CSV — Management Quality (MQ) levels
-0-4 and Carbon Performance (CP) pathway alignment labels — for 490+ listed
+Loads the TPI Company Latest Assessments CSV: Management Quality (MQ) levels
+0-4 and Carbon Performance (CP) pathway alignment labels, for 490+ listed
 companies across 12+ high-emission sectors.
 
 TPI assessments are produced by the TPI Centre at LSE and used by 150+
@@ -11,24 +11,24 @@ consensus of major institutional investors.
 
 Two primary greenwashing signals:
   1. CP Alignment 2050 = "Not Aligned" while claiming net-zero/Paris alignment.
-     This is the strongest single indicator — it means the company's projected
+     This is the strongest single indicator; it means the company's projected
      emissions trajectory does not reach net-zero by 2050 under TPI's methodology.
   2. MQ Level 0 or 1 (Unaware/Cognizant) while claiming climate leadership.
      Poor governance score indicates the company has not put in place even basic
      climate management structures to back up its public claims.
 
 MQ level labels:
-  0: Unaware     — does not acknowledge climate change as a significant issue
-  1: Cognizant   — acknowledges the issue, no substantive action
-  2: Acknowledging — some action, limited integration
-  3: Integrating — substantial integration into strategy
-  4/4STAR: Strategic — full strategic integration with targets and governance
+  0: Unaware    : does not acknowledge climate change as a significant issue
+  1: Cognizant  : acknowledges the issue, no substantive action
+  2: Acknowledging: some action, limited integration
+  3: Integrating: substantial integration into strategy
+  4/4STAR: Strategic: full strategic integration with targets and governance
 
 CP alignment labels (2025/2035/2050):
-  1.5 Degrees, Below 2 Degrees, 2 Degrees — Paris-aligned or better
-  National Pledges, International Pledges, Paris Pledges — weak alignment
-  Not Aligned — projected trajectory exceeds Paris-compatible benchmarks
-  No or unsuitable disclosure / Not Assessed — insufficient disclosure
+  1.5 Degrees, Below 2 Degrees, 2 Degrees: Paris-aligned or better
+  National Pledges, International Pledges, Paris Pledges: weak alignment
+  Not Aligned: projected trajectory exceeds Paris-compatible benchmarks
+  No or unsuitable disclosure / Not Assessed: insufficient disclosure
 
 Data source: https://github.com/transition-pathway-initiative/Assessment-data
 Data file: data/tpi_companies.csv (Company_Latest_Assessments.csv)
@@ -231,13 +231,13 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         signal = (
             f"CONTRADICTS green claim: TPI projects {company_name!r} trajectory as "
             f"'Not Aligned' with Paris Agreement by 2050. This means the company's "
-            f"disclosed emissions pathway exceeds the TPI sector benchmark for 2050 — "
+            f"disclosed emissions pathway exceeds the TPI sector benchmark for 2050, "
             f"a direct contradiction of any net-zero or Paris-alignment claim."
         )
     elif rec.is_paris_aligned_2050:
         signal = (
             f"Partially supports: TPI rates {company_name!r} 2050 pathway as "
-            f"'{rec.cp_2050}' — within Paris-compatible bounds. MQ: {rec.mq_label}."
+            f"'{rec.cp_2050}', within Paris-compatible bounds. MQ: {rec.mq_label}."
         )
     elif rec.has_weak_mq:
         signal = (

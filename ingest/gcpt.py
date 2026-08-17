@@ -1,6 +1,6 @@
 """Global Coal Plant Tracker (GCPT) ingest module for the Prasine Index.
 
-Loads the GEM Global Coal Plant Tracker Excel file — facility-level data on
+Loads the GEM Global Coal Plant Tracker Excel file: facility-level data on
 14,500+ coal-fired generating units worldwide, including owner attribution,
 unit status, and capacity.
 
@@ -11,18 +11,18 @@ is contradicted by its own infrastructure pipeline.
 
 This source is complementary to the Urgewald Global Coal Exit List (GCEL):
 GCEL tracks company-level coal exposure for financial screening; GCPT provides
-facility-level evidence with named plants and specific statuses — making it
+facility-level evidence with named plants and specific statuses, making it
 a stronger citation for claim-by-claim greenwashing reports.
 
 Status values in the GCPT:
-  Operating    — currently generating power
-  Construction — actively under construction
-  Permitted    — has regulatory permits, not yet under construction
-  Pre-permit   — in permitting process
-  Announced    — publicly announced, not yet in permitting
-  Shelved      — development paused
-  Cancelled    — development cancelled
-  Retired      — no longer operating
+  Operating: currently generating power
+  Construction: actively under construction
+  Permitted: has regulatory permits, not yet under construction
+  Pre-permit: in permitting process
+  Announced: publicly announced, not yet in permitting
+  Shelved: development paused
+  Cancelled: development cancelled
+  Retired: no longer operating
 
 Greenwashing signal logic:
   Expanding (Announced/Pre-permit/Permitted/Construction):
@@ -33,10 +33,10 @@ Greenwashing signal logic:
     → Has coal assets; no expansion signal, but not exiting either
   Retiring (Shelved/Cancelled/Retired, no expansion):
     → supports_claim=True, confidence=0.60
-    → Appears to be exiting coal (weak positive — could be economic, not climate)
+    → Appears to be exiting coal (weak positive, could be economic, not climate)
 
 Data file: data/gcpt_jan2026.xlsx (downloaded from globalenergymonitor.org)
-Refresh: scripts/refresh_gcpt.py (manual — form + reCAPTCHA required)
+Refresh: scripts/refresh_gcpt.py (manual: form + reCAPTCHA required)
 Coverage: ~14,500 units, 2,000+ plant owners, January 2026 release
 """
 
@@ -145,7 +145,7 @@ def _load() -> list[_GCPTUnit]:
         import openpyxl
     except ImportError:
         logger.warning(
-            "openpyxl not installed — cannot load GCPT data. Run: pip install openpyxl",
+            "openpyxl not installed: cannot load GCPT data. Run: pip install openpyxl",
             extra={"operation": "gcpt_openpyxl_missing"},
         )
         _units = []
@@ -282,12 +282,12 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
         exiting_names = "; ".join(
             f"{u.unit_name or u.plant_name} ({u.status.title()})" for u in exiting[:3]
         )
-        lines.append(f"RETIRING/CANCELLED: {len(exiting)} unit(s) — {exiting_names}.")
+        lines.append(f"RETIRING/CANCELLED: {len(exiting)} unit(s), {exiting_names}.")
 
     summary = " ".join(lines)
 
     logger.info(
-        f"GCPT: {company_name!r} — {len(expanding)} expanding, "
+        f"GCPT: {company_name!r}, {len(expanding)} expanding, "
         f"{len(operating)} operating, {len(exiting)} exiting",
         extra={"operation": "gcpt_match", "company": company_name},
     )

@@ -396,7 +396,7 @@ class TestAgentTrace:
                 outcome=AgentOutcome.FAILURE,
                 input_schema="agents.extraction_agent.ExtractionInput",
                 started_at=datetime.now(UTC),
-                # neither error_type nor error_message provided — invalid
+                # neither error_type nor error_message provided: invalid
             )
 
     def test_failure_trace_with_error_type_is_valid(self, trace_id: uuid.UUID) -> None:

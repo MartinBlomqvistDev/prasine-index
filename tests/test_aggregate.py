@@ -1,6 +1,6 @@
 """Tests for the company-level aggregate: band helpers and worst-claim floor.
 
-Pure-Python — no LLM calls, no network, no database.
+Pure-Python: no LLM calls, no network, no database.
 """
 
 from __future__ import annotations
@@ -90,7 +90,7 @@ class TestAggregateFloor:
         assert company.floor_applied is True
 
     def test_no_floor_when_aggregate_already_in_band(self) -> None:
-        """Ryanair case: all top claims confirmed — aggregate sits in band naturally."""
+        """Ryanair case: all top claims confirmed; aggregate sits in band naturally."""
         results = [_result(86.0), _result(86.0), _result(85.0)]
         company = aggregate_claim_scores("Ryanair", _COMPANY_ID, results)
         assert company.score >= 81.0

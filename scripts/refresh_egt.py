@@ -1,6 +1,6 @@
 """Refresh the GEM Europe Gas Tracker (EGT) data.
 
-The EGT requires a manual download — GEM uses a form with reCAPTCHA:
+The EGT requires a manual download: GEM uses a form with reCAPTCHA:
 
     1. Go to: https://globalenergymonitor.org/projects/europe-gas-tracker/download-data/
     2. Fill in your name and email address.
@@ -47,7 +47,7 @@ def check_existing() -> None:
                 print(f"  '{sheet}': ~{ws.max_row - 1} rows")
             wb.close()
         except ImportError:
-            print("  (openpyxl not installed — cannot inspect sheets)")
+            print("  (openpyxl not installed: cannot inspect sheets)")
         except Exception as exc:
             print(f"  WARNING: could not inspect file: {exc}")
     else:

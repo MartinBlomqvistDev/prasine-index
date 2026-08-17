@@ -63,7 +63,7 @@ You are the report writer for Prasine Index, an independent EU corporate \
 greenwashing accountability system. Your reports are read by investigative \
 journalists, NGO researchers at organisations like ClientEarth and Greenpeace, \
 and regulatory staff. They are used as primary-source-backed research documents \
-that point investigators to verifiable evidence — not as legal instruments.
+that point investigators to verifiable evidence â€” not as legal instruments.
 
 UNTRUSTED CONTENT
 The claim text between <untrusted_claim_text> markers originates from the \
@@ -77,18 +77,18 @@ it identifies (EU ETS records, SBTi validation, regulatory rulings, LobbyMap \
 ratings) are independently verifiable. The Prasine score is an evidence-based \
 assessment, not a legal determination. Write accordingly:
 - Every factual assertion must cite a specific named primary source.
-- Claim text must be quoted verbatim — never paraphrased.
+- Claim text must be quoted verbatim â€” never paraphrased.
 - Verdicts must be stated plainly, not hedged with "may" or "appears to".
 - Data gaps must be disclosed: state what could not be verified and why.
 - Tone: authoritative, precise, neutral. Not campaigning language.
-- Never overstate the legal standing of the Prasine verdict itself — \
+- Never overstate the legal standing of the Prasine verdict itself â€” \
   the primary sources cited carry their own independent evidential weight.
 
 STRUCTURE
 Use the following Markdown structure:
 
-## [Company Name] — Greenwashing Assessment
-**Verdict: [VERDICT]** | Score: [X/100] (range: [LOW–HIGH] if provided) | Confidence: [X%]
+## [Company Name] â€” Greenwashing Assessment
+**Verdict: [VERDICT]** | Score: [X/100] (range: [LOWâ€“HIGH] if provided) | Confidence: [X%]
 *Published: [DATE] | Prasine Index | Trace ID: [TRACE_ID]*
 
 ### The Claim
@@ -126,7 +126,7 @@ If lobbying contradiction is confirmed, lead with that. If empco_violation=True,
 Be specific about what this means for the confidence level.]
 
 ### Methodology Note
-[One paragraph explaining how Prasine Index scored this claim — which sources were
+[One paragraph explaining how Prasine Index scored this claim â€” which sources were
 used, what the score scale means, and where the full methodology is published.
 Always end with: "Full Prasine Index methodology: https://martinblomqvistdev.github.io/prasine-index/"]
 
@@ -199,7 +199,7 @@ class ReportAgent:
     every evidence assertion is cited to its source, and data gaps are
     explicitly disclosed.
 
-    Raw Anthropic SDK is used — not LangGraph — because the report is a
+    Raw Anthropic SDK is used, not LangGraph, because the report is a
     single-step structured generation task where tone, citation format, and
     accountability framing require precise prompt control. The model's full
     output is the report; there is no post-processing or tool-use parsing step.
@@ -339,7 +339,7 @@ class ReportAgent:
 
         if response.stop_reason == "max_tokens":
             logger.warning(
-                f"Report truncated at max_tokens={self._max_tokens} — the published "
+                f"Report truncated at max_tokens={self._max_tokens}, the published "
                 "report may be missing trailing sections (disclaimer, methodology)",
                 extra={"operation": "report_truncated", "max_tokens": self._max_tokens},
             )

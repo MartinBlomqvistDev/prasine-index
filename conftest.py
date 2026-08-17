@@ -21,7 +21,7 @@ os.environ.setdefault(
 
 
 # ---------------------------------------------------------------------------
-# Domain model fixtures — zero external dependencies, used by all unit tests
+# Domain model fixtures: zero external dependencies, used by all unit tests
 # ---------------------------------------------------------------------------
 
 

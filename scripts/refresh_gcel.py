@@ -5,7 +5,7 @@ Run this script whenever you want fresh GCEL data (updated annually at COP):
     python scripts/refresh_gcel.py
 
 The Global Coal Exit List tracks approximately 1,000 companies across the full
-coal value chain — mining, trading, transportation, and power. It is maintained
+coal value chain: mining, trading, transportation, and power. It is maintained
 by Urgewald and a coalition of 50+ NGOs. Published free of charge, no account required.
 
 The GCEL is the standard coal screen used by 400+ financial institutions under
@@ -71,7 +71,7 @@ def download_gcel_csv() -> None:
         with urllib.request.urlopen(req, timeout=120) as response:
             data = response.read()
     except urllib.error.HTTPError as exc:
-        print(f"\nHTTP {exc.code} — {exc.reason}")
+        print(f"\nHTTP {exc.code}: {exc.reason}")
         print_manual_instructions()
         sys.exit(1)
     except urllib.error.URLError as exc:
@@ -80,7 +80,7 @@ def download_gcel_csv() -> None:
         sys.exit(1)
 
     if b"<html" in data[:200].lower():
-        print("\nReceived HTML — URL may have changed.")
+        print("\nReceived HTML: the URL may have changed.")
         print_manual_instructions()
         sys.exit(1)
 

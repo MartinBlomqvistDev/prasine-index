@@ -4,17 +4,17 @@ Static database of confirmed regulatory rulings, bans, fines, and investigations
 against EU-listed companies by national advertising standards authorities, consumer
 protection regulators, competition authorities, and courts.
 
-No refresh script is needed — enforcement rulings are permanent public record.
+No refresh script is needed: enforcement rulings are permanent public record.
 The database is curated and updated manually when new rulings are published.
 All cases are drawn from publicly accessible official sources.
 
 Authorities included:
-  ASA    — UK Advertising Standards Authority
-  ACM    — Dutch Authority for Consumers and Markets
-  AGCM   — Italian Competition Authority
-  CMA    — UK Competition and Markets Authority
-  EC     — European Commission (consumer protection enforcement)
-  Courts — National court judgments under the Unfair Commercial Practices Directive
+  ASA: UK Advertising Standards Authority
+  ACM: Dutch Authority for Consumers and Markets
+  AGCM: Italian Competition Authority
+  CMA: UK Competition and Markets Authority
+  EC: European Commission (consumer protection enforcement)
+  Courts: National court judgments under the Unfair Commercial Practices Directive
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ class _Ruling:
 
     Attributes:
         companies: All name variants for the company covered by this ruling.
-            Used for fuzzy matching — include common abbreviations and subsidiary names.
+            Used for fuzzy matching: include common abbreviations and subsidiary names.
         authority: Short identifier for the regulating body.
         country: ISO 3166-1 alpha-2 country code of the authority.
         year: Year the ruling was published or the investigation was announced.
@@ -126,7 +126,7 @@ _RULINGS: list[_Ruling] = [
         authority="EUROPEAN_COMMISSION",
         country="EU",
         year=2024,
-        case_reference="EC CPC Regulation 2017/2394 — Airline sweep",
+        case_reference="EC CPC Regulation 2017/2394, Airline sweep",
         ruling_type="INVESTIGATION",
         claim_type="EMISSIONS_REDUCTION",
         description=(
@@ -233,7 +233,7 @@ _RULINGS: list[_Ruling] = [
         authority="EUROPEAN_COMMISSION",
         country="EU",
         year=2024,
-        case_reference="EC CPC Regulation 2017/2394 — Airline sweep",
+        case_reference="EC CPC Regulation 2017/2394, Airline sweep",
         ruling_type="INVESTIGATION",
         claim_type="CARBON_NEUTRAL",
         description=(
@@ -261,7 +261,7 @@ _RULINGS: list[_Ruling] = [
         description=(
             "ASA banned Lufthansa's 'Connecting the World, Protecting its Future' and "
             "'Fly More Sustainably' advertisements. Claims of sustainable aviation lacked "
-            "substantiation — Lufthansa could not demonstrate systematic use of sustainable "
+            "substantiation: Lufthansa could not demonstrate systematic use of sustainable "
             "aviation fuel or verified per-flight emission reductions at the advertised scale."
         ),
         source_url="https://www.asa.org.uk/rulings/deutsche-lufthansa-ag-g22-1183827.html",
@@ -271,7 +271,7 @@ _RULINGS: list[_Ruling] = [
         authority="EUROPEAN_COMMISSION",
         country="EU",
         year=2024,
-        case_reference="EC CPC Regulation 2017/2394 — Airline sweep",
+        case_reference="EC CPC Regulation 2017/2394, Airline sweep",
         ruling_type="INVESTIGATION",
         claim_type="CARBON_NEUTRAL",
         description=(
@@ -287,7 +287,7 @@ _RULINGS: list[_Ruling] = [
         authority="CMA",
         country="UK",
         year=2023,
-        case_reference="CMA greenwashing investigation — airline sector",
+        case_reference="CMA greenwashing investigation, airline sector",
         ruling_type="INVESTIGATION",
         claim_type="CARBON_NEUTRAL",
         description=(
@@ -330,7 +330,7 @@ _RULINGS: list[_Ruling] = [
         description=(
             "ASA banned ArcelorMittal's advertisements claiming to produce 'XCarb green steel' "
             "that is 'carbon neutral' or 'close to carbon neutral'. Claims were unsubstantiated "
-            "— the carbon accounting methodology excluded significant upstream (ore processing) "
+            "because the carbon accounting methodology excluded significant upstream (ore processing) "
             "and direct steelmaking emissions. 'Carbon neutral steel' in conventional "
             "blast-furnace processes cannot be substantiated without verified offset accounting."
         ),
@@ -383,7 +383,7 @@ _RULINGS: list[_Ruling] = [
         authority="MULTIPLE",
         country="EU",
         year=2016,
-        case_reference="Dieselgate — EU/US enforcement (2015–2022)",
+        case_reference="Dieselgate, EU/US enforcement (2015–2022)",
         ruling_type="FINED",
         claim_type="EMISSIONS_REDUCTION",
         description=(
@@ -402,7 +402,7 @@ _RULINGS: list[_Ruling] = [
         authority="CMA",
         country="UK",
         year=2023,
-        case_reference="CMA investigation — fossil fuel companies",
+        case_reference="CMA investigation, fossil fuel companies",
         ruling_type="INVESTIGATION",
         claim_type="NET_ZERO_TARGET",
         description=(
@@ -459,7 +459,7 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
 
     Looks up the company in the static enforcement rulings database. A confirmed
     ban, fine, or misleading ruling from a national or EU regulator is the
-    strongest possible evidence that a company's green claims are unsubstantiated —
+    strongest possible evidence that a company's green claims are unsubstantiated:
     a regulator has already made that determination independently.
 
     Returns one Evidence record per distinct ruling found. Multiple rulings against
@@ -478,7 +478,7 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
     # Direct match
     rulings = _BY_COMPANY.get(norm, [])
 
-    # Partial substring match — catches "Ryanair Holdings plc" vs "Ryanair"
+    # Partial substring match: catches "Ryanair Holdings plc" vs "Ryanair"
     if not rulings and len(norm) >= 5:
         for key, key_rulings in _BY_COMPANY.items():
             if norm in key:
@@ -503,7 +503,7 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
         confidence = _RULING_CONFIDENCE.get(ruling.ruling_type, 0.75)
 
         summary = (
-            f"Enforcement ruling — {ruling.authority} ({ruling.country}, {ruling.year}): "
+            f"Enforcement ruling, {ruling.authority} ({ruling.country}, {ruling.year}): "
             f"{ruling.ruling_type.replace('_', ' ')} | {ruling.case_reference}. "
             f"{ruling.description}"
         )

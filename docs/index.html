@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prasine Index — EU Corporate Greenwashing Monitor</title>
-  <meta name="description" content="Every green claim made by EU-listed companies, verified against real emissions data and regulatory records, with a fully-cited evidence chain — every finding references a named, independently verifiable primary source." />
+  <title>Prasine Index | EU Corporate Greenwashing Monitor</title>
+  <meta name="description" content="Every green claim made by EU-listed companies, verified against real emissions data and regulatory records, with a fully-cited evidence chain. Every finding references a named, independently verifiable primary source." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=Space+Mono:wght@400;700&display=swap">
@@ -599,7 +599,7 @@
     <h2>Seven agents. One evidence chain.</h2>
     <p class="section-desc">
       Each agent has a single responsibility. Data flows through typed Pydantic models
-      at every boundary — no raw strings, no untyped dicts between steps.
+      at every boundary: no raw strings, no untyped dicts between steps.
     </p>
 
     <div class="pipeline-steps">
@@ -623,7 +623,7 @@
       <div class="step">
         <div class="step-num">4</div>
         <div class="step-name">Verification Agent</div>
-        <div class="step-desc">Queries 22 open data sources in parallel — including the claim's own source document, fetched and analysed via the Anthropic document API. Partial failures are tolerated.</div>
+        <div class="step-desc">Queries 22 open data sources in parallel, including the claim's own source document, fetched and analysed via the Anthropic document API. Partial failures are tolerated.</div>
         <span class="step-tag tag-langgraph">LangGraph</span>
       </div>
       <div class="step">
@@ -648,7 +648,7 @@
     <div class="verification-note">
       <strong>Why LangGraph only at step 4?</strong>
       The Verification Agent queries 22 independent data sources concurrently and must
-      handle partial failures gracefully — exactly the fan-out / partial-state-merge problem
+      handle partial failures gracefully: exactly the fan-out / partial-state-merge problem
       LangGraph's <code>StateGraph</code> with <code>operator.add</code> reducers solves.
       The other six agents are single-step operations where raw SDK gives better
       prompt control and cleaner code. This is <em>when</em> to use a framework, not just
@@ -663,7 +663,7 @@
     <div class="section-label">Real Output</div>
     <h2>A real pipeline verdict.</h2>
     <p class="section-desc">
-      Multi-claim assessment, run 2026-07-01 with a Claude Opus 4.8 judge. 7 claims assessed across Ryanair's sustainability disclosures. Aggregate score 86/100 — CONFIRMED GREENWASHING.
+      Multi-claim assessment, run 2026-07-01 with a Claude Opus 4.8 judge. 7 claims assessed across Ryanair's sustainability disclosures. Aggregate score 86/100: CONFIRMED GREENWASHING.
     </p>
 
     <div class="verdict-card">
@@ -692,7 +692,7 @@
             <tr class="row-hl">
               <td class="score-cell"><strong>86 / 100</strong></td>
               <td><span class="verdict-badge verdict-confirmed" style="font-size:10px;padding:2px 7px">Confirmed</span></td>
-              <td style="font-size:12px"><strong>"Progressing towards our ambitious sustainability goals of Net Zero by 2050 and 12.5% SAF by 2030" — detailed below</strong></td>
+              <td style="font-size:12px"><strong>"Progressing towards our ambitious sustainability goals of Net Zero by 2050 and 12.5% SAF by 2030", detailed below</strong></td>
             </tr>
             <tr>
               <td class="score-cell">85 / 100</td>
@@ -744,7 +744,7 @@
         <!-- Key finding -->
         <div class="key-finding-box">
           <p class="key-finding-lbl">Key finding</p>
-          <p>Ryanair holds a D+ obstructive climate-lobbying rating from LobbyMap — actively opposing or delaying the climate legislation its own net-zero pledge depends on — while the claim's source document fails every EmpCo Directive (EU 2024/825) substantiation requirement: no baseline year, no interim 2035/2040 targets, no abatement-versus-certified-removal split, no verified transition plan.</p>
+          <p>Ryanair holds a D+ obstructive climate-lobbying rating from LobbyMap, actively opposing or delaying the climate legislation its own net-zero pledge depends on, while the claim's source document fails every EmpCo Directive (EU 2024/825) substantiation requirement: no baseline year, no interim 2035/2040 targets, no abatement-versus-certified-removal split, no verified transition plan.</p>
         </div>
 
         <!-- Evidence -->
@@ -756,7 +756,7 @@
             <div class="ev-num-badge">1</div>
             <div>
               <p class="ev-num-src">LobbyMap D+ (Obstructive) + EU Transparency Register</p>
-              <p class="ev-num-txt">LobbyMap rates Ryanair <strong>D+ (Obstructive)</strong> — actively opposing or delaying climate legislation while making green claims (confidence 0.85). Corroborated by the EU Transparency Register: Ryanair is an actively registered direct corporate lobbyist (reg. no. 002977215945-85, HQ Ireland, confidence 0.75). A company obstructing the policy framework its own 2050 pledge depends on cannot reconcile that pledge with its conduct. Under Prasine scoring, a D/D+ LobbyMap rating alone triggers CONFIRMED status.</p>
+              <p class="ev-num-txt">LobbyMap rates Ryanair <strong>D+ (Obstructive)</strong>: actively opposing or delaying climate legislation while making green claims (confidence 0.85). Corroborated by the EU Transparency Register: Ryanair is an actively registered direct corporate lobbyist (reg. no. 002977215945-85, HQ Ireland, confidence 0.75). A company obstructing the policy framework its own 2050 pledge depends on cannot reconcile that pledge with its conduct. Under Prasine scoring, a D/D+ LobbyMap rating alone triggers CONFIRMED status.</p>
               <p class="ev-wt ev-wt-contra">Independent trigger · confidence 0.85</p>
             </div>
           </div>
@@ -764,15 +764,15 @@
             <div class="ev-num-badge">2</div>
             <div>
               <p class="ev-num-src">UK ASA Ruling G20-1089921 (2020)</p>
-              <p class="ev-num-txt">The Advertising Standards Authority found Ryanair's "lowest carbon emissions" claim <strong>CONFIRMED MISLEADING</strong> — Ryanair could not substantiate lower CO₂ per passenger than comparable airlines on a like-for-like basis. Establishes a documented prior violation within the same claim category. Under the Prasine framework, a prior ruling against an equivalent claim type independently triggers CONFIRMED status.</p>
+              <p class="ev-num-txt">The Advertising Standards Authority found Ryanair's "lowest carbon emissions" claim <strong>CONFIRMED MISLEADING</strong>: Ryanair could not substantiate lower CO₂ per passenger than comparable airlines on a like-for-like basis. Establishes a documented prior violation within the same claim category. Under the Prasine framework, a prior ruling against an equivalent claim type independently triggers CONFIRMED status.</p>
               <p class="ev-wt ev-wt-contra">Independent trigger · confidence 0.90</p>
             </div>
           </div>
           <div class="ev-num-row">
             <div class="ev-num-badge">3</div>
             <div>
-              <p class="ev-num-src">Ryanair Source Document — Substantiation Failure</p>
-              <p class="ev-num-txt">Analysis of the claim's source document confirms the net-zero pledge lacks: a stated baseline year, interim 2035/2040 targets, a disclosed abatement-versus-certified-removal split, a certified permanent removal plan, and a verified transition plan. The cited research supports only a 43% emissions reduction via a 50% SAF blend on specific routes — an operational measure, not net-zero substantiation.</p>
+              <p class="ev-num-src">Ryanair Source Document: Substantiation Failure</p>
+              <p class="ev-num-txt">Analysis of the claim's source document confirms the net-zero pledge lacks: a stated baseline year, interim 2035/2040 targets, a disclosed abatement-versus-certified-removal split, a certified permanent removal plan, and a verified transition plan. The cited research supports only a 43% emissions reduction via a 50% SAF blend on specific routes, an operational measure, not net-zero substantiation.</p>
               <p class="ev-wt ev-wt-contra">Substantiation failure · confidence 0.95</p>
             </div>
           </div>
@@ -791,7 +791,7 @@
           <div class="ev-num-row">
             <div class="ev-num-badge">5</div>
             <div>
-              <p class="ev-num-src">EmpCo Directive (EU 2024/825) — Blacklisted Claim Type</p>
+              <p class="ev-num-src">EmpCo Directive (EU 2024/825): Blacklisted Claim Type</p>
               <p class="ev-num-txt">In force since March 2024, the EmpCo Directive amends UCPD Annex I to require that net-zero claims demonstrate: a baseline emissions year, interim targets, a split between abatement and certified permanent removal, and a verified transition plan. Claims based on carbon offsetting are expressly blacklisted. Ryanair's disclosure fails every requirement. EUR-Lex CELEX:32024L0825.</p>
               <p class="ev-wt ev-wt-neutral">Substantiation failure · confidence 0.95</p>
             </div>
@@ -799,7 +799,7 @@
           <div class="ev-num-row">
             <div class="ev-num-badge">6</div>
             <div>
-              <p class="ev-num-src">CSRD (EU 2022/2464) — Mandatory Emissions Disclosure</p>
+              <p class="ev-num-src">CSRD (EU 2022/2464): Mandatory Emissions Disclosure</p>
               <p class="ev-num-txt">CSRD requires mandatory disclosure of scope 1, 2, and 3 GHG emissions under ESRS E1 from FY2024. A net-zero claim that cannot be cross-referenced against a CSRD-compliant baseline constitutes a material substantiation gap. EUR-Lex CELEX:32022L2464.</p>
               <p class="ev-wt ev-wt-neutral">Data gap · confidence 0.95</p>
             </div>
@@ -811,9 +811,9 @@
           <div class="ev-num-row">
             <div class="ev-num-badge">7</div>
             <div>
-              <p class="ev-num-src">SBTi — Interim Targets Set (net-zero: none) · TPI — Below 2°C</p>
-              <p class="ev-num-txt">SBTi records interim reduction targets classified as 1.5°C but <em>net-zero target: none</em> — neutral for the assessed net-zero commitment (confidence 0.70). TPI rates the 2050 pathway "Below 2 Degrees" at Management Quality Level 2 (Acknowledging) — Paris-compatible but not 1.5°C-aligned. Neither displaces the three independent confirmed triggers.</p>
-              <p class="ev-wt ev-wt-support">Partial mitigation — insufficient to rebut · confidence 0.70–0.75</p>
+              <p class="ev-num-src">SBTi: Interim Targets Set (net-zero: none) · TPI: Below 2°C</p>
+              <p class="ev-num-txt">SBTi records interim reduction targets classified as 1.5°C but <em>net-zero target: none</em>, neutral for the assessed net-zero commitment (confidence 0.70). TPI rates the 2050 pathway "Below 2 Degrees" at Management Quality Level 2 (Acknowledging), Paris-compatible but not 1.5°C-aligned. Neither displaces the three independent confirmed triggers.</p>
+              <p class="ev-wt ev-wt-support">Partial mitigation, insufficient to rebut · confidence 0.70–0.75</p>
             </div>
           </div>
         </div>
@@ -821,14 +821,14 @@
         <!-- Assessment -->
         <div class="report-h2">Assessment</div>
         <div class="assess-paras">
-          <p>The lead finding is the lobbying contradiction. LobbyMap rates Ryanair D+ (Obstructive) — actively opposing or delaying the climate legislation required to deliver any net-zero pathway — while the company publicises a Net Zero by 2050 target. The contradiction is corroborated, not merely alleged: the EU Transparency Register confirms Ryanair is an active, registered EU lobbyist (reg. no. 002977215945-85). Under Prasine scoring, a D/D+ rating alone triggers CONFIRMED status.</p>
+          <p>The lead finding is the lobbying contradiction. LobbyMap rates Ryanair D+ (Obstructive), actively opposing or delaying the climate legislation required to deliver any net-zero pathway, while the company publicises a Net Zero by 2050 target. The contradiction is corroborated, not merely alleged: the EU Transparency Register confirms Ryanair is an active, registered EU lobbyist (reg. no. 002977215945-85). Under Prasine scoring, a D/D+ rating alone triggers CONFIRMED status.</p>
           <p>Two further independent triggers reinforce the verdict. The ASA found an equivalent prior emissions claim misleading (G20-1089921, 2020), establishing a documented pattern within the same claim category. And the claim's own source document fails every EmpCo Directive substantiation requirement: no baseline year, no interim 2035/2040 targets, no abatement-versus-certified-removal split, no certified removal plan, no verified transition plan. The cited SAF research supports an operational efficiency measure, not net-zero substantiation.</p>
-          <p>Mitigating evidence — SBTi "Targets set" (net-zero validation: none) and TPI's "Below 2 Degrees" pathway rating — is addressed on its merits but cannot override three independently sufficient confirmed triggers. These signals place the score in the lower-to-mid confirmed band (82–91) rather than higher. The 2024 EC CPC coordinated investigation remains open and is weighted as a live enforcement concern, not a concluded ruling.</p>
+          <p>Mitigating evidence, namely SBTi "Targets set" (net-zero validation: none) and TPI's "Below 2 Degrees" pathway rating, is addressed on its merits but cannot override three independently sufficient confirmed triggers. These signals place the score in the lower-to-mid confirmed band (82–91) rather than higher. The 2024 EC CPC coordinated investigation remains open and is weighted as a live enforcement concern, not a concluded ruling.</p>
         </div>
 
         <!-- Score logic -->
         <div class="report-h2">Score logic</div>
-        <p class="dim-note">Three independent confirmed triggers, each individually sufficient under Prasine methodology: the LobbyMap D+ obstruction rating, the 2020 ASA prior ruling, and the source-document substantiation failure (confidence 0.95). Emissions discrepancy is capped at moderate confidence (55/100) because Ryanair has no EU ETS installations to verify against — a disclosed data gap that lowers confidence to 85% but does not affect the CONFIRMED floor.</p>
+        <p class="dim-note">Three independent confirmed triggers, each individually sufficient under Prasine methodology: the LobbyMap D+ obstruction rating, the 2020 ASA prior ruling, and the source-document substantiation failure (confidence 0.95). Emissions discrepancy is capped at moderate confidence (55/100) because Ryanair has no EU ETS installations to verify against, a disclosed data gap that lowers confidence to 85% but does not affect the CONFIRMED floor.</p>
 
         <!-- Data gaps -->
         <div class="report-h2">Data gaps</div>
@@ -838,7 +838,7 @@
             <tr>
               <td>EU ETS Verified Emissions (EUTL)</td>
               <td>Not registered</td>
-              <td style="font-size:12px">No installation IDs registered for Ryanair in queried EU ETS records; aviation emissions could not be verified at ground-truth level. Caps confidence at 85% but does not affect the lobbying, prior-ruling, or substantiation triggers — each independently sufficient.</td>
+              <td style="font-size:12px">No installation IDs registered for Ryanair in queried EU ETS records; aviation emissions could not be verified at ground-truth level. Caps confidence at 85% but does not affect the lobbying, prior-ruling, or substantiation triggers, each independently sufficient.</td>
             </tr>
             <tr>
               <td>Scope 1, 2 and 3 absolute emissions</td>
@@ -856,15 +856,15 @@
         <!-- Sources -->
         <div class="report-h2">Sources</div>
         <ol class="sources-ol">
-          <li>LobbyMap — Corporate Climate Policy Engagement Score, accessed 2026-07-01. https://lobbymap.org/</li>
-          <li>EU Transparency Register — Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-07-01</li>
-          <li>UK ASA Ruling G20-1089921 — Ryanair DAC, 2020-02-05. https://www.asa.org.uk/rulings/ryanair-dac-g20-1089921-ryanair-dac.html</li>
-          <li>Ryanair — Trinity College Dublin partnership announcement, corporate.ryanair.com/news, retrieved 2026-07-01</li>
-          <li>European Commission / CPC Network — Coordinated Action on Airline Environmental Claims, 2024. IP_24_2057</li>
-          <li>Directive (EU) 2024/825 (EmpCo) — EUR-Lex CELEX:32024L0825</li>
-          <li>Directive (EU) 2022/2464 (CSRD) — EUR-Lex CELEX:32022L2464</li>
-          <li>Science Based Targets initiative — Companies Taking Action, accessed 2026-07-01</li>
-          <li>Transition Pathway Initiative — Corporates, accessed 2026-07-01</li>
+          <li>LobbyMap: Corporate Climate Policy Engagement Score, accessed 2026-07-01. https://lobbymap.org/</li>
+          <li>EU Transparency Register: Ryanair Holdings plc (reg. 002977215945-85), accessed 2026-07-01</li>
+          <li>UK ASA Ruling G20-1089921: Ryanair DAC, 2020-02-05. https://www.asa.org.uk/rulings/ryanair-dac-g20-1089921-ryanair-dac.html</li>
+          <li>Ryanair: Trinity College Dublin partnership announcement, corporate.ryanair.com/news, retrieved 2026-07-01</li>
+          <li>European Commission / CPC Network: Coordinated Action on Airline Environmental Claims, 2024. IP_24_2057</li>
+          <li>Directive (EU) 2024/825 (EmpCo): EUR-Lex CELEX:32024L0825</li>
+          <li>Directive (EU) 2022/2464 (CSRD): EUR-Lex CELEX:32022L2464</li>
+          <li>Science Based Targets initiative: Companies Taking Action, accessed 2026-07-01</li>
+          <li>Transition Pathway Initiative: Corporates, accessed 2026-07-01</li>
         </ol>
 
       </div>
@@ -883,7 +883,7 @@
     <div class="section-label">Calibration</div>
     <h2>One pipeline. Both ends of the scale.</h2>
     <p class="section-desc">
-      The same seven-agent pipeline and the same 22 EU data sources produce this. The score is evidence, not editorial — confirmed greenwashing and a substantiated record, side by side.
+      The same seven-agent pipeline and the same 22 EU data sources produce this. The score is evidence, not editorial: confirmed greenwashing and a substantiated record, side by side.
     </p>
 
     <div class="contrast-panel">
@@ -921,7 +921,7 @@
       <!-- ── Pipeline Assessments ── -->
       <div style="grid-column: 1 / -1; padding: 4px 0 12px;">
         <div class="section-label">7 more company assessments</div>
-        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments run with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates, floored at the worst claim's verdict band; verdict badges derive from the numeric score. Ryanair (86/100) is featured above. The scale works both ways — Ørsted (18/100, SUBSTANTIATED) is backed by EU ETS verified data showing its largest plants falling to near-zero.</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:4px; max-width:600px;">All 7-claim assessments run with the Opus 4.8 judge. Scores are top-3 severity-weighted company aggregates, floored at the worst claim's verdict band; verdict badges derive from the numeric score. Ryanair (86/100) is featured above. The scale works both ways: Ørsted (18/100, SUBSTANTIATED) is backed by EU ETS verified data showing its largest plants falling to near-zero.</div>
       </div>
 
       <!-- BP plc -->
@@ -947,25 +947,25 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>GCEL — 100 Mtpa coal expansion confirmed</strong> — Urgewald records Glencore as actively expanding coal capacity (mining + power), and as the world's largest coal exporter. Directly contradicts the net-zero ambition.</span>
+              <span><strong>GCEL: 100 Mtpa coal expansion confirmed</strong>. Urgewald records Glencore as actively expanding coal capacity (mining + power), and as the world's largest coal exporter. Directly contradicts the net-zero ambition.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>LobbyMap D+ — obstructive engagement</strong> — Company actively opposes the climate legislation required to deliver net-zero, while the claim is explicitly conditioned on a "supportive policy environment." Self-defeating contradiction. D+ alone triggers CONFIRMED status.</span>
+              <span><strong>LobbyMap D+: obstructive engagement</strong>. Company actively opposes the climate legislation required to deliver net-zero, while the claim is explicitly conditioned on a "supportive policy environment." Self-defeating contradiction. D+ alone triggers CONFIRMED status.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-amber"></span>
-              <span><strong>UK CMA 2023 + EmpCo failure</strong> — CMA flagged "net-zero with coal expansion" as potentially misleading. Own disclosure fails EmpCo: no 2040 interim target, no abatement/removal split, offset reliance blacklisted.</span>
+              <span><strong>UK CMA 2023 + EmpCo failure</strong>: CMA flagged "net-zero with coal expansion" as potentially misleading. Own disclosure fails EmpCo: no 2040 interim target, no abatement/removal split, offset reliance blacklisted.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 86/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">GCEL — 100 Mtpa coal expansion (mining + power), world's largest coal exporter</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
-              <div class="sw-row"><span class="sw-source">LobbyMap D+ — actively obstructs climate legislation (confirmed trigger)</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">Source document — offsets/credits relied on, no 2040 interim, no removal split</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
-              <div class="sw-row"><span class="sw-source">UK CMA 2023 — "net-zero + coal expansion" under investigation</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
-              <div class="sw-row"><span class="sw-source">CA100+ 2025 — Net Zero Ambition Yes, Capex Partial</span><span class="sw-badge sw-support">Supports · 0.65</span></div>
+              <div class="sw-row"><span class="sw-source">GCEL: 100 Mtpa coal expansion (mining + power), world's largest coal exporter</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">LobbyMap D+: actively obstructs climate legislation (confirmed trigger)</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">Source document: offsets/credits relied on, no 2040 interim, no removal split</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">UK CMA 2023: "net-zero + coal expansion" under investigation</span><span class="sw-badge sw-contra">Contradicts · 0.80</span></div>
+              <div class="sw-row"><span class="sw-source">CA100+ 2025: Net Zero Ambition Yes, Capex Partial</span><span class="sw-badge sw-support">Supports · 0.65</span></div>
               <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (89, 85, 83) = 86/100. The net-zero claim (89/100) is self-negating: conditioned on "a supportive policy environment" while Glencore's own lobbying is rated obstructive (D+). Core-business coal expansion (GCEL, 100 Mtpa) is the second trigger. A substantiated tailings claim (18/100) shows the spread. Confidence 85%.</p>
             </div>
           </details>
@@ -994,27 +994,27 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>GOGET — 163 fields, 10 with FID</strong> — BP holds 163 extraction fields across 21 countries; 10 with committed capital deployed for new extraction. Directly contradicts a net-zero ambition.</span>
+              <span><strong>GOGET: 163 fields, 10 with FID</strong>. BP holds 163 extraction fields across 21 countries; 10 with committed capital deployed for new extraction. Directly contradicts a net-zero ambition.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>ASA ruling 2019 — confirmed misleading</strong> — UK ASA found BP advertisements created a misleading impression of environmental performance by featuring low-carbon activities representing a fraction of business. Prior binding ruling.</span>
+              <span><strong>ASA ruling 2019: confirmed misleading</strong>. UK ASA found BP advertisements created a misleading impression of environmental performance by featuring low-carbon activities representing a fraction of business. Prior binding ruling.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>TPI — Not Aligned at CP 2025, 2035 and 2050</strong> — Used by 150+ investors ($80tn AUM). BP's disclosed emissions pathway exceeds the TPI sector benchmark at all three checkpoints.</span>
+              <span><strong>TPI: Not Aligned at CP 2025, 2035 and 2050</strong>. Used by 150+ investors ($80tn AUM). BP's disclosed emissions pathway exceeds the TPI sector benchmark at all three checkpoints.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 81/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">GOGEL — actively expanding O&G capacity, LNG expansion confirmed</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
-              <div class="sw-row"><span class="sw-source">GOGET — 163 fields, 10 with FID (Angola, Trinidad, US, Egypt)</span><span class="sw-badge sw-contra">Contradicts · 0.87</span></div>
-              <div class="sw-row"><span class="sw-source">ASA 2019 — binding ruling: misleading green advertising confirmed</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
-              <div class="sw-row"><span class="sw-source">TPI 2022 — Not Aligned at 2025, 2035 and 2050</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">EGT — 3 European gas assets in active development</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">Source document — no interim 2035/2040 targets, no removal/abatement split</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (86, 85, 62), floored at the confirmed band = 81/100. Two net-zero claims individually score CONFIRMED (85–86: 10 FID extraction fields, ASA 2019 prior ruling, TPI Not Aligned) — a confirmed finding cannot be averaged away; milder claims place the company at the bottom of the band. Confidence 82%.</p>
+              <div class="sw-row"><span class="sw-source">GOGEL: actively expanding O&G capacity, LNG expansion confirmed</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">GOGET: 163 fields, 10 with FID (Angola, Trinidad, US, Egypt)</span><span class="sw-badge sw-contra">Contradicts · 0.87</span></div>
+              <div class="sw-row"><span class="sw-source">ASA 2019: binding ruling, misleading green advertising confirmed</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">TPI 2022: Not Aligned at 2025, 2035 and 2050</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">EGT: 3 European gas assets in active development</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">Source document: no interim 2035/2040 targets, no removal/abatement split</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (86, 85, 62), floored at the confirmed band = 81/100. Two net-zero claims individually score CONFIRMED (85–86: 10 FID extraction fields, ASA 2019 prior ruling, TPI Not Aligned). A confirmed finding cannot be averaged away; milder claims place the company at the bottom of the band. Confidence 82%.</p>
             </div>
           </details>
           <a href="reports/bp-plc.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1042,28 +1042,28 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>GOGEL — active LNG expansion</strong> — Listed as actively expanding oil &amp; gas capacity with confirmed LNG expansion. EGT confirms Porto Empedocle LNG Terminal (Italy) in active development, locking in decades of fossil demand.</span>
+              <span><strong>GOGEL: active LNG expansion</strong>. Listed as actively expanding oil &amp; gas capacity with confirmed LNG expansion. EGT confirms Porto Empedocle LNG Terminal (Italy) in active development, locking in decades of fossil demand.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>SBTi + TPI — credible 2040 pathway</strong> — SBTi records net-zero targets set at 1.5°C. TPI rates Management Quality Level 4 and Carbon Performance 2025/2035 at 1.5°C. 31 of 44 coal units retiring or cancelled.</span>
+              <span><strong>SBTi + TPI: credible 2040 pathway</strong>. SBTi records net-zero targets set at 1.5°C. TPI rates Management Quality Level 4 and Carbon Performance 2025/2035 at 1.5°C. 31 of 44 coal units retiring or cancelled.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>No-offsets policy + SBTi certification cap the score</strong> — An explicit no-offsets policy and 1.5°C SBTi-certified targets prevent escalation beyond MISLEADING; the gap is between the stated ambition and current fossil infrastructure investment.</span>
+              <span><strong>No-offsets policy + SBTi certification cap the score</strong>: An explicit no-offsets policy and 1.5°C SBTi-certified targets prevent escalation beyond MISLEADING; the gap is between the stated ambition and current fossil infrastructure investment.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 55/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">GOGEL — LNG expansion confirmed; fails oil &amp; gas screen</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">EGT — Porto Empedocle LNG Terminal (Italy, proposed), 40+ year lock-in</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">GOGET — 12 O&G fields, 11 operating, 1 pre-FID (Algeria)</span><span class="sw-badge sw-contra">Contradicts · 0.72</span></div>
-              <div class="sw-row"><span class="sw-source">Source document — fails all 7 EmpCo substantiation elements</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
-              <div class="sw-row"><span class="sw-source">SBTi — 1.5°C net-zero targets set</span><span class="sw-badge sw-support">Supports · 0.90</span></div>
-              <div class="sw-row"><span class="sw-source">TPI — MQ Level 4 (Strategic), CP 2025/2035 at 1.5°C</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
-              <div class="sw-row"><span class="sw-source">GCPT — 31/44 coal units retiring or cancelled</span><span class="sw-badge sw-support">Supports · 0.80</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (58, 54, 52) = 55/100. Verified LNG expansion (GOGEL, EGT — Porto Empedocle) and 12 active O&amp;G fields (GOGET) undercut the "100% GHG-free by 2040" ambition; a 95% verified coal-capacity reduction scores lowest (22/100). Source: ESG Focus for Investors 2026 PDF. Confidence 61%.</p>
+              <div class="sw-row"><span class="sw-source">GOGEL: LNG expansion confirmed; fails oil &amp; gas screen</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">EGT: Porto Empedocle LNG Terminal (Italy, proposed), 40+ year lock-in</span><span class="sw-badge sw-contra">Contradicts · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">GOGET: 12 O&G fields, 11 operating, 1 pre-FID (Algeria)</span><span class="sw-badge sw-contra">Contradicts · 0.72</span></div>
+              <div class="sw-row"><span class="sw-source">Source document: fails all 7 EmpCo substantiation elements</span><span class="sw-badge sw-contra">Contradicts · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi: 1.5°C net-zero targets set</span><span class="sw-badge sw-support">Supports · 0.90</span></div>
+              <div class="sw-row"><span class="sw-source">TPI: MQ Level 4 (Strategic), CP 2025/2035 at 1.5°C</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">GCPT: 31/44 coal units retiring or cancelled</span><span class="sw-badge sw-support">Supports · 0.80</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (58, 54, 52) = 55/100. Verified LNG expansion (GOGEL, EGT: Porto Empedocle) and 12 active O&amp;G fields (GOGET) undercut the "100% GHG-free by 2040" ambition; a 95% verified coal-capacity reduction scores lowest (22/100). Source: ESG Focus for Investors 2026 PDF. Confidence 61%.</p>
             </div>
           </details>
           <a href="reports/enel-spa.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1091,25 +1091,25 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>EmpCo Directive — neutralisation claim unsubstantiated</strong> — IKEA's own FY24 disclosure, the highest-confidence source in the assessment, confirms no certified permanent removal mechanism, no quantified abatement-versus-removal split, and no verified transition plan behind the carbon-neutralisation claim.</span>
+              <span><strong>EmpCo Directive: neutralisation claim unsubstantiated</strong>. IKEA's own FY24 disclosure, the highest-confidence source in the assessment, confirms no certified permanent removal mechanism, no quantified abatement-versus-removal split, and no verified transition plan behind the carbon-neutralisation claim.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>SBTi — Targets set, 1.5°C</strong> — Externally validated net-zero target framework demonstrates the ambition is not pure invention. LobbyMap B-band — supportive engagement, no obstruction.</span>
+              <span><strong>SBTi: Targets set, 1.5°C</strong>. Externally validated net-zero target framework demonstrates the ambition is not pure invention. LobbyMap B-band: supportive engagement, no obstruction.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-gray"></span>
-              <span><strong>No EU ETS baseline</strong> — IKEA holds no installation IDs; independent regulatory ground-truth emissions data is unavailable. Claim cannot be audited through EU regulatory channels.</span>
+              <span><strong>No EU ETS baseline</strong>: IKEA holds no installation IDs; independent regulatory ground-truth emissions data is unavailable. Claim cannot be audited through EU regulatory channels.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 50/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">Source document — all 7 EmpCo substantiation elements absent</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
-              <div class="sw-row"><span class="sw-source">EU ETS — no installations, no independent emissions ground-truth</span><span class="sw-badge sw-neutral">Absent · —</span></div>
-              <div class="sw-row"><span class="sw-source">SBTi — Targets set, 1.5°C classification</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
-              <div class="sw-row"><span class="sw-source">LobbyMap B — supportive engagement, no obstruction trigger</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (54, 49, 47) = 50/100. The neutralisation claim (54/100) is asserted without the substantiation EmpCo requires; verified abatement progress is genuine — a product-use emissions claim scores lowest (22/100). No confirmed trigger met. Confidence 65%.</p>
+              <div class="sw-row"><span class="sw-source">Source document: all 7 EmpCo substantiation elements absent</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS: no installations, no independent emissions ground-truth</span><span class="sw-badge sw-neutral">Absent · n/a</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi: Targets set, 1.5°C classification</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">LobbyMap B: supportive engagement, no obstruction trigger</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (54, 49, 47) = 50/100. The neutralisation claim (54/100) is asserted without the substantiation EmpCo requires; verified abatement progress is genuine. A product-use emissions claim scores lowest (22/100). No confirmed trigger met. Confidence 65%.</p>
             </div>
           </details>
           <a href="reports/ikea-group.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1137,25 +1137,25 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-red"></span>
-              <span><strong>First report with EU ETS ground truth</strong> — verified registry data for SSAB's core installations: Luleå (SE_495) 2.88 Mt CO₂e in 2025, up 138% from the 2013 baseline; Oxelösund (SE_494) 1.54 Mt, up 5%. Marketing claims present-tense "elimination" of CO₂ while verified emissions sit at or above 2013 levels.</span>
+              <span><strong>First report with EU ETS ground truth</strong>: verified registry data for SSAB's core installations: Luleå (SE_495) 2.88 Mt CO₂e in 2025, up 138% from the 2013 baseline; Oxelösund (SE_494) 1.54 Mt, up 5%. Marketing claims present-tense "elimination" of CO₂ while verified emissions sit at or above 2013 levels.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>HYBRIT is genuine — the timeline framing is not</strong> — SBTi Paris-aligned targets and a TPI strategic rating distinguish SSAB from fabricated net-zero claims. The pilot-stage R&amp;D programme is real; presenting it as an achieved product outcome is the substantiation failure.</span>
+              <span><strong>HYBRIT is genuine; the timeline framing is not</strong>: SBTi Paris-aligned targets and a TPI strategic rating distinguish SSAB from fabricated net-zero claims. The pilot-stage R&amp;D programme is real; presenting it as an achieved product outcome is the substantiation failure.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-gray"></span>
-              <span><strong>One claim substantiated</strong> — a GreenCoat product-longevity claim scored 18/100. LobbyMap C+ (neutral); no lobbying contradiction found.</span>
+              <span><strong>One claim substantiated</strong>: a GreenCoat product-longevity claim scored 18/100. LobbyMap C+ (neutral); no lobbying contradiction found.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 45/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">EU ETS SE_495 (Luleå) — 2,882,766 tCO₂e 2025, UP 138% vs 2013</span><span class="sw-badge sw-contra">Contradicts · 0.50</span></div>
-              <div class="sw-row"><span class="sw-source">EU ETS SE_494 (Oxelösund) — 1,537,703 tCO₂e 2025, UP 5% vs 2013</span><span class="sw-badge sw-contra">Contradicts · 0.50</span></div>
-              <div class="sw-row"><span class="sw-source">Climate TRACE — satellite estimates corroborate registry levels</span><span class="sw-badge sw-contra">Contradicts · —</span></div>
-              <div class="sw-row"><span class="sw-source">SBTi — validated Paris-aligned targets; TPI strategic rating</span><span class="sw-badge sw-support">Supports · —</span></div>
-              <div class="sw-row"><span class="sw-source">LobbyMap — C+ aggregate, no contradiction detected</span><span class="sw-badge sw-neutral">Neutral · —</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS SE_495 (Luleå): 2,882,766 tCO₂e 2025, UP 138% vs 2013</span><span class="sw-badge sw-contra">Contradicts · 0.50</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS SE_494 (Oxelösund): 1,537,703 tCO₂e 2025, UP 5% vs 2013</span><span class="sw-badge sw-contra">Contradicts · 0.50</span></div>
+              <div class="sw-row"><span class="sw-source">Climate TRACE: satellite estimates corroborate registry levels</span><span class="sw-badge sw-contra">Contradicts · n/a</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi: validated Paris-aligned targets; TPI strategic rating</span><span class="sw-badge sw-support">Supports · n/a</span></div>
+              <div class="sw-row"><span class="sw-source">LobbyMap: C+ aggregate, no contradiction detected</span><span class="sw-badge sw-neutral">Neutral · n/a</span></div>
               <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (54, 44, 38) = 45/100. Present-tense "elimination" claims for pilot-stage products fail EmpCo substantiation while verified emissions remain at or above baseline; genuine R&amp;D and validated targets keep this MISLEADING rather than LIKELY. Confidence ~55%.</p>
             </div>
           </details>
@@ -1184,25 +1184,25 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-amber"></span>
-              <span><strong>Better-constructed than most net-zero pledges — but under-substantiated</strong> — The 2040 target names a baseline year (2019), a reduction percentage (90% absolute, Scope 1–3), interim progress (41% S1+2, 35% S3), and specifies permanent removals over offsets. Yet it discloses no absolute baseline emissions figures and no certified removal mechanism detail — failing EmpCo's substantiation standard (52/100, MISLEADING).</span>
+              <span><strong>Better-constructed than most net-zero pledges, but under-substantiated</strong>: The 2040 target names a baseline year (2019), a reduction percentage (90% absolute, Scope 1–3), interim progress (41% S1+2, 35% S3), and specifies permanent removals over offsets. Yet it discloses no absolute baseline emissions figures and no certified removal mechanism detail, failing EmpCo's substantiation standard (52/100, MISLEADING).</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>SBTi — "Targets set", 1.5°C</strong> — Validated target trajectory with a net-zero component on record; moderate support (confidence 0.70). Ambiguity remains on whether the 2040 net-zero component itself is separately validated.</span>
+              <span><strong>SBTi: "Targets set", 1.5°C</strong>. Validated target trajectory with a net-zero component on record; moderate support (confidence 0.70). Ambiguity remains on whether the 2040 net-zero component itself is separately validated.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-gray"></span>
-              <span><strong>No EU ETS installations — six of seven claims unverifiable</strong> — As an apparel retailer, H&amp;M has no ETS-registered installations; ground-truth emissions verification is unavailable, capping confidence at 62%.</span>
+              <span><strong>No EU ETS installations: six of seven claims unverifiable</strong>. As an apparel retailer, H&amp;M has no ETS-registered installations; ground-truth emissions verification is unavailable, capping confidence at 62%.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 41/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">Source document — no absolute baseline figures, no abatement/removal split, no removal mechanism detail</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
-              <div class="sw-row"><span class="sw-source">SBTi — "Targets set", 1.5°C classification, net-zero component recorded</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
-              <div class="sw-row"><span class="sw-source">EU ETS — no installations; ground-truth verification unavailable</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
-              <div class="sw-row"><span class="sw-source">EU Transparency Register / LobbyMap — lookup unavailable this run</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (52, 33, 24), floored at the misleading band = 41/100. The 2040 net-zero claim scores MISLEADING (52/100) on substantiation gaps — a proven finding cannot be averaged away; the six UNVERIFIABLE claims (data gaps, not contradictions) place the company at the bottom of the band. Confidence 62%.</p>
+              <div class="sw-row"><span class="sw-source">Source document: no absolute baseline figures, no abatement/removal split, no removal mechanism detail</span><span class="sw-badge sw-contra">Contradicts · 0.95</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi: "Targets set", 1.5°C classification, net-zero component recorded</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS: no installations; ground-truth verification unavailable</span><span class="sw-badge sw-neutral">Data gap · n/a</span></div>
+              <div class="sw-row"><span class="sw-source">EU Transparency Register / LobbyMap: lookup unavailable this run</span><span class="sw-badge sw-neutral">Data gap · n/a</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (52, 33, 24), floored at the misleading band = 41/100. The 2040 net-zero claim scores MISLEADING (52/100) on substantiation gaps. A proven finding cannot be averaged away; the six UNVERIFIABLE claims (data gaps, not contradictions) place the company at the bottom of the band. Confidence 62%.</p>
             </div>
           </details>
           <a href="reports/h-m-group.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1230,27 +1230,27 @@
           <div class="mini-evidence">
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>The index can say yes — backed by EU-verified ground truth</strong> — all 7 claims SUBSTANTIATED, the lowest score in the index. EU ETS verified registry data shows Ørsted's largest plants collapsing to near-zero: Studstrupværket 2.23 Mt (2005) → 15,560 t (2025), Esbjergværket 1.50 Mt → 0. Structural decarbonisation, not accounting.</span>
+              <span><strong>The index can say yes, backed by EU-verified ground truth</strong>: all 7 claims SUBSTANTIATED, the lowest score in the index. EU ETS verified registry data shows Ørsted's largest plants collapsing to near-zero: Studstrupværket 2.23 Mt (2005) → 15,560 t (2025), Esbjergværket 1.50 Mt → 0. Structural decarbonisation, not accounting.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-green"></span>
-              <span><strong>Five of five sources corroborate, zero contradict</strong> — SBTi validated 1.5°C net-zero 2040; all 10 coal units retiring (GCPT); minimal gas footprint (EGT); LobbyMap B rules out the obstruction pattern. None of fifteen evidence records contradicts the claim.</span>
+              <span><strong>Five of five sources corroborate, zero contradict</strong>: SBTi validated 1.5°C net-zero 2040; all 10 coal units retiring (GCPT); minimal gas footprint (EGT); LobbyMap B rules out the obstruction pattern. None of fifteen evidence records contradicts the claim.</span>
             </div>
             <div class="mini-ev">
               <span class="mini-ev-dot dot-gray"></span>
-              <span><strong>Honest residual gap</strong> — the methodology page returned HTTP 403, so the exact intensity denominator couldn't be verified; the score sits at the top of the substantiated band rather than the bottom. Confidence 77%.</span>
+              <span><strong>Honest residual gap</strong>: the methodology page returned HTTP 403, so the exact intensity denominator couldn't be verified; the score sits at the top of the substantiated band rather than the bottom. Confidence 77%.</span>
             </div>
           </div>
           <details class="score-expand">
             <summary>Why 18/100?</summary>
             <div class="score-expand-body">
-              <div class="sw-row"><span class="sw-source">EU ETS DK_71 (Studstrup) — 2,227,935 → 15,560 tCO₂e, down 99%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">EU ETS DK_80 (Esbjerg) — 1,502,942 → 0 tCO₂e, down 100%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
-              <div class="sw-row"><span class="sw-source">GCPT — all 10 coal units retiring; structural, not accounting</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
-              <div class="sw-row"><span class="sw-source">SBTi — validated 1.5°C net-zero 2040</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
-              <div class="sw-row"><span class="sw-source">LobbyMap — B band, supportive; no obstruction pattern</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
-              <div class="sw-row"><span class="sw-source">Source document — methodology page HTTP 403</span><span class="sw-badge sw-neutral">Data gap · —</span></div>
-              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (18, 18, 17) = 18/100 SUBSTANTIATED. Fifteen evidence checks, zero contradictions. The only reason the score isn't lower is an honest data gap — the 403-blocked methodology page — not any adverse finding. Confidence 77%.</p>
+              <div class="sw-row"><span class="sw-source">EU ETS DK_71 (Studstrup): 2,227,935 → 15,560 tCO₂e, down 99%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">EU ETS DK_80 (Esbjerg): 1,502,942 → 0 tCO₂e, down 100%</span><span class="sw-badge sw-support">Supports · 0.85</span></div>
+              <div class="sw-row"><span class="sw-source">GCPT: all 10 coal units retiring; structural, not accounting</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">SBTi: validated 1.5°C net-zero 2040</span><span class="sw-badge sw-support">Supports · 0.70</span></div>
+              <div class="sw-row"><span class="sw-source">LobbyMap: B band, supportive; no obstruction pattern</span><span class="sw-badge sw-support">Supports · 0.75</span></div>
+              <div class="sw-row"><span class="sw-source">Source document: methodology page HTTP 403</span><span class="sw-badge sw-neutral">Data gap · n/a</span></div>
+              <p class="sw-finding">Company aggregate: top-3 severity-weighted across 7 claims (18, 18, 17) = 18/100 SUBSTANTIATED. Fifteen evidence checks, zero contradictions. The only reason the score isn't lower is an honest data gap (the 403-blocked methodology page), not any adverse finding. Confidence 77%.</p>
             </div>
           </details>
           <a href="reports/orsted-a-s.md" style="font-size:12px; color:var(--muted); margin-top:4px; display:inline-block;">View full report →</a>
@@ -1268,108 +1268,108 @@
     <h2>22 open data sources.</h2>
     <p class="section-desc">
       All EU open data. No proprietary APIs. Every source is independently authoritative.
-      The 22nd source is the document the claim itself cites — fetched and analysed via the Anthropic document API.
+      The 22nd source is the document the claim itself cites, fetched and analysed via the Anthropic document API.
     </p>
     <div class="sources-grid">
       <div class="source-card">
         <div class="source-name">EU ETS / EUTL</div>
         <div class="source-desc">Verified annual CO₂ emissions per installation, 2005–present. Third-party verified under EU Regulation 601/2012.</div>
-        <div class="source-status"><span class="dot active"></span> Active — daily snapshot</div>
+        <div class="source-status"><span class="dot active"></span> Active · daily snapshot</div>
       </div>
       <div class="source-card">
         <div class="source-name">SBTi</div>
-        <div class="source-desc">Science-based targets — validated, committed, and removed. A removed target is a CONFIRMED_GREENWASHING signal at 0.95 confidence.</div>
-        <div class="source-status"><span class="dot active"></span> Active — quarterly</div>
+        <div class="source-desc">Science-based targets: validated, committed, and removed. A removed target is a CONFIRMED_GREENWASHING signal at 0.95 confidence.</div>
+        <div class="source-status"><span class="dot active"></span> Active · quarterly</div>
       </div>
       <div class="source-card">
         <div class="source-name">LobbyMap</div>
         <div class="source-desc">Corporate climate policy engagement scores A+ to F. A D/E/F company claiming climate leadership is textbook greenwashing.</div>
-        <div class="source-status"><span class="dot active"></span> Active — bulk CSV</div>
+        <div class="source-status"><span class="dot active"></span> Active · bulk CSV</div>
       </div>
       <div class="source-card">
         <div class="source-name">Enforcement Rulings</div>
-        <div class="source-desc">ASA, ACM, AGCM, CMA, EC rulings and court judgments. A prior ruling is the strongest possible evidence — an authority has already decided.</div>
-        <div class="source-status"><span class="dot active"></span> Active — curated static</div>
+        <div class="source-desc">ASA, ACM, AGCM, CMA, EC rulings and court judgments. A prior ruling is the strongest possible evidence: an authority has already decided.</div>
+        <div class="source-status"><span class="dot active"></span> Active · curated static</div>
       </div>
       <div class="source-card">
         <div class="source-name">CA100+</div>
         <div class="source-desc">Net-zero benchmark from 700+ investors ($68tn AUM) for the 170 largest emitters. "Not Aligned" contradicts net-zero claims.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">E-PRTR</div>
-        <div class="source-desc">EEA-verified non-CO₂ GHG releases (CH₄, N₂O, HFCs) per facility — emissions not covered by EU ETS.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-desc">EEA-verified non-CO₂ GHG releases (CH₄, N₂O, HFCs) per facility: emissions not covered by EU ETS.</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">Banking on Climate Chaos</div>
         <div class="source-desc">Fossil fuel financing by the 60 largest banks, 2016–present. Banks claiming net zero while financing hundreds of billions in fossil expansion.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">Global Coal Exit List</div>
         <div class="source-desc">~1,000 companies active in the coal value chain. Expanding coal capacity while claiming clean energy transition.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">EU Transparency Register</div>
         <div class="source-desc">Brussels lobbying declarations. Companies lobbying against climate legislation while claiming green leadership is flagged explicitly.</div>
-        <div class="source-status"><span class="dot active"></span> Active — XLSX bulk export</div>
+        <div class="source-status"><span class="dot active"></span> Active · XLSX bulk export</div>
       </div>
       <div class="source-card">
         <div class="source-name">EEA National Totals</div>
         <div class="source-desc">EEA-verified national GHG inventory totals per country, 1990-present. Official EU submission benchmarks for company percentage claims.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">EU Innovation Fund</div>
         <div class="source-desc">EU-funded decarbonisation projects (steel, cement, chemicals, hydrogen). Context for whether claimed green investments match the scale of emissions.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">Urgewald GOGEL</div>
-        <div class="source-desc">~1,000 companies active in global oil and gas expansion. The O&G equivalent of GCEL — used by 400+ financial institutions under GFANZ.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual</div>
+        <div class="source-desc">~1,000 companies active in global oil and gas expansion. The O&G equivalent of GCEL, used by 400+ financial institutions under GFANZ.</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual</div>
       </div>
       <div class="source-card">
         <div class="source-name">Climate TRACE</div>
-        <div class="source-desc">Independent facility-level emissions estimates from satellite imagery and remote sensing — not self-reported, not government-submitted.</div>
-        <div class="source-status"><span class="dot active"></span> Active — v7 API</div>
+        <div class="source-desc">Independent facility-level emissions estimates from satellite imagery and remote sensing: not self-reported, not government-submitted.</div>
+        <div class="source-status"><span class="dot active"></span> Active · v7 API</div>
       </div>
       <div class="source-card">
         <div class="source-name">TPI (Transition Pathway Initiative)</div>
         <div class="source-desc">Management quality and carbon performance benchmarks for 491 listed companies. "Not Aligned" by 2050 directly contradicts net-zero claims.</div>
-        <div class="source-status"><span class="dot active"></span> Active — annual CSV</div>
+        <div class="source-status"><span class="dot active"></span> Active · annual CSV</div>
       </div>
       <div class="source-card">
         <div class="source-name">GEM Coal Plant Tracker</div>
-        <div class="source-desc">Every coal power plant worldwide — status, capacity, and owner. A company expanding coal while claiming clean energy transition is directly contradicted.</div>
-        <div class="source-status"><span class="dot active"></span> Active — January 2026</div>
+        <div class="source-desc">Every coal power plant worldwide: status, capacity, and owner. A company expanding coal while claiming clean energy transition is directly contradicted.</div>
+        <div class="source-status"><span class="dot active"></span> Active · January 2026</div>
       </div>
       <div class="source-card">
         <div class="source-name">GEM Europe Gas Tracker</div>
         <div class="source-desc">Gas pipelines, LNG terminals, and gas plants across Europe. New gas infrastructure under construction contradicts Paris-aligned transition claims.</div>
-        <div class="source-status"><span class="dot active"></span> Active — March 2026</div>
+        <div class="source-status"><span class="dot active"></span> Active · March 2026</div>
       </div>
       <div class="source-card">
         <div class="source-name">GEM Oil &amp; Gas Extraction Tracker</div>
         <div class="source-desc">Oil and gas extraction fields worldwide. Fields in active development (FID taken) mean capital committed to decades of upstream fossil fuel production.</div>
-        <div class="source-status"><span class="dot active"></span> Active — March 2026</div>
+        <div class="source-status"><span class="dot active"></span> Active · March 2026</div>
       </div>
       <div class="source-card">
         <div class="source-name">EDGAR JRC</div>
         <div class="source-desc">JRC independent GHG estimates for all countries, 1970-2024. Cross-checks Eurostat and EEA figures with the EU Commission's own atmospheric/activity data.</div>
-        <div class="source-status"><span class="dot active"></span> Active — 2025 edition</div>
+        <div class="source-status"><span class="dot active"></span> Active · 2025 edition</div>
       </div>
       <div class="source-card">
         <div class="source-name">EUR-Lex</div>
         <div class="source-desc">EmpCo Directive (EU 2024/825), CSRD ESRS E1, and EU ETS legislation as the regulatory baseline for every verdict.</div>
-        <div class="source-status"><span class="dot active"></span> Active — static standards</div>
+        <div class="source-status"><span class="dot active"></span> Active · static standards</div>
       </div>
       <div class="source-card">
         <div class="source-name">Source Document (22nd)</div>
-        <div class="source-desc">The document the claim explicitly cites — sustainability reports, CSRD filings, IR pages. Fetched live, analysed with the Anthropic document API. Extracts scope 1/2/3 figures, SAF %, and all EmpCo Directive substantiation gaps directly from the company's own disclosure.</div>
-        <div class="source-status"><span class="dot active"></span> Active — live fetch per run</div>
+        <div class="source-desc">The document the claim explicitly cites: sustainability reports, CSRD filings, IR pages. Fetched live, analysed with the Anthropic document API. Extracts scope 1/2/3 figures, SAF %, and all EmpCo Directive substantiation gaps directly from the company's own disclosure.</div>
+        <div class="source-status"><span class="dot active"></span> Active · live fetch per run</div>
       </div>
     </div>
   </div>
@@ -1422,18 +1422,18 @@
       <div style="display:flex; flex-direction:column; gap:10px;">
 
         <div class="step" style="display:block;">
-          <div class="step-name">No LangChain — except where justified.</div>
+          <div class="step-name">No LangChain, except where justified.</div>
           <div class="step-desc" style="margin-top:6px; font-size:13px;">
-            Six of the seven agents are raw Anthropic SDK — single-step operations where the SDK gives better prompt control, cleaner error handling, and no hidden abstraction overhead.
+            Six of the seven agents are raw Anthropic SDK: single-step operations where the SDK gives better prompt control, cleaner error handling, and no hidden abstraction overhead.
             LangGraph is used exactly once: the Verification Agent's parallel fan-out across 22 data sources, with partial-failure tolerance via <code>operator.add</code> reducers.
             That is the problem LangGraph was designed to solve. No others warranted it.
           </div>
         </div>
 
         <div class="step" style="display:block;">
-          <div class="step-name">Pydantic v2 at every boundary — typed or nothing.</div>
+          <div class="step-name">Pydantic v2 at every boundary: typed or nothing.</div>
           <div class="step-desc" style="margin-top:6px; font-size:13px;">
-            All agent inputs and outputs are typed Pydantic models. <code>Claim</code>, <code>VerificationResult</code>, <code>ScoreBreakdown</code>, <code>PipelineResult</code> — no raw dicts cross any boundary.
+            All agent inputs and outputs are typed Pydantic models: <code>Claim</code>, <code>VerificationResult</code>, <code>ScoreBreakdown</code>, <code>PipelineResult</code>. No raw dicts cross any boundary.
             Validation failures are loud and immediate. This is what let a 7-agent pipeline be debugged at the boundary level rather than by tracing state through six layers of untyped output.
           </div>
         </div>
@@ -1442,7 +1442,7 @@
           <div class="step-name">Claim quality filter before Opus spend.</div>
           <div class="step-desc" style="margin-top:6px; font-size:13px;">
             A two-pass extraction model: run <code>--extract-only</code> on Haiku (~$0.01) to preview discovered claims before committing the full Opus judge and report (~$1.15/company).
-            Claims are ranked by a heuristic priority score — category weight, specificity signals (numbers, years, percentages), compound bonus for targets with baseline years — and claims below the minimum threshold are filtered out before verification begins.
+            Claims are ranked by a heuristic priority score (category weight, specificity signals such as numbers, years and percentages, and a compound bonus for targets with baseline years), and claims below the minimum threshold are filtered out before verification begins.
             This makes the pipeline safe to run on unknown URLs without wasting budget on pages that only have generic copy.
           </div>
         </div>
@@ -1487,7 +1487,7 @@
   <div class="container">
     <div class="section-label">Contact</div>
     <h2>Suggest a company</h2>
-    <p class="section-desc">Investigating a company's green claims — as a journalist, NGO researcher, or academic? Send a company, a claim, or just what you're looking into. If it fits the index, I'll run it through the pipeline and publish the evidence chain. Each assessment covers up to 7 claims across 22 open data sources.</p>
+    <p class="section-desc">Investigating a company's green claims as a journalist, NGO researcher, or academic? Send a company, a claim, or just what you're looking into. If it fits the index, I'll run it through the pipeline and publish the evidence chain. Each assessment covers up to 7 claims across 22 open data sources.</p>
     <a href="mailto:cm.blomqvist@gmail.com?subject=Prasine%20Index%20company%20suggestion" class="btn btn-primary" style="font-size:15px; padding:12px 28px;">
       Get in touch
     </a>
@@ -1495,7 +1495,7 @@
       cm.blomqvist@gmail.com
     </p>
     <p style="margin-top:32px; color:var(--faint); font-size:13px; border-top:1px solid var(--border); padding-top:24px;">
-      Built by <strong style="color:var(--muted);">Martin Blomqvist</strong> — EU greenwashing analyst · Prasine Index<br>
+      Built by <strong style="color:var(--muted);">Martin Blomqvist</strong>, EU greenwashing analyst · Prasine Index<br>
       <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
       &nbsp;·&nbsp;
       <a href="https://linkedin.com/in/martin-blomqvist" target="_blank" rel="noopener">LinkedIn</a>
@@ -1506,7 +1506,7 @@
 <!-- ── Footer ── -->
 <footer>
   <div class="inner">
-    <span><span style="color:var(--green-text)">Prasine</span> Index — EU open data, open source · Martin Blomqvist, 2026</span>
+    <span><span style="color:var(--green-text)">Prasine</span> Index: EU open data, open source · Martin Blomqvist, 2026</span>
     <span>
       <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
       &nbsp;·&nbsp;

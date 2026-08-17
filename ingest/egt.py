@@ -1,6 +1,6 @@
 """Europe Gas Tracker (EGT) ingest module for the Prasine Index.
 
-Loads the GEM Europe Gas Tracker Excel file — facility-level data on gas
+Loads the GEM Europe Gas Tracker Excel file: facility-level data on gas
 pipelines, LNG import/export terminals, and oil & gas plants in Europe.
 
 The key greenwashing signal: a European energy company that claims to be
@@ -9,12 +9,12 @@ owning gas pipelines or LNG terminals in active development (proposed or
 under construction) is directly contradicted by its infrastructure pipeline.
 
 Coverage (three sheets used):
-  Gas Pipelines — proposed, under-construction, and operating gas pipelines
+  Gas Pipelines: proposed, under-construction, and operating gas pipelines
     across Europe. Owner and Parent fields identify corporate operators.
-  LNG Terminals — liquefied natural gas import/export terminals. A company
+  LNG Terminals: liquefied natural gas import/export terminals. A company
     claiming gas phase-out while building new LNG import capacity contradicts
-    that claim — LNG infrastructure has a 40-50 year economic lifetime.
-  Oil & Gas Plants — gas-fired power plants in Europe. Expanding gas generation
+    that claim; LNG infrastructure has a 40-50 year economic lifetime.
+  Oil & Gas Plants: gas-fired power plants in Europe. Expanding gas generation
     capacity contradicts renewable energy transition claims.
 
 Status values:
@@ -32,7 +32,7 @@ Greenwashing signal logic:
     → supports_claim=True, confidence=0.55
 
 Data file: data/Europe-Gas-Tracker-2026-03-02.xlsx
-Refresh: scripts/refresh_egt.py (manual — form + reCAPTCHA required)
+Refresh: scripts/refresh_egt.py (manual: form + reCAPTCHA required)
 Coverage: European gas infrastructure, March 2026 release
 """
 
@@ -140,7 +140,7 @@ def _load() -> list[_EGTAsset]:
         import openpyxl
     except ImportError:
         logger.warning(
-            "openpyxl not installed — cannot load EGT data.",
+            "openpyxl not installed: cannot load EGT data.",
             extra={"operation": "egt_openpyxl_missing"},
         )
         _assets = []
@@ -211,7 +211,7 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("Plant name", "") or "").strip()
                 if not name:
                     continue
-                # Owner column may vary — try common names
+                # Owner column may vary: try common names
                 owner = str(r.get("Owner", "") or r.get("Parent", "") or "")
                 assets.append(
                     _EGTAsset(
@@ -320,7 +320,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     }
 
     lines: list[str] = [
-        f"EGT (March 2026): {company_name!r} has {len(matched)} European gas asset(s) — "
+        f"EGT (March 2026): {company_name!r} has {len(matched)} European gas asset(s), "
         f"{type_counts['gas_pipeline']} pipeline(s), "
         f"{type_counts['lng_terminal']} LNG terminal(s), "
         f"{type_counts['gas_plant']} gas plant(s)."
@@ -334,7 +334,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         lines.append(
             f"EXPANDING: {len(expanding)} asset(s) in active development. "
             f"Examples: {exp_names}. "
-            f"European gas infrastructure locks in 40+ years of fossil fuel demand — "
+            f"European gas infrastructure locks in 40+ years of fossil fuel demand; "
             f"directly contradicts fossil gas phase-out or net-zero transition claims."
         )
 
@@ -352,7 +352,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     summary = " ".join(lines)
 
     logger.info(
-        f"EGT: {company_name!r} — {len(expanding)} expanding, "
+        f"EGT: {company_name!r}, {len(expanding)} expanding, "
         f"{len(operating)} operating, {len(exiting)} exiting",
         extra={"operation": "egt_match", "company": company_name},
     )

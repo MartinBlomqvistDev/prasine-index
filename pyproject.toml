@@ -50,7 +50,7 @@ module = [
 ignore_missing_imports = true
 
 # ---------------------------------------------------------------------------
-# ruff — linter and formatter
+# ruff: linter and formatter
 # ---------------------------------------------------------------------------
 
 [tool.ruff]
@@ -74,9 +74,9 @@ select = [
     "ASYNC",# flake8-async
 ]
 ignore = [
-    "E501",   # line too long — handled by formatter
+    "E501",   # line too long, handled by formatter
     "B008",   # do not perform function calls in default arguments (FastAPI pattern)
-    "SIM108", # ternary operator — sometimes less readable
+    "SIM108", # ternary operator, sometimes less readable
     # TC001/002/003: all domain models are runtime objects, not annotation-only
     "TC001",
     "TC002",

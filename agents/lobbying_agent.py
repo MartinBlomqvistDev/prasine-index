@@ -3,7 +3,7 @@
 Cross-references the company against the EU Transparency Register to determine
 whether it is a registered EU lobbyist. Registration data comes from the local
 register export (data/EU_Transparency register_searchExport.xlsx, refreshed via
-scripts/refresh_eu_transparency_register.py) — the same dataset used by the
+scripts/refresh_eu_transparency_register.py), the same dataset used by the
 Verification Agent's register node. Dataset:
 https://data.europa.eu/api/hub/search/datasets/transparency-register
 
@@ -13,7 +13,7 @@ output is therefore contextual: it confirms registered lobbying activity and
 carries the registration metadata into the Judge Agent's evidence package.
 
 A failed or empty lookup is a DATA GAP, never a finding. The agent must not
-produce output implying a company is "not registered" — name matching against
+produce output implying a company is "not registered"; name matching against
 the export is fuzzy and the export may be absent.
 """
 
@@ -81,7 +81,7 @@ class LobbyingAgent:
 
     Looks the company up in the local register export by declared register ID
     first, then by fuzzy name match. When a registration is found, returns a
-    :py:class:`~models.lobbying.LobbyingRecord` with stance UNKNOWN — the
+    :py:class:`~models.lobbying.LobbyingRecord` with stance UNKNOWN; the
     export records registration metadata only, not lobbying positions.
     Direction of lobbying comes from LobbyMap in the Verification Agent.
 
@@ -124,7 +124,7 @@ class LobbyingAgent:
             outcome = AgentOutcome.PARTIAL
             gap_reason = "register_export_unavailable"
             logger.warning(
-                "Lobbying check: local Transparency Register export unavailable — "
+                "Lobbying check: local Transparency Register export unavailable, "
                 "data gap, not evidence of non-registration. "
                 "Run scripts/refresh_eu_transparency_register.py.",
                 extra={"operation": "lobbying_export_unavailable"},
@@ -136,7 +136,7 @@ class LobbyingAgent:
                 gap_reason = "no_match_in_register_export"
                 logger.info(
                     f"Lobbying check: no register-export match for {input.company.name!r} "
-                    "(fuzzy name lookup) — treated as data gap",
+                    "(fuzzy name lookup), treated as data gap",
                     extra={"operation": "lobbying_no_match"},
                 )
             else:
@@ -174,7 +174,7 @@ def _build_record(input: LobbyingInput, registration: dict[str, str]) -> Lobbyin
     """Construct a LobbyingRecord from a register-export match.
 
     The export carries registration metadata only (number, name, status,
-    category, country) — no declared fields of interest or activities — so
+    category, country), with no declared fields of interest or activities, so
     the stance is always UNKNOWN and no contradiction is asserted here.
     LobbyMap evidence in the verification fan-out carries lobbying direction.
 
@@ -202,7 +202,7 @@ def _build_record(input: LobbyingInput, registration: dict[str, str]) -> Lobbyin
             f"{status_word} registrant (category: {registration['category']}, "
             f"HQ: {registration['country']}, reg. no. {registration['reg_number']}). "
             "Registration confirms engagement with EU institutions but does not "
-            "indicate the direction of lobbying — cross-reference LobbyMap evidence "
+            "indicate the direction of lobbying; cross-reference LobbyMap evidence "
             "for lobbying positions."
         ),
         contradicts_claim=False,

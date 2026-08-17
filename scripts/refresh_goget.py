@@ -1,6 +1,6 @@
 """Refresh the GEM Global Oil and Gas Extraction Tracker (GOGET) data.
 
-The GOGET requires a manual download — GEM uses a form with reCAPTCHA:
+The GOGET requires a manual download: GEM uses a form with reCAPTCHA:
 
     1. Go to: https://globalenergymonitor.org/projects/
                global-oil-gas-extraction-tracker/download-data/
@@ -44,10 +44,10 @@ def check_existing() -> None:
             else:
                 fallback = wb.sheetnames[0]
                 ws = wb[fallback]
-                print(f"  Sheet '{_SHEET}' not found — using '{fallback}': ~{ws.max_row - 1} rows")
+                print(f"  Sheet '{_SHEET}' not found: using '{fallback}': ~{ws.max_row - 1} rows")
             wb.close()
         except ImportError:
-            print("  (openpyxl not installed — cannot inspect sheet)")
+            print("  (openpyxl not installed: cannot inspect sheet)")
         except Exception as exc:
             print(f"  WARNING: could not inspect file: {exc}")
     else:

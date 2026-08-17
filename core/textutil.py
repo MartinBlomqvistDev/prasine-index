@@ -2,7 +2,7 @@
 
 Used by the pipeline's page fetcher and the Discovery Agent so both paths
 feed the same clean text to the Extraction Agent. Lives in its own module
-because pipeline.py imports the Discovery Agent — a shared utility here
+because pipeline.py imports the Discovery Agent, a shared utility here
 avoids a circular import.
 """
 
@@ -44,7 +44,7 @@ def html_to_text(html: str) -> str:
     """Extract readable plain text from an HTML document.
 
     Skips script/style/navigation/footer content and collapses excess
-    blank lines. Safe on malformed HTML — the stdlib parser is tolerant.
+    blank lines. Safe on malformed HTML; the stdlib parser is tolerant.
 
     Args:
         html: Raw HTML string.

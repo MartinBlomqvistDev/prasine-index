@@ -2,7 +2,7 @@
 
 Parses the canonical report format produced by the Report Agent and renders
 a print-ready PDF with a score bar, verdict header, evidence chain, and
-methodology note. Uses fpdf2 — pure Python, no system-level dependencies.
+methodology note. Uses fpdf2: pure Python, no system-level dependencies.
 
 Usage:
     from core.pdf_export import report_markdown_to_pdf
@@ -239,9 +239,9 @@ _UNICODE_MAP = str.maketrans(
         "\u201c": '"',  # left double quote
         "\u201d": '"',  # right double quote
         "–": "-",  # en dash
-        "—": "--",  # em dash
+        "—": "--",  # em dash (style-ok: transliteration table)
         "×": "x",  # multiplication sign
-        " ": " ",  # non-breaking space
+        " ": " ",  # non-breaking space (style-ok: transliteration table)
         "°": " deg",  # degree sign
         "€": "EUR",  # euro sign
         "→": "->",  # right arrow

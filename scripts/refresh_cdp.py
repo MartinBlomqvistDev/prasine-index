@@ -1,4 +1,4 @@
-"""CDP corporate climate scores — access notes.
+"""CDP corporate climate scores: access notes.
 
 Run this script to see the current status:
 
@@ -12,21 +12,21 @@ data.cdp.net is CDP's open data portal for CITIES, STATES AND REGIONS only.
 It does not contain current corporate (company) climate scores.
 
 The only company datasets on data.cdp.net are the "Global 500 Emissions and
-Response Status" series from 2011–2013 — roughly 480 companies, 12-year-old
+Response Status" series from 2011–2013, roughly 480 companies, 12-year-old
 data. Not useful for current greenwashing assessment.
 
 Current CDP corporate A/B/C/D/F scores for thousands of companies require
 one of the following:
 
-  (a) CDP investor signatory access — free if your organisation is a
+  (a) CDP investor signatory access: free if your organisation is a
       registered investor. Sign up at: https://www.cdp.net/en/investor-signatories
 
-  (b) CDP company account — companies can download their own data.
+  (b) CDP company account: companies can download their own data.
 
-  (c) Purchased dataset — cdp.net/en/scores (no public pricing displayed;
+  (c) Purchased dataset: cdp.net/en/scores (no public pricing displayed;
       contact CDP directly).
 
-  (d) Academic access — CDP has a research access programme.
+  (d) Academic access: CDP has a research access programme.
       See: https://www.cdp.net/en/research/global-reports
 
 ---------------------------------------------------------------------------
@@ -52,7 +52,7 @@ list and logs a one-time INFO message. The pipeline continues with the other
 nine sources. CDP absence is reflected in the data_gaps field of VerificationResult
 and disclosed in the Judge prompt.
 
-The pipeline is not degraded — CDP is self-reported data weighted lower than
+The pipeline is not degraded; CDP is self-reported data weighted lower than
 EU ETS verified emissions. For most EU industrial companies, EU ETS + SBTi +
 E-PRTR + enforcement rulings provide stronger evidence than CDP self-reporting.
 """

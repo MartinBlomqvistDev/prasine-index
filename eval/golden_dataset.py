@@ -124,7 +124,7 @@ class EvalSummary(BaseModel):
         score_accuracy: Fraction of cases with the score in the expected range.
         overall_pass_rate: Fraction of cases that fully passed.
         tier1_pass_rate: Pass rate for must_pass cases only. This is the primary
-            accuracy metric — known_limitation cases are excluded because they
+            accuracy metric: known_limitation cases are excluded because they
             document data coverage gaps, not pipeline logic failures.
         avg_duration_ms: Mean wall-clock time per case.
         total_tokens_used: Total tokens consumed across all cases.
@@ -164,7 +164,7 @@ class EvalSummary(BaseModel):
 
         lines = [
             "=" * 60,
-            "PRASINE INDEX — GOLDEN DATASET EVAL RESULTS",
+            "PRASINE INDEX: GOLDEN DATASET EVAL RESULTS",
             "=" * 60,
             f"Total cases:       {self.total_cases}",
             f"Tier-1 (must_pass):{tier1_passed}/{len(tier1_results)} ({self.tier1_pass_rate:.1%})  <-- primary metric",
@@ -196,7 +196,7 @@ class EvalSummary(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Golden dataset — 20 known LIKELY_GREENWASHING cases
+# Golden dataset: 20 known LIKELY_GREENWASHING cases
 # ---------------------------------------------------------------------------
 
 GOLDEN_DATASET: list[EvalCase] = [
@@ -214,7 +214,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "UK ASA ruled this MISLEADING_CLAIM in 2022 — a regulatory ruling that triggers "
+            "UK ASA ruled this MISLEADING_CLAIM in 2022, a regulatory ruling that triggers "
             "CONFIRMED_GREENWASHING per the scoring criteria. Ryanair's EU ETS verified "
             "emissions are among the highest of any European airline on a per-passenger "
             "basis. The claim 'greenest' has no substantiated baseline. "
@@ -282,7 +282,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         notes=(
             "Italy's AGCM fined Eni €5 million in 2023 for MISLEADING_CLAIM 'carbon neutral' "
             "certification on Eni Diesel+. Carbon neutrality was achieved solely via "
-            "offsets — no actual emissions reduction. Eni is simultaneously expanding "
+            "offsets: no actual emissions reduction. Eni is simultaneously expanding "
             "fossil fuel production capacity. Enforcement module finds AGCM fine; judge "
             "scores 78-82 depending on run (LIKELY_GREENWASHING/CONFIRMED boundary nondeterminism). "
             "Expected LIKELY_GREENWASHING to capture the lower outcome consistently."
@@ -397,7 +397,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "ASA banned two HSBC newspaper advertisements for MISLEADING_CLAIM green claims (2022). "
             "HSBC simultaneously financed $87bn in fossil fuel expansion (2016–2022). "
             "Pipeline scores LIKELY_GREENWASHING: enforcement module surfaces ASA ruling (1 contradicting "
-            "record), LobbyMap C- band — sufficient for LIKELY_GREENWASHING even without EU ETS data."
+            "record), LobbyMap C- band, sufficient for LIKELY_GREENWASHING even without EU ETS data."
         ),
     ),
     EvalCase(
@@ -487,7 +487,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "CA100+ ALIGNED. However the pipeline finds limited corroborating evidence "
             "(1 supporting, 1 contradicting, 5 inconclusive). CDP and LobbyMap return "
             "no record. Pipeline score hovers around 58-62 (MISLEADING_CLAIM/LIKELY_GREENWASHING boundary). "
-            "Nondeterministic boundary case — expected LIKELY_GREENWASHING to capture the upper end."
+            "Nondeterministic boundary case: expected LIKELY_GREENWASHING to capture the upper end."
         ),
         tier="known_limitation",
     ),
@@ -600,7 +600,7 @@ GOLDEN_DATASET: list[EvalCase] = [
             "The claim of full offset coverage was based on REDD+ projects "
             "that have since been widely discredited. EU ETS data confirms "
             "full scope of actual emissions. Pipeline scores LIKELY_GREENWASHING: "
-            "EU ETS directly contradicts 'offsets all carbon emissions' — verified "
+            "EU ETS directly contradicts 'offsets all carbon emissions': verified "
             "emissions exist, the offset claim is not independently substantiated."
         ),
     ),
@@ -623,7 +623,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         notes=(
             "Vestas is a genuine carbon neutrality case (scope 1&2 via renewables, "
             "SBTi scope 3 validated). However the pipeline finds only LobbyMap B+ "
-            "as a supporting signal — Vestas is not in CA100+ or CDP, and has no EU ETS "
+            "as a supporting signal: Vestas is not in CA100+ or CDP, and has no EU ETS "
             "installations registered. Score ranges 35-48 across runs. 2/3 runs give "
             "MISLEADING_CLAIM (~48). Known limitation: positive-control quality requires "
             "seeding EU ETS installation IDs."
@@ -827,15 +827,15 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
 
 # ---------------------------------------------------------------------------
-# Quick-run subset — one case per verdict category. ~$1.50 with Opus judge+report
+# Quick-run subset: one case per verdict category. ~$1.50 with Opus judge+report
 # ---------------------------------------------------------------------------
 
 QUICK_CASES: list[str] = [
-    "GW-001",  # CONFIRMED_GREENWASHING — Ryanair "Europe's greenest airline" (ASA ruled)
-    "GW-004",  # LIKELY_GREENWASHING           — Eni carbon neutral diesel (AGCM fined)
-    "GW-009",  # LIKELY_GREENWASHING           — HSBC net zero financed emissions (ASA ruled)
-    "GW-010",  # LIKELY_GREENWASHING (known_limitation) — Ørsted 87% reduction (positive control)
-    "GW-014",  # CONFIRMED_GREENWASHING — Glencore net zero (coal miner, CMA)
+    "GW-001",  # CONFIRMED_GREENWASHING: Ryanair "Europe's greenest airline" (ASA ruled)
+    "GW-004",  # LIKELY_GREENWASHING          : Eni carbon neutral diesel (AGCM fined)
+    "GW-009",  # LIKELY_GREENWASHING          : HSBC net zero financed emissions (ASA ruled)
+    "GW-010",  # LIKELY_GREENWASHING (known_limitation): Ørsted 87% reduction (positive control)
+    "GW-014",  # CONFIRMED_GREENWASHING: Glencore net zero (coal miner, CMA)
 ]
 
 

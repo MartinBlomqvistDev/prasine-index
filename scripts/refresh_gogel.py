@@ -74,7 +74,7 @@ def download_gogel_csv() -> None:
             data = response.read()
 
         if len(data) < 500:
-            raise ValueError(f"Response too small ({len(data)} bytes) — likely not a real CSV.")
+            raise ValueError(f"Response too small ({len(data)} bytes): likely not a real CSV.")
 
         _DEST.write_bytes(data)
         size_kb = len(data) // 1024
@@ -84,7 +84,7 @@ def download_gogel_csv() -> None:
             row_count2 = len(lines) - 1
         except Exception:
             row_count2 = "unknown"
-        print(f"  Saved {size_kb} KB — {row_count2} companies → {_DEST}")
+        print(f"  Saved {size_kb} KB, {row_count2} companies → {_DEST}")
 
     except Exception as exc:
         print(f"  Download failed: {exc}")

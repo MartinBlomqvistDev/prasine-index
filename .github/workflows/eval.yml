@@ -1,4 +1,4 @@
-# Prasine Index — Golden Dataset Eval
+# Prasine Index: Golden Dataset Eval
 #
 # Runs the 20-case golden eval against the full pipeline.
 # Requires:
@@ -57,7 +57,7 @@ jobs:
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "has_key=false" >> $GITHUB_OUTPUT
-            echo "::warning::ANTHROPIC_API_KEY secret not set — skipping eval"
+            echo "::warning::ANTHROPIC_API_KEY secret not set, skipping eval"
           else
             echo "has_key=true" >> $GITHUB_OUTPUT
           fi

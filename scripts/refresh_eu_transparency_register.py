@@ -7,7 +7,7 @@ Run this script whenever you want updated TR data:
 The EU Transparency Register is updated continuously. The export used by
 Prasine Index is the full public search export (all activated registrations).
 
-The TR cannot be bulk-downloaded via a direct URL — it requires a browser
+The TR cannot be bulk-downloaded via a direct URL; it requires a browser
 form submission. To refresh manually:
 
   1. Go to: https://ec.europa.eu/transparencyregister/public/consultation/search.do
@@ -51,7 +51,7 @@ def main() -> None:
     print("=" * 50)
     check_existing()
     print(
-        "\nThe TR cannot be auto-downloaded — it requires a browser form submission.\n"
+        "\nThe TR cannot be auto-downloaded; it requires a browser form submission.\n"
         "\nTo refresh manually:\n"
         "  1. Go to: https://ec.europa.eu/transparencyregister/public/consultation/search.do\n"
         "  2. Click 'Advanced search'\n"

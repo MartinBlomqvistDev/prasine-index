@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Methodology — Prasine Index',
+  title: 'Methodology | Prasine Index',
   description:
     'How Prasine Index scores EU corporate sustainability claims: pipeline architecture, 22 data sources, verdict tiers, and scoring logic.',
 }
@@ -26,7 +26,7 @@ export default function MethodologyPage() {
         </div>
         <h1 className="report-company" style={{ marginBottom: '0.5rem' }}>Methodology</h1>
         <p style={{ color: 'var(--muted)', fontSize: 15, marginBottom: '3rem', lineHeight: 1.6 }}>
-          How Prasine Index assesses EU corporate sustainability claims — pipeline
+          How Prasine Index assesses EU corporate sustainability claims: pipeline
           architecture, data sources, verdict definitions, and scoring logic.
         </p>
 
@@ -35,7 +35,7 @@ export default function MethodologyPage() {
           <h2 style={{ marginBottom: '1rem' }}>Pipeline architecture</h2>
           <p style={{ color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
             Each assessment runs a 7-agent pipeline. Every agent has a typed Pydantic
-            contract at input and output — no unvalidated state crosses a boundary.
+            contract at input and output; no unvalidated state crosses a boundary.
           </p>
           <table className="dimension-table" style={{ marginBottom: '1rem' }}>
             <thead>
@@ -43,10 +43,10 @@ export default function MethodologyPage() {
             </thead>
             <tbody>
               {[
-                ['1', 'Discovery', 'Fetches the claim source URL and extracts all sustainability assertions from the page. Filters to substantive environmental claims — ignores boilerplate and navigation copy.'],
+                ['1', 'Discovery', 'Fetches the claim source URL and extracts all sustainability assertions from the page. Filters to substantive environmental claims, ignoring boilerplate and navigation copy.'],
                 ['2', 'Extraction', 'Structures each claim as a typed record: claim text, category (emissions, target, process, certification, offsetting), and source attribution.'],
                 ['3', 'Context', 'Retrieves company-level context: sector, CSRD obligation status, SIC code, prior enforcement history, and known lobbying ratings. Sets the baseline for scoring.'],
-                ['4', 'Verification', 'Parallel fan-out across all 22 data sources. Each source returns typed Evidence records with a confidence value and a URL. Uses LangGraph for managed parallelism — the only place a framework is used.'],
+                ['4', 'Verification', 'Parallel fan-out across all 22 data sources. Each source returns typed Evidence records with a confidence value and a URL. Uses LangGraph for managed parallelism, the only place a framework is used.'],
                 ['5', 'Lobbying', 'Dedicated pass for influence data: LobbyMap rating, EU Transparency Register registration, GOGEL/GOGET extraction presence. Lobbying contradiction is an independent scoring trigger.'],
                 ['6', 'Judge', 'Scores each claim 0–100. Confidence-weighted aggregate across all evidence items. Assigns verdict tier. Flags data gaps where regulatory ground truth is absent.'],
                 ['7', 'Report', 'Writes the full assessment: evidence chain with citations, dimensional scoring table, key finding, data gaps, methodology note, and trace ID for reproducibility.'],
@@ -60,7 +60,7 @@ export default function MethodologyPage() {
             </tbody>
           </table>
           <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
-            The pipeline is single-threaded at the assessment level — one company at a time.
+            The pipeline is single-threaded at the assessment level: one company at a time.
             Verification runs all 22 sources in parallel within that run. Claims within a
             company are scored sequentially with shared context.
           </p>
@@ -71,7 +71,7 @@ export default function MethodologyPage() {
           <h2 style={{ marginBottom: '1rem' }}>Data sources</h2>
           <p style={{ color: 'var(--muted)', marginBottom: '1.5rem', lineHeight: 1.7 }}>
             Every evidence item in a Prasine report is drawn from one of these 22 EU open
-            data sources. No paywalled databases. No hallucinated citations — every source
+            data sources. No paywalled databases. No hallucinated citations: every source
             is fetched at run time and the URL is included in the evidence record.
           </p>
           <table className="dimension-table">
@@ -81,27 +81,27 @@ export default function MethodologyPage() {
             <tbody>
               {[
                 ['EU ETS', 'Verified installation-level CO₂ emissions from the EU Emissions Trading System. Ground truth for industrial emitters obligated under ETS.'],
-                ['E-PRTR', 'European Pollutant Release and Transfer Register — facility-level pollution data across EU member states.'],
-                ['EDGAR (JRC)', 'EU Joint Research Centre gridded GHG emissions — used where ETS coverage is absent.'],
+                ['E-PRTR', 'European Pollutant Release and Transfer Register: facility-level pollution data across EU member states.'],
+                ['EDGAR (JRC)', 'EU Joint Research Centre gridded GHG emissions, used where ETS coverage is absent.'],
                 ['EEA National Inventories', 'European Environment Agency country-level GHG inventories. Sector-level emissions trends.'],
-                ['Eurostat', 'EU statistical office — energy mix, production volumes, and sector emissions aggregates.'],
+                ['Eurostat', 'EU statistical office: energy mix, production volumes, and sector emissions aggregates.'],
                 ['Climate TRACE', 'Independent satellite-derived emissions estimates. Used to cross-check self-reported figures.'],
-                ['SBTi', 'Science Based Targets initiative — whether the company has a validated, approved, or committed net-zero or 1.5°C target.'],
+                ['SBTi', 'Science Based Targets initiative: whether the company has a validated, approved, or committed net-zero or 1.5°C target.'],
                 ['TPI (Transition Pathway Initiative)', 'Independent assessment of company management quality on climate transition. Tracks emissions performance vs. sector benchmarks.'],
-                ['CA100+', 'Climate Action 100+ benchmark — net-zero alignment score, disclosure quality, and short-term target setting.'],
-                ['CDP', 'Carbon Disclosure Project open dataset — company-disclosed emissions, targets, and climate governance data.'],
+                ['CA100+', 'Climate Action 100+ benchmark: net-zero alignment score, disclosure quality, and short-term target setting.'],
+                ['CDP', 'Carbon Disclosure Project open dataset: company-disclosed emissions, targets, and climate governance data.'],
                 ['LobbyMap', 'InfluenceMap corporate climate lobbying scores. The single strongest independent CONFIRMED trigger: a D or D+ rating demonstrates active obstruction of climate policy.'],
                 ['EU Transparency Register', 'Confirms whether the company is a registered EU lobbyist and its declared lobbying expenditure.'],
-                ['EUR-Lex', 'EU legislative database — cited when a claim conflicts with current or forthcoming EU law (CSRD, Green Claims Directive, EmpCo Directive, EU Taxonomy).'],
+                ['EUR-Lex', 'EU legislative database, cited when a claim conflicts with current or forthcoming EU law (CSRD, Green Claims Directive, EmpCo Directive, EU Taxonomy).'],
                 ['Enforcement rulings', 'National advertising authority and regulatory rulings (ASA UK, Reklamnämnden SE, ACM NL, others). Prior violations are scored as independent evidence.'],
-                ['GOGEL', 'Global Oil and Gas Exit List — upstream oil and gas expansion plans. Active expansion contradicts credible net-zero claims.'],
-                ['GOGET', 'Global Oil and Gas Extraction Tracker — production volumes and new field approvals.'],
+                ['GOGEL', 'Global Oil and Gas Exit List: upstream oil and gas expansion plans. Active expansion contradicts credible net-zero claims.'],
+                ['GOGET', 'Global Oil and Gas Extraction Tracker: production volumes and new field approvals.'],
                 ['Global Coal Exit List (GCEL)', 'Coal power and mining exposure. Active coal expansion is incompatible with Paris-aligned claims.'],
                 ['Global Coal Plant Tracker (GCPT)', 'Plant-level coal capacity in operation and under construction.'],
-                ['Europe Gas Tracker (EGT)', 'Gas infrastructure under development — pipelines, LNG terminals, gas plants. New gas locks contradict transition claims.'],
-                ['Banking on Climate Chaos', 'Fossil fuel financing by major banks — relevant for financial sector claims and credibility of transition pledges.'],
+                ['Europe Gas Tracker (EGT)', 'Gas infrastructure under development: pipelines, LNG terminals, gas plants. New gas locks contradict transition claims.'],
+                ['Banking on Climate Chaos', 'Fossil fuel financing by major banks; relevant for financial sector claims and for the credibility of transition pledges.'],
                 ['EU Innovation Fund', 'EU-funded decarbonisation grants. Receipt of transition funding is contextual evidence, not a verdict trigger.'],
-                ['Source document', "The claim's own source URL is fetched and analysed — the claim text, its context, and any referenced commitments are extracted directly."],
+                ['Source document', "The claim's own source URL is fetched and analysed: the claim text, its context, and any referenced commitments are extracted directly."],
               ].map(([src, desc]) => (
                 <tr key={src}>
                   <td style={{ fontWeight: 600, whiteSpace: 'nowrap', fontSize: 13 }}>{src}</td>
@@ -172,7 +172,7 @@ export default function MethodologyPage() {
           <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: '1rem', lineHeight: 1.6 }}>
             Multi-claim assessments produce a company score from the three highest-scoring
             claims (confidence-weighted), floored at the bottom of the worst claim&apos;s
-            verdict band — a confirmed finding cannot be averaged away by milder claims.
+            verdict band; a confirmed finding cannot be averaged away by milder claims.
             The company-level verdict is always derived from this final score, so score
             and verdict can never disagree.
           </p>
@@ -188,7 +188,7 @@ export default function MethodologyPage() {
               A Prasine Index assessment is an evidence-based research output, not a legal
               opinion. It identifies public data that contradicts a company's stated claims.
               It does not constitute legal advice, and a CONFIRMED verdict does not mean the
-              company is in breach of law — it means the evidence record is inconsistent
+              company is in breach of law; it means the evidence record is inconsistent
               with the claim at a level that warrants further scrutiny.
             </p>
           </div>
@@ -199,9 +199,9 @@ export default function MethodologyPage() {
             </thead>
             <tbody>
               {[
-                ['Model', 'Reports are generated by a multi-agent pipeline using Claude (Anthropic). The model synthesises and scores evidence — it does not generate or fabricate data. Every source cited in a report was fetched and retrieved at run time.'],
+                ['Model', 'Reports are generated by a multi-agent pipeline using Claude (Anthropic). The model synthesises and scores evidence; it does not generate or fabricate data. Every source cited in a report was fetched and retrieved at run time.'],
                 ['Citations', 'Every evidence item includes a source URL, a confidence value (0.0–1.0), and a supports/contradicts/context classification. Evidence items with no retrievable URL are flagged as unverifiable and do not increase the score.'],
-                ['Data gaps', 'Every assessment discloses where regulatory ground truth is absent — when a company is not in a mandatory database, when data is paywalled, or when disclosure is incomplete. Data gaps are listed explicitly, not silently omitted.'],
+                ['Data gaps', 'Every assessment discloses where regulatory ground truth is absent: when a company is not in a mandatory database, when data is paywalled, or when disclosure is incomplete. Data gaps are listed explicitly, not silently omitted.'],
                 ['Trace ID', 'Each report includes a trace ID: a hash of the pipeline run. The same company and claim URL run through the same pipeline version will produce an identical trace ID, confirming reproducibility.'],
                 ['Scope', 'Current coverage is limited to environmental (E) claims. Social (S) and governance (G) claims are outside scope. CSRD ESRS E1 (climate change) is the primary lens.'],
                 ['Paywalled sources', 'Prasine does not access paywalled databases. Where a relevant source requires registration or payment (GOGEL full dataset, some regulatory portals), this is disclosed in the data gaps section.'],
@@ -231,7 +231,7 @@ export default function MethodologyPage() {
       <footer>
         <div className="footer-inner">
           <div>
-            <span>Prasine Index — Martin Blomqvist, 2026</span>
+            <span>Prasine Index · Martin Blomqvist, 2026</span>
             <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
               EU greenwashing analyst · Prasine Index
             </p>

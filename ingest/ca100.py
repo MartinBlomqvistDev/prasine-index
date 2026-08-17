@@ -12,7 +12,7 @@ CA100+ provides independent third-party assessments of whether companies have:
   - Transparent and positive climate policy engagement
 
 A company claiming net-zero ambition while rated "Not Aligned" by CA100+ is a
-strong third-party contradiction — assessed by the largest institutional investor
+strong third-party contradiction, assessed by the largest institutional investor
 coalition in the world (700+ investors, $68 trillion AUM).
 
 Data source: climateaction100.org/companies
@@ -322,7 +322,7 @@ def _load_from_xlsx(
         import openpyxl
     except ImportError:
         logger.warning(
-            "openpyxl not installed — cannot read CA100+ XLSX. Run: pip install openpyxl",
+            "openpyxl not installed: cannot read CA100+ XLSX. Run: pip install openpyxl",
             extra={"operation": "ca100_xlsx_missing_dep"},
         )
         return {}, {}, {}
@@ -372,7 +372,7 @@ def _get_cache() -> tuple[
         _cache_by_name = {}
         _cache_by_ticker = {}
         logger.info(
-            f"CA100+ data file not found — run scripts/refresh_ca100.py. Expected at: {_CA100_XLSX}",
+            f"CA100+ data file not found: run scripts/refresh_ca100.py. Expected at: {_CA100_XLSX}",
             extra={"operation": "ca100_cache_missing"},
         )
 
@@ -426,7 +426,7 @@ async def fetch_ca100_data(claim: Claim, company: object) -> list[Evidence]:
     summary = _build_summary(name, record)
 
     logger.info(
-        f"CA100+: {name!r} — nz_ambition={record.nz_ambition!r}, "
+        f"CA100+: {name!r}, nz_ambition={record.nz_ambition!r}, "
         f"capex={record.capex_alignment!r}, class={record.nz_ambition_class}",
         extra={
             "operation": "ca100_found",
@@ -468,7 +468,7 @@ def _assess_record(record: _CA100Record) -> tuple[bool | None, float]:
     capex = record.capex_class
 
     if nz == "NOT_ALIGNED" and capex == "NOT_ALIGNED":
-        # Both core metrics misaligned — strong contradiction of any net-zero claim.
+        # Both core metrics misaligned: strong contradiction of any net-zero claim.
         return False, 0.85
 
     if nz == "NOT_ALIGNED":
@@ -515,6 +515,6 @@ def _build_summary(company_name: str, record: _CA100Record) -> str:
         f"CA100+ Net Zero Company Benchmark for {company_name}{year_str}: "
         f"Net Zero Ambition = {record.nz_ambition or 'partial/unknown'}; "
         f"Capex Alignment = {record.capex_alignment or 'unknown'}. "
-        f"Partial alignment — some elements meet the benchmark, others do not. "
+        f"Partial alignment: some elements meet the benchmark, others do not. "
         f"Inconclusive for greenwashing assessment without deeper analysis."
     )

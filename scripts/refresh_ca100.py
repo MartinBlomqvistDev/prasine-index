@@ -57,7 +57,7 @@ def download_ca100_csv() -> None:
         with urllib.request.urlopen(req, timeout=60) as response:
             data = response.read()
     except urllib.error.HTTPError as exc:
-        print(f"\nHTTP {exc.code} — {exc.reason}")
+        print(f"\nHTTP {exc.code}: {exc.reason}")
         print_manual_instructions()
         sys.exit(1)
     except urllib.error.URLError as exc:
@@ -66,7 +66,7 @@ def download_ca100_csv() -> None:
         sys.exit(1)
 
     if b"<html" in data[:200].lower():
-        print("\nReceived HTML — URL may have changed.")
+        print("\nReceived HTML: the URL may have changed.")
         print_manual_instructions()
         sys.exit(1)
 

@@ -1,7 +1,7 @@
 """Claim Extraction Agent for the Prasine Index pipeline.
 
-Receives a raw company document — press release, CSRD report, IR page, or annual
-report — and uses the Anthropic SDK with forced tool use to extract every green
+Receives a raw company document (press release, CSRD report, IR page, or annual
+report: and uses the Anthropic SDK with forced tool use to extract every green
 claim as a structured Claim object. Uses raw Anthropic SDK (not LangGraph) because
 extraction is a single-step structured output task where full prompt control and
 deterministic output parsing matter more than orchestration framework features.
@@ -44,7 +44,7 @@ __all__ = [
 logger = get_logger(__name__)
 
 # ---------------------------------------------------------------------------
-# Tool definition — forced on every call via tool_choice
+# Tool definition: forced on every call via tool_choice
 # ---------------------------------------------------------------------------
 
 _EXTRACT_TOOL_NAME = "extract_green_claims"
@@ -127,12 +127,12 @@ This includes:
 - Supply chain and biodiversity commitments
 - Circular economy and waste reduction claims
 - Carbon neutrality or climate-positive claims
-- Project-specific commitments with quantified targets and timelines — THESE ARE \
+- Project-specific commitments with quantified targets and timelines â€” THESE ARE \
   THE HIGHEST PRIORITY. A statement like "from 2029 we will capture 200,000 tonnes \
-  of CO2 per year" or "Med start 2029 ska vi fånga in 200 000 ton koldioxid varje år" \
+  of CO2 per year" or "Med start 2029 ska vi fÃ¥nga in 200 000 ton koldioxid varje Ã¥r" \
   is a specific, verifiable future commitment and must always be extracted. Extract \
   the full passage including the project name, quantity, year, and any funding context.
-- Claims made in any EU language — extract verbatim in the original language without \
+- Claims made in any EU language â€” extract verbatim in the original language without \
   translation.
 
 WHAT TO EXCLUDE
@@ -140,12 +140,12 @@ WHAT TO EXCLUDE
   "Scope 1 emissions 2023: 450,000 tCO2e") without any attached forward-looking claim.
 - Legal boilerplate and regulatory compliance statements that make no environmental assertion.
 - Product safety or quality claims unrelated to environmental performance.
-- NOTE: A future-oriented figure with a year target is NEVER a raw disclosure — it is \
+- NOTE: A future-oriented figure with a year target is NEVER a raw disclosure â€” it is \
   always a claim. "We will capture X tonnes by YYYY" must be extracted even if it sounds \
   like a factual project description.
 
 EXTRACTION RULES
-1. Extract verbatim — preserve the exact wording from the document including any \
+1. Extract verbatim â€” preserve the exact wording from the document including any \
    exaggerations, vague language, or unsubstantiated assertions. The Verification \
    Agent will assess credibility; your role is accurate extraction.
 2. If a claim spans multiple sentences, include the full passage needed to understand \
@@ -155,12 +155,12 @@ EXTRACTION RULES
 4. Record the page number or section heading if it is identifiable in the text.
 5. Prioritise specificity: extract the most concrete, quantified claims first. A \
    vague heading like "our journey to net zero" and a specific claim like "we will \
-   capture 200,000 tonnes per year from 2029" are both claims — but the specific one \
+   capture 200,000 tonnes per year from 2029" are both claims â€” but the specific one \
    is more important and must not be omitted in favour of the heading.
 6. Extract AT MOST ONE claim per ClaimCategory. If multiple claims fall under the \
    same category (e.g. three NET_ZERO_TARGET statements), return only the single \
    most specific, quantified, and verifiable one. A vague heading and a precise \
-   commitment in the same category are not both worth extracting — pick the stronger \
+   commitment in the same category are not both worth extracting â€” pick the stronger \
    one and discard the rest.
 7. Across the full output, aim for maximum category diversity. If the document \
    contains a NET_ZERO_TARGET claim AND a RENEWABLE_ENERGY claim AND a \
@@ -169,7 +169,7 @@ EXTRACTION RULES
 8. Do not extract near-duplicate claims. If the same commitment appears multiple \
    times in the document with only minor wording differences, extract only the \
    single most complete and specific version. "Net zero for Scope 1+2" and "net \
-   zero for Scope 3" are NOT duplicates — they cover different emission boundaries \
+   zero for Scope 3" are NOT duplicates â€” they cover different emission boundaries \
    and both must be extracted under NET_ZERO_TARGET as a single combined claim if \
    possible, or as two separate claims only if the document treats them distinctly.
 9. Call the extract_green_claims tool exactly once with the complete list.\
@@ -289,7 +289,7 @@ class ExtractionAgent:
 
     This agent uses the raw Anthropic SDK rather than LangGraph because claim
     extraction is a single-step, single-tool task. There is no branching logic,
-    no multi-tool orchestration, and no state machine — a framework would add
+    no multi-tool orchestration, and no state machine; a framework would add
     indirection without adding value. Full control over the prompt and response
     parsing produces cleaner, more auditable code.
 
@@ -332,7 +332,7 @@ class ExtractionAgent:
 
         If the document contains no green claims, returns an
         :py:class:`ExtractionResult` with an empty ``claims`` list and
-        ``AgentOutcome.SUCCESS`` — the absence of claims is a valid and
+        ``AgentOutcome.SUCCESS``: the absence of claims is a valid and
         expected outcome for some documents.
 
         Args:
@@ -447,7 +447,7 @@ class ExtractionAgent:
 
         Forces the model to call the ``extract_green_claims`` tool exactly once
         by setting ``tool_choice`` to the specific tool name. This guarantees
-        that the response is always a tool use block — there is no fallback text
+        that the response is always a tool use block; there is no fallback text
         path to handle. The tool input contains the structured claims list.
 
         Args:
@@ -501,7 +501,7 @@ class ExtractionAgent:
         if response.stop_reason == "max_tokens":
             raise LLMError(
                 message=(
-                    f"Extraction response truncated at max_tokens={self._max_tokens} — "
+                    f"Extraction response truncated at max_tokens={self._max_tokens}, "
                     "the tool call is incomplete. Increase max_tokens for claim-dense "
                     "documents rather than retrying the same request."
                 ),
@@ -551,7 +551,7 @@ class ExtractionAgent:
         Iterates over the raw claim dicts returned by the tool call and builds
         a :py:class:`~models.claim.Claim` for each. Claims that fail Pydantic
         validation are logged and skipped rather than failing the entire
-        extraction run — partial results are better than no results.
+        extraction run; partial results are better than no results.
 
         The ``trace_id`` is shared across all claims extracted from a single
         document, linking them to the same pipeline trace. Each claim receives
@@ -598,7 +598,7 @@ class ExtractionAgent:
 
             except Exception as exc:
                 logger.warning(
-                    f"Skipping claim at index {idx}: validation failed — {exc}",
+                    f"Skipping claim at index {idx}: validation failed: {exc}",
                     extra={
                         "operation": "claim_build_failed",
                         "error_type": type(exc).__name__,

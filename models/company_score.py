@@ -29,7 +29,7 @@ class CompanyScore(BaseModel):
     """Company-level aggregate across all claims assessed for a company.
 
     Score is the confidence-weighted mean of the top-3 highest-scoring claims,
-    floored at the bottom of the worst claim's verdict band — a confirmed
+    floored at the bottom of the worst claim's verdict band; a confirmed
     finding cannot be averaged away by milder claims. Verdict is derived from
     the final numeric score, so score and verdict can never disagree.
     Confidence is the weighted mean of individual claim confidences.
@@ -53,7 +53,7 @@ class CompanyScore(BaseModel):
     floor_applied: bool = Field(
         default=False,
         description=(
-            "True when the aggregate was raised to the worst claim's band floor — "
+            "True when the aggregate was raised to the worst claim's band floor; "
             "i.e. milder claims would otherwise have averaged a severe finding "
             "into a lower band."
         ),

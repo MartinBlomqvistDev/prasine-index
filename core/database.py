@@ -249,7 +249,7 @@ async def init_db() -> None:
        in raw SQL statements.
     3. Creates all tables registered with :py:class:`Base` that do not yet
        exist. This is an additive operation and will never drop or alter
-       existing tables — schema migrations are managed separately via Alembic.
+       existing tables; schema migrations are managed separately via Alembic.
 
     This function is idempotent and safe to call on every application startup.
 
@@ -292,7 +292,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
         conn: An open async connection within a transaction.
     """
     statements = [
-        # Companies — stable EU company registry data
+        # Companies: stable EU company registry data
         """
         CREATE TABLE IF NOT EXISTS companies (
             id                       UUID PRIMARY KEY,
@@ -311,7 +311,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
         """,
-        # Claims — atomic unit of work: one row per extracted green claim
+        # Claims: atomic unit of work, one row per extracted green claim
         """
         CREATE TABLE IF NOT EXISTS claims (
             id                      UUID PRIMARY KEY,
@@ -333,7 +333,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             embedding               vector(1536)
         )
         """,
-        # Claim lifecycle — immutable status transition log
+        # Claim lifecycle: immutable status transition log
         """
         CREATE TABLE IF NOT EXISTS claim_lifecycle (
             id               UUID PRIMARY KEY,
@@ -344,7 +344,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             transitioned_by  TEXT NOT NULL
         )
         """,
-        # Greenwashing scores — Judge Agent verdicts
+        # Greenwashing scores: Judge Agent verdicts
         """
         CREATE TABLE IF NOT EXISTS greenwashing_scores (
             id              UUID PRIMARY KEY,
@@ -363,7 +363,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             judge_model_id  TEXT NOT NULL
         )
         """,
-        # Reports — publication-ready Markdown output
+        # Reports: publication-ready Markdown output
         """
         CREATE TABLE IF NOT EXISTS reports (
             claim_id         UUID PRIMARY KEY REFERENCES claims(id),
@@ -372,7 +372,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             published_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
         """,
-        # Evidence — one row per data point gathered by the Verification Agent.
+        # Evidence: one row per data point gathered by the Verification Agent.
         # raw_data preserves the parsed upstream response verbatim so any
         # published verdict can be reconstructed from what the pipeline
         # actually saw at run time (reproducibility / legal citability).
@@ -392,7 +392,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             confidence     FLOAT NOT NULL
         )
         """,
-        # Trace log — structured execution log per agent step
+        # Trace log: structured execution log per agent step
         """
         CREATE TABLE IF NOT EXISTS trace_log (
             id            UUID PRIMARY KEY,
@@ -413,7 +413,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             metadata      JSONB NOT NULL DEFAULT '{}'
         )
         """,
-        # Discovery state — content hash per monitored URL for change detection
+        # Discovery state: content hash per monitored URL for change detection
         """
         CREATE TABLE IF NOT EXISTS discovery_state (
             source_url      TEXT PRIMARY KEY,
@@ -425,7 +425,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
     for stmt in statements:
         await conn.execute(text(stmt))
 
-    # Idempotent column migrations — ADD COLUMN IF NOT EXISTS is safe on existing tables.
+    # Idempotent column migrations: ADD COLUMN IF NOT EXISTS is safe on existing tables.
     column_migrations = [
         "ALTER TABLE greenwashing_scores ADD COLUMN IF NOT EXISTS score_low  FLOAT",
         "ALTER TABLE greenwashing_scores ADD COLUMN IF NOT EXISTS score_high FLOAT",
@@ -436,7 +436,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
     # Enable Row-Level Security on every table. This blocks anonymous access
     # via the Supabase PostgREST REST API (anon key) while leaving direct
     # database connections (postgres superuser) and service-role API calls
-    # completely unaffected — both bypass RLS by design.
+    # completely unaffected: both bypass RLS by design.
     # ALTER TABLE ... ENABLE ROW LEVEL SECURITY is idempotent.
     rls_tables = [
         "companies",

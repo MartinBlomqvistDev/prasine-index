@@ -1,15 +1,15 @@
 """Run the Prasine Index pipeline against a real company claim.
 
-Usage — fetch the page automatically (recommended):
+Usage: fetch the page automatically (recommended):
     python scripts/run_assessment.py --company "Shell plc" \\
         --url "https://shell.com/sustainability"
 
-Usage — provide claim text directly:
+Usage: provide claim text directly:
     python scripts/run_assessment.py --company "Shell plc" \\
         --claim "Shell is on track to become net-zero by 2050" \\
         --url "https://shell.com/sustainability"
 
-Usage — refresh all data sources first (downloads fresh SBTi, LobbyMap,
+Usage: refresh all data sources first (downloads fresh SBTi, LobbyMap,
          CA100+, EUTL, E-PRTR, GCEL, Fossil Finance before running):
     python scripts/run_assessment.py --company "Shell plc" \\
         --url "https://shell.com/sustainability" --refresh-data
@@ -61,7 +61,7 @@ _SCRIPTS_DIR = Path(__file__).parent
 def _slug(name: str) -> str:
     import unicodedata
 
-    # NFKD decomposes å/ä/ö/é but NOT ø/æ/ß — those are distinct letters,
+    # NFKD decomposes å/ä/ö/é but NOT ø/æ/ß: those are distinct letters,
     # not letter+diacritic, and would be silently dropped by the ascii
     # encode below ("Ørsted" → "rsted"). Map them explicitly first.
     for src, dst in (("ø", "o"), ("Ø", "O"), ("æ", "ae"), ("Æ", "Ae"), ("ß", "ss")):
@@ -144,7 +144,7 @@ def _build_aggregate_header(
     ]
     if company_score.floor_applied:
         lines.append(
-            "\n*Score floored at the bottom of the worst claim's verdict band — "
+            "\n*Score floored at the bottom of the worst claim's verdict band; "
             "a severe finding cannot be averaged away by milder claims.*"
         )
     if failed_claims:
@@ -155,7 +155,7 @@ def _build_aggregate_header(
     if persist_failures:
         lines.append(
             f"\n*{persist_failures} database persistence operation(s) failed during "
-            "this run — the published report is complete but the stored audit trail "
+            "this run, the published report is complete but the stored audit trail "
             "may be partial.*"
         )
     lines += [
@@ -205,7 +205,7 @@ async def run(
     extract_only: bool = False,
 ) -> None:
     if dry_run:
-        print("Prasine Index — Dry Run")
+        print("Prasine Index: Dry Run")
         print(f"  Company     : {company_name}")
         print(f"  URL         : {source_url}")
         print(f"  Claim       : {claim_text or '(discover from URL)'}")
@@ -216,7 +216,7 @@ async def run(
         return
 
     if extract_only:
-        print("Prasine Index — Claim Extraction Preview")
+        print("Prasine Index: Claim Extraction Preview")
         print(f"  Company : {company_name}")
         print(f"  URL     : {source_url}")
         print("  Cost    : ~$0.01 (Haiku extraction only; no verification or scoring)\n")
@@ -231,7 +231,7 @@ async def run(
             await pipeline.aclose()
             await teardown_db()
         if not claims:
-            print("No claims extracted — page may be JS-rendered or contain no green claims.")
+            print("No claims extracted, page may be JS-rendered or contain no green claims.")
             return
         print(f"{len(claims)} claim(s) extracted:\n")
         for i, claim in enumerate(claims, start=1):
@@ -262,7 +262,7 @@ async def run(
             results = await pipeline.run_from_document(extraction_input)
         else:
             print(
-                f"Prasine Index — Full Assessment\n"
+                f"Prasine Index: Full Assessment\n"
                 f"  Company     : {company_name}\n"
                 f"  URL         : {source_url}\n"
                 f"  Max claims  : {max_claims}\n"
@@ -272,7 +272,7 @@ async def run(
             results = await pipeline.run_from_url(company_id, source_url, max_claims=max_claims)
 
         if not results:
-            print("No claims extracted — the page may be JS-rendered or contain no green claims.")
+            print("No claims extracted, the page may be JS-rendered or contain no green claims.")
             return
 
         _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -311,7 +311,7 @@ async def run(
         if pipeline.last_run_persist_failures:
             print(
                 f"WARNING: {pipeline.last_run_persist_failures} persistence operation(s) "
-                "failed — audit trail may be partial."
+                "failed, audit trail may be partial."
             )
 
         best = max(results, key=lambda r: r.score.score)
@@ -353,7 +353,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--url",
         required=True,
-        help="Source URL — fetched automatically if --claim is omitted",
+        help="Source URL, fetched automatically if --claim is omitted",
     )
     parser.add_argument(
         "--claim",
@@ -372,13 +372,13 @@ if __name__ == "__main__":
         default=7,
         help="Ceiling on claims sent through the full pipeline (verification + judge + report). "
         "Extraction targets a larger candidate pool and deduplicates before this cap is applied "
-        "— actual Opus calls may be fewer. Cost: ~$0.17/claim. Default: 7.",
+        "Actual Opus calls may be fewer. Cost: ~$0.17/claim. Default: 7.",
     )
     parser.add_argument(
         "--judge-model",
         default="claude-opus-4-8",
         help="Anthropic model ID for the Judge Agent. Default: claude-opus-4-8. "
-        "Do not downgrade without running eval — judge output is legally citable.",
+        "Do not downgrade without running eval; judge output is legally citable.",
     )
     parser.add_argument(
         "--report-model",

@@ -39,7 +39,7 @@ _DEST = _DATA_DIR / "eprtr_releases.csv"
 
 # EEA SDI catalogue attachment URL for IED/E-PRTR ver. 16.0 (February 2026).
 # UUID: 657ac3cb-affa-4295-a4a9-27b4f539adab
-# This ZIP contains the "User friendly .csv files" — multiple tables as flat CSVs.
+# This ZIP contains the "User friendly .csv files": multiple tables as flat CSVs.
 # The pollutant releases table (the one we need) has columns:
 #   FacilityReport_FacilityName, FacilityReport_ParentCompanyName,
 #   FacilityReport_ReportingYear, PollutantRelease_PollutantName,
@@ -103,7 +103,7 @@ def download_eprtr() -> None:
     print("Downloading EEA IED/E-PRTR user-friendly CSV package...")
     print(f"  URL: {_EPRTR_ZIP_URL}")
     print(f"  Destination: {_DEST}")
-    print("  (Note: ZIP is ~141 MB — download may take a minute)")
+    print("  (Note: ZIP is ~141 MB, download may take a minute)")
 
     req = urllib.request.Request(
         _EPRTR_ZIP_URL,
@@ -117,7 +117,7 @@ def download_eprtr() -> None:
         with urllib.request.urlopen(req, timeout=300) as response:
             zip_data = response.read()
     except urllib.error.HTTPError as exc:
-        print(f"\nHTTP {exc.code} — {exc.reason}")
+        print(f"\nHTTP {exc.code}: {exc.reason}")
         print_manual_instructions()
         sys.exit(1)
     except urllib.error.URLError as exc:
@@ -126,7 +126,7 @@ def download_eprtr() -> None:
         sys.exit(1)
 
     if b"<html" in zip_data[:200].lower():
-        print("\nReceived HTML — URL may have changed.")
+        print("\nReceived HTML: the URL may have changed.")
         print_manual_instructions()
         sys.exit(1)
 
@@ -178,7 +178,7 @@ def print_manual_instructions() -> None:
     print("  4. Extract the CSV containing 'PollutantRelease_PollutantName' column")
     print(f"  5. Save to: {_DEST}")
     print()
-    print("Alternative — find the ZIP URL via GeoNetwork API:")
+    print("Alternative: find the ZIP URL via GeoNetwork API:")
     print("  curl https://sdi.eea.europa.eu/catalogue/srv/api/records/{UUID}/attachments")
 
 

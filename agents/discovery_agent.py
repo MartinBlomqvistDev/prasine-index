@@ -39,7 +39,7 @@ __all__ = [
 ]
 
 # ---------------------------------------------------------------------------
-# Subpage discovery — shared with pipeline.py
+# Subpage discovery: shared with pipeline.py
 # ---------------------------------------------------------------------------
 
 # Bilingual (Swedish + English) sustainability signal keywords.
@@ -402,7 +402,7 @@ class DiscoveryAgent:
                 if doc is not None:
                     documents.append(doc)
                     # Discover sustainability-relevant subpages from raw HTML.
-                    # Only one level deep — subpages of subpages are not followed.
+                    # Only one level deep: subpages of subpages are not followed.
                     if url in {u for u, _ in initial_urls}:
                         for sub_url in extract_relevant_links(raw_html or "", url, max_links=20):
                             if sub_url not in queued:
