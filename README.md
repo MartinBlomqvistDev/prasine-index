@@ -8,6 +8,8 @@ Every green claim made by an EU-listed company, verified against real emissions 
 
 *Prasine*: from Latin/Greek *prasinus* (green).
 
+**Live since late June 2026:** [prasineindex.com](https://prasineindex.com) (full reports) and [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/) (index). 8 companies published, each a 7-claim assessment judged by Claude Opus 4.8.
+
 ---
 
 ## What It Does
@@ -301,7 +303,7 @@ Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (h
 
 ## Published Assessments
 
-Current results, as published on [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/). Each is a 7-claim assessment scored by a Claude Opus 4.8 judge; the company verdict derives from the top-3 severity-weighted score, floored at the worst claim's band, so a confirmed finding can never be averaged away.
+Current results, as published on [prasineindex.com](https://prasineindex.com) and [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/). Each is a 7-claim assessment scored by a Claude Opus 4.8 judge; the company verdict derives from the top-3 severity-weighted score, floored at the worst claim's band, so a confirmed finding can never be averaged away.
 
 | Company | Sector | Verdict | Score |
 | ------- | ------ | ------- | ----- |
@@ -319,6 +321,16 @@ The index spans the full scale by design: confirmed greenwashing at the top (Rya
 Reports are published to `docs/reports/` as Markdown: every factual assertion cited, every data gap disclosed.
 
 An earlier v1 of the index covered 18 companies with single-claim assessments (Haiku judge). Those runs are preserved under `docs/reports/_dev/` as a historical record; they are superseded by the 7-claim, Opus-judged assessments above and are not directly comparable.
+
+---
+
+## Public Site
+
+Two surfaces publish the same reports, both live since late June 2026.
+
+**prasineindex.com**: Next.js 16 (App Router) + React 19, deployed on Vercel, auto-deploying on push to `main`. Source in [web/](web/). Routes: `/` (index and featured assessment), `/methodology`, `/reports/[slug]`. No database and no API calls at runtime: `web/lib/parse-report.ts` parses `docs/reports/<slug>.md` at build time, so the published scores cannot drift from the pipeline output. The `SLUGS` array in `web/app/page.tsx` defines index membership.
+
+**martinblomqvistdev.github.io/prasine-index**: static GitHub Pages site served from `docs/index.html`. Mini-card summaries linking through to the full reports. Hand-written HTML: card scores and verdicts are updated manually after a re-run.
 
 ---
 
@@ -481,8 +493,14 @@ prasine-index/
 │   └── JRC/
 │       └── EDGAR_2025_GHG_booklet_2025.xlsx
 ├── docs/
-│   ├── index.html              # Landing page
+│   ├── index.html              # GitHub Pages index (static, hand-written)
 │   └── reports/                # Published assessment reports (Markdown)
+│       └── _dev/               # Archived v1 index: 18 single-claim Haiku runs
+├── web/                        # prasineindex.com (Next.js 16, Vercel)
+│   ├── app/page.tsx            # Index + featured assessment; SLUGS = index membership
+│   ├── app/methodology/        # Scoring methodology page
+│   ├── app/reports/[slug]/     # One page per published report
+│   └── lib/parse-report.ts     # Parses docs/reports/*.md at build time
 ├── tests/
 │   └── test_models.py
 ├── .env.example
