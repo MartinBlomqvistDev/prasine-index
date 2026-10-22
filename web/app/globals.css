@@ -1,13 +1,13 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #f5f0e6;
-  --surface:     #ede8dc;
-  --border:      #d0c8b8;
-  --border-2:    #b8ae9e;
+  --bg:          #f6f5f0;
+  --surface:     #ecebe4;
+  --border:      #d6d3c9;
+  --border-2:    #bbb7ab;
   --text:        #1a160d;
-  --muted:       #6b5f4e;
-  --faint:       #a0907a;
+  --muted:       #5e5b53;
+  --faint:       #7d796f;
   --red:         #8b1c1c;
   --red-dim:     #fdf0f0;
   --red-text:    #7a1818;
@@ -27,7 +27,7 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-outfit, 'Outfit', system-ui, sans-serif);
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-size: 17px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
@@ -37,7 +37,7 @@ a { color: var(--text); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 h1, h2 {
-  font-family: var(--font-fraunces, 'Fraunces', Georgia, serif);
+  font-family: var(--font-serif), Georgia, serif;
   font-optical-sizing: auto;
   font-weight: 700;
   line-height: 1.1;
@@ -46,7 +46,7 @@ h1, h2 {
 /* ── Nav ── */
 .nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(245,240,230,0.96);
+  background: rgba(246,245,240,0.96);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
@@ -98,13 +98,12 @@ h1, h2 {
   margin-bottom: 20px;
 }
 .report-label {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-size: 12.5px; font-weight: 700; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 .report-date {
   font-size: 11px; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 .report-company {
@@ -114,7 +113,7 @@ h1, h2 {
 
 .report-details {
   font-size: 13px; color: var(--muted);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   margin-bottom: 40px;
 }
 
@@ -125,10 +124,9 @@ h1, h2 {
   margin-bottom: 32px;
 }
 .claim-attr {
-  font-size: 11px; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-size: 12.5px; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
   margin-bottom: 10px;
-  text-transform: uppercase; letter-spacing: 0.06em;
 }
 .report-claim blockquote {
   font-size: 1.0625rem;
@@ -146,7 +144,7 @@ h1, h2 {
   margin-bottom: 48px;
 }
 .verdict-word {
-  font-family: var(--font-fraunces, 'Fraunces', Georgia, serif);
+  font-family: var(--font-serif), Georgia, serif;
   font-size: 1.5rem; font-weight: 700;
 }
 .verdict-word.greenwashing   { color: var(--red); }
@@ -156,16 +154,14 @@ h1, h2 {
 .verdict-word.insufficient   { color: var(--blue-text); }
 .verdict-score {
   font-size: 1.0625rem; color: var(--muted);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
 }
 
 /* ── Report body ── */
 .report-body h2 {
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 1.0625rem;
   color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-weight: 700;
   margin: 40px 0 20px;
   border-bottom: 1px solid var(--border);
@@ -184,15 +180,14 @@ h1, h2 {
 .ev-number {
   font-size: 12px; font-weight: 700;
   color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   padding-top: 2px;
 }
 .ev-source-name {
   font-size: 13px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.04em;
   color: var(--text);
   margin-bottom: 6px;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 .ev-finding {
   font-size: 0.9375rem;
@@ -202,9 +197,8 @@ h1, h2 {
 }
 .ev-finding strong { color: var(--text); font-weight: 600; }
 .ev-weight {
-  font-size: 11px; font-weight: 700;
-  font-family: 'Space Mono', monospace;
-  text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 12.5px; font-weight: 700;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 .ev-weight.contra { color: var(--red); }
 .ev-weight.support { color: var(--green); }
@@ -213,9 +207,8 @@ h1, h2 {
 
 /* ── Evidence group label ── */
 .ev-group-label {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.09em;
-  text-transform: uppercase; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-size: 12.5px; font-weight: 700; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
   margin: 32px 0 12px;
 }
 
@@ -227,9 +220,8 @@ h1, h2 {
   background: var(--surface);
 }
 .key-finding-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-size: 12.5px; font-weight: 700; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
   margin-bottom: 10px;
 }
 .key-finding p:last-child {
@@ -239,7 +231,7 @@ h1, h2 {
 /* ── Dimensional scoring table ── */
 .dimension-note {
   font-size: 11px; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   margin-bottom: 10px;
 }
 .dimension-table {
@@ -247,9 +239,8 @@ h1, h2 {
   margin-bottom: 8px; font-size: 13px;
 }
 .dimension-table th {
-  text-align: left; font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  text-align: left; font-size: 12.5px; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
   border-bottom: 1px solid var(--border); padding: 6px 0;
 }
 .dimension-table td {
@@ -257,7 +248,7 @@ h1, h2 {
   color: var(--muted);
 }
 .dimension-table td:last-child {
-  font-family: 'Space Mono', monospace; font-weight: 700;
+  font-family: var(--font-mono), ui-monospace, monospace; font-weight: 700;
   color: var(--text); text-align: right;
 }
 
@@ -267,9 +258,8 @@ h1, h2 {
   margin-bottom: 8px; font-size: 12px;
 }
 .data-gaps-table th {
-  text-align: left; font-size: 10px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  text-align: left; font-size: 12.5px; color: var(--faint);
+  font-family: var(--font-sans), system-ui, sans-serif;
   border-bottom: 1px solid var(--border); padding: 6px 0;
 }
 .data-gaps-table td {
@@ -277,11 +267,11 @@ h1, h2 {
   color: var(--muted); line-height: 1.5; vertical-align: top;
 }
 .data-gaps-table td:first-child {
-  font-family: 'Space Mono', monospace; font-size: 11px;
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px;
   color: var(--text); white-space: nowrap; padding-right: 16px;
 }
 .data-gaps-table td:nth-child(2) {
-  font-family: 'Space Mono', monospace; font-size: 11px;
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px;
   padding-right: 16px; word-break: break-word;
 }
 
@@ -303,7 +293,7 @@ h1, h2 {
   counter-increment: sources;
   font-size: 12px;
   color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   line-height: 1.5;
   padding-left: 24px;
   position: relative;
@@ -333,7 +323,7 @@ h1, h2 {
   margin-bottom: 32px;
   font-size: 13px;
   color: var(--muted);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   flex-wrap: wrap;
 }
 .index-stat strong { color: var(--text); font-weight: 700; }
@@ -342,7 +332,7 @@ h1, h2 {
   margin-top: 20px;
   font-size: 12px;
   color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-mono), ui-monospace, monospace;
   font-style: italic;
 }
 
@@ -363,11 +353,10 @@ h1, h2 {
 .apply-form { max-width: 480px; }
 .form-row { margin-bottom: 16px; }
 .form-label {
-  font-size: 11px; font-weight: 700;
+  font-size: 12.5px; font-weight: 700;
   color: var(--muted); display: block;
   margin-bottom: 6px;
-  text-transform: uppercase; letter-spacing: 0.07em;
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 .form-input, .form-select, .form-textarea {
   display: block; width: 100%;
@@ -398,10 +387,8 @@ h1, h2 {
 }
 .report-markdown h2 {
   font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
   color: var(--faint);
-  font-family: 'Space Mono', monospace;
+  font-family: var(--font-sans), system-ui, sans-serif;
   font-weight: 700;
   margin: 40px 0 16px;
   padding-bottom: 8px;
@@ -467,9 +454,9 @@ footer {
 .assessments-table { border: 1px solid var(--border); width: 100%; border-collapse: collapse; }
 .assessments-table th {
   text-align: left; padding: 10px 16px;
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+  font-size: 12.5px; font-weight: 700;
   color: var(--faint); border-bottom: 1px solid var(--border);
-  font-family: 'Space Mono', monospace; background: var(--surface);
+  font-family: var(--font-sans), system-ui, sans-serif; background: var(--surface);
 }
 .assessments-table td {
   padding: 14px 16px; font-size: 13px;
@@ -479,8 +466,8 @@ footer {
 .assessments-table tr:hover td { background: var(--surface); }
 .status-badge {
   display: inline-block; padding: 2px 8px;
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
-  font-family: 'Space Mono', monospace;
+  font-size: 12.5px; font-weight: 700;
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
 .status-complete { background: var(--green-dim); color: var(--green-text); }
 .status-running  { background: var(--amber-dim); color: var(--amber-text); }
@@ -488,8 +475,7 @@ footer {
 
 .verdict-badge {
   padding: 3px 9px;
-  font-size: 10px; font-weight: 700; letter-spacing: 0.07em;
-  text-transform: uppercase; font-family: 'Space Mono', monospace;
+  font-size: 12.5px; font-weight: 700; font-family: var(--font-sans), system-ui, sans-serif;
 }
 .badge-greenwashing { background: var(--orange-dim); color: var(--orange-text); }
 .badge-confirmed    { background: var(--red-dim);    color: var(--red-text); }
@@ -512,7 +498,7 @@ footer {
 /* ── Calibration contrast panel ── */
 .calibration-section { padding: 64px 0; border-top: 1px solid var(--border); }
 .calibration-heading {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-serif), Georgia, serif;
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700; letter-spacing: -0.01em; margin: 8px 0 12px;
 }
@@ -525,7 +511,7 @@ footer {
 .calibration-worst { background: linear-gradient(180deg, var(--red-dim) 0%, var(--bg) 55%); }
 .calibration-best  { background: linear-gradient(180deg, var(--green-dim) 0%, var(--bg) 55%); }
 .calibration-tag {
-  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  font-size: 12.5px; font-weight: 700;
   color: var(--faint); margin-bottom: 16px;
 }
 .calibration-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
@@ -536,7 +522,7 @@ footer {
 .calibration-bar.bar-red { background: var(--red); }
 .calibration-bar.bar-green { background: var(--green); }
 .calibration-score {
-  width: 34px; text-align: right; font-family: 'Space Mono', monospace;
+  width: 34px; text-align: right; font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 20px; font-weight: 700; letter-spacing: -0.03em; flex-shrink: 0;
 }
 .calibration-side .verdict-badge { margin-bottom: 12px; }
@@ -545,7 +531,7 @@ footer {
   display: flex; align-items: center; justify-content: center; text-align: center;
   border-left: 1px solid var(--border); border-right: 1px solid var(--border);
   padding: 0 18px; background: var(--surface);
-  font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 12.5px; font-weight: 600;
   color: var(--faint); line-height: 1.5; white-space: nowrap;
 }
 @media (max-width: 640px) {

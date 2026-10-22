@@ -52,7 +52,7 @@ export default function MethodologyPage() {
                 ['7', 'Report', 'Writes the full assessment: evidence chain with citations, dimensional scoring table, key finding, data gaps, methodology note, and trace ID for reproducibility.'],
               ].map(([n, name, desc]) => (
                 <tr key={n}>
-                  <td style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: 'var(--muted)' }}>{n}</td>
+                  <td style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 12, color: 'var(--muted)' }}>{n}</td>
                   <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>{name}</td>
                   <td style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>{desc}</td>
                 </tr>
@@ -134,7 +134,7 @@ export default function MethodologyPage() {
                 ['81 – 100', 'Confirmed greenwashing', 'Definitive contradicting evidence. One or more confirmed triggers apply (see below). The claim cannot be reconciled with independently verified facts.'],
               ].map(([score, verdict, desc]) => (
                 <tr key={score}>
-                  <td style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, whiteSpace: 'nowrap' }}>{score}</td>
+                  <td style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 12, whiteSpace: 'nowrap' }}>{score}</td>
                   <td style={{ fontWeight: 600, whiteSpace: 'nowrap', fontSize: 13 }}>{verdict}</td>
                   <td style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>{desc}</td>
                 </tr>

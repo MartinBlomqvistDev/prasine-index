@@ -89,7 +89,7 @@ export default function HomePage() {
             <p className="report-details">
               {featured.claimCount} claim{featured.claimCount !== 1 ? 's' : ''} assessed · Prasine Index
               {featured.traceId && (
-                <> · <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11 }}>trace {featured.traceId.slice(0, 8)}</span></>
+                <> · <span style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 11 }}>trace {featured.traceId.slice(0, 8)}</span></>
               )}
             </p>
 
@@ -269,8 +269,8 @@ export default function HomePage() {
                         style={{ display: 'table', width: '100%', tableLayout: 'fixed', textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
                       >
                         <span style={{ display: 'table-cell', padding: '10px 12px', fontWeight: 500 }}>{company}</span>
-                        <span style={{ display: 'table-cell', padding: '10px 12px', color: 'var(--muted)', fontFamily: "'Space Mono', monospace", fontSize: 12 }}>{sector}</span>
-                        <span style={{ display: 'table-cell', padding: '10px 12px', fontFamily: "'Space Mono', monospace", fontWeight: 700 }}>{score}</span>
+                        <span style={{ display: 'table-cell', padding: '10px 12px', color: 'var(--muted)', fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 12 }}>{sector}</span>
+                        <span style={{ display: 'table-cell', padding: '10px 12px', fontFamily: "var(--font-mono), ui-monospace, monospace", fontWeight: 700 }}>{score}</span>
                         <span style={{ display: 'table-cell', padding: '10px 12px' }}>
                           <span className={`verdict-badge badge-${vf.cls}`}>{vf.label}</span>
                         </span>

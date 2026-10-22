@@ -95,7 +95,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
         <h1 className="report-company">{r.company}</h1>
         <p className="report-details">
           {r.claimCount} claim{r.claimCount !== 1 ? 's' : ''} assessed · Prasine Index
-          {r.traceId && <> · <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11 }}>trace {r.traceId.slice(0, 8)}</span></>}
+          {r.traceId && <> · <span style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 11 }}>trace {r.traceId.slice(0, 8)}</span></>}
         </p>
 
         {/* ── Aggregate verdict ── */}
