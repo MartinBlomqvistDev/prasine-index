@@ -151,7 +151,18 @@ EVAL_COMPANIES: list[dict[str, Any]] = [
         "isin": "DK0060094928",
         "ticker": "ORSTED",
         "csrd_reporting": True,
-        "name_filters": ["rsted a/s", "rsted bioenergy", "rsted salg", "rsted wind", "rsted"],
+        # Ørsted's EUTL installations sit under several account-holder names,
+        # incl. the pre-2017 legacy name "Dong Energy Power A/S" (installation 51).
+        # Do NOT add a bare "rsted" catch-all: it false-matches the unrelated
+        # German utility "Stadtwerke Norde-rsted-t" (installation 1487). The
+        # specific suffixes below cover every real Ørsted holder in the EUTL.
+        "name_filters": [
+            "rsted a/s",
+            "rsted bioenergy",
+            "rsted salg",
+            "rsted wind",
+            "dong energy",
+        ],
     },
     {
         "id": "00000000-0000-0000-0000-000000000011",
