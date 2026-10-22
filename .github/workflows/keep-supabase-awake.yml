@@ -1,0 +1,31 @@
+# Keep Supabase awake
+#
+# Supabase pauses a free project after seven days without enough activity. One
+# small query a day keeps it counted as active, so the database is up when the
+# pipeline or the eval needs it.
+#
+# The connection string lives in the repository secret DATABASE_URL, the same
+# value as in the local .env. A paused project makes this job fail, which is the
+# signal to resume it from the Supabase dashboard.
+
+name: Keep Supabase awake
+
+on:
+  schedule:
+    # Once a day. Off the hour, since GitHub's scheduler is busiest on it.
+    - cron: "23 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Count claims
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          # The app connects through asyncpg; psql wants the plain scheme.
+          url="${DATABASE_URL/postgresql+asyncpg:/postgresql:}"
+          count=$(psql "$url" -tAc "select count(*) from claims")
+          echo "supabase -> $count claims"
