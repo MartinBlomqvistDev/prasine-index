@@ -25,7 +25,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
-          # The app connects through asyncpg; psql wants the plain scheme.
+          # The app connects through asyncpg, so the secret carries its scheme
+          # and its ssl parameter. psql wants the plain scheme and sslmode.
           url="${DATABASE_URL/postgresql+asyncpg:/postgresql:}"
+          url="${url/ssl=/sslmode=}"
           count=$(psql "$url" -tAc "select count(*) from claims")
           echo "supabase -> $count claims"
