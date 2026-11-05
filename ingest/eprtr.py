@@ -331,7 +331,7 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
     for key, records_by_year in by_parent.items():
         if key == norm:
             continue  # already handled above
-        if len(norm) >= 5 and contains_name(key, norm):
+        if len(norm) >= 4 and contains_name(key, norm):
             for year, records in records_by_year.items():
                 merged[year].extend(records)
 
@@ -343,6 +343,42 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
         return by_facility[norm]
 
     return {}
+
+
+# Carbon dioxide as E-PRTR names it. Some facilities also report CO2 "excluding
+# biomass", but the two figures are not reported consistently (some facilities
+# report more CO2 excluding biomass than in total), so only the total is summed
+# and the other figure is noted.
+_CO2_NAMES = frozenset({"carbon dioxide (co2)", "co2"})
+_CO2_FOSSIL = "carbon dioxide (co2) excluding biomass"
+
+
+def _air(record: _EprtrRecord) -> bool:
+    return record.is_ghg and record.medium.upper() == "AIR"
+
+
+def _co2_by_year(records_by_year: dict[int, list[_EprtrRecord]]) -> dict[int, float]:
+    """Sum the total CO2 released to air by all matched facilities, per year, in tonnes."""
+    result: dict[int, float] = {}
+    for year, records in sorted(records_by_year.items()):
+        total = sum(
+            r.quantity_tonnes
+            for r in records
+            if _air(r) and r.pollutant.lower().strip() in _CO2_NAMES
+        )
+        if total > 0:
+            result[year] = total
+    return result
+
+
+def _other_pollutants(records: list[_EprtrRecord]) -> dict[str, float]:
+    """Sum each tracked pollutant other than CO2 released to air, in tonnes."""
+    totals: dict[str, float] = defaultdict(float)
+    for r in records:
+        name = r.pollutant.lower().strip()
+        if _air(r) and name not in _CO2_NAMES and "excluding biomass" not in name:
+            totals[r.pollutant.strip()] += r.quantity_tonnes
+    return {name: value for name, value in totals.items() if value > 0}
 
 
 def _ghg_tonnes_by_year(records_by_year: dict[int, list[_EprtrRecord]]) -> dict[int, float]:
@@ -393,27 +429,48 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
         )
         return []
 
-    ghg_by_year = _ghg_tonnes_by_year(records_by_year)
-
-    if not ghg_by_year:
-        # Records found but no GHG releases to AIR: return empty so as not to confuse the Judge.
+    co2_by_year = _co2_by_year(records_by_year)
+    tracked_years = sorted(
+        year for year, records in records_by_year.items() if any(_air(r) for r in records)
+    )
+    if not tracked_years:
+        # Records found but no tracked releases to air: nothing to report.
         return []
 
-    years = sorted(ghg_by_year.keys())
-    latest_year = years[-1]
-    latest_tonnes = ghg_by_year[latest_year]
-
-    # Build trend assessment
-    supports, confidence, trend_text = _assess_trend(ghg_by_year)
-
-    # Build year-by-year summary for the Judge (last 5 years)
-    year_lines = [f"{yr}: {ghg_by_year[yr]:,.1f} t" for yr in years[-5:]]
-    summary = (
-        f"E-PRTR regulated industrial emissions to air for {name} "
-        f"(CO2, GHGs, NOX, NMVOC combined): {'; '.join(year_lines)}. "
-        f"Most recent year ({latest_year}): {latest_tonnes:,.1f} tonnes. "
-        f"{trend_text}"
+    latest_year = tracked_years[-1]
+    latest_records = [r for r in records_by_year[latest_year] if _air(r)]
+    facilities = sorted({r.facility_name for r in latest_records})
+    named = "; ".join(facilities[:4]) + (
+        f"; and {len(facilities) - 4} more" if len(facilities) > 4 else ""
     )
+    others = _other_pollutants(latest_records)
+    other_text = "; ".join(
+        f"{pollutant} {tonnes:,.1f} t" for pollutant, tonnes in sorted(others.items())
+    )
+
+    parts = [
+        f"E-PRTR releases to air from {len(facilities)} facilit"
+        f"{'y' if len(facilities) == 1 else 'ies'} whose names match {name} "
+        f"in {latest_year} ({named}). Each pollutant is reported separately."
+    ]
+    if co2_by_year:
+        years = sorted(co2_by_year)
+        series = "; ".join(f"{yr}: {co2_by_year[yr]:,.1f} t" for yr in years[-5:])
+        supports, confidence, trend_text = _assess_trend(co2_by_year)
+        parts.append(f"Carbon dioxide (CO2), total as reported: {series}. {trend_text}")
+    else:
+        supports, confidence = None, 0.4
+        parts.append("No CO2 release is reported for these facilities.")
+    if other_text:
+        parts.append(f"Other pollutants in {latest_year}: {other_text}.")
+    if any(r.pollutant.lower().strip() == _CO2_FOSSIL for r in latest_records):
+        parts.append(
+            "Some of these facilities also report CO2 excluding biomass, a figure not "
+            "combined with the totals above."
+        )
+    summary = " ".join(parts)
+    ghg_by_year = co2_by_year
+    latest_tonnes = co2_by_year.get(latest_year, 0.0)
 
     logger.info(
         f"E-PRTR: {name!r}, {latest_year} emissions={latest_tonnes:,.1f} t, trend={trend_text!r}",
@@ -434,10 +491,12 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
             source_url="https://industry.eea.europa.eu/",
             raw_data={
                 "company": name,
-                "ghg_by_year": ghg_by_year,
-                "years_available": years,
+                "facilities": facilities,
+                "co2_by_year": ghg_by_year,
+                "other_pollutants_latest_year": others,
+                "years_available": tracked_years,
                 "latest_year": latest_year,
-                "latest_ghg_tonnes": latest_tonnes,
+                "latest_co2_tonnes": latest_tonnes,
             },
             summary=summary,
             data_year=latest_year,
@@ -492,7 +551,7 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
             return (
                 None,
                 0.45,
-                f"Regulated emissions to air: {'; '.join(f'{y}: {ghg_by_year[y]:,.1f} t' for y in years[-5:])}. "
+                f"CO2 releases to air: {'; '.join(f'{y}: {ghg_by_year[y]:,.1f} t' for y in years[-5:])}. "
                 f"NOTE: The {years[-1]} figure ({last_val:,.1f} t) is >{last_val / penultimate:.0f}x the prior year "
                 f"({years[-2]}: {penultimate:,.1f} t): likely a first-disclosure event (new facility or "
                 f"pollutant type entering E-PRTR reporting scope), not a genuine emissions increase. "
@@ -512,14 +571,14 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
         return (
             True,
             0.75,
-            f"Regulated emissions fell {abs(pct_change):.0f}% from {first_year} to {last_year} "
+            f"CO2 releases fell {abs(pct_change):.0f}% from {first_year} to {last_year} "
             f"({first_val:,.1f} → {last_val:,.1f} t).",
         )
     if pct_change >= 20:
         return (
             False,
             0.75,
-            f"Regulated emissions rose {pct_change:.0f}% from {first_year} to {last_year} "
+            f"CO2 releases rose {pct_change:.0f}% from {first_year} to {last_year} "
             f"({first_val:,.1f} → {last_val:,.1f} t).",
         )
 
@@ -527,6 +586,6 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
     return (
         None,
         0.55,
-        f"Regulated emissions {direction} {abs(pct_change):.0f}% from {first_year} to {last_year} "
+        f"CO2 releases {direction} {abs(pct_change):.0f}% from {first_year} to {last_year} "
         f"({first_val:,.1f} → {last_val:,.1f} t).",
     )
