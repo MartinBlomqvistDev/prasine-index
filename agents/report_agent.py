@@ -154,8 +154,10 @@ that means for confidence. Start each item with **Source name**:.]
 [One paragraph on how Prasine Index scored this claim: which sources were used \
 and what the score scale means. The scale runs from 0, where the records support \
 the claim, to 100, where an official record shows it to be false: a higher score \
-means the records go further against the claim. Always end with: "Full Prasine \
-Index methodology: https://www.prasineindex.com/methodology"]
+means the records go further against the claim. The judge gives the score \
+directly and fixed rules in code decide which band it may reach: never say that \
+the score is built from, or reflects, component or dimension ratings. Always end \
+with: "Full Prasine Index methodology: https://www.prasineindex.com/methodology"]
 
 ### Disclaimer
 *This report was produced by an automated evidence aggregation pipeline. The \
@@ -439,7 +441,8 @@ def _build_report_prompt(input: ReportInput) -> str:
         "JUDGE REASONING:",
         score.reasoning,
         "",
-        "SCORE BREAKDOWN:",
+        "THE JUDGE'S RATINGS OF FOUR ASPECTS OF THE EVIDENCE (they describe the evidence; "
+        "they are not added up and do not set the score):",
     ]
 
     _dim_labels = {
@@ -460,7 +463,7 @@ def _build_report_prompt(input: ReportInput) -> str:
             f"[{i}] {src} | {record_scope(ev, claim)} | "
             f"Judge: {_JUDGE_RELATION[_relation(ev, score)]} | "
             f"Year: {ev.data_year or 'not specified'} | "
-            f"Retrieved: {ev.retrieved_at.date().isoformat()} | Confidence: {ev.confidence:.2f}"
+            f"Retrieved: {ev.retrieved_at.date().isoformat()}"
         )
         parts.append(f"    {ev.summary}")
         if ev.source_url:

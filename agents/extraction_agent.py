@@ -130,7 +130,11 @@ WHAT IS NOT A CLAIM
 offered for download, such as "Net-zero Ambition" or "Our sustainable business \
 model". A heading is never a claim by itself; if the sentence under it is a claim, \
 extract that sentence.
-- A bare figure or label without the sentence that makes it an assertion.
+- A bare figure or label without the sentence that makes it an assertion, such as \
+an infographic tile that shows "24%" over a caption.
+- The caption of a link or teaser that points to a report or article, such as \
+"Within our Sustainability Report, learn more about the goals we have set": the \
+claim is in the document it points to.
 - Statements about another company, such as a customer's, partner's or \
 supplier's targets, aspirations or validations, even when they appear on this \
 company's pages. Extract only what the company states about itself. For example, \
@@ -154,10 +158,24 @@ sentences: never a clause cut from a longer sentence.
 5. Return only real climate claims. Fewer claims are better than padding: if the \
 document holds two climate claims, return two.
 6. Return at most one claim per ClaimCategory: the most specific and verifiable one.
-7. Do not return near-duplicates. Claims about different emission scopes are \
-different claims.
+7. Do not return near-duplicates. Two passages that state the same target, with \
+the same figure and year, are one claim, such as an announcement and the footnote \
+that gives the target's wording: return the fuller one. Claims about different \
+emission scopes are different claims.
 8. Call the extract_green_claims tool exactly once with the complete list.\
 """
+
+
+def _clean_claim_text(text: str) -> str:
+    """Put a claim on one line and rejoin chemical subscripts split by the page's markup.
+
+    A page that sets CO2e with a subscript yields "CO 2 e" or a line break inside the
+    formula; the claim is still quoted word for word, as the page reads.
+    """
+    flat = " ".join(text.split())
+    flat = re.sub(r"\bCO\s+2\s*e\b", "CO2e", flat)
+    return re.sub(r"\bCO\s+2\b", "CO2", flat)
+
 
 # ---------------------------------------------------------------------------
 # Hallucination firewall
@@ -568,7 +586,7 @@ class ExtractionAgent:
         claims: list[Claim] = []
 
         for idx, raw in enumerate(raw_claims):
-            raw_text: str = raw.get("raw_text", "").strip()
+            raw_text: str = _clean_claim_text(raw.get("raw_text", "").strip())
             if not raw_text:
                 logger.warning(
                     f"Skipping claim at index {idx}: raw_text is empty",

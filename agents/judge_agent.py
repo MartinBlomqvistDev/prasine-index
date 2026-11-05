@@ -128,7 +128,8 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                 "description": (
                     "True when the claim's central statement is a company-wide climate "
                     "pledge: a net-zero, carbon-neutrality or Paris-alignment commitment "
-                    "or status. False for a statement of fact that mentions a pledge, "
+                    "or status, also when it covers only some emission scopes. False for a "
+                    "statement of fact that mentions a pledge, "
                     "such as an SBTi validation, a purchase or a programme's effect."
                 ),
             },
@@ -275,7 +276,13 @@ mentions a pledge is not one: that SBTi has validated a target, that a fuel was 
 bought, that a programme cut emissions by a given amount. Nor is support for a \
 goal, such as "we support the goals of the Paris Agreement", which commits the \
 company to nothing. Those are checked against the records about what they state. \
+A net-zero aim that covers only some emission scopes, such as the Scope 1 and 2 \
+emissions of operations under the company's control, is still a pledge of the \
+company; the scopes it leaves out are part of what the records are weighed \
+against. \
 Say in claim_is_pledge whether the claim is a pledge. \
+For a claim that is not a pledge, score_low and score_high may not rest on \
+integrity records either. \
 For a claim that could be one, the evidence list marks its integrity records as \
 "integrity criterion, counts if the claim is a pledge". Two of the criteria set \
 out in \
@@ -289,7 +296,9 @@ For a pledge, a record showing that the company is expanding fossil fuel supply 
 that its lobbying is obstructive (LobbyMap band D or lower, which LobbyMap defines \
 as a score below 50%; D+ is not in that range) contradicts the pledge, \
 and investor assessments of the pledge (Climate Action 100+, TPI) and fossil fuel \
-financing bear on it directly. Such records can place a pledge in 61-80. They \
+financing bear on it directly, in both directions: an investor assessment that \
+rates the pledge well counts for it as one that rates it poorly counts against \
+it. Such records can place a pledge in 61-80. They \
 never place it in 81-100, and they never count against a claim that is not a \
 pledge. Name the criterion and quote the record; do not say the company breaks a \
 rule.
