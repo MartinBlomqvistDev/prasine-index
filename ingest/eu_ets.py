@@ -318,6 +318,21 @@ def _build_evidence(
     # "increase" that is a reporting-scope artefact, not real emissions growth.
     # The full history (including pre-2013 years) is still shown alongside.
     trend_base = [(y, e) for y, e in history if y >= 2013] or history
+    # A change of more than half from one year to the next can come from a change
+    # in what the installation reports, such as two permits merged into one, as
+    # well as from a real change in emissions. The trend then starts after it.
+    break_note = ""
+    for i in range(len(trend_base) - 1, 0, -1):
+        previous, current = trend_base[i - 1][1], trend_base[i][1]
+        if previous and (current > previous * 1.5 or current < previous * 0.5):
+            break_note = (
+                f"; the series changes by more than half between {trend_base[i - 1][0]} and "
+                f"{trend_base[i][0]}, which can reflect a change in what the installation "
+                "reports as well as in its emissions, so the trend starts in "
+                f"{trend_base[i][0]}"
+            )
+            trend_base = trend_base[i:]
+            break
     base_year, base_emissions = trend_base[0]
     if len(history) >= 2 and base_year != most_recent_year:
         pct_change = (
@@ -329,7 +344,9 @@ def _build_evidence(
             f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% "
             f"from {base_year} to {most_recent_year}"
         )
-        if base_year != oldest_year:
+        if break_note:
+            direction += break_note
+        elif base_year != oldest_year:
             direction += " (trend baseline 2013; earlier ETS phases had narrower reporting scope)"
     else:
         direction = "insufficient data for trend"

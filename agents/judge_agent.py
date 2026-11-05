@@ -23,6 +23,7 @@ from core.evidence_scope import (
     HLEG_FOSSIL_SUPPLY,
     HLEG_LOBBYING,
     OFFICIAL_RECORD_SOURCES,
+    can_be_pledge,
     is_claim_level,
     is_recent_finding,
     record_scope,
@@ -761,6 +762,15 @@ class JudgeAgent:
                 )
 
             valid_categories = {c.value for c in ScoreCategory}
+            # A dimension is published only where the rules let it bear on this claim.
+            dropped = set()
+            if not any(
+                is_recent_finding(e)
+                for e in _records(verdict.get("same_claim_decisions"), evidence)
+            ):
+                dropped.add(ScoreCategory.PRIOR_VIOLATIONS.value)
+            if not (_pledge(verdict) and can_be_pledge(input.claim)):
+                dropped.add(ScoreCategory.LOBBYING_CONTRADICTION.value)
             raw_breakdown = verdict.get("score_breakdown", {})
             unknown_keys = [k for k in raw_breakdown if k not in valid_categories]
             if unknown_keys:
@@ -780,6 +790,7 @@ class JudgeAgent:
                     if k in valid_categories
                     and v is not None
                     and str(v).strip().upper() not in ("N/A", "NA", "")
+                    and k not in dropped
                 },
                 verdict=derived_verdict,
                 reasoning="\n\n".join(filter(None, (verdict["reasoning"], capped_note))),
