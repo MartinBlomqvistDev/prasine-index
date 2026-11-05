@@ -54,7 +54,7 @@ _CSV_PATH = Path(__file__).parent.parent / "data" / "tpi_companies.csv"
 
 # MQ level score thresholds for greenwashing signal
 _MQ_WEAK = {"0", "1"}
-_MQ_STRONG = {"4", "4STAR"}
+_MQ_STRONG = {"4", "4STAR", "5"}
 
 # CP alignment tiers
 _CP_PARIS_ALIGNED = {
@@ -73,13 +73,17 @@ class _TPIRecord:
     __slots__ = (
         "company_name",
         "cp_2025",
+        "cp_2030",
         "cp_2035",
         "cp_2050",
         "cp_assessed",
         "geography",
         "mq_assessed",
         "mq_level",
+        "mq_published",
+        "retrieved",
         "sector",
+        "source_url",
     )
 
     def __init__(self, row: dict[str, str]) -> None:
@@ -88,10 +92,19 @@ class _TPIRecord:
         self.sector = row.get("Sector", "").strip()
         self.mq_level = row.get("Level", "").strip()
         self.cp_2025 = row.get("Carbon Performance Alignment 2025", "").strip()
+        self.cp_2030 = row.get("Carbon Performance Alignment 2030", "").strip()
         self.cp_2035 = row.get("Carbon Performance Alignment 2035", "").strip()
         self.cp_2050 = row.get("Carbon Performance Alignment 2050", "").strip()
         self.mq_assessed = row.get("MQ Assessment Date", "").strip()
         self.cp_assessed = row.get("CP Assessment Date", "").strip()
+        self.mq_published = row.get("MQ Publication Date", "").strip()
+        self.retrieved = row.get("Retrieved", "").strip()
+        self.source_url = row.get("Source URL", "").strip()
+
+    @property
+    def short_term(self) -> tuple[str, str]:
+        """Return the short-term year and alignment: 2030 in current data, 2025 before."""
+        return ("2030", self.cp_2030) if self.cp_2030 else ("2025", self.cp_2025)
 
     @property
     def assessed_year(self) -> int | None:
@@ -181,7 +194,9 @@ def _name_matches(company_norm: str, record_name: str) -> bool:
     if names_overlap(company_norm, rec_norm):
         return True
     company_first = company_norm.split()[0] if company_norm.split() else company_norm
-    return len(company_first) >= 4 and contains_name(rec_norm, company_first)
+    return (len(company_first) >= 4 or "&" in company_first) and contains_name(
+        rec_norm, company_first
+    )
 
 
 async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
@@ -247,8 +262,9 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         confidence = 0.60
 
     # Build summary
+    short_year, short_value = rec.short_term
     cp_summary = (
-        f"CP 2025: {rec.cp_2025 or 'N/A'}; "
+        f"CP {short_year}: {short_value or 'N/A'}; "
         f"CP 2035: {rec.cp_2035 or 'N/A'}; "
         f"CP 2050: {rec.cp_2050 or 'N/A'}"
     )
@@ -261,9 +277,10 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         )
         if date
     )
+    retrieved = f"; read from TPI on {rec.retrieved}" if rec.retrieved else ""
     summary = (
         f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}"
-        f"{'; ' + dates if dates else ''}): "
+        f"{'; ' + dates if dates else ''}{retrieved}): "
         f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}). "
         f"Carbon Performance alignment: {cp_summary}."
     )
@@ -281,10 +298,13 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         "mq_level": rec.mq_level,
         "mq_label": rec.mq_label,
         "cp_alignment_2025": rec.cp_2025,
+        "cp_alignment_2030": rec.cp_2030,
         "cp_alignment_2035": rec.cp_2035,
         "cp_alignment_2050": rec.cp_2050,
         "mq_assessed": rec.mq_assessed,
         "cp_assessed": rec.cp_assessed,
+        "mq_published": rec.mq_published,
+        "retrieved": rec.retrieved,
     }
 
     return [
@@ -293,7 +313,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
             trace_id=claim.trace_id,
             source=EvidenceSource.TPI,
             evidence_type=EvidenceType.BENCHMARK_ASSESSMENT,
-            source_url="https://www.transitionpathwayinitiative.org/corporates",
+            source_url=rec.source_url or "https://www.transitionpathwayinitiative.org/corporates",
             raw_data=raw_data,
             summary=summary,
             data_year=rec.assessed_year,
