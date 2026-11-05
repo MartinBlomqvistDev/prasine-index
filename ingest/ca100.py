@@ -489,33 +489,9 @@ def _assess_record(record: _CA100Record) -> tuple[bool | None, float]:
 
 def _build_summary(company_name: str, record: _CA100Record) -> str:
     year_str = f" ({record.year} benchmark)" if record.year else ""
-    nz_class = record.nz_ambition_class
-
-    if nz_class == "NOT_ALIGNED":
-        return (
-            f"CA100+ Net Zero Company Benchmark for {company_name}{year_str}: "
-            f"Net Zero Ambition = {record.nz_ambition or 'Not Aligned'}; "
-            f"Capex Alignment = {record.capex_alignment or 'unknown'}; "
-            f"Short-term target = {record.short_term_target or 'unknown'}. "
-            f"The CA100+ investor coalition (700+ investors, $68tn AUM) assesses this "
-            f"company as NOT aligned with a credible net-zero pathway. Any net-zero or "
-            f"Paris-aligned claim by this company is contradicted by this assessment."
-        )
-
-    if nz_class == "ALIGNED":
-        return (
-            f"CA100+ Net Zero Company Benchmark for {company_name}{year_str}: "
-            f"Net Zero Ambition = {record.nz_ambition}; "
-            f"Capex Alignment = {record.capex_alignment or 'unknown'}; "
-            f"Short-term target = {record.short_term_target or 'unknown'}. "
-            f"CA100+ investors assess this company as having credible net-zero alignment. "
-            f"Supports claims of Paris-compatible climate strategy."
-        )
-
     return (
         f"CA100+ Net Zero Company Benchmark for {company_name}{year_str}: "
-        f"Net Zero Ambition = {record.nz_ambition or 'partial/unknown'}; "
-        f"Capex Alignment = {record.capex_alignment or 'unknown'}. "
-        f"Partial alignment: some elements meet the benchmark, others do not. "
-        f"Inconclusive for greenwashing assessment without deeper analysis."
+        f"Net Zero Ambition = {record.nz_ambition or 'not assessed'}; "
+        f"Capex Alignment = {record.capex_alignment or 'not assessed'}; "
+        f"Short-term target = {record.short_term_target or 'not assessed'}."
     )

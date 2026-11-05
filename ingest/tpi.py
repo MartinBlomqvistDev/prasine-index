@@ -228,37 +228,10 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         f"CP 2050: {rec.cp_2050 or 'N/A'}"
     )
 
-    if rec.is_not_aligned_2050:
-        signal = (
-            f"CONTRADICTS green claim: TPI projects {company_name!r} trajectory as "
-            f"'Not Aligned' with Paris Agreement by 2050. This means the company's "
-            f"disclosed emissions pathway exceeds the TPI sector benchmark for 2050, "
-            f"a direct contradiction of any net-zero or Paris-alignment claim."
-        )
-    elif rec.is_paris_aligned_2050:
-        signal = (
-            f"Partially supports: TPI rates {company_name!r} 2050 pathway as "
-            f"'{rec.cp_2050}', within Paris-compatible bounds. MQ: {rec.mq_label}."
-        )
-    elif rec.has_weak_mq:
-        signal = (
-            f"Weak management quality: TPI MQ Level {rec.mq_level} ({rec.mq_label}) "
-            f"indicates {company_name!r} has not put in place substantive climate "
-            f"governance structures to back up public claims."
-        )
-    else:
-        signal = (
-            f"TPI rates {company_name!r} MQ Level {rec.mq_level} ({rec.mq_label}), "
-            f"CP pathway: {rec.cp_2050 or 'not assessed'}."
-        )
-
     summary = (
-        f"TPI assessment ({rec.sector}, {rec.geography}): "
+        f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}): "
         f"Management Quality Level {rec.mq_level} ({rec.mq_label}). "
-        f"{cp_summary}. "
-        f"{signal} "
-        f"TPI Centre assessments are used by 150+ investors ($80tn AUM) as the "
-        f"standard investor-facing measure of corporate climate transition quality."
+        f"Carbon Performance alignment: {cp_summary}."
     )
 
     logger.info(

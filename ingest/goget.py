@@ -252,9 +252,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         dev_names = "; ".join(f"{f.name} ({f.country}, {f.fuel_type})" for f in developing[:5])
         lines.append(
             f"IN DEVELOPMENT: {len(developing)} field(s) with FID, capital committed "
-            f"to new fossil fuel extraction. Examples: {dev_names}. "
-            f"Each field locks in decades of upstream production, directly contradicting "
-            f"any net-zero or fossil fuel phase-out claim."
+            f"to new fossil fuel extraction. Examples: {dev_names}."
         )
 
     if discovered:

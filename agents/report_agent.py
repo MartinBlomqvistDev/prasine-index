@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
+from core.evidence_scope import record_scope
 from core.logger import bind_trace_context, get_logger
 from core.model_requests import fallback_body, fallback_headers, raise_if_refused
 from core.retry import (
@@ -380,7 +381,10 @@ class ReportAgent:
                 llm_model_id=self._model_id,
             )
 
-        return _insert_evidence_section(report_text, input.verification.evidence), tokens_used
+        return (
+            _insert_evidence_section(report_text, input.verification.evidence, input.score),
+            tokens_used,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -447,9 +451,10 @@ def _build_report_prompt(input: ReportInput) -> str:
     for i, ev in enumerate(vr.evidence, 1):
         src = _source_label(ev)
         parts.append(
-            f"[{i}] {src} | Year: {ev.data_year or 'not specified'} | "
-            f"Retrieved: {ev.retrieved_at.date().isoformat()} | "
-            f"Supports claim: {ev.supports_claim} | Confidence: {ev.confidence:.2f}"
+            f"[{i}] {src} | {record_scope(ev)} | "
+            f"Judge: {_JUDGE_RELATION[_relation(ev, score)]} | "
+            f"Year: {ev.data_year or 'not specified'} | "
+            f"Retrieved: {ev.retrieved_at.date().isoformat()} | Confidence: {ev.confidence:.2f}"
         )
         parts.append(f"    {ev.summary}")
         if ev.source_url:
@@ -464,9 +469,8 @@ def _build_report_prompt(input: ReportInput) -> str:
         lb = input.lobbying
         parts += [
             "",
-            "LOBBYING RECORD:",
+            "LOBBYING RECORD (company-level context):",
             f"  Stance: {lb.stance.value}",
-            f"  Contradicts claim: {'YES' if lb.contradicts_claim else 'No'}",
         ]
         if lb.contradiction_explanation:
             parts.append(f"  Detail: {lb.contradiction_explanation}")
@@ -497,26 +501,47 @@ def _source_label(evidence: Evidence) -> str:
     return _SOURCE_LABELS.get(value, value.replace("_", " ").title())
 
 
-def _supports_label(supports_claim: bool | None) -> str:
-    """Return how an evidence record relates to the claim, as printed in the report."""
-    if supports_claim is True:
-        return "Yes"
-    if supports_claim is False:
-        return "No"
-    return "Context"
+# How the judge read each record, as printed in the report ("Supports claim:"
+# is the form the site's parser reads) and as given to the report model.
+_SUPPORT_LABELS = {"contradicts": "No", "supports": "Yes", "context": "Context"}
+_JUDGE_RELATION = {
+    "contradicts": "contradicts the claim",
+    "supports": "supports the claim",
+    "context": "context",
+}
 
 
-def render_evidence_section(evidence: list[Evidence]) -> str:
+def _relation(evidence: Evidence, score: GreenwashingScore | None) -> str:
+    """Return how the judge read a record: contradicts, supports or context.
+
+    Only claim-level records the judge cited can contradict or support a claim;
+    every other record, including every company-level record, is context.
+    """
+    if score is None:
+        return "context"
+    if evidence.id in score.contradicting_evidence_ids:
+        return "contradicts"
+    if evidence.id in score.supporting_evidence_ids:
+        return "supports"
+    return "context"
+
+
+def render_evidence_section(
+    evidence: list[Evidence], score: GreenwashingScore | None = None
+) -> str:
     """Render the Evidence section of a report from the verification records.
 
     The evidence list in a published report is generated from the records the
     judge saw rather than written by the model, so a source cannot be
-    misdescribed there, and every record carries its support label, confidence
-    and URL in the form the site's parser reads. Records are numbered in the
-    order the report model was given them, so its citations by number match.
+    misdescribed there. Each record carries how the judge read it for this
+    claim, its confidence and its URL, in the form the site's parser reads.
+    Records are numbered in the order the report model was given them, so its
+    citations by number match.
 
     Args:
         evidence: The verification evidence, in the order passed to the model.
+        score: The judge's score, which names the records that contradict or
+            support the claim. Without it every record is labelled context.
 
     Returns:
         The section body in Markdown, one paragraph per record.
@@ -528,23 +553,26 @@ def render_evidence_section(evidence: list[Evidence]) -> str:
         url = f" {ev.source_url}" if ev.source_url else ""
         paragraphs.append(
             f"**[{i}] {_source_label(ev)}** {summary} ({year}). "
-            f"Supports claim: {_supports_label(ev.supports_claim)}. "
+            f"Supports claim: {_SUPPORT_LABELS[_relation(ev, score)]}. "
             f"(confidence {ev.confidence:.2f}){url}"
         )
     return "\n\n".join(paragraphs) or "No evidence records were returned."
 
 
-def _insert_evidence_section(markdown: str, evidence: list[Evidence]) -> str:
+def _insert_evidence_section(
+    markdown: str, evidence: list[Evidence], score: GreenwashingScore | None = None
+) -> str:
     """Replace the body of the report's Evidence section with the rendered records.
 
     Args:
         markdown: The report as written by the model.
         evidence: The verification evidence, in prompt order.
+        score: The judge's score, for how each record relates to the claim.
 
     Returns:
         The report with a generated Evidence section.
     """
-    rendered = render_evidence_section(evidence)
+    rendered = render_evidence_section(evidence, score)
     start = markdown.find("### Evidence")
     if start == -1:
         block = f"### Evidence\n\n{rendered}\n\n"

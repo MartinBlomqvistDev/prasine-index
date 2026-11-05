@@ -513,14 +513,14 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
             True,
             0.75,
             f"Regulated emissions fell {abs(pct_change):.0f}% from {first_year} to {last_year} "
-            f"({first_val:,.1f} → {last_val:,.1f} t). Supports emissions reduction claims.",
+            f"({first_val:,.1f} → {last_val:,.1f} t).",
         )
     if pct_change >= 20:
         return (
             False,
             0.75,
             f"Regulated emissions rose {pct_change:.0f}% from {first_year} to {last_year} "
-            f"({first_val:,.1f} → {last_val:,.1f} t). Contradicts emissions reduction claims.",
+            f"({first_val:,.1f} → {last_val:,.1f} t).",
         )
 
     direction = "fell" if pct_change < 0 else "rose"
@@ -528,5 +528,5 @@ def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, st
         None,
         0.55,
         f"Regulated emissions {direction} {abs(pct_change):.0f}% from {first_year} to {last_year} "
-        f"({first_val:,.1f} → {last_val:,.1f} t). Inconclusive.",
+        f"({first_val:,.1f} → {last_val:,.1f} t).",
     )

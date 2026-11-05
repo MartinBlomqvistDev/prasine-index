@@ -405,28 +405,20 @@ def _build_summary(company_name: str, record: _GCELRecord) -> str:
 
     if record.is_expanding:
         return (
-            f"Urgewald Global Coal Exit List: {company_name} is listed as ACTIVELY "
-            f"EXPANDING coal capacity ({capacity_str}). "
+            f"Urgewald Global Coal Exit List: {company_name} is listed as expanding "
+            f"coal capacity ({capacity_str}). "
             f"Mining expansion status: {record.mining_expansion or 'unknown'}; "
-            f"Power expansion status: {record.power_expansion or 'unknown'}. "
-            f"Any claim of clean energy transition or Paris alignment is directly "
-            f"contradicted by this documented coal expansion. "
-            f"The GCEL is used by 400+ financial institutions (GFANZ, PAII) as the "
-            f"standard coal screen; this company fails it."
+            f"power expansion status: {record.power_expansion or 'unknown'}."
         )
 
     if record.is_phasing_out:
         phase_str = record.phase_out_plan or "plan details not disclosed"
         return (
             f"Urgewald Global Coal Exit List: {company_name} is listed on the GCEL "
-            f"({capacity_str}) but has a documented coal phase-out plan: {phase_str}. "
-            f"Presence on GCEL is a negative signal; phase-out plan partially mitigates it. "
-            f"Transition claims should be verified against the phase-out timeline."
+            f"({capacity_str}) with a coal phase-out plan: {phase_str}."
         )
 
     return (
         f"Urgewald Global Coal Exit List: {company_name} is listed on the GCEL "
-        f"({capacity_str}). Expansion status unclear: classified as a coal company "
-        f"by Urgewald. Any clean energy transition claims require scrutiny against "
-        f"this coal exposure."
+        f"({capacity_str}). The list does not record an expansion status."
     )

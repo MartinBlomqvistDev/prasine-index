@@ -223,6 +223,14 @@ class GreenwashingScore(BaseModel):
         default_factory=list,
         description="IDs of all Evidence records provided to the Judge Agent; enables full evidence chain reconstruction.",
     )
+    contradicting_evidence_ids: list[uuid.UUID] = Field(
+        default_factory=list,
+        description="IDs of the claim-level Evidence records the judge found to contradict this claim.",
+    )
+    supporting_evidence_ids: list[uuid.UUID] = Field(
+        default_factory=list,
+        description="IDs of the claim-level Evidence records the judge found to support this claim.",
+    )
     empco_violation: bool | None = Field(
         default=None,
         description=(

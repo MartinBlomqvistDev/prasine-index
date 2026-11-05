@@ -446,10 +446,9 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
 
     if record.is_removed:
         return (
-            f"SBTi target for {company_name}: STATUS = {status_display.upper()}. "
-            f"The company previously had an SBTi-registered target but it has been "
-            f"removed or is no longer valid{date_display}. "
-            f"Any current claim referencing SBTi-validated targets is unsubstantiated."
+            f"SBTi target for {company_name}: status = {status_display}. "
+            f"The SBTi register records an earlier target as removed or no longer "
+            f"valid{date_display}."
         )
 
     return (

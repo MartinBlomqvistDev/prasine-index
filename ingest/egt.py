@@ -333,10 +333,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
             for a in expanding[:5]
         )
         lines.append(
-            f"EXPANDING: {len(expanding)} asset(s) in active development. "
-            f"Examples: {exp_names}. "
-            f"European gas infrastructure locks in 40+ years of fossil fuel demand; "
-            f"directly contradicts fossil gas phase-out or net-zero transition claims."
+            f"EXPANDING: {len(expanding)} asset(s) in active development. Examples: {exp_names}."
         )
 
     if operating:

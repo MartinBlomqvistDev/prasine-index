@@ -321,12 +321,9 @@ def _build_summary(company_name: str, record: _FossilFinanceRecord) -> str:
     coal_str = f"${record.coal_bn:.1f}bn coal" if record.coal_bn else ""
     og_str = f"${record.oil_gas_bn:.1f}bn oil & gas" if record.oil_gas_bn else ""
     breakdown = ", ".join(x for x in [coal_str, og_str] if x)
-    nz_str = "Despite having a net-zero pledge, this bank" if record.has_nz_pledge else "This bank"
+    pledge = " The report records a net-zero pledge by the bank." if record.has_nz_pledge else ""
 
     return (
         f"Banking on Climate Chaos: {company_name} provided {total_str} in fossil fuel "
-        f"financing ({record.year_range}){(', ' + breakdown) if breakdown else ''}. "
-        f"{nz_str} ranks among the world's largest financiers of fossil fuel "
-        f"expansion. Any green banking or climate-leadership claim is directly "
-        f"contradicted by this financing record."
+        f"financing ({record.year_range}){(', ' + breakdown) if breakdown else ''}.{pledge}"
     )

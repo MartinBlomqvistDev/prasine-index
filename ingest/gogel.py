@@ -394,28 +394,19 @@ def _build_summary(company_name: str, record: _GOGELRecord) -> str:
     if record.is_expanding:
         return (
             f"Urgewald Global Oil and Gas Exit List: {company_name} is listed as "
-            f"ACTIVELY EXPANDING oil and gas capacity ({capacity_str}). "
+            f"expanding oil and gas capacity ({capacity_str}). "
             f"Upstream expansion: {record.upstream_expansion or 'yes'}; "
-            f"LNG expansion: {record.lng_expansion or 'unknown'}. "
-            f"Any claim of clean energy transition or Paris alignment is directly "
-            f"contradicted by this documented fossil fuel expansion. "
-            f"GOGEL is used by 400+ financial institutions (GFANZ, PAII) as the "
-            f"standard oil and gas screen; this company fails it."
+            f"LNG expansion: {record.lng_expansion or 'unknown'}."
         )
 
     if record.is_phasing_out:
         phase_str = record.phase_out_plan or "plan details not disclosed"
         return (
             f"Urgewald Global Oil and Gas Exit List: {company_name} is listed on GOGEL "
-            f"({capacity_str}) but has a documented fossil fuel phase-out plan: "
-            f"{phase_str}. Presence on GOGEL is a negative signal; "
-            f"phase-out plan partially mitigates it. "
-            f"Transition claims should be verified against the phase-out timeline."
+            f"({capacity_str}) with a fossil fuel phase-out plan: {phase_str}."
         )
 
     return (
         f"Urgewald Global Oil and Gas Exit List: {company_name} is listed on GOGEL "
-        f"({capacity_str}). Expansion status unclear: classified as an oil and gas "
-        f"company by Urgewald. Any clean energy transition claims require scrutiny "
-        f"against this fossil fuel exposure."
+        f"({capacity_str}). The list does not record an expansion status."
     )

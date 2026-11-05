@@ -269,8 +269,7 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
         lines.append(
             f"EXPANDING: {len(expanding)} unit(s) in active development pipeline "
             f"({total_expanding_mw:.0f} MW total). "
-            f"Examples: {expanding_names}. "
-            f"This directly contradicts any claim of coal phase-out or clean-energy transition."
+            f"Examples: {expanding_names}."
         )
 
     if operating:

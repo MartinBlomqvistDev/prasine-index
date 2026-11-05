@@ -256,10 +256,8 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
             f"attributed to {company_name!r} in {gadm_id}, total "
             f"{total_emissions_mt:.3f} Mt CO2e (2023, 100yr GWP). "
             f"Installations: {installations_str}. "
-            f"These estimates are derived from satellite imagery, remote sensing, "
-            f"and ML, independent of company self-reporting. A significant "
-            f"discrepancy with company-disclosed figures constitutes a primary "
-            f"greenwashing signal."
+            f"The estimates come from satellite imagery, remote sensing and machine "
+            f"learning, independent of company self-reporting."
         )
 
         logger.info(

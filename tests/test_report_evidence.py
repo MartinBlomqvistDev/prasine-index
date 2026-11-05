@@ -2,8 +2,8 @@
 
 The evidence list in a report is rendered from the verification records rather
 than written by the model, so the published list always matches what the judge
-saw and carries the support label the site reads. Pure-Python: no LLM, no
-network, no database.
+saw, and each record is labelled by how the judge read it for this claim.
+Pure-Python: no LLM, no network, no database.
 """
 
 from __future__ import annotations
@@ -12,9 +12,10 @@ import uuid
 
 from agents.report_agent import _insert_evidence_section, render_evidence_section
 from models.evidence import Evidence, EvidenceSource, EvidenceType
+from models.score import GreenwashingScore, ScoreVerdict
 
 
-def _evidence(supports: bool | None, summary: str, url: str | None = None) -> Evidence:
+def _evidence(summary: str, url: str | None = None) -> Evidence:
     return Evidence(
         claim_id=uuid.uuid4(),
         trace_id=uuid.uuid4(),
@@ -23,26 +24,42 @@ def _evidence(supports: bool | None, summary: str, url: str | None = None) -> Ev
         source_url=url,
         summary=summary,
         data_year=2025,
-        supports_claim=supports,
+        supports_claim=None,
         confidence=0.85,
     )
 
 
+def _score(contradicting: list[Evidence], supporting: list[Evidence]) -> GreenwashingScore:
+    return GreenwashingScore(
+        claim_id=uuid.uuid4(),
+        company_id=uuid.uuid4(),
+        trace_id=uuid.uuid4(),
+        score=70.0,
+        verdict=ScoreVerdict.LIKELY_GREENWASHING,
+        reasoning="Reasoning.",
+        confidence=0.8,
+        judge_model_id="claude-opus-5-5",
+        contradicting_evidence_ids=[e.id for e in contradicting],
+        supporting_evidence_ids=[e.id for e in supporting],
+    )
+
+
 class TestRenderEvidenceSection:
-    def test_numbers_records_and_labels_support(self) -> None:
-        rendered = render_evidence_section(
-            [
-                _evidence(False, "Verified emissions rose.", "https://example.org/a"),
-                _evidence(True, "Verified emissions fell."),
-                _evidence(None, "Installation list."),
-            ]
-        )
+    def test_labels_follow_the_judge(self) -> None:
+        rose = _evidence("Verified emissions rose.", "https://example.org/a")
+        fell = _evidence("Verified emissions fell.")
+        listing = _evidence("Installation list.")
+        rendered = render_evidence_section([rose, fell, listing], _score([rose], [fell]))
         paragraphs = rendered.split("\n\n")
         assert paragraphs[0].startswith("**[1] EU ETS** Verified emissions rose. (2025).")
         assert "Supports claim: No." in paragraphs[0]
         assert paragraphs[0].endswith("(confidence 0.85) https://example.org/a")
         assert "Supports claim: Yes." in paragraphs[1]
         assert "Supports claim: Context." in paragraphs[2]
+
+    def test_without_a_score_every_record_is_context(self) -> None:
+        rendered = render_evidence_section([_evidence("Verified emissions rose.")])
+        assert "Supports claim: Context." in rendered
 
     def test_empty_evidence_says_so(self) -> None:
         assert render_evidence_section([]) == "No evidence records were returned."
@@ -54,12 +71,12 @@ class TestInsertEvidenceSection:
             '### The Claim\n> "x"\n\n### Evidence\nThe model invented a ruling here.\n\n'
             "### Assessment\nText.\n"
         )
-        result = _insert_evidence_section(report, [_evidence(False, "Verified emissions rose.")])
+        result = _insert_evidence_section(report, [_evidence("Verified emissions rose.")])
         assert "invented a ruling" not in result
         assert "**[1] EU ETS** Verified emissions rose." in result
         assert result.index("### Evidence") < result.index("**[1]") < result.index("### Assessment")
 
     def test_adds_missing_section_before_assessment(self) -> None:
         report = '### The Claim\n> "x"\n\n### Assessment\nText.\n'
-        result = _insert_evidence_section(report, [_evidence(True, "Verified emissions fell.")])
+        result = _insert_evidence_section(report, [_evidence("Verified emissions fell.")])
         assert result.index("### Evidence") < result.index("### Assessment")

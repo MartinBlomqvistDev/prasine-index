@@ -387,26 +387,7 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
     engagement = record.active_engagement or "not assessed"
     year_str = f" (assessment year: {record.year})" if record.year else ""
 
-    if record.is_obstructive:
-        return (
-            f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
-            f"Active engagement classification: {engagement}. "
-            f"This score indicates obstructive engagement: the company actively opposes or "
-            f"delays climate legislation while making green claims. "
-            f"This is a primary greenwashing indicator: stated climate commitments are "
-            f"contradicted by the company's own lobbying activity."
-        )
-
-    if record.is_supportive:
-        return (
-            f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
-            f"Active engagement classification: {engagement}. "
-            f"This score indicates supportive engagement: the company's lobbying activity "
-            f"is broadly consistent with its public climate commitments."
-        )
-
     return (
         f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
-        f"Active engagement classification: {engagement}. "
-        f"This score indicates neutral or mixed engagement: inconclusive for greenwashing assessment."
+        f"Active engagement classification: {engagement}."
     )
