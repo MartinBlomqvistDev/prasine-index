@@ -43,7 +43,7 @@ class TestPractices:
                 _evidence(EvidenceSource.COAL_EXIT, mining_expansion="yes", power_expansion=""),
             ]
         )
-        assert "the exit lists or asset trackers record new fossil fuel supply" in record
+        assert "On the first, the Global Coal Exit List records new fossil fuel supply." in record
         assert (
             "LobbyMap rates the company's climate policy engagement D, within the range it defines as obstructive"
             in record

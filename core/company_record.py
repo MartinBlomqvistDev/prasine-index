@@ -129,7 +129,7 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
 def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
     """Return the record line and the finding on new fossil fuel supply."""
     lines: list[str] = []
-    expanding = False
+    expanding: list[str] = []
 
     for source, upstream_key, power_key, values, name in (
         (
@@ -153,7 +153,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         first = str(record.raw_data.get(upstream_key) or "").lower().strip()
         second = str(record.raw_data.get(power_key) or "").lower().strip()
         if first in values or second in values:
-            expanding = True
+            expanding.append(name)
             lines.append(f"{name}: listed as expanding{_cite(record)}.")
         else:
             lines.append(f"{name}: listed, with no expansion recorded{_cite(record)}.")
@@ -162,7 +162,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         record = _first(evidence, source)
         count = record.raw_data.get(field) if record else None
         if record is not None and isinstance(count, int) and count > 0:
-            expanding = True
+            expanding.append(name)
             lines.append(f"{name}: {count} {noun}{_assets(record)}{_cite(record)}.")
 
     if not lines:
@@ -172,7 +172,13 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             "neither the fossil fuel exit lists nor the asset trackers record it as expanding supply",
         )
     if expanding:
-        return " ".join(lines), "the exit lists or asset trackers record new fossil fuel supply"
+        names = (
+            expanding[0]
+            if len(expanding) == 1
+            else f"{', '.join(expanding[:-1])} and {expanding[-1]}"
+        )
+        verb = "records" if len(expanding) == 1 else "record"
+        return " ".join(lines), f"the {names} {verb} new fossil fuel supply"
     return " ".join(lines), "the exit lists record no expansion"
 
 
