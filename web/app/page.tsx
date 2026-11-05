@@ -1,12 +1,7 @@
-import { readFileSync, existsSync } from 'fs'
-import { join } from 'path'
 import ApplyForm from './apply-form'
-import { parseReport, verdictFromScore, loadReportSummaries } from '../lib/parse-report'
+import { loadReportSummaries } from '../lib/parse-report'
 
 const SLUGS = [
-  'ryanair-holdings-plc',
-  'bp-plc',
-  'glencore-plc',
   'enel-spa',
   'ikea-group',
   'h-m-group',
@@ -23,20 +18,8 @@ function verdictFromString(v: string): { cls: string; label: string } {
   return                                 { cls: 'substantiated', label: 'Substantiated claim' }
 }
 
-function renderInline(text: string): React.ReactNode[] {
-  const parts = text.split(/\*\*([^*]+)\*\*/g)
-  return parts.map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-  )
-}
-
 export default function HomePage() {
   const summaries = loadReportSummaries(SLUGS).sort((a, b) => b.score - a.score)
-
-  const featuredPath = join(process.cwd(), '..', 'docs', 'reports', 'ryanair-holdings-plc.md')
-  const featured = existsSync(featuredPath)
-    ? parseReport(readFileSync(featuredPath, 'utf-8'))
-    : null
 
   const counts = { confirmed: 0, likely: 0, misleading: 0, substantiated: 0 }
   for (const s of summaries) {
@@ -65,170 +48,66 @@ export default function HomePage() {
         <div className="doc-container">
           <p className="intro-text">
             Prasine Index verifies EU corporate sustainability claims against enforcement
-            records, regulatory filings, lobbying data, and open climate datasets. Every
-            finding cites a named, independently verifiable primary source. Research
+            records, regulatory filings, lobbying data, and open climate datasets. Research
             built for journalists, NGOs, and researchers investigating greenwashing.
-          </p>
-          <p className="intro-sub">
-            Example output: what a Prasine Index assessment looks like.
           </p>
         </div>
       </section>
 
-      {/* ── Featured report (dynamic) ── */}
-      {featured && (
-        <section className="report-section">
-          <div className="doc-container">
-
-            <div className="report-meta">
-              <span className="report-label">Assessment</span>
-              {featured.publishDate && <span className="report-date">{featured.publishDate}</span>}
-            </div>
-
-            <h1 className="report-company">{featured.company}</h1>
-            <p className="report-details">
-              {featured.claimCount} claim{featured.claimCount !== 1 ? 's' : ''} assessed · Prasine Index
-              {featured.traceId && (
-                <> · <span style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 11 }}>trace {featured.traceId.slice(0, 8)}</span></>
-              )}
-            </p>
-
-            <div className="report-verdict-line" style={{ marginTop: '1.5rem' }}>
-              <span className={`verdict-word ${verdictFromString(featured.verdict).cls}`}>
-                {verdictFromString(featured.verdict).label === 'Confirmed'
-                  ? 'Confirmed greenwashing'
-                  : verdictFromString(featured.verdict).label}
-              </span>
-              <span className="verdict-score">{featured.overallScore} / 100</span>
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.25rem' }}>
-              Aggregate across {featured.claimCount} claim{featured.claimCount !== 1 ? 's' : ''} · range {featured.scoreRange}
-            </p>
-
-            {featured.claims.length > 0 && (
-              <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
-                <thead>
-                  <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
-                </thead>
-                <tbody>
-                  {featured.claims.map(c => {
-                    const isDetail = c.score === featured.detailScore
-                    const vf = verdictFromScore(c.score)
-                    return (
-                      <tr key={c.num} style={isDetail ? { background: 'var(--surface-alt, #f7f7f7)' } : {}}>
-                        <td style={isDetail ? { fontWeight: 700 } : {}}>{c.score} / 100</td>
-                        <td><span className={`verdict-badge badge-${vf.cls}`}>{vf.label}</span></td>
-                        <td style={{ fontSize: 12 }}>
-                          {isDetail
-                            ? <strong>&ldquo;{c.text}&rdquo; &mdash; detailed below</strong>
-                            : <>&ldquo;{c.text}&rdquo;</>}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            )}
-
-            <p style={{ fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
-              Detailed assessment of highest-scoring claim ({featured.detailScore} / 100) follows.
-            </p>
-
-            {featured.claim && (
-              <div className="report-claim">
-                {featured.claimSource && <div className="claim-attr">{featured.claimSource}</div>}
-                <blockquote>&ldquo;{featured.claim}&rdquo;</blockquote>
-              </div>
-            )}
-
-            <div className="report-verdict-line">
-              <span className={`verdict-word ${verdictFromString(featured.detailVerdict).cls}`}>
-                {verdictFromString(featured.detailVerdict).label === 'Confirmed'
-                  ? 'Confirmed greenwashing'
-                  : verdictFromString(featured.detailVerdict).label}
-              </span>
-              <span className="verdict-score">{featured.detailScore} / 100</span>
-            </div>
-            <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
-              Range {featured.detailRange} · Confidence {featured.detailConfidence}%
-            </p>
-
-            <div className="report-body">
-              {featured.keyFinding && (
-                <div className="key-finding">
-                  <p className="key-finding-label">Key finding</p>
-                  <p>{renderInline(featured.keyFinding)}</p>
-                </div>
-              )}
-
-              {featured.assessmentParas.length > 0 && (
-                <>
-                  <h2>Assessment</h2>
-                  <div className="report-reasoning">
-                    {featured.assessmentParas.map((para, i) => (
-                      <p key={i}>{renderInline(para)}</p>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              <div style={{ marginTop: '1.5rem' }}>
-                <a href="/reports/ryanair-holdings-plc" className="nav-btn">
-                  Full evidence chain and data sources
-                </a>
-              </div>
-            </div>
-
-          </div>
-        </section>
-      )}
-
-      {/* ── Calibration contrast ── */}
-      <section className="calibration-section">
+      {/* ── Notice ── */}
+      <section id="notice" className="report-section">
         <div className="doc-container">
-          <span className="report-label">Calibration</span>
-          <h2 className="calibration-heading">One pipeline. Both ends of the scale.</h2>
-          <p className="calibration-sub">
-            The same seven-agent pipeline and the same 22 EU data sources produce this. The
-            score is evidence, not editorial: confirmed greenwashing and a substantiated
-            record, side by side.
-          </p>
-          <div className="calibration-panel">
-            <div className="calibration-side calibration-worst">
-              <div className="calibration-tag">Worst in the index</div>
-              <div className="calibration-rows">
-                <div className="calibration-row">
-                  <span className="calibration-co">Ryanair</span>
-                  <span className="calibration-bar-wrap"><span className="calibration-bar bar-red" style={{ width: '86%' }} /></span>
-                  <span className="calibration-score" style={{ color: 'var(--red-text)' }}>86</span>
-                </div>
-              </div>
-              <span className="verdict-badge badge-confirmed">Confirmed greenwashing</span>
-              <p className="calibration-note">
-                A Net Zero 2050 pledge while rated D+ (obstructive) on the very climate
-                laws it depends on, a prior ASA ruling for misleading emissions claims,
-                and a net-zero pathway that fails EmpCo substantiation. Three independent
-                confirmed triggers, no counter-argument.
-              </p>
-            </div>
-            <div className="calibration-divider"><span>same pipeline<br />same 22 sources</span></div>
-            <div className="calibration-side calibration-best">
-              <div className="calibration-tag">Best in the index</div>
-              <div className="calibration-rows">
-                <div className="calibration-row">
-                  <span className="calibration-co">Ørsted</span>
-                  <span className="calibration-bar-wrap"><span className="calibration-bar bar-green" style={{ width: '18%' }} /></span>
-                  <span className="calibration-score" style={{ color: 'var(--green-text)' }}>18</span>
-                </div>
-              </div>
-              <span className="verdict-badge badge-substantiated">Substantiated claim</span>
-              <p className="calibration-note">
-                A 98% intensity-reduction claim backed by EU ETS verified data:
-                Studstrupv&aelig;rket 2.23 Mt &rarr; 15,560 t, Esbjergv&aelig;rket 1.50 Mt &rarr; 0.
-                All 7 claims substantiated, zero contradictions across fifteen source checks.
-                The index can say yes.
-              </p>
-            </div>
+          <div className="report-meta">
+            <span className="report-label">Notice</span>
+            <span className="report-date">5 November 2026</span>
+          </div>
+          <h1 className="report-company">Three assessments withdrawn</h1>
+          <div className="report-body">
+            <p>
+              The assessments of Ryanair, Glencore and BP have been withdrawn. A review of
+              the published reports on 3 November 2026 found that their confirmed verdicts
+              rested on enforcement records that were wrong or could not be found:
+            </p>
+            <ul>
+              <li>
+                <strong>Ryanair:</strong> the report cited ASA ruling G20-1089921, which
+                concerns a 2021 advertisement about Covid-19 vaccination. The ASA&apos;s
+                ruling on Ryanair&apos;s emissions advertising is dated 5 February 2020. The
+                report also called the EU consumer authorities&apos; action on airline
+                climate claims unresolved; Ryanair&apos;s part was resolved with commitments
+                in November 2025.
+              </li>
+              <li>
+                <strong>BP:</strong> the report cited an ASA ruling from July 2019 as a prior
+                finding against BP&apos;s advertising. No such ruling could be found.
+              </li>
+              <li>
+                <strong>Glencore:</strong> the report cited an open investigation by the UK
+                Competition and Markets Authority. No such investigation could be found.
+              </li>
+            </ul>
+            <p>
+              The review also found that a single company-level rating could place every
+              claim from the same company in the confirmed band. The verdicts cannot stand
+              as published.
+            </p>
+            <p>
+              The five remaining reports stay online while they are corrected, and each is
+              marked as under revision. All eight reports describe the Green Claims
+              Directive as enforced from September 2026; it was never adopted. Seven state
+              that a claim violates the Empowering Consumers Directive, (EU) 2024/825. The
+              reports were published in July, and that directive applies from 27 September
+              2026, to marketing aimed at consumers.
+            </p>
+            <p>
+              The pipeline is being changed so that an enforcement record can only be cited
+              with a verbatim quotation from the authority&apos;s own page. Corrected
+              assessments will be published with a log of what changed.
+            </p>
+            <p>
+              Questions and corrections:{' '}
+              <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>
+            </p>
           </div>
         </div>
       </section>
@@ -282,7 +161,8 @@ export default function HomePage() {
             </tbody>
           </table>
           <p className="index-note">
-            Click any row for the full evidence chain and scoring breakdown.
+            Click any row for the full evidence chain. All five assessments are under
+            revision; see the notice above.
           </p>
         </div>
       </section>

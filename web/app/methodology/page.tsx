@@ -30,6 +30,15 @@ export default function MethodologyPage() {
           architecture, data sources, verdict definitions, and scoring logic.
         </p>
 
+        <div className="key-finding" style={{ marginBottom: '3rem' }}>
+          <p className="key-finding-label">Under revision</p>
+          <p style={{ fontSize: 14, lineHeight: 1.7 }}>
+            A review on 3 November 2026 found that parts of this page do not match how
+            the pipeline works. It will be rewritten alongside the corrected
+            assessments. <a href="/#notice">Read the notice</a>.
+          </p>
+        </div>
+
         {/* ── Pipeline ── */}
         <section style={{ marginBottom: '3rem' }}>
           <h2 style={{ marginBottom: '1rem' }}>Pipeline architecture</h2>

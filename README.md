@@ -4,7 +4,7 @@
 
 **Automated EU corporate greenwashing monitoring and scoring.**
 
-Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain. Every finding references a named, independently verifiable primary source.
+Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain.
 
 *Prasine*: from Latin/Greek *prasinus* (green).
 
@@ -305,20 +305,17 @@ Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (h
 
 Current results, as published on [prasineindex.com](https://prasineindex.com) and [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/). Each is a 7-claim assessment scored by a Claude Opus 4.8 judge; the company verdict derives from the top-3 severity-weighted score, floored at the worst claim's band, so a confirmed finding can never be averaged away.
 
+The assessments of Ryanair, Glencore and BP were withdrawn on 5 November 2026: their confirmed verdicts rested on enforcement records that were wrong or could not be found. The five below are under revision. A review on 3 November 2026 found errors in each of them, including statements about EU law. See the [notice](https://prasineindex.com/#notice).
+
 | Company | Sector | Verdict | Score |
 | ------- | ------ | ------- | ----- |
-| Ryanair Holdings plc | Aviation | CONFIRMED_GREENWASHING | 86/100 |
-| Glencore plc | Mining | CONFIRMED_GREENWASHING | 86/100 |
-| BP plc | Oil & Gas | CONFIRMED_GREENWASHING | 81/100 |
 | Enel SpA | Energy | MISLEADING_CLAIM | 55/100 |
 | IKEA Group | Retail | MISLEADING_CLAIM | 50/100 |
 | SSAB AB | Steel | MISLEADING_CLAIM | 45/100 |
 | H&M Group | Fashion | MISLEADING_CLAIM | 41/100 |
 | Ørsted A/S | Renewables | SUBSTANTIATED_CLAIM | 18/100 |
 
-The index spans the full scale by design: confirmed greenwashing at the top (Ryanair: obstructive lobbying, a prior ASA ruling, and an EmpCo substantiation failure) down to a substantiated record at the bottom (Ørsted: a 98% intensity-reduction claim corroborated by EU ETS verified data showing its largest plants falling to near-zero). The same pipeline and the same 22 sources produce both ends. The score is evidence, not editorial.
-
-Reports are published to `docs/reports/` as Markdown: every factual assertion cited, every data gap disclosed.
+Reports are published to `docs/reports/` as Markdown.
 
 An earlier v1 of the index covered 18 companies with single-claim assessments (Haiku judge). Those runs are preserved under `docs/reports/_dev/` as a historical record; they are superseded by the 7-claim, Opus-judged assessments above and are not directly comparable.
 
@@ -541,39 +538,6 @@ Greenwashing scores are calibrated against the EU Green Claims Directive, the Co
 | 81–100 | `CONFIRMED_GREENWASHING` | Binding regulatory ruling or multiple hard triggers (D+ lobbying, active expansion, prior enforcement) |
 
 Prasine Index does not give legal advice. Published reports are evidence compilations intended to support journalistic investigation and civil society accountability work.
-
----
-
-## Example Output
-
-Below is an abridged real pipeline output for Ryanair's "Europe's greenest airline" claim.
-
-**Claim:** *"Ryanair is Europe's greenest airline."*
-**Verdict:** `CONFIRMED_GREENWASHING`, Score: **86 / 100**
-
-```text
-REGULATORY ENFORCEMENT ACTIONS
-  Ruling body: ENFORCEMENT | Year: 2022 | Confidence: 0.90
-  Supports claim: False
-  UK Advertising Standards Authority (ASA) banned Ryanair advertisements in 2022
-  for claiming to be Europe's greenest airline without substantiation.
-
-EU ETS VERIFIED EMISSIONS (2005–2023)
-  Trend: UP 41% from 2005 to 2023
-  Most recent: 9,821,432 tCO2e (2023)
-  Supports claim: False (confidence: 0.75)
-  Ryanair's verified CO2 emissions increased 41% over the monitoring period.
-
-LOBBYMAP
-  Score: D+ (obstructive climate lobbying)
-  Supports claim: False (confidence: 0.85)
-  LobbyMap D+ band: Ryanair has opposed fuel taxation and lobbied against
-  aviation inclusion in the EU ETS.
-```
-
-**Judge reasoning (excerpt):** *"The ASA ruling is the highest-weight evidence: an independent regulatory authority has already determined this specific claim to be misleading. EU ETS verified emissions showing a 41% increase directly contradict the 'greenest' assertion. LobbyMap D+ confirms that the green positioning is contradicted by policy behaviour. Score: 86 — CONFIRMED_GREENWASHING."*  <!-- style-ok: verbatim judge output -->
-
-Full example reports are in [examples/](examples/).
 
 ---
 

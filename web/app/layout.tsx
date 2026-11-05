@@ -26,10 +26,10 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://prasineindex.com'),
   title: 'Prasine Index | EU Greenwashing Intelligence',
   description:
-    'AI-verified analysis of EU corporate sustainability claims. Every assertion cited. Every data gap disclosed.',
+    'Open-data checks of EU corporate sustainability claims.',
   openGraph: {
     title: 'Prasine Index',
-    description: 'EU corporate greenwashing monitoring. Every finding cites a verifiable primary source.',
+    description: 'EU corporate greenwashing monitoring.',
     siteName: 'Prasine Index',
     url: 'https://prasineindex.com',
     type: 'website',

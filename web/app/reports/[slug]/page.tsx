@@ -34,6 +34,30 @@ function verdictFromString(v: string): { cls: string; label: string } {
   return                                { cls: 'substantiated', label: 'Substantiated claim'    }
 }
 
+// ── Withdrawn assessments ────────────────────────────────────────────────────
+
+const WITHDRAWN_ON = '5 November 2026'
+
+// The URLs stay live so that anyone holding an old link reads the withdrawal
+// instead of a 404. The report files themselves are removed.
+const WITHDRAWN: Record<string, { company: string; reason: string }> = {
+  'ryanair-holdings-plc': {
+    company: 'Ryanair Holdings plc',
+    reason:
+      "The report cited ASA ruling G20-1089921, which concerns a 2021 advertisement about Covid-19 vaccination. The ASA's ruling on Ryanair's emissions advertising is dated 5 February 2020. The report also called the EU consumer authorities' action on airline climate claims unresolved; Ryanair's part was resolved with commitments in November 2025.",
+  },
+  'bp-plc': {
+    company: 'BP plc',
+    reason:
+      "The report cited an ASA ruling from July 2019 as a prior finding against BP's advertising. No such ruling could be found.",
+  },
+  'glencore-plc': {
+    company: 'Glencore plc',
+    reason:
+      'The report cited an open investigation by the UK Competition and Markets Authority. No such investigation could be found.',
+  },
+}
+
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
@@ -51,6 +75,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const withdrawn = WITHDRAWN[slug]
+  if (withdrawn) {
+    return {
+      title: `${withdrawn.company}: assessment withdrawn | Prasine Index`,
+      description: `Withdrawn on ${WITHDRAWN_ON}: the assessment cited enforcement records that were wrong or could not be found.`,
+    }
+  }
   const name = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
   return {
     title: `${name} | Prasine Index`,
@@ -58,10 +89,76 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
+// ── Shared chrome ────────────────────────────────────────────────────────────
+
+function ReportNav() {
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <div className="nav-logo">
+          <a href="/"><span>P</span>rasine Index</a>
+        </div>
+        <div className="nav-links">
+          <a href="/#index" className="nav-link">All companies</a>
+          <a href="/#apply" className="nav-btn">Request an assessment</a>
+        </div>
+      </div>
+    </nav>
+  )
+}
+
+function ReportFooter() {
+  return (
+    <footer>
+      <div className="footer-inner">
+        <span>© 2026 Prasine Index · Martin Blomqvist</span>
+        <div style={{ display: 'flex', gap: 20 }}>
+          <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
+          <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+function WithdrawnPage({ company, reason }: { company: string; reason: string }) {
+  return (
+    <>
+      <ReportNav />
+      <main className="doc-container" style={{ padding: '48px 24px 96px' }}>
+        <div className="report-meta">
+          <span className="report-label">Withdrawn</span>
+          <span className="report-date">{WITHDRAWN_ON}</span>
+        </div>
+        <h1 className="report-company">{company}: assessment withdrawn</h1>
+        <div className="report-body">
+          <p>
+            This assessment was withdrawn on {WITHDRAWN_ON}. It cited enforcement records
+            that were wrong or could not be found.
+          </p>
+          <p>{reason}</p>
+          <p>
+            Any corrected assessment will be published with a log of what changed.{' '}
+            <a href="/#notice">Read the full notice</a>.
+          </p>
+          <p>
+            Questions and corrections:{' '}
+            <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>
+          </p>
+        </div>
+      </main>
+      <ReportFooter />
+    </>
+  )
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function ReportPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const withdrawn = WITHDRAWN[slug]
+  if (withdrawn) return <WithdrawnPage company={withdrawn.company} reason={withdrawn.reason} />
+
   const reportPath = join(process.cwd(), '..', 'docs', 'reports', `${slug}.md`)
   if (!existsSync(reportPath)) notFound()
 
@@ -72,19 +169,19 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
   return (
     <>
-      <nav className="nav">
-        <div className="nav-inner">
-          <div className="nav-logo">
-            <a href="/"><span>P</span>rasine Index</a>
-          </div>
-          <div className="nav-links">
-            <a href="/#index" className="nav-link">All companies</a>
-            <a href="/#apply" className="nav-btn">Request an assessment</a>
-          </div>
-        </div>
-      </nav>
+      <ReportNav />
 
       <main className="doc-container" style={{ padding: '48px 24px 96px' }}>
+
+        {/* ── Revision notice ── */}
+        <div className="key-finding" style={{ marginBottom: '2rem' }}>
+          <p className="key-finding-label">Under revision</p>
+          <p style={{ fontSize: 14, lineHeight: 1.7 }}>
+            A review on 3 November 2026 found errors in this report, including statements
+            about EU law. A corrected version will replace it, with a log of what
+            changed. <a href="/#notice">Read the notice</a>.
+          </p>
+        </div>
 
         {/* ── Report meta ── */}
         <div className="report-meta">
@@ -253,15 +350,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
         </div>
       </main>
 
-      <footer>
-        <div className="footer-inner">
-          <span>© 2026 Prasine Index · Martin Blomqvist</span>
-          <div style={{ display: 'flex', gap: 20 }}>
-            <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
-            <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
-          </div>
-        </div>
-      </footer>
+      <ReportFooter />
     </>
   )
 }
