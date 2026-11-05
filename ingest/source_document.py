@@ -23,8 +23,9 @@ import asyncio
 import base64
 import io
 import re
+from html import unescape
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import anthropic
 import httpx
@@ -44,20 +45,26 @@ _TOOL_NAME = "extract_climate_disclosures"
 _MODEL_ID = "claude-haiku-5-5"
 _MAX_HTML_CHARS = 80_000
 _MAX_LINKED_CHARS = 60_000
+# Up to two linked documents are read. Together they get a little more room than
+# one, and the first gets the larger share.
+_MAX_LINKED_DOCUMENTS = 2
+_LINKED_SHARES = (50_000, 30_000)
+_MAX_MORE_CHARS = 30_000
+# How far after a claim, in characters of page text, its "Read more" link may sit.
+_MORE_DISTANCE = 1_200
 
-# Words in a PDF link's address that mark the company report behind a claim
-# page, with their weight. A link needs a weight of two to be read.
-_REPORT_WORDS = (
-    ("sustainab", 2),
-    ("climate", 2),
-    ("esg", 1),
-    ("report", 1),
-    ("statement", 1),
-    ("annual", 1),
-    ("integrated", 1),
-    ("transition", 1),
-    ("csrd", 1),
-    ("tcfd", 1),
+# Kinds of company document a claim page links to, in the order they are read,
+# with the words in a link's address or text that mark each. A transition plan
+# sets out the route a pledge rests on, so it is read first. Of several
+# documents of one kind, the most recent is read.
+_DOCUMENT_KINDS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (
+        "transition plan",
+        ("transition-plan", "transition_plan", "transition+plan", "transition plan"),
+    ),
+    ("climate report", ("climate", "tcfd")),
+    ("sustainability report", ("sustainab", "esg", "csrd", "non-financial")),
+    ("annual report", ("annual", "integrated")),
 )
 
 # Words that mark the pages of a long report that concern climate.
@@ -68,13 +75,35 @@ _PAGE_WORDS = (
     "scope 2",
     "scope 3",
     "emission",
+    "greenhouse",
     "target",
     "transition plan",
+    "decarboni",
+    "abatement",
     "carbon",
     "co2",
     "sustainable aviation fuel",
     "renewable",
+    "actions and resources",
 )
+
+# Phrases that mark an assurance report on sustainability information. Its pages
+# are always read, because independent verification is one of the elements
+# checked. A financial audit report says "reasonable assurance", so that phrase
+# is left out.
+_ASSURANCE_WORDS = (
+    "limited assurance",
+    "assurance engagement",
+    "isae 3000",
+    "isae 3410",
+    "issa 5000",
+)
+_MAX_ASSURANCE_PAGES = 3
+
+_ANCHOR = re.compile(
+    r"<a\b[^>]*?href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", flags=re.IGNORECASE | re.DOTALL
+)
+_MORE_LABEL = re.compile(r"\b(?:read|learn|find out|discover) more\b", flags=re.IGNORECASE)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 _FETCH_TIMEOUT = 45.0
 
@@ -115,8 +144,10 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": (
-                    "Each interim target the document states, as 'YEAR: target'. "
-                    "Empty if the document states none."
+                    "Each interim target the document states, as 'YEAR: target', "
+                    "followed by the progress the document reports against it, if any, "
+                    "such as 'met', 'not met' or the latest figure. Empty if the "
+                    "document states none."
                 ),
             },
             "relies_on_offset_credits": {
@@ -192,7 +223,8 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                     "Concise factual summary citing the document's figures and the elements "
                     "it does not show, in plain words. Quote what the document says about "
                     "the company's fossil fuel strategy if it says anything. Never name or "
-                    "cite a law or a legal provision."
+                    "cite a law or a legal provision. Write plain sentences in the third "
+                    "person, without field names or capitalised labels."
                 ),
             },
         },
@@ -229,6 +261,13 @@ If the document says anything about the company's own fossil fuel strategy, such
 as coal, oil or gas production, a phase-down or an expansion, quote it in the \
 summary: it is the company's stated position and belongs beside any record about \
 its fossil fuel supply.
+
+An assurance report by an independent practitioner on the company's sustainability \
+information is independent verification of what it covers. When the pages include \
+one, name in the summary the practitioner, the level of assurance (limited or \
+reasonable) and what it covers, and say whether it covers the delivery of the plan \
+or only the reported information. Never write that a document has no independent \
+assurance or verification when such a report is in the pages.
 
 Offset credits bought for emissions outside the company's value chain are not \
 the same as carbon removals. Record what the document says about each, as stated.\
@@ -275,8 +314,10 @@ async def fetch_source_document_data(
         ) from exc
 
     content_blocks: list[dict[str, Any]] = []
-    linked_url: str | None = None
-    linked_read = False
+    linked_urls: list[str] = []
+    linked_read: list[str] = []
+    more_url: str | None = None
+    more_read = False
 
     is_pdf = "pdf" in content_type.lower() or claim.source_url.lower().endswith(".pdf")
     if is_pdf:
@@ -317,17 +358,36 @@ async def fetch_source_document_data(
             f"Source document is HTML ({len(text)} chars after stripping)",
             extra={"operation": "source_doc_html", "chars": len(text)},
         )
-        linked_url = _linked_report(html, claim.source_url)
-        if linked_url:
-            linked_text = await _read_linked_report(linked_url)
-            if linked_text:
-                linked_read = True
+        candidates = _report_links(html, claim.source_url)
+        more_url = _read_more_page(html, claim.source_url, claim.raw_text)
+        if more_url:
+            more_html = await _read_more_html(more_url)
+            if more_html:
+                more_read = True
                 content_blocks.append(
                     {
                         "type": "text",
                         "text": (
-                            f"\nLINKED DOCUMENT: the page links to {linked_url}. The pages "
-                            "of it that concern climate follow, each marked with its page "
+                            f"\nLINKED PAGE: the claim is followed by a link to {more_url}, "
+                            "whose text follows.\n"
+                            f"{_strip_html(more_html)[:_MAX_MORE_CHARS]}"
+                        ),
+                    }
+                )
+                candidates += _report_links(more_html, more_url)
+        linked_urls = _choose_reports(candidates)
+        source = "the page or the linked page" if more_read else "the page"
+        for url, share in zip(linked_urls, _LINKED_SHARES, strict=False):
+            linked_text = await _read_linked_report(url, share)
+            if linked_text:
+                linked_read.append(url)
+                content_blocks.append(
+                    {
+                        "type": "text",
+                        "text": (
+                            f"\nLINKED DOCUMENT: {url}, a company document linked from "
+                            f"{source}. The pages of it that concern climate, and any "
+                            "assurance report in it, follow, each marked with its page "
                             f"number.\n{linked_text}"
                         ),
                     }
@@ -342,10 +402,13 @@ async def fetch_source_document_data(
                 f"as they relate to the claim above. Call the {_TOOL_NAME} tool once "
                 "with your findings."
                 + (
-                    " The page and the linked document are both the company's own. "
-                    "In the summary, say which statements come from the page and "
-                    "which from the linked document, with its page numbers."
-                    if linked_read
+                    " The page and everything linked from it are the company's own. In "
+                    "the summary, say which statements come from the page and which from "
+                    "each linked page or document, with the document's page numbers. Only "
+                    "the pages given were read from each linked document: write 'in the "
+                    "pages read' for anything they do not show, and never say that a "
+                    "document does not contain something."
+                    if linked_read or more_read
                     else ""
                 )
             ),
@@ -395,8 +458,14 @@ async def fetch_source_document_data(
     confidence: float = float(extraction.get("confidence", 0.70))
     summary: str = extraction.get("summary", "Source document analysis completed.")
     missing_plan_elements: list[str] = extraction.get("missing_plan_elements", [])
-    if linked_url and not linked_read:
-        summary = f"{summary} The page links to {linked_url}, which this assessment could not read."
+    unread = [url for url in linked_urls if url not in linked_read]
+    if more_url and not more_read:
+        unread.insert(0, more_url)
+    if unread:
+        summary = (
+            f"{summary} The page links to {', '.join(unread)}, which this assessment "
+            "could not read."
+        )
 
     raw_data: dict[str, Any] = {
         "source_url": claim.source_url,
@@ -414,8 +483,10 @@ async def fetch_source_document_data(
         "saf_target_pct": extraction.get("saf_target_pct"),
         "saf_target_year": extraction.get("saf_target_year"),
         "missing_plan_elements": missing_plan_elements,
-        "linked_document": linked_url,
-        "linked_document_read": linked_read,
+        "linked_documents": linked_urls,
+        "linked_documents_read": linked_read,
+        "linked_page": more_url,
+        "linked_page_read": more_read,
     }
 
     logger.info(
@@ -447,35 +518,146 @@ async def fetch_source_document_data(
     ]
 
 
-def _linked_report(html: str, page_url: str) -> str | None:
-    """Return the address of the company report a claim page links to, if any.
+def _report_links(html: str, page_url: str) -> list[tuple[str, str, int]]:
+    """Return the company documents a page links to, as (kind, address, year).
 
-    A climate page often states a claim in a sentence and links to the report
-    that sets it out. The PDF link whose address weighs most as a
-    sustainability, climate or annual report is read with the page.
+    A climate page often states a claim in a sentence and links to the documents
+    that set it out: a transition plan, a sustainability or annual report.
 
     Args:
         html: The page's HTML.
         page_url: The page's address, for resolving relative links.
 
     Returns:
-        The absolute address of the report, or None.
+        One entry per PDF link whose address or text names a kind of company
+        document, in page order, without the address's fragment. The year is
+        the latest year the link names, or 0.
     """
-    best: tuple[int, str] | None = None
-    for href in re.findall(r"href=[\"']([^\"']+?\.pdf[^\"']*)[\"']", html, flags=re.IGNORECASE):
-        url = urljoin(page_url, href.replace("&amp;", "&"))
-        weight = sum(w for word, w in _REPORT_WORDS if word in url.lower())
-        if weight >= 2 and (best is None or weight > best[0]):
-            best = (weight, url)
-    return best[1] if best else None
+    found: list[tuple[str, str, int]] = []
+    for href, inner in _ANCHOR.findall(html):
+        if ".pdf" not in href.lower():
+            continue
+        url = urljoin(page_url, href.replace("&amp;", "&")).split("#")[0]
+        words = f"{url} {_strip_html(inner)}".lower()
+        kind = next(
+            (name for name, marks in _DOCUMENT_KINDS if any(mark in words for mark in marks)),
+            None,
+        )
+        if kind:
+            found.append((kind, url, _latest_year(words)))
+    return found
 
 
-def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS) -> str:
+def _latest_year(text: str) -> int:
+    """Return the latest year a link names, reading "FY26" as 2026, or 0.
+
+    A year inside a hexadecimal identifier in the address is not read as one.
+    """
+    years = [int(y) for y in re.findall(r"(?<![0-9a-f])(20\d\d)(?![0-9a-f])", text)]
+    years += [2000 + int(y) for y in re.findall(r"\bfy ?(\d\d)\b", text)]
+    return max(years, default=0)
+
+
+def _choose_reports(candidates: list[tuple[str, str, int]]) -> list[str]:
+    """Choose the linked documents to read.
+
+    Kinds are read in the order of _DOCUMENT_KINDS, and of each kind the most
+    recent document, the first in page order on a tie. A document more than two
+    years older than the most recent one linked is left out.
+
+    Args:
+        candidates: (kind, address, year) for each linked company document.
+
+    Returns:
+        Up to _MAX_LINKED_DOCUMENTS addresses.
+    """
+    latest = max((year for _kind, _url, year in candidates), default=0)
+    current = [
+        (index, kind, url, year)
+        for index, (kind, url, year) in enumerate(candidates)
+        if year == 0 or year >= latest - 2
+    ]
+    chosen: list[str] = []
+    for name, _marks in _DOCUMENT_KINDS:
+        of_kind = [(year, -index, url) for index, kind, url, year in current if kind == name]
+        if of_kind:
+            url = max(of_kind)[2]
+            if url not in chosen:
+                chosen.append(url)
+    return chosen[:_MAX_LINKED_DOCUMENTS]
+
+
+def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
+    """Return the page that a "Read more" link right after the claim opens, if any.
+
+    An index page often gives a claim as a short teaser and sets out its
+    substance on the page the teaser's "Read more" link opens. The first such
+    link within _MORE_DISTANCE characters after the claim is followed when it
+    opens another page of the same site. A link to a PDF is left to
+    _report_links.
+
+    Args:
+        html: The page's HTML.
+        page_url: The page's address.
+        claim_text: The claim as extracted from the page.
+
+    Returns:
+        The address of the page to read, without its fragment, or None.
+    """
+    anchors: list[tuple[str, str]] = []
+
+    def mark(match: re.Match[str]) -> str:
+        anchors.append((match.group(1), _strip_html(match.group(2))))
+        return f" \x00{len(anchors) - 1}\x00 "
+
+    text = _comparable(_strip_html(_ANCHOR.sub(mark, html)))
+    claim = _comparable(claim_text)
+    if not claim:
+        return None
+    start = text.find(claim[:60])
+    end = start + len(claim)
+    if start < 0:
+        tail = text.find(claim[-60:])
+        if tail < 0:
+            return None
+        end = tail + len(claim[-60:])
+    for index in re.findall(r"\x00(\d+)\x00", text[end : end + _MORE_DISTANCE]):
+        href, label = anchors[int(index)]
+        if not _MORE_LABEL.search(label):
+            continue
+        url = urljoin(page_url, href.replace("&amp;", "&")).split("#")[0]
+        if (
+            ".pdf" in url.lower()
+            or _host(url) != _host(page_url)
+            or url.rstrip("/") == page_url.split("#")[0].rstrip("/")
+        ):
+            return None
+        return url
+    return None
+
+
+def _host(url: str) -> str:
+    """Return a URL's host without a leading "www."."""
+    return urlparse(url).netloc.lower().removeprefix("www.")
+
+
+def _comparable(text: str) -> str:
+    """Return text as two copies of one sentence share it: entities decoded, lower
+    case, straight quotes and single spaces."""
+    text = unescape(text).lower()
+    for curly, straight in (("\u2019", "'"), ("\u2018", "'"), ("\u201c", '"'), ("\u201d", '"')):
+        text = text.replace(curly, straight)
+    return " ".join(text.replace("\u00a0", " ").split())
+
+
+def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS, assurance: bool = True) -> str:
     """Return the pages of a PDF that concern climate most, in page order.
 
     Args:
         pdf_bytes: The PDF.
         limit: The most characters to return.
+        assurance: Whether to take first the pages of an assurance report on
+            sustainability information, up to _MAX_ASSURANCE_PAGES of them.
 
     Returns:
         The chosen pages, each marked with its page number, or "" when the PDF
@@ -488,21 +670,50 @@ def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS) -> str:
         pages = [re.sub(r"\s+", " ", page.extract_text() or "").strip() for page in reader.pages]
     except Exception:
         return ""
-    weights = [sum(text.lower().count(word) for word in _PAGE_WORDS) for text in pages]
+    lowered = [text.lower() for text in pages]
+    weights = [sum(text.count(word) for word in _PAGE_WORDS) for text in lowered]
+    order = sorted((i for i in range(len(pages)) if weights[i]), key=lambda i: -weights[i])
+    if assurance:
+        marks = [sum(text.count(word) for word in _ASSURANCE_WORDS) for text in lowered]
+        first = sorted((i for i in range(len(pages)) if marks[i]), key=lambda i: -marks[i])
+        first = first[:_MAX_ASSURANCE_PAGES]
+        order = first + [i for i in order if i not in first]
     chosen: list[int] = []
     total = 0
-    for index in sorted(range(len(pages)), key=lambda i: -weights[i]):
-        if weights[index] == 0:
-            break
+    for index in order:
         if total + len(pages[index]) > limit:
             continue
         chosen.append(index)
         total += len(pages[index])
+    if not any(weights[i] for i in chosen):
+        return ""
     return "\n".join(f"[page {i + 1}] {pages[i]}" for i in sorted(chosen))
 
 
-async def _read_linked_report(url: str) -> str:
-    """Fetch a linked report and return its climate pages, or "" if unreadable."""
+# A run reads the same linked report for several claims, so a read is kept for the
+# rest of the process.
+_linked_reads: dict[tuple[str, int], str] = {}
+
+
+async def _read_more_html(url: str) -> str:
+    """Fetch the page a "Read more" link opens and return its HTML, or "" if unreadable."""
+    try:
+        content_type, content = await _fetch_content(url)
+    except Exception as exc:
+        logger.warning(
+            f"Linked page could not be fetched: {url}: {exc}",
+            extra={"operation": "source_doc_more_fetch_failed", "url": url},
+        )
+        return ""
+    if "html" not in content_type.lower():
+        return ""
+    return content.decode("utf-8", errors="replace")
+
+
+async def _read_linked_report(url: str, limit: int = _MAX_LINKED_CHARS) -> str:
+    """Fetch a linked report and return its climate and assurance pages, or "" if unreadable."""
+    if (url, limit) in _linked_reads:
+        return _linked_reads[(url, limit)]
     try:
         content_type, content = await _fetch_content(url)
     except Exception as exc:
@@ -513,7 +724,9 @@ async def _read_linked_report(url: str) -> str:
         return ""
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
         return ""
-    text = await asyncio.to_thread(climate_pages, content)
+    text = await asyncio.to_thread(climate_pages, content, limit)
+    if text:
+        _linked_reads[(url, limit)] = text
     logger.info(
         f"Linked report read: {url} ({len(text)} chars)",
         extra={"operation": "source_doc_linked_read", "url": url, "chars": len(text)},

@@ -94,7 +94,10 @@ def _pdf_climate_text(content: bytes) -> str:
     """
     from ingest.source_document import climate_pages
 
-    return climate_pages(content, _MAX_PDF_CHARS) or _extract_pdf_text(content)[:_MAX_PDF_CHARS]
+    return (
+        climate_pages(content, _MAX_PDF_CHARS, assurance=False)
+        or _extract_pdf_text(content)[:_MAX_PDF_CHARS]
+    )
 
 
 def _is_pdf(response: httpx.Response) -> bool:

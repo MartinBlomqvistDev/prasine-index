@@ -48,7 +48,7 @@ from ingest.gogel import fetch_gogel_data  # noqa: E402
 from ingest.goget import fetch_goget_data  # noqa: E402
 from ingest.lobby_map import fetch_lobby_map_data  # noqa: E402
 from ingest.sbti import fetch_sbti_data  # noqa: E402
-from ingest.source_document import _fetch_content, _linked_report  # noqa: E402
+from ingest.source_document import _choose_reports, _fetch_content, _report_links  # noqa: E402
 from ingest.tpi import fetch_tpi_data  # noqa: E402
 from models.claim import Claim, ClaimCategory, SourceType  # noqa: E402
 from models.company import Company  # noqa: E402
@@ -141,10 +141,13 @@ async def _entry_page(url: str) -> str:
         content_type, body = await _fetch_content(url)
     except Exception as exc:
         return f"entry page: FAILED ({exc})"
-    linked = None
+    linked: list[str] = []
     if "html" in content_type.lower():
-        linked = _linked_report(body.decode("utf-8", errors="replace"), url)
-    return f"entry page: OK, {len(body) // 1024} KB; linked report: {linked or 'none found'}"
+        linked = _choose_reports(_report_links(body.decode("utf-8", errors="replace"), url))
+    return (
+        f"entry page: OK, {len(body) // 1024} KB; linked reports: "
+        f"{', '.join(linked) or 'none found'}"
+    )
 
 
 async def check(name: str, url: str | None) -> None:
