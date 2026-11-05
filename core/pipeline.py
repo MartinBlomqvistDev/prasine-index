@@ -130,9 +130,16 @@ async def _fetch_pages(
         resp = await http_client.get(source_url, headers=_FETCH_HEADERS)
         resp.raise_for_status()
     except httpx.HTTPError as exc:
-        # WAF/bot-blocked entry pages (403 for the self-identified PrasineIndex
-        # UA) are common on large corporate sites: a real browser via
-        # Playwright usually passes. Try that before declaring failure.
+        # A site that refuses the request (401, 403, 429) has said no to
+        # automated access, and the index does not work around that: the page
+        # is reported as not fetched. Other failures (timeouts, connection
+        # errors, server errors) are retried once in a browser.
+        status = exc.response.status_code if isinstance(exc, httpx.HTTPStatusError) else None
+        if status in (401, 403, 429):
+            raise RuntimeError(
+                f"{source_url} refused the request (HTTP {status}); the index does not "
+                "work around a site's refusal"
+            ) from exc
         get_logger(__name__).warning(
             f"_fetch_pages: httpx failed for {source_url} ({exc}), trying Playwright",
             extra={"operation": "pipeline_httpx_blocked", "url": source_url},
@@ -242,15 +249,10 @@ async def _fetch_pages_playwright(
 
     async with async_playwright() as pw:
         browser = await pw.chromium.launch(headless=True)
-        # A standard browser UA, not the self-identified PrasineIndex one:
-        # Playwright is specifically the fallback for pages that block the
-        # bot UA (Azure WAF and friends), so announcing a bot here would
-        # defeat the fallback's purpose.
+        # The browser renders pages whose text is built by JavaScript. It
+        # identifies itself as the index, as every other request does.
         ctx = await browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-            ),
+            user_agent=_FETCH_HEADERS["User-Agent"],
             locale="en-GB",
         )
         try:
