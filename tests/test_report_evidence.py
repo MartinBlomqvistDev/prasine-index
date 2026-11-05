@@ -10,7 +10,11 @@ from __future__ import annotations
 
 import uuid
 
-from agents.report_agent import _insert_evidence_section, render_evidence_section
+from agents.report_agent import (
+    _insert_evidence_section,
+    published_evidence,
+    render_evidence_section,
+)
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 from models.score import GreenwashingScore, ScoreVerdict
 
@@ -80,3 +84,33 @@ class TestInsertEvidenceSection:
         report = '### The Claim\n> "x"\n\n### Assessment\nText.\n'
         result = _insert_evidence_section(report, [_evidence("Verified emissions fell.")])
         assert result.index("### Evidence") < result.index("### Assessment")
+
+
+def _national(source: EvidenceSource) -> Evidence:
+    return Evidence(
+        claim_id=uuid.uuid4(),
+        trace_id=uuid.uuid4(),
+        source=source,
+        evidence_type=EvidenceType.STATISTICAL,
+        summary="National total.",
+        raw_data={"type": "country_aggregate"},
+        data_year=2024,
+        supports_claim=None,
+        confidence=0.8,
+    )
+
+
+class TestPublishedEvidence:
+    """National totals stay out of a report unless the judge cited them."""
+
+    def test_uncited_national_totals_are_left_out(self) -> None:
+        company = _evidence("Company installations.")
+        edgar = _national(EvidenceSource.EDGAR)
+        trace = _national(EvidenceSource.CLIMATE_TRACE)
+        kept = published_evidence([edgar, company, trace], _score([], []))
+        assert kept == [company]
+
+    def test_cited_national_total_is_kept(self) -> None:
+        eea = _national(EvidenceSource.EEA_NATIONAL)
+        kept = published_evidence([eea], _score([eea], []))
+        assert kept == [eea]

@@ -29,7 +29,7 @@ from core.retry import (
 )
 from models.claim import SOURCE_TYPE_LABELS, Claim
 from models.company import CompanyContext
-from models.evidence import Evidence, VerificationResult
+from models.evidence import Evidence, EvidenceSource, VerificationResult
 from models.lobbying import LobbyingRecord
 from models.score import GreenwashingScore, finding_label
 from models.trace import AgentName, AgentOutcome, AgentTrace
@@ -340,6 +340,7 @@ class ReportAgent:
         Raises:
             :py:class:`~core.retry.LLMError`: On API failure.
         """
+        input = _with_published_evidence(input)
         user_message = _build_report_prompt(input)
 
         try:
@@ -488,15 +489,30 @@ def _build_report_prompt(input: ReportInput) -> str:
 # ---------------------------------------------------------------------------
 
 _SOURCE_LABELS = {
-    "SOURCE_DOCUMENT": "source document",
+    "SOURCE_DOCUMENT": "Source document",
     "LOBBY_MAP": "LobbyMap",
     "EUR_LEX": "EUR-Lex",
     "EU_TRANSPARENCY_REGISTER": "EU Transparency Register",
-    "ENFORCEMENT_RULING": "enforcement ruling",
+    "ENFORCEMENT": "Enforcement record",
+    "ENFORCEMENT_RULING": "Enforcement record",
     "EU_ETS": "EU ETS",
     "SBTI": "SBTi",
     "EPRTR": "E-PRTR",
     "IR_PAGE": "investor relations page",
+    "CDP": "CDP",
+    "EUROSTAT": "Eurostat",
+    "CA100": "Climate Action 100+",
+    "FOSSIL_FINANCE": "Banking on Climate Chaos",
+    "COAL_EXIT": "Global Coal Exit List",
+    "EU_INNOVATION_FUND": "EU Innovation Fund",
+    "GOGEL": "Global Oil and Gas Exit List",
+    "EEA_NATIONAL": "EEA national inventory",
+    "CLIMATE_TRACE": "Climate TRACE",
+    "TPI": "Transition Pathway Initiative",
+    "GCPT": "Global Coal Plant Tracker",
+    "EGT": "Europe Gas Tracker",
+    "GOGET": "Global Oil and Gas Extraction Tracker",
+    "EDGAR": "EDGAR (JRC)",
 }
 
 
@@ -529,6 +545,49 @@ def _relation(evidence: Evidence, score: GreenwashingScore | None) -> str:
     if evidence.id in score.supporting_evidence_ids:
         return "supports"
     return "context"
+
+
+_NATIONAL_SOURCES = frozenset(
+    {EvidenceSource.EDGAR, EvidenceSource.EEA_NATIONAL, EvidenceSource.EUROSTAT}
+)
+
+
+def _is_national(evidence: Evidence) -> bool:
+    """Return True for a record that describes a country rather than the company."""
+    if evidence.source in _NATIONAL_SOURCES:
+        return True
+    return (
+        evidence.source == EvidenceSource.CLIMATE_TRACE
+        and evidence.raw_data.get("type") == "country_aggregate"
+    )
+
+
+def published_evidence(evidence: list[Evidence], score: GreenwashingScore) -> list[Evidence]:
+    """Return the records a report publishes: national totals only when cited.
+
+    National inventories and country aggregates describe a country, not the
+    company. They stay in a report only when the judge cited them for or
+    against the claim, so the evidence list holds what the finding rests on
+    and the records about the company.
+
+    Args:
+        evidence: Every record the verification step gathered for the claim.
+        score: The judge's score, with the records it cited.
+
+    Returns:
+        The records to number and publish, in their original order.
+    """
+    cited = set(score.contradicting_evidence_ids) | set(score.supporting_evidence_ids)
+    return [e for e in evidence if e.id in cited or not _is_national(e)]
+
+
+def _with_published_evidence(input: ReportInput) -> ReportInput:
+    """Return the report input with the evidence a report publishes."""
+    kept = published_evidence(input.verification.evidence, input.score)
+    if len(kept) == len(input.verification.evidence):
+        return input
+    verification = input.verification.model_copy(update={"evidence": kept})
+    return input.model_copy(update={"verification": verification})
 
 
 def render_evidence_section(
