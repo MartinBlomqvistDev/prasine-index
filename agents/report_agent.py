@@ -152,8 +152,10 @@ that means for confidence. Start each item with **Source name**:.]
 
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
-and what the score scale means. Always end with: "Full Prasine Index \
-methodology: https://prasineindex.com/methodology"]
+and what the score scale means. The scale runs from 0, where the records support \
+the claim, to 100, where an official record shows it to be false: a higher score \
+means the records go further against the claim. Always end with: "Full Prasine \
+Index methodology: https://www.prasineindex.com/methodology"]
 
 ### Disclaimer
 *This report was produced by an automated evidence aggregation pipeline. The \

@@ -733,7 +733,15 @@ class JudgeAgent:
                         "reason": cap_reason,
                     },
                 )
+                # The published reasoning must not argue for a score the rules
+                # do not allow without saying so.
+                capped_note = (
+                    f"Under the band rules this score is capped at {cap:.0f}, because "
+                    f"{cap_reason}. The reading above argued for {score_value:.0f}."
+                )
                 score_value = cap
+            else:
+                capped_note = ""
             contradicting_ids = [e.id for e in _admitted(verdict, evidence, input.claim)]
             contradicting_ids = list(dict.fromkeys(contradicting_ids))
             supporting_ids = _claim_level_ids(
@@ -774,7 +782,7 @@ class JudgeAgent:
                     and str(v).strip().upper() not in ("N/A", "NA", "")
                 },
                 verdict=derived_verdict,
-                reasoning=verdict["reasoning"],
+                reasoning="\n\n".join(filter(None, (verdict["reasoning"], capped_note))),
                 confidence=float(verdict.get("confidence", 0.7)),
                 score_low=min(float(verdict["score_low"]), score_value)
                 if verdict.get("score_low") is not None
