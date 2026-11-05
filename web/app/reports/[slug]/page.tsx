@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { notFound } from 'next/navigation'
 import { type ParsedReport, type EvidenceItem, type ClaimRow, parseReport, verdictFromScore } from '../../../lib/parse-report'
+import { PUBLISHED_SLUGS, WITHDRAWN, WITHDRAWN_ON } from '../../../lib/site'
 
 
 function evidenceWeight(supports: string): string {
@@ -34,59 +35,32 @@ function verdictFromString(v: string): { cls: string; label: string } {
   return                                { cls: 'substantiated', label: 'Substantiated claim'    }
 }
 
-// ── Withdrawn assessments ────────────────────────────────────────────────────
-
-const WITHDRAWN_ON = '5 November 2026'
-
-// The URLs stay live so that anyone holding an old link reads the withdrawal
-// instead of a 404. The report files themselves are removed.
-const WITHDRAWN: Record<string, { company: string; reason: string }> = {
-  'ryanair-holdings-plc': {
-    company: 'Ryanair Holdings plc',
-    reason:
-      "The report cited ASA ruling G20-1089921, which concerns a 2021 advertisement about Covid-19 vaccination. The ASA's ruling on Ryanair's emissions advertising is dated 5 February 2020. The report also called the EU consumer authorities' action on airline climate claims unresolved; Ryanair's part was resolved with commitments in November 2025.",
-  },
-  'bp-plc': {
-    company: 'BP plc',
-    reason:
-      "The report cited an ASA ruling from July 2019 as a prior finding against BP's advertising. No such ruling could be found.",
-  },
-  'glencore-plc': {
-    company: 'Glencore plc',
-    reason:
-      'The report cited an open investigation by the UK Competition and Markets Authority. No such investigation could be found.',
-  },
-}
-
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
-  return [
-    { slug: 'ryanair-holdings-plc' },
-    { slug: 'bp-plc' },
-    { slug: 'glencore-plc' },
-    { slug: 'enel-spa' },
-    { slug: 'ikea-group' },
-    { slug: 'h-m-group' },
-    { slug: 'orsted-a-s' },
-    { slug: 'ssab-ab' },
-  ]
+  return [...Object.keys(WITHDRAWN), ...PUBLISHED_SLUGS].map(slug => ({ slug }))
+}
+
+function reportPathFor(slug: string): string {
+  return join(process.cwd(), '..', 'docs', 'reports', `${slug}.md`)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const canonical = `/reports/${slug}`
   const withdrawn = WITHDRAWN[slug]
   if (withdrawn) {
-    return {
-      title: `${withdrawn.company}: assessment withdrawn | Prasine Index`,
-      description: `Withdrawn on ${WITHDRAWN_ON}: the assessment cited enforcement records that were wrong or could not be found.`,
-    }
+    const title = `${withdrawn.company}: assessment withdrawn | Prasine Index`
+    const description = `Withdrawn on ${WITHDRAWN_ON}: the assessment cited enforcement records that were wrong or could not be found.`
+    return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical } }
   }
-  const name = slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-  return {
-    title: `${name} | Prasine Index`,
-    description: `EU greenwashing assessment for ${name}: evidence from 22 open data sources.`,
-  }
+  const path = reportPathFor(slug)
+  if (!existsSync(path)) return {}
+  const r = parseReport(readFileSync(path, 'utf-8'))
+  const title = `${r.company}: claim assessment | Prasine Index`
+  const finding = r.keyFinding.replace(/\*\*/g, '')
+  const description = finding.length > 155 ? `${finding.slice(0, 152).trimEnd()}...` : finding
+  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical } }
 }
 
 // ── Shared chrome ────────────────────────────────────────────────────────────
@@ -100,6 +74,7 @@ function ReportNav() {
         </div>
         <div className="nav-links">
           <a href="/#index" className="nav-link">All companies</a>
+          <a href="/about" className="nav-link">About</a>
           <a href="/#apply" className="nav-btn">Request an assessment</a>
         </div>
       </div>
@@ -159,7 +134,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
   const withdrawn = WITHDRAWN[slug]
   if (withdrawn) return <WithdrawnPage company={withdrawn.company} reason={withdrawn.reason} />
 
-  const reportPath = join(process.cwd(), '..', 'docs', 'reports', `${slug}.md`)
+  const reportPath = reportPathFor(slug)
   if (!existsSync(reportPath)) notFound()
 
   const md = readFileSync(reportPath, 'utf-8')

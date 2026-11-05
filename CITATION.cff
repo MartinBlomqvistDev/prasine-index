@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use Prasine Index or its assessments, please cite it as below."
+title: "Prasine Index"
+abstract: "An open-source pipeline that checks EU corporate climate claims against public data sources and publishes each assessment with its evidence."
+type: software
+authors:
+  - family-names: Blomqvist
+    given-names: Martin
+repository-code: "https://github.com/MartinBlomqvistDev/prasine-index"
+url: "https://prasineindex.com"
+license: MIT
+version: "2.0.0"
+date-released: "2026-11-05"
+keywords:
+  - greenwashing
+  - climate claims
+  - environmental claims
+  - open data
+  - EU

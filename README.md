@@ -168,7 +168,7 @@ The `core/retry.py` module provides:
 
 ### 4. Golden Eval Dataset
 
-`eval/golden_dataset.py` contains 20 known greenwashing cases drawn from public record (EU regulatory actions, NGO investigations, court rulings), each with the expected verdict and acceptable score range. The eval runner executes the full pipeline against all 20 cases and reports verdict accuracy, score calibration, and per-agent latency. Exit code 1 if pass rate falls below 80%.
+`eval/golden_dataset.py` contains 20 cases drawn from public record (EU regulatory actions, NGO investigations, court rulings), each with an expected verdict and an acceptable score range. The runner executes the full pipeline on all 20 and reports agreement, score spread and per-agent latency. It is a regression check: it shows when a pipeline change moves verdicts. The expected verdicts were adjusted during development, so it does not measure accuracy. Validation against regulators' decisions on claims the pipeline has not seen, and a test of how stable the judge's scores are, will be reported separately.
 
 ```bash
 python -m eval.golden_dataset
@@ -246,7 +246,7 @@ Returns every agent step in chronological order with duration, token count, outc
 | LobbyMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_lobbymap.py` |
 | EU Transparency Register | Brussels lobbying declarations. Confirms active lobbying; direction requires cross-reference with LobbyMap. | `refresh_eu_transparency_register.py` |
 | Enforcement Rulings | ASA, ACM, AGCM, CMA, EC rulings and court judgments. Prior ruling = strongest evidence category. | Static (embedded in module) |
-| EUR-Lex | Green Claims Directive, CSRD ESRS E1, EU ETS legislation as regulatory baseline. | Static (legislation is stable) |
+| EUR-Lex | The provisions of Directive (EU) 2024/825 on environmental claims (UCPD Annex I points 2a, 4a, 4b and 4c, and Article 6(2)(d)), the CSRD and the EU ETS Directive, quoted as context. | Static (legislation is stable) |
 
 ### Statistical Context
 
@@ -395,7 +395,7 @@ python -m eval.golden_dataset
 python -m eval.golden_dataset GW-001 GW-003 GW-010
 ```
 
-Pass rate target: ≥ 80%. Exit code 1 on failure, suitable as a CI gate.
+The runner exits with code 1 below an 80% pass rate. A failure means verdicts have moved since the last run.
 
 ### Running the Tests
 
@@ -527,7 +527,7 @@ The `/trace/{trace_id}` endpoint returns the structured execution record for any
 
 ## Methodology
 
-Greenwashing scores are calibrated against the EU Green Claims Directive, the Corporate Sustainability Reporting Directive (CSRD), and the EU Taxonomy Regulation. The score scale:
+A score describes how the evidence relates to the claim. EU law enters only as context: the provisions of Directive (EU) 2024/825 that bear on the claim's category, quoted verbatim. The pipeline never concludes that a claim breaches them; that is for national authorities and courts. The score scale:
 
 | Range | Verdict | Meaning |
 | ----- | ------- | ------- |
@@ -541,6 +541,8 @@ Prasine Index does not give legal advice. Published reports are evidence compila
 
 ---
 
-## Licence
+## Licence and citation
 
-MIT
+The code is licensed under MIT; see [LICENSE](LICENSE). The published assessments are licensed under CC BY 4.0; see [docs/reports/LICENSE.md](docs/reports/LICENSE.md). Third-party datasets keep their own licences.
+
+To cite Prasine Index, use [CITATION.cff](CITATION.cff); GitHub shows it as "Cite this repository".

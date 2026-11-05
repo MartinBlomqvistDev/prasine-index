@@ -702,7 +702,7 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">Enel SpA</div>
-            <div class="mini-meta">IT · Energy · CSRD obligated · 2026-07-01</div>
+            <div class="mini-meta">IT · Energy · 2026-07-01</div>
           </div>
           <span class="verdict-badge verdict-misleading">Misleading claim</span>
         </div>
@@ -751,7 +751,7 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">IKEA Group</div>
-            <div class="mini-meta">SE · Retail · Large undertaking · 2026-07-01</div>
+            <div class="mini-meta">NL · Retail · 2026-07-01</div>
           </div>
           <span class="verdict-badge verdict-misleading">Misleading claim</span>
         </div>
@@ -797,7 +797,7 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">SSAB AB</div>
-            <div class="mini-meta">SE · Steel · CSRD obligated · 2026-07-02</div>
+            <div class="mini-meta">SE · Steel · 2026-07-02</div>
           </div>
           <span class="verdict-badge verdict-misleading">Misleading claim</span>
         </div>
@@ -844,7 +844,7 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">H&amp;M Group</div>
-            <div class="mini-meta">SE · Fashion · CSRD obligated · 2026-07-01</div>
+            <div class="mini-meta">SE · Fashion · 2026-07-01</div>
           </div>
           <span class="verdict-badge verdict-misleading">Misleading claim</span>
         </div>
@@ -890,7 +890,7 @@
         <div class="mini-header">
           <div>
             <div class="mini-company">Ørsted A/S</div>
-            <div class="mini-meta">DK · Renewables · CSRD obligated · 2026-07-03</div>
+            <div class="mini-meta">DK · Renewables · 2026-07-03</div>
           </div>
           <span class="verdict-badge verdict-substantiated">Substantiated claim</span>
         </div>
@@ -1060,7 +1060,7 @@
     <h2>Structured, typed, and tested.</h2>
     <p class="section-desc">
       Structured logging with trace IDs. Typed exceptions with retry logic.
-      A 20-case golden eval dataset with an 80% CI gate.
+      A 20-case golden eval dataset used as a regression check.
     </p>
     <div class="tech-grid">
       <div class="tech-item">
@@ -1131,24 +1131,19 @@
     <!-- Eval -->
     <div style="margin-top:48px;">
       <div class="section-label">Evaluation</div>
-      <h2 style="margin-bottom:16px;">An 80% CI gate on every commit.</h2>
+      <h2 style="margin-bottom:16px;">A regression check, with validation in preparation.</h2>
       <p class="section-desc">
-        A golden eval dataset of 20 known greenwashing cases with ground-truth verdicts.
-        The pipeline runs against all 20 before any production run. CI fails below 80% pass rate.
-        Calibrated Haiku judge for fast eval; Opus judge for publication output.
+        A golden eval dataset of 20 public cases checks that pipeline changes do not shift
+        verdicts unexpectedly. Its expected verdicts were adjusted during development, so
+        it does not measure accuracy. Two measurements are being prepared for the corrected
+        assessments: how stable the judge's scores are when the same claim is scored
+        repeatedly, and how its verdicts compare with regulators' decisions on claims the
+        pipeline has not seen. Both will be published whatever they show.
       </p>
       <div class="stats" style="margin-top:0;">
         <div class="stat">
           <div class="stat-value">20</div>
-          <div class="stat-label">Golden eval cases</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value green">80%</div>
-          <div class="stat-label">CI pass gate</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">100%</div>
-          <div class="stat-label">Tier-1 accuracy</div>
+          <div class="stat-label">Regression cases</div>
         </div>
         <div class="stat">
           <div class="stat-value green">$0.01</div>

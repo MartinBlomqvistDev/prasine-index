@@ -1,13 +1,10 @@
 import ApplyForm from './apply-form'
 import { loadReportSummaries } from '../lib/parse-report'
+import { PUBLISHED_SLUGS, WITHDRAWN_ON } from '../lib/site'
 
-const SLUGS = [
-  'enel-spa',
-  'ikea-group',
-  'h-m-group',
-  'orsted-a-s',
-  'ssab-ab',
-]
+export const metadata = {
+  alternates: { canonical: '/' },
+}
 
 function verdictFromString(v: string): { cls: string; label: string } {
   const u = v.toUpperCase()
@@ -19,7 +16,7 @@ function verdictFromString(v: string): { cls: string; label: string } {
 }
 
 export default function HomePage() {
-  const summaries = loadReportSummaries(SLUGS).sort((a, b) => b.score - a.score)
+  const summaries = loadReportSummaries(PUBLISHED_SLUGS).sort((a, b) => b.score - a.score)
 
   const counts = { confirmed: 0, likely: 0, misleading: 0, substantiated: 0 }
   for (const s of summaries) {
@@ -38,6 +35,7 @@ export default function HomePage() {
           <div className="nav-logo"><span>P</span>rasine Index</div>
           <div className="nav-links">
             <a href="/methodology" className="nav-link">Methodology</a>
+            <a href="/about" className="nav-link">About</a>
             <a href="#apply" className="nav-btn">Get in touch</a>
           </div>
         </div>
@@ -59,7 +57,7 @@ export default function HomePage() {
         <div className="doc-container">
           <div className="report-meta">
             <span className="report-label">Notice</span>
-            <span className="report-date">5 November 2026</span>
+            <span className="report-date">{WITHDRAWN_ON}</span>
           </div>
           <h1 className="report-company">Three assessments withdrawn</h1>
           <div className="report-body">
@@ -192,6 +190,7 @@ export default function HomePage() {
           <div style={{ display: 'flex', gap: 24 }}>
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
             <a href="https://linkedin.com/in/martin-blomqvist" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="/about">About</a>
             <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
           </div>
         </div>

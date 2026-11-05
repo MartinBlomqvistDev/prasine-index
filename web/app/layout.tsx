@@ -1,5 +1,7 @@
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, Source_Sans_3, Source_Serif_4 } from 'next/font/google'
+import { SITE_URL } from '../lib/site'
 import './globals.css'
 
 const serif = Source_Serif_4({
@@ -23,7 +25,7 @@ const mono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://prasineindex.com'),
+  metadataBase: new URL(SITE_URL),
   title: 'Prasine Index | EU Greenwashing Intelligence',
   description:
     'Open-data checks of EU corporate sustainability claims.',
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
     title: 'Prasine Index',
     description: 'EU corporate greenwashing monitoring.',
     siteName: 'Prasine Index',
-    url: 'https://prasineindex.com',
+    url: SITE_URL,
     type: 'website',
   },
 }
@@ -39,7 +41,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   )
 }

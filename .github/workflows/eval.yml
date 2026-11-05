@@ -1,22 +1,33 @@
 # Prasine Index: Golden Dataset Eval
 #
-# Runs the 20-case golden eval against the full pipeline.
+# Runs the golden eval against the full pipeline as a regression check: a
+# failure means verdicts have moved since the last run. It does not measure
+# accuracy, because the expected verdicts were adjusted during development.
+#
 # Requires:
 #   - ANTHROPIC_API_KEY secret set in the repository
-#   - A running PostgreSQL + pgvector instance (provided by the service container)
+#   - A PostgreSQL + pgvector instance (provided by the service container)
 #
 # Triggers:
-#   - Manually via workflow_dispatch
-#   - Automatically on pushes to main (acts as a quality gate)
+#   - Manually via workflow_dispatch, with the 5-case quick subset or all 20 cases
+#   - When a release is published (all 20 cases)
 #
-# Fails if pass rate drops below 80% (exit code 1 from golden_dataset.py).
+# A full run costs a few dollars of API usage, so the eval does not run on every
+# push. The job fails if the API key is missing or the pass rate drops below 80%
+# (exit code 1 from golden_dataset.py).
 
 name: Eval
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+    inputs:
+      scope:
+        description: "quick (5 cases) or full (20 cases)"
+        type: choice
+        options: [quick, full]
+        default: quick
+  release:
+    types: [published]
 
 jobs:
 
@@ -51,28 +62,24 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Check for API key
-        id: check-key
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then
-            echo "has_key=false" >> $GITHUB_OUTPUT
-            echo "::warning::ANTHROPIC_API_KEY secret not set, skipping eval"
-          else
-            echo "has_key=true" >> $GITHUB_OUTPUT
+            echo "::error::ANTHROPIC_API_KEY secret not set, the eval cannot run"
+            exit 1
           fi
 
       - name: Initialise test database
-        if: steps.check-key.outputs.has_key == 'true'
         env:
           DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
         run: python -c "import asyncio; from core.database import init_db; asyncio.run(init_db())"
 
       - name: Run golden dataset eval
-        if: steps.check-key.outputs.has_key == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DATABASE_URL: postgresql+asyncpg://prasine:prasine@localhost:5432/prasine_index_test
           TESTING: "true"
           LOG_LEVEL: "WARNING"
-        run: python -m eval.golden_dataset
+          SCOPE_FLAG: ${{ github.event_name == 'workflow_dispatch' && inputs.scope == 'quick' && '--quick' || '' }}
+        run: python -m eval.golden_dataset $SCOPE_FLAG
