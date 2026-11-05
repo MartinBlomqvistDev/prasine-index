@@ -73,6 +73,17 @@ def _unique(evidence: Iterable[Evidence]) -> list[Evidence]:
     return unique
 
 
+def _assets(record: Evidence) -> str:
+    """Name up to three tracker assets, with the company's share where given."""
+    named = []
+    for asset in (record.raw_data.get("expanding_assets") or [])[:3]:
+        status = str(asset.get("status") or "").replace("-", " ")
+        share = asset.get("share")
+        detail = ", ".join(filter(None, (status, f"share {share}" if share else "")))
+        named.append(f"{asset.get('name')} ({detail})" if detail else str(asset.get("name")))
+    return f": {'; '.join(named)}" if named else ""
+
+
 def _tonnes(value: float) -> str:
     """Print emissions in megatonnes from one megatonne, in tonnes below it."""
     if value >= 1_000_000:
@@ -150,7 +161,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         count = record.raw_data.get(field) if record else None
         if record is not None and isinstance(count, int) and count > 0:
             expanding = True
-            lines.append(f"{name}: {count} {noun}{_cite(record)}.")
+            lines.append(f"{name}: {count} {noun}{_assets(record)}{_cite(record)}.")
 
     if not lines:
         line = "Not listed in the fossil fuel exit lists or in development in the asset trackers."

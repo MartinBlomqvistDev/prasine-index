@@ -113,14 +113,33 @@ class _EGTAsset:
         parts = re.split(r"[;,]", raw)
         names = []
         for part in parts:
-            name = re.sub(r"\s*\(\d+(?:\.\d+)?%?\)", "", part).strip()
+            name = _SHARE.sub("", part).strip()
             if name and name.lower() not in ("various", "unknown"):
                 names.append(name)
         return names
 
+    def share_of(self, company_norm: str) -> str | None:
+        """Return the company's stake in the asset as the tracker gives it, e.g. "20%".
+
+        Args:
+            company_norm: The normalised company name.
+
+        Returns:
+            The stake, or None when the tracker gives none for the company.
+        """
+        for part in re.split(r"[;,]", self.parent_raw or self.owner_raw or ""):
+            name = _SHARE.sub("", part).strip()
+            if name and _owner_matches(company_norm, name):
+                found = _SHARE.search(part)
+                return f"{float(found.group(1)):g}%" if found else None
+        return None
+
 
 # Module-level cache
 _assets: list[_EGTAsset] | None = None
+
+# An owner's stake as the tracker writes it: "BP PLC [20.00%]" or "(20%)".
+_SHARE = re.compile(r"\s*[\[(]\s*(\d+(?:\.\d+)?)\s*%?\s*[\])]")
 
 
 def _load() -> list[_EGTAsset]:
@@ -264,6 +283,15 @@ def _owner_matches(company_norm: str, owner_name: str) -> bool:
     return len(company_first) >= 4 and contains_name(own_norm, company_first)
 
 
+def _describe(asset: _EGTAsset, company_name: str, company_norm: str) -> str:
+    """Name an asset with its type, country, status and the company's share."""
+    share = asset.share_of(company_norm)
+    detail = [asset.asset_type.replace("_", " "), asset.country, asset.status]
+    if share:
+        detail.append(f"{company_name}'s share {share}")
+    return f"{asset.name} ({', '.join(detail)})"
+
+
 async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     """Return Europe Gas Tracker evidence for a company.
 
@@ -333,10 +361,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     ]
 
     if expanding:
-        exp_names = "; ".join(
-            f"{a.name} ({a.asset_type.replace('_', ' ')}, {a.country}, {a.status.title()})"
-            for a in expanding[:5]
-        )
+        exp_names = "; ".join(_describe(a, company_name, company_norm) for a in expanding[:5])
         lines.append(
             f"{len(expanding)} asset(s) listed as proposed, announced, in pre-construction or "
             f"under construction. Examples: {exp_names}."
@@ -369,7 +394,13 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         "exiting": len(exiting),
         "by_type": type_counts,
         "expanding_assets": [
-            {"name": a.name, "type": a.asset_type, "country": a.country, "status": a.status}
+            {
+                "name": a.name,
+                "type": a.asset_type,
+                "country": a.country,
+                "status": a.status,
+                "share": a.share_of(company_norm),
+            }
             for a in expanding[:10]
         ],
     }
