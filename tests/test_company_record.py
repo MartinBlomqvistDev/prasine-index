@@ -62,6 +62,53 @@ class TestPractices:
         assert "outside its obstructive range" in record
 
 
+class TestTrackRecord:
+    def test_an_old_finding_and_commitments(self) -> None:
+        record = render_company_record(
+            [
+                _evidence(
+                    EvidenceSource.ENFORCEMENT,
+                    "ASA",
+                    authority="ASA",
+                    case_reference="G19-1035778",
+                    decision_date="2020-02-05",
+                    ruling_type="BANNED",
+                ),
+                _evidence(
+                    EvidenceSource.ENFORCEMENT,
+                    "CPC",
+                    authority="European Commission and CPC network",
+                    case_reference="IP/25/2608",
+                    decision_date="2025-11-06",
+                    ruling_type="COMMITMENTS",
+                ),
+            ]
+        )
+        assert (
+            "**Track record: one finding against its environmental marketing, "
+            "more than five years old.**" in record
+        )
+        assert record.index("IP/25/2608") < record.index("G19-1035778")
+
+    def test_a_complaint_that_was_not_upheld_is_no_finding(self) -> None:
+        record = render_company_record(
+            [
+                _evidence(
+                    EvidenceSource.ENFORCEMENT,
+                    authority="ASA",
+                    case_reference="G16-1014902",
+                    decision_date="2019-10-02",
+                    ruling_type="NOT_UPHELD",
+                )
+            ]
+        )
+        assert "**Track record: no findings against its environmental marketing.**" in record
+        assert "complaint not upheld" in record
+
+    def test_no_records(self) -> None:
+        assert "**Track record: no enforcement records.**" in render_company_record([])
+
+
 class TestEmissions:
     def test_only_years_every_installation_reported(self) -> None:
         record = render_company_record(

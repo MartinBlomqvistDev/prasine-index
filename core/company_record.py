@@ -201,21 +201,52 @@ def _investors(evidence: list[Evidence]) -> str:
     return " ".join(lines) or "No Climate Action 100+ or TPI assessment."
 
 
-def _enforcement(evidence: list[Evidence]) -> str:
+_FINDINGS = frozenset({"BANNED", "CONFIRMED_MISLEADING", "FINED"})
+
+_NUMBERS = ("no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+
+
+def _number(n: int) -> str:
+    return _NUMBERS[n] if n < len(_NUMBERS) else str(n)
+
+
+def _track_record(evidence: list[Evidence]) -> str:
+    """Return the track record point: a rating, then every enforcement record.
+
+    The rating counts findings against the company's environmental marketing,
+    meaning upheld complaints, findings of a breach and fines, and how recent
+    they are. Commitments, warnings, open cases, complaints that were not
+    upheld and annulled decisions are listed but are not findings.
+    """
     records = [e for e in evidence if e.source == EvidenceSource.ENFORCEMENT]
     if not records:
-        return "No enforcement records."
+        return "**Track record: no enforcement records.**"
+
+    findings = [e for e in records if e.raw_data.get("ruling_type") in _FINDINGS]
+    recent = [e for e in findings if is_recent_finding(e)]
+    counted = f"{_number(len(findings))} {'finding' if len(findings) == 1 else 'findings'}"
+    if not findings:
+        rating = "no findings against its environmental marketing"
+    elif len(recent) == len(findings):
+        rating = f"{counted} against its environmental marketing from the last five years"
+    elif recent:
+        rating = (
+            f"{counted} against its environmental marketing, "
+            f"{_number(len(recent))} of them from the last five years"
+        )
+    else:
+        rating = f"{counted} against its environmental marketing, more than five years old"
+
     entries = []
     for record in sorted(
         records, key=lambda e: str(e.raw_data.get("decision_date", "")), reverse=True
     ):
         outcome = _OUTCOMES.get(str(record.raw_data.get("ruling_type")), "outcome not recorded")
-        recent = ", a finding from the last five years" if is_recent_finding(record) else ""
         entries.append(
             f"{record.raw_data.get('authority')} {record.raw_data.get('case_reference')} "
-            f"({record.raw_data.get('decision_date')}): {outcome}{recent}{_cite(record)}"
+            f"({record.raw_data.get('decision_date')}): {outcome}{_cite(record)}"
         )
-    return "; ".join(entries) + "."
+    return f"**Track record: {rating}.** {'; '.join(entries)}."
 
 
 def render_company_record(evidence: Iterable[Evidence]) -> str:
@@ -239,11 +270,12 @@ def render_company_record(evidence: Iterable[Evidence]) -> str:
         f'pledge rules out (Integrity Matters, 2022, p. 7; {HLEG_URL}): "{HLEG_FOSSIL_SUPPLY}" '
         f'"{HLEG_LOBBYING}" On the first, {fossil_finding}. On the second, {lobbying_finding}.',
         "",
+        _track_record(records),
+        "",
         f"- **Lobbying:** {lobbying_line}",
         f"- **New fossil fuel supply:** {fossil_line}",
         f"- **Verified emissions:** {_emissions(records)}",
         f"- **Targets:** {_targets(records)}",
         f"- **Investor assessments:** {_investors(records)}",
-        f"- **Enforcement records:** {_enforcement(records)}",
     ]
     return "\n".join(lines)
