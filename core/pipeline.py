@@ -36,7 +36,7 @@ from core.logger import bind_trace_context, get_logger
 from core.textutil import html_to_text as _html_to_text
 from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
 from models.company import Company
-from models.evidence import VerificationResult
+from models.evidence import Evidence, VerificationResult
 from models.score import GreenwashingScore
 from models.trace import AgentName, AgentOutcome, AgentTrace
 
@@ -463,6 +463,7 @@ class PipelineResult(BaseModel):
         score: The Judge Agent's greenwashing verdict.
         report_markdown: The publication-ready report.
         traces: All AgentTrace records from each pipeline step.
+        evidence: The verification evidence the judge saw.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -473,6 +474,10 @@ class PipelineResult(BaseModel):
     traces: list[AgentTrace] = Field(
         default_factory=list,
         description="All AgentTrace records from each pipeline step.",
+    )
+    evidence: list[Evidence] = Field(
+        default_factory=list,
+        description="The verification evidence the judge saw, in the order it was numbered.",
     )
 
 
@@ -914,6 +919,7 @@ class Pipeline:
                 score=judge_result.score,
                 report_markdown=report_result.report_markdown,
                 traces=traces,
+                evidence=verification_result.evidence,
             )
 
         except Exception as exc:

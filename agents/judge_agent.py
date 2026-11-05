@@ -18,7 +18,15 @@ from typing import Any
 import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.evidence_scope import OFFICIAL_RECORD_SOURCES, is_claim_level, record_scope
+from core.evidence_scope import (
+    HLEG_CITATION,
+    HLEG_FOSSIL_SUPPLY,
+    HLEG_LOBBYING,
+    OFFICIAL_RECORD_SOURCES,
+    is_claim_level,
+    is_recent_finding,
+    record_scope,
+)
 from core.logger import bind_trace_context, get_logger
 from core.model_requests import (
     TOOL_CALL_ATTEMPTS,
@@ -109,9 +117,19 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                 "items": {"type": "integer", "minimum": 1},
                 "description": (
                     "Numbers of the claim-level records that contradict this specific "
-                    "claim: records about the claim's own subject, scope and period. "
-                    "Company-level records and enforcement records never belong here. "
-                    "Empty if there are none."
+                    "claim: records about the claim's own subject, scope and period, and "
+                    "for a climate pledge the records marked as integrity criteria. "
+                    "Company-level records never belong here. Empty if there are none."
+                ),
+            },
+            "same_claim_decisions": {
+                "type": "array",
+                "items": {"type": "integer", "minimum": 1},
+                "description": (
+                    "Numbers of the enforcement records whose decision found this same "
+                    "claim, or materially identical wording, misleading or in breach of "
+                    "the rules. Leave out decisions about other claims. Empty if there "
+                    "are none."
                 ),
             },
             "supporting_evidence": {
@@ -186,7 +204,8 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
     },
 }
 
-_SYSTEM_PROMPT = """\
+_SYSTEM_PROMPT = (
+    """\
 You are the judge in Prasine Index, an open-source system that checks the climate \
 claims of large European companies against public records. Your score and your \
 written reasoning are published and may be quoted by journalists, researchers and \
@@ -216,7 +235,9 @@ out material context, or the only records against it describe the company as a \
 whole.
   61-80   LIKELY_GREENWASHING. A claim-level record about the claim's own subject, \
 scope and period contradicts it: verified emissions, the company's own source \
-document, asset-level data on the same assets, or a comparable record.
+document, asset-level data on the same assets, or a comparable record. For a \
+climate pledge, the integrity records described below also count. So does a \
+decision from the last five years that found this same claim misleading.
   81-100  CONFIRMED_GREENWASHING. Only when an official record (EU ETS verified \
 emissions, E-PRTR releases, the SBTi target register) covering the same quantity, \
 scope and period as the claim shows the claim to be false under every reasonable \
@@ -231,19 +252,41 @@ COMPANY-LEVEL RECORDS
 LobbyMap, the EU Transparency Register, Climate Action 100+, TPI, the Global Oil \
 and Gas Exit List, the Global Coal Exit List, Banking on Climate Chaos, CDP, the EU \
 Innovation Fund, national inventories and Eurostat describe the company or its \
-country as a whole. They are context. They can inform how credible a \
-forward-looking target is, but on their own they cannot move a claim above 60. \
-Present them in the reasoning as context, never as proof about the claim.
+country as a whole. For a claim that is not a climate pledge they are context: \
+they cannot move it above 60, and the reasoning presents them as context, never \
+as proof about the claim.
+
+INTEGRITY OF CLIMATE PLEDGES
+A net-zero target, a carbon-neutrality claim, a science-based target, or a claim \
+that the company is aligned with the Paris Agreement or 1.5°C is a pledge about \
+the whole company. The evidence list marks such a claim's integrity records as \
+"claim-level for this pledge". The standard is the one set out in \
+"""
+    + HLEG_CITATION
+    + f""":
+  "{HLEG_FOSSIL_SUPPLY}"
+  "{HLEG_LOBBYING}"
+For a pledge, a record showing that the company is expanding fossil fuel supply \
+(the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers) or \
+that its lobbying is obstructive (LobbyMap band D, E or F) contradicts the pledge, \
+and investor assessments of the pledge (Climate Action 100+, TPI) and fossil fuel \
+financing bear on it directly. Such records can place a pledge in 61-80. They \
+never place it in 81-100, and they never count against a claim that is not a \
+pledge. Name the criterion and quote the record; do not say the company breaks a \
+rule.
 
 ENFORCEMENT RECORDS
 Each enforcement record states the body, reference, date, party, outcome and a \
 verbatim quotation. Report a record only through its outcome and its quotation. \
-Prasine reports what authorities and self-regulatory bodies decided; it does not \
-rest its own score on their decisions, so an enforcement record never moves a \
-claim above 60 on its own. Commitments, guidance or warnings, open cases, \
-complaints that were not upheld and decisions annulled on appeal are never \
-findings against the company, and a complaint that was not upheld counts in the \
-company's favour on the claim it concerned.
+A decision from the last five years that found this same claim, or materially \
+identical wording, misleading or in breach of the rules is evidence about the \
+claim: list it in same_claim_decisions, and it can place the claim in 61-80. A \
+decision about a different claim is context and cannot move the claim above 60. \
+Commitments, guidance or warnings, open cases, complaints that were not upheld and \
+decisions annulled on appeal are never findings against the company, and a \
+complaint that was not upheld counts in the company's favour on the claim it \
+concerned."""
+    + """
 
 SUPPORTING RECORDS
 Records that support the claim lower the score; they are more than the absence of \
@@ -290,15 +333,20 @@ false: score 84, top_band_basis OFFICIAL_RECORD.
 B. Claim: "We are committed to net zero by 2050." The source document gives a \
 baseline year and a 2030 interim target but no plan and no verification. LobbyMap \
 rates the company D+, and the Global Oil and Gas Exit List lists it as expanding. \
-Both are company-level records: score 55, contradicting_evidence empty, \
-top_band_basis NONE.
-C. Claim: "We have cut emissions from our steelmaking by 25% since 2018." EU ETS \
+The claim is a pledge, and both records show conduct the integrity criteria name: \
+score 70, contradicting_evidence lists both records, top_band_basis NONE.
+C. Claim: "Our new packaging is 100% recyclable." The same company has the same \
+LobbyMap band and the same exit-list entry. The claim is not a pledge, so both \
+records are context: the score rests on what the records show about the packaging.
+D. Claim: "We have cut emissions from our steelmaking by 25% since 2018." EU ETS \
 shows a 27% fall for the mapped installations over that period: score 10.
-D. Claim: an airline calls itself "Europe's lowest emissions airline". An \
-advertising regulator upheld a complaint against that same claim. Report the \
-decision with its reference, date and quotation. On its own it cannot move the \
-score above 60; whether the claim is true is a question for the emissions records.\
+E. Claim: an airline calls itself "Europe's lowest emissions airline". An \
+advertising regulator upheld a complaint against that same wording three years \
+ago, in a decision that stands: list it in same_claim_decisions, and the claim can \
+be placed in 61-80. Had the decision concerned a different claim, or been more \
+than five years old, it would be context only.\
 """
+)
 
 
 def _records(numbers: Any, evidence: list[Evidence]) -> list[Evidence]:
@@ -312,34 +360,59 @@ def _records(numbers: Any, evidence: list[Evidence]) -> list[Evidence]:
     ]
 
 
-def _claim_level_ids(numbers: Any, evidence: list[Evidence]) -> list[uuid.UUID]:
+def _admitted(
+    verdict: dict[str, Any], evidence: list[Evidence], claim: Claim | None
+) -> list[Evidence]:
+    """Return the records the judge cited against the claim that the rules admit.
+
+    A record counts when it can speak to this claim (see
+    :py:func:`core.evidence_scope.is_claim_level`), or when it is an enforcement
+    finding from the last five years that the judge identified as a decision on
+    this same claim.
+    """
+    same_claim = {
+        e.id
+        for e in _records(verdict.get("same_claim_decisions"), evidence)
+        if is_recent_finding(e)
+    }
+    return [
+        e
+        for e in _records(verdict.get("contradicting_evidence"), evidence)
+        if is_claim_level(e, claim) or e.id in same_claim
+    ] + [e for e in evidence if e.id in same_claim]
+
+
+def _claim_level_ids(
+    numbers: Any, evidence: list[Evidence], claim: Claim | None
+) -> list[uuid.UUID]:
     """Return the ids of the claim-level records the judge cited, once each, in order."""
     ids: list[uuid.UUID] = []
     for record in _records(numbers, evidence):
-        if is_claim_level(record) and record.id not in ids:
+        if is_claim_level(record, claim) and record.id not in ids:
             ids.append(record.id)
     return ids
 
 
-def score_cap(verdict: dict[str, Any], evidence: list[Evidence]) -> tuple[float, str]:
+def score_cap(
+    verdict: dict[str, Any], evidence: list[Evidence], claim: Claim | None = None
+) -> tuple[float, str]:
     """Return the highest score the band rules allow, and why.
 
-    The judge reports which records contradict the claim and what a top-band
-    score rests on. The rules are then applied here, in code, so that no rating,
-    list, decision or count of sources can lift a claim into a band the records
-    themselves do not support.
+    The judge reports which records contradict the claim, which decisions found
+    this same claim misleading, and what a top-band score rests on. The rules
+    are then applied here, in code, so that no rating, list, decision or count
+    of sources can lift a claim into a band the records do not support.
 
     Args:
         verdict: The judge's tool input.
         evidence: The evidence records in the order they were numbered.
+        claim: The claim under assessment; it decides whether the integrity
+            records of a climate pledge count as evidence about it.
 
     Returns:
         A tuple of (cap, reason). The cap is 100.0 when no rule limits the score.
     """
-    contradicting = [
-        e for e in _records(verdict.get("contradicting_evidence"), evidence) if is_claim_level(e)
-    ]
-    if not contradicting:
+    if not _admitted(verdict, evidence, claim):
         return _COMPANY_LEVEL_CAP, "no claim-level record contradicts the claim"
 
     if verdict.get("top_band_basis") != "OFFICIAL_RECORD":
@@ -619,7 +692,7 @@ class JudgeAgent:
         try:
             score_value = float(verdict["score"])
             evidence = input.verification.evidence
-            cap, cap_reason = score_cap(verdict, evidence)
+            cap, cap_reason = score_cap(verdict, evidence, input.claim)
             if score_value > cap:
                 logger.warning(
                     f"Judge score {score_value:.1f} capped at {cap:.0f}: {cap_reason}",
@@ -631,8 +704,11 @@ class JudgeAgent:
                     },
                 )
                 score_value = cap
-            contradicting_ids = _claim_level_ids(verdict.get("contradicting_evidence"), evidence)
-            supporting_ids = _claim_level_ids(verdict.get("supporting_evidence"), evidence)
+            contradicting_ids = [e.id for e in _admitted(verdict, evidence, input.claim)]
+            contradicting_ids = list(dict.fromkeys(contradicting_ids))
+            supporting_ids = _claim_level_ids(
+                verdict.get("supporting_evidence"), evidence, input.claim
+            )
             derived_verdict = verdict_for_score(score_value)
             llm_verdict = verdict.get("verdict")
             if llm_verdict != derived_verdict.value:
@@ -740,7 +816,7 @@ def _build_judge_prompt(input: JudgeInput) -> str:
     for i, ev in enumerate(vr.evidence, 1):
         sections += [
             "",
-            f"[{i}] {ev.source.value} | {ev.evidence_type.value} | {record_scope(ev)} | "
+            f"[{i}] {ev.source.value} | {ev.evidence_type.value} | {record_scope(ev, claim)} | "
             f"year {ev.data_year or 'n/a'} | confidence {ev.confidence:.2f}",
             f"    {ev.summary}",
         ]

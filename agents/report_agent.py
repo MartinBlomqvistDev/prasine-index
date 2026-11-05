@@ -452,7 +452,7 @@ def _build_report_prompt(input: ReportInput) -> str:
     for i, ev in enumerate(vr.evidence, 1):
         src = _source_label(ev)
         parts.append(
-            f"[{i}] {src} | {record_scope(ev)} | "
+            f"[{i}] {src} | {record_scope(ev, claim)} | "
             f"Judge: {_JUDGE_RELATION[_relation(ev, score)]} | "
             f"Year: {ev.data_year or 'not specified'} | "
             f"Retrieved: {ev.retrieved_at.date().isoformat()} | Confidence: {ev.confidence:.2f}"

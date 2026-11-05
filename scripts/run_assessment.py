@@ -48,6 +48,7 @@ from sqlalchemy import text  # noqa: E402
 
 from agents.extraction_agent import ExtractionInput  # noqa: E402
 from core.aggregate import aggregate_claim_scores  # noqa: E402
+from core.company_record import render_company_record  # noqa: E402
 from core.data_manifest import build_manifest, manifest_to_markdown  # noqa: E402
 from core.database import get_session, init_db, teardown_db  # noqa: E402
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
@@ -132,6 +133,7 @@ def _build_aggregate_header(
     results: list[PipelineResult],
     failed_claims: list[str] | None = None,
     persist_failures: int = 0,
+    company_record: str = "",
 ) -> str:
     n = company_score.claim_count
     lines = [
@@ -169,6 +171,9 @@ def _build_aggregate_header(
         lines.append(
             f"| {i} | {claim.score:.0f}/100 | {finding_label(claim.verdict)} | {preview} |"
         )
+
+    if company_record:
+        lines += ["", "### Company Record", "", company_record]
 
     best_score = max(r.score.score for r in results)
     lines += [
@@ -325,6 +330,7 @@ async def run(
             results,
             failed_claims=pipeline.last_run_failed_claims,
             persist_failures=pipeline.last_run_persist_failures,
+            company_record=render_company_record(e for r in results for e in r.evidence),
         )
         manifest = build_manifest()
         manifest_path = _REPORTS_DIR / f"{slug}-manifest.json"
