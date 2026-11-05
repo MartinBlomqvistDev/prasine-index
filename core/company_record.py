@@ -73,6 +73,13 @@ def _unique(evidence: Iterable[Evidence]) -> list[Evidence]:
     return unique
 
 
+def _tonnes(value: float) -> str:
+    """Print emissions in megatonnes from one megatonne, in tonnes below it."""
+    if value >= 1_000_000:
+        return f"{value / 1e6:,.2f} Mt"
+    return f"{value:,.0f} t"
+
+
 def _cite(record: Evidence) -> str:
     return f" ({record.source_url})" if record.source_url else ""
 
@@ -85,15 +92,21 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
         return "No LobbyMap rating for this company.", "LobbyMap has no rating for the company"
     year = record.raw_data.get("year")
     when = f" ({year})" if year else ""
-    intensity = engagement_text(record.raw_data.get("active_engagement"))
+    intensity = engagement_text(record.raw_data.get("active_engagement"), subject="it")
     intensity = f" {intensity[:-1]}" if intensity else ""
     if band.lower() in _OBSTRUCTIVE_BANDS:
-        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range, D and below (a score below 50%).{intensity}{_cite(record)}."
+        line = (
+            f"LobbyMap band {band}{when}, within the range it defines as obstructive "
+            f"(D and below, a score under 50%).{intensity}{_cite(record)}."
+        )
         return (
             line,
             f"LobbyMap rates its climate policy engagement {band}, within its obstructive range",
         )
-    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range, D and below (a score below 50%).{intensity}{_cite(record)}."
+    line = (
+        f"LobbyMap band {band}{when}, outside the range it defines as obstructive "
+        f"(D and below, a score under 50%).{intensity}{_cite(record)}."
+    )
     return (
         line,
         f"LobbyMap rates its climate policy engagement {band}, outside its obstructive range",
@@ -171,8 +184,7 @@ def _emissions(evidence: list[Evidence]) -> str:
     if not common:
         return f"EU ETS: {len(histories)} mapped installation(s) with no year in common."
     totals = [
-        f"{sum(h[year] for h in histories) / 1e6:,.2f} Mt CO2e in {year}"
-        for year in reversed(common)
+        f"{_tonnes(sum(h[year] for h in histories))} CO2e in {year}" for year in reversed(common)
     ]
     return (
         f"EU ETS verified emissions for {len(histories)} mapped installation(s): "

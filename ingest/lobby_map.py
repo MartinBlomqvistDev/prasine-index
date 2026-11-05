@@ -400,7 +400,7 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
     )
 
 
-def engagement_text(value: str | None) -> str:
+def engagement_text(value: str | None, subject: str = "LobbyMap") -> str:
     """Describe a LobbyMap engagement intensity in LobbyMap's own terms.
 
     LobbyMap's methodology: "A score above 12 indicates active engagement, while
@@ -411,6 +411,7 @@ def engagement_text(value: str | None) -> str:
 
     Args:
         value: The Engagement Intensity column (0 to 100) as text.
+        subject: How the sentence names LobbyMap, for use after a first mention.
 
     Returns:
         One sentence, or an empty string when the data gives no intensity.
@@ -428,6 +429,6 @@ def engagement_text(value: str | None) -> str:
     else:
         meaning = "the threshold of active engagement (12)"
     return (
-        f"Engagement intensity {intensity:g} of 100, which LobbyMap describes as "
+        f"Engagement intensity {intensity:g} of 100, which {subject} describes as "
         f"{meaning} and measures independently of the band."
     )
