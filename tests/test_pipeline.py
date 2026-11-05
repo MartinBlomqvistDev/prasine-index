@@ -285,3 +285,19 @@ class TestGreenwashingScoreEmpcoViolation:
         score = GreenwashingScore(**self._base_score_kwargs(), empco_violation=True)
         with pytest.raises((ValidationError, TypeError)):
             score.empco_violation = False  # type: ignore[misc]
+
+
+class TestEntryPageVersion:
+    """A claim repeated across pages is kept from the entry page."""
+
+    def test_entry_page_version_is_kept(self) -> None:
+        entry = _claim("We aim to be net zero by 2050 across our operations").model_copy(
+            update={"source_url": "https://example.com/net-zero/"}
+        )
+        elsewhere = _claim(
+            "We aim to be net zero by 2050 across our operations and products"
+        ).model_copy(update={"source_url": "https://example.com/sustainability"})
+        result = _deduplicate_claims(
+            [elsewhere, entry], preferred_url="https://example.com/net-zero"
+        )
+        assert [c.source_url for c in result] == ["https://example.com/net-zero/"]

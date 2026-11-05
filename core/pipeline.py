@@ -356,20 +356,29 @@ _HAS_TECHNOLOGY = re.compile(
 )
 
 
-def _deduplicate_claims(claims: list[Claim], containment_threshold: float = 0.80) -> list[Claim]:
+def _deduplicate_claims(
+    claims: list[Claim],
+    containment_threshold: float = 0.80,
+    preferred_url: str | None = None,
+) -> list[Claim]:
     """Remove near-duplicate claims using token containment.
 
     When the same claim appears on multiple pages with minor wording variations,
-    keeps the most specific (longest) version and discards near-duplicates.
-    Two claims are duplicates if ≥80% of the shorter claim's tokens appear in
-    the longer one; this catches both exact repeats and truncated variants.
+    keeps the version from the company's entry page, where the claim is set out,
+    and otherwise the most specific (longest) version. Two claims are
+    duplicates if ≥80% of the shorter claim's tokens appear in the longer one;
+    this catches both exact repeats and truncated variants.
     """
+    preferred = (preferred_url or "").rstrip("/")
+
+    def _from_entry(claim: Claim) -> bool:
+        return bool(preferred) and (claim.source_url or "").rstrip("/") == preferred
 
     def _tokens(claim: Claim) -> frozenset[str]:
         text = claim.normalised_text or claim.raw_text or ""
         return frozenset(w for w in text.split() if len(w) >= 3)
 
-    by_length = sorted(claims, key=lambda c: len(c.raw_text or ""), reverse=True)
+    by_length = sorted(claims, key=lambda c: (_from_entry(c), len(c.raw_text or "")), reverse=True)
     kept: list[tuple[Claim, frozenset[str]]] = []
     for candidate in by_length:
         candidate_tokens = _tokens(candidate)
@@ -719,7 +728,7 @@ class Pipeline:
             return []
 
         # --- Phase 2b: deduplicate near-identical claims across pages ---
-        all_claims = _deduplicate_claims(all_claims)
+        all_claims = _deduplicate_claims(all_claims, preferred_url=source_url)
 
         # --- Phase 3: rank claims, filter generics, keep top N ---
         ranked = sorted(all_claims, key=_claim_priority_score, reverse=True)
@@ -806,7 +815,7 @@ class Pipeline:
             extraction_result = await self._extraction_agent.run(extraction_input)
             all_claims.extend(extraction_result.claims)
 
-        deduped = _deduplicate_claims(all_claims)
+        deduped = _deduplicate_claims(all_claims, preferred_url=source_url)
         ranked = sorted(deduped, key=_claim_priority_score, reverse=True)
         filtered = [c for c in ranked if _claim_priority_score(c) >= _MIN_CLAIM_PRIORITY]
         if not filtered:
