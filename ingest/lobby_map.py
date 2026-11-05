@@ -68,6 +68,8 @@ _COL_ENGAGEMENT = (
     "Climate Policy Engagement",
 )
 _COL_YEAR = ("Year", "year", "Assessment Year", "ReportYear")
+# The date the scores were taken from lobbymap.org; the scores carry no date of their own.
+_COL_RETRIEVED = ("Retrieved", "retrieved")
 
 # ---------------------------------------------------------------------------
 # Score classification
@@ -94,6 +96,7 @@ class _LobbyMapRecord:
         "company",
         "country",
         "performance_band",
+        "retrieved",
         "score",
         "sector",
         "ticker",
@@ -110,6 +113,7 @@ class _LobbyMapRecord:
         performance_band: str,
         active_engagement: str,
         year: int | None,
+        retrieved: str = "",
     ) -> None:
         self.company = company
         self.ticker = ticker
@@ -119,6 +123,7 @@ class _LobbyMapRecord:
         self.performance_band = performance_band
         self.active_engagement = active_engagement
         self.year = year
+        self.retrieved = retrieved
 
     @property
     def band_normalised(self) -> str:
@@ -241,6 +246,7 @@ def _get_cache() -> tuple[dict[str, _LobbyMapRecord], dict[str, _LobbyMapRecord]
                 performance_band=_pick(row, _COL_PERFORMANCE_BAND),
                 active_engagement=_pick(row, _COL_ENGAGEMENT),
                 year=year,
+                retrieved=_pick(row, _COL_RETRIEVED),
             )
 
             norm = _normalise_name(company)
@@ -347,6 +353,7 @@ async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]
                 "performance_band": record.performance_band,
                 "active_engagement": record.active_engagement,
                 "year": record.year,
+                "retrieved": record.retrieved,
             },
             summary=summary,
             data_year=record.year,
@@ -388,7 +395,13 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
         A plain-text summary string.
     """
     band = record.band_normalised.upper() or "not scored"
-    year_str = f" (assessment year: {record.year})" if record.year else ""
+    year_str = (
+        f" (assessment year: {record.year})"
+        if record.year
+        else f" (scores as published on lobbymap.org on {record.retrieved})"
+        if record.retrieved
+        else ""
+    )
     return " ".join(
         filter(
             None,

@@ -102,7 +102,8 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
     if record is None or not band:
         return "No LobbyMap rating for this company.", "LobbyMap has no rating for the company"
     year = record.raw_data.get("year")
-    when = f" ({year})" if year else ""
+    retrieved = record.raw_data.get("retrieved")
+    when = f" ({year})" if year else f" (as of {retrieved})" if retrieved else ""
     intensity = engagement_text(record.raw_data.get("active_engagement"), subject="it")
     intensity = f" {intensity[:-1]}" if intensity else ""
     if band.lower() in _OBSTRUCTIVE_BANDS:
