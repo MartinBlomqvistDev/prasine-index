@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import csv
 import os
+import re
 from pathlib import Path
 
 from core.logger import get_logger
@@ -73,6 +74,16 @@ _COL_POWER_STATUS = (
     "New Coal Plants",
     "Coal Power Development",
 )
+# The converter's own statement of the list's figures, with its edition.
+_COL_DETAILS = ("Details",)
+
+
+def _edition_year(details: str) -> int | None:
+    """Return the year of the list edition named in the details, e.g. "GCEL 2025"."""
+    found = re.search(r"GCEL (\d{4})", details or "")
+    return int(found.group(1)) if found else None
+
+
 _COL_PHASE_OUT = (
     "Coal Phase-out Plan",
     "Phase Out",
@@ -131,6 +142,7 @@ class _GCELRecord:
     __slots__ = (
         "company",
         "country",
+        "details",
         "isin",
         "mining_capacity_mtpa",
         "mining_expansion",
@@ -153,6 +165,7 @@ class _GCELRecord:
         phase_out_plan: str,
         mining_capacity_mtpa: float | None,
         power_capacity_gw: float | None,
+        details: str = "",
     ) -> None:
         self.company = company
         self.country = country
@@ -164,6 +177,7 @@ class _GCELRecord:
         self.phase_out_plan = phase_out_plan
         self.mining_capacity_mtpa = mining_capacity_mtpa
         self.power_capacity_gw = power_capacity_gw
+        self.details = details
 
     @property
     def is_expanding(self) -> bool:
@@ -282,6 +296,7 @@ def _get_cache() -> tuple[
                 phase_out_plan=_pick(row, _COL_PHASE_OUT),
                 mining_capacity_mtpa=_parse_float(_pick(row, _COL_MINING_CAPACITY)),
                 power_capacity_gw=_parse_float(_pick(row, _COL_POWER_CAPACITY)),
+                details=_pick(row, _COL_DETAILS),
             )
             norm = _normalise_name(company)
             by_name[norm] = record
@@ -373,9 +388,10 @@ async def fetch_coal_exit_data(claim: Claim, company: object) -> list[Evidence]:
                 "phase_out_plan": record.phase_out_plan,
                 "mining_capacity_mtpa": record.mining_capacity_mtpa,
                 "power_capacity_gw": record.power_capacity_gw,
+                "details": record.details,
             },
             summary=summary,
-            data_year=None,
+            data_year=_edition_year(record.details),
             supports_claim=supports,
             confidence=confidence,
         )
@@ -401,12 +417,12 @@ def _build_summary(company_name: str, record: _GCELRecord) -> str:
         capacity_parts.append(f"{record.mining_capacity_mtpa:.0f} Mtpa coal mining")
     if record.power_capacity_gw:
         capacity_parts.append(f"{record.power_capacity_gw:.1f} GW coal power")
-    capacity_str = "; ".join(capacity_parts) or "capacity not disclosed"
+    capacity_str = record.details or "; ".join(capacity_parts) or "capacity not disclosed"
 
     if record.is_expanding:
         return (
-            f"Urgewald Global Coal Exit List: {company_name} is listed as expanding "
-            f"coal capacity ({capacity_str}). "
+            f"Urgewald Global Coal Exit List: {company_name} is listed with "
+            f"coal expansion ({capacity_str}). "
             f"Mining expansion status: {record.mining_expansion or 'unknown'}; "
             f"power expansion status: {record.power_expansion or 'unknown'}."
         )

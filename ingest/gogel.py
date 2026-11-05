@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import csv
 import os
+import re
 from pathlib import Path
 
 from core.logger import get_logger
@@ -76,6 +77,16 @@ _COL_RESERVES = (
     "Proven + Probable",
     "Reserves",
 )
+# The converter's own statement of the list's figures, with its edition.
+_COL_DETAILS = ("Details",)
+
+
+def _edition_year(details: str) -> int | None:
+    """Return the year of the list edition named in the details, e.g. "GOGEL 2025"."""
+    found = re.search(r"GOGEL (\d{4})", details or "")
+    return int(found.group(1)) if found else None
+
+
 _COL_PHASE_OUT = (
     "Phase-out Plan",
     "phase_out",
@@ -120,6 +131,7 @@ class _GOGELRecord:
     __slots__ = (
         "company",
         "country",
+        "details",
         "isin",
         "lng_expansion",
         "phase_out_plan",
@@ -142,6 +154,7 @@ class _GOGELRecord:
         phase_out_plan: str,
         production_boed: float | None,
         proven_reserves_boe: float | None,
+        details: str = "",
     ) -> None:
         self.company = company
         self.country = country
@@ -153,6 +166,7 @@ class _GOGELRecord:
         self.phase_out_plan = phase_out_plan
         self.production_boed = production_boed
         self.proven_reserves_boe = proven_reserves_boe
+        self.details = details
 
     @property
     def is_expanding(self) -> bool:
@@ -272,6 +286,7 @@ def _get_cache() -> tuple[
                 phase_out_plan=_pick(row, _COL_PHASE_OUT),
                 production_boed=_parse_float(_pick(row, _COL_PRODUCTION)),
                 proven_reserves_boe=_parse_float(_pick(row, _COL_RESERVES)),
+                details=_pick(row, _COL_DETAILS),
             )
             norm = _normalise_name(company)
             by_name[norm] = record
@@ -364,9 +379,10 @@ async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
                 "phase_out_plan": record.phase_out_plan,
                 "production_boed": record.production_boed,
                 "proven_reserves_boe": record.proven_reserves_boe,
+                "details": record.details,
             },
             summary=summary,
-            data_year=None,
+            data_year=_edition_year(record.details),
             supports_claim=supports,
             confidence=confidence,
         )
@@ -389,12 +405,12 @@ def _build_summary(company_name: str, record: _GOGELRecord) -> str:
         capacity_parts.append(f"{record.production_boed:,.0f} boe/d production")
     if record.proven_reserves_boe:
         capacity_parts.append(f"{record.proven_reserves_boe:,.0f} boe proven reserves")
-    capacity_str = "; ".join(capacity_parts) or "production data not disclosed"
+    capacity_str = record.details or "; ".join(capacity_parts) or "production data not disclosed"
 
     if record.is_expanding:
         return (
-            f"Urgewald Global Oil and Gas Exit List: {company_name} is listed as "
-            f"expanding oil and gas capacity ({capacity_str}). "
+            f"Urgewald Global Oil and Gas Exit List: {company_name} is listed with "
+            f"oil and gas expansion ({capacity_str}). "
             f"Upstream expansion: {record.upstream_expansion or 'yes'}; "
             f"LNG expansion: {record.lng_expansion or 'unknown'}."
         )
