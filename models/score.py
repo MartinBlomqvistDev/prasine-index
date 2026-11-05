@@ -59,6 +59,22 @@ class ScoreVerdict(StrEnum):
     CONFIRMED_GREENWASHING = "CONFIRMED_GREENWASHING"
 
 
+# The published name of each band. The enum values are internal and are never
+# shown to readers.
+FINDING_LABELS: dict[ScoreVerdict, str] = {
+    ScoreVerdict.SUBSTANTIATED_CLAIM: "Supported by records",
+    ScoreVerdict.UNVERIFIABLE_CLAIM: "Not independently verified",
+    ScoreVerdict.MISLEADING_CLAIM: "Not fully supported",
+    ScoreVerdict.LIKELY_GREENWASHING: "Conflicts with records",
+    ScoreVerdict.CONFIRMED_GREENWASHING: "Contradicted by records",
+}
+
+
+def finding_label(verdict: ScoreVerdict) -> str:
+    """Return the published name of a score band."""
+    return FINDING_LABELS[verdict]
+
+
 def verdict_for_score(score: float) -> ScoreVerdict:
     """Derive the verdict band from a numeric score.
 

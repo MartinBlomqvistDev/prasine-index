@@ -31,7 +31,7 @@ from models.claim import Claim
 from models.company import CompanyContext
 from models.evidence import Evidence, VerificationResult
 from models.lobbying import LobbyingRecord
-from models.score import GreenwashingScore
+from models.score import GreenwashingScore, finding_label
 from models.trace import AgentName, AgentOutcome, AgentTrace
 
 __all__ = [
@@ -83,7 +83,8 @@ in the evidence.
 source URL given in its evidence record, with its reference and date exactly as \
 recorded. Do not characterise a ruling beyond what its quotation says.
 - State what the evidence shows about the claim. Do not attribute intent to \
-the company, and do not use the word "greenwashing" outside the verdict line.
+the company, and do not use the words "greenwashing" or "misleading" except \
+inside a verbatim quotation.
 - Never state that a claim violates, breaches, infringes or complies with a \
 law. Whether a practice is unlawful is decided by national authorities and \
 courts.
@@ -102,7 +103,7 @@ STRUCTURE
 Use exactly this Markdown structure:
 
 ## [Company Name]: Claim Assessment
-**Verdict: [VERDICT]** | Score: [X]/100 (range: [LOW]–[HIGH]) | Confidence: [X]%
+**Finding: [FINDING]** | Score: [X]/100 (range: [LOW]–[HIGH]) | Confidence: [X]%
 *Published: [DATE] | Prasine Index | Trace ID: [TRACE_ID]*
 
 ### The Claim
@@ -421,7 +422,7 @@ def _build_report_prompt(input: ReportInput) -> str:
         claim.raw_text,
         "</untrusted_claim_text>",
         "",
-        f"VERDICT: {score.verdict.value}",
+        f"FINDING: {finding_label(score.verdict)}",
         f"SCORE: {score.score:.1f}/100"
         + (
             f" (range: {score.score_low:.0f}–{score.score_high:.0f})"

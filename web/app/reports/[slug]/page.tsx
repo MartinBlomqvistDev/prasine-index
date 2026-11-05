@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { notFound } from 'next/navigation'
-import { type ParsedReport, type EvidenceItem, type ClaimRow, parseReport, verdictFromScore } from '../../../lib/parse-report'
+import { type ParsedReport, type EvidenceItem, type ClaimRow, findingFromString, parseReport, verdictFromScore } from '../../../lib/parse-report'
 import { PUBLISHED_SLUGS, WITHDRAWN, WITHDRAWN_ON } from '../../../lib/site'
 
 
@@ -24,15 +24,6 @@ function renderInline(text: string): React.ReactNode[] {
   return parts.map((part, i) =>
     i % 2 === 1 ? <strong key={i}>{part}</strong> : part
   )
-}
-
-function verdictFromString(v: string): { cls: string; label: string } {
-  const u = v.toUpperCase()
-  if (u.includes('CONFIRMED'))   return { cls: 'confirmed',    label: 'Confirmed greenwashing' }
-  if (u.includes('LIKELY'))      return { cls: 'greenwashing', label: 'Likely greenwashing'    }
-  if (u.includes('MISLEADING'))  return { cls: 'misleading',   label: 'Misleading claim'       }
-  if (u.includes('UNVERIFIABLE'))return { cls: 'insufficient', label: 'Unverifiable claim'     }
-  return                                { cls: 'substantiated', label: 'Substantiated claim'    }
 }
 
 // ── Static params ─────────────────────────────────────────────────────────────
@@ -139,8 +130,8 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
   const md = readFileSync(reportPath, 'utf-8')
   const r = parseReport(md)
-  const agg    = verdictFromString(r.verdict)
-  const detail = verdictFromString(r.detailVerdict)
+  const agg    = findingFromString(r.verdict)
+  const detail = findingFromString(r.detailVerdict)
   // The table previews each claim; mark the one the detailed section covers,
   // matching on text first because several claims can share a score.
   const textIndex = r.claims.findIndex(c => {
@@ -190,7 +181,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
         {r.claims.length > 0 && (
           <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
             <thead>
-              <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
+              <tr><th>Score</th><th>Finding</th><th>Claim assessed</th></tr>
             </thead>
             <tbody>
               {r.claims.map((c, i) => (

@@ -50,12 +50,30 @@ export interface ReportSummary {
   claimCount: number
 }
 
+// The five findings, one per score band. Reports written before November 2026
+// carry the band's enum name instead of the label, so both are accepted.
+const FINDINGS = [
+  { band: 'SUBSTANTIATED_CLAIM',    cls: 'substantiated', label: 'Supported by records'       },
+  { band: 'UNVERIFIABLE_CLAIM',     cls: 'insufficient',  label: 'Not independently verified' },
+  { band: 'MISLEADING_CLAIM',       cls: 'misleading',    label: 'Not fully supported'        },
+  { band: 'LIKELY_GREENWASHING',    cls: 'greenwashing',  label: 'Conflicts with records'     },
+  { band: 'CONFIRMED_GREENWASHING', cls: 'confirmed',     label: 'Contradicted by records'    },
+]
+
 export function verdictFromScore(score: number): { cls: string; label: string } {
-  if (score <= 20) return { cls: 'substantiated', label: 'Substantiated claim' }
-  if (score <= 40) return { cls: 'insufficient',  label: 'Unverifiable claim'  }
-  if (score <= 60) return { cls: 'misleading',    label: 'Misleading claim'    }
-  if (score <= 80) return { cls: 'greenwashing',  label: 'Likely greenwashing' }
-  return             { cls: 'confirmed',    label: 'Confirmed greenwashing' }
+  if (score <= 20) return FINDINGS[0]
+  if (score <= 40) return FINDINGS[1]
+  if (score <= 60) return FINDINGS[2]
+  if (score <= 80) return FINDINGS[3]
+  return FINDINGS[4]
+}
+
+export function findingFromString(value: string): { cls: string; label: string } {
+  const v = value.trim().toUpperCase()
+  return (
+    FINDINGS.find(f => v.includes(f.band) || v === f.label.toUpperCase()) ??
+    { cls: 'insufficient', label: value.trim() }
+  )
 }
 
 const ENUM_LABELS: Record<string, string> = {
@@ -211,7 +229,7 @@ export function parseReport(md: string): ParsedReport {
 
   const overallScore = parseInt(md.match(/\*\*Overall Score: (\d+)\/100\*\*/)?.[1] ?? '0')
   const scoreRange = md.match(/\*\*Score range:\*\* ([^\n]+)/)?.[1]?.trim() ?? ''
-  const verdict = md.match(/\*\*Verdict:\*\* ([^\n*]+)/)?.[1]?.trim() ?? ''
+  const verdict = md.match(/\*\*(?:Verdict|Finding):\*\* ([^\n*]+)/)?.[1]?.trim() ?? ''
   const confidence = parseInt(md.match(/\*\*Confidence:\*\* (\d+)%/)?.[1] ?? '0')
 
   const claims: ClaimRow[] = md
@@ -228,7 +246,7 @@ export function parseReport(md: string): ParsedReport {
     })
 
   const detailHeader = md.match(
-    /\*\*Verdict: ([^*]+)\*\* \| Score: ([\d.]+)\/100 \(range: ([^)]+)\) \| Confidence: (\d+)%/,
+    /\*\*(?:Verdict|Finding): ([^*]+)\*\* \| Score: ([\d.]+)\/100 \(range: ([^)]+)\) \| Confidence: (\d+)%/,
   )
   const detailVerdict = detailHeader?.[1]?.trim() ?? verdict
   const detailScore = parseFloat(detailHeader?.[2] ?? String(overallScore))

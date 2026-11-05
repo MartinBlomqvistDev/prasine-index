@@ -1,5 +1,5 @@
 import ApplyForm from './apply-form'
-import { loadReportSummaries } from '../lib/parse-report'
+import { findingFromString, loadReportSummaries } from '../lib/parse-report'
 import { PUBLISHED_SLUGS, WITHDRAWN_ON } from '../lib/site'
 
 export const metadata = {
@@ -7,15 +7,6 @@ export const metadata = {
 }
 
 const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
-
-function verdictFromString(v: string): { cls: string; label: string } {
-  const u = v.toUpperCase()
-  if (u.includes('CONFIRMED'))    return { cls: 'confirmed',    label: 'Confirmed'          }
-  if (u.includes('LIKELY'))       return { cls: 'greenwashing', label: 'Likely greenwashing' }
-  if (u.includes('MISLEADING'))   return { cls: 'misleading',   label: 'Misleading claim'   }
-  if (u.includes('UNVERIFIABLE')) return { cls: 'insufficient', label: 'Unverifiable claim'  }
-  return                                 { cls: 'substantiated', label: 'Substantiated claim' }
-}
 
 export default function HomePage() {
   const summaries = loadReportSummaries(PUBLISHED_SLUGS).sort((a, b) => b.score - a.score)
@@ -87,12 +78,12 @@ export default function HomePage() {
                 <th>Company</th>
                 <th>Sector</th>
                 <th>Score</th>
-                <th>Verdict</th>
+                <th>Finding</th>
               </tr>
             </thead>
             <tbody>
               {summaries.map(({ company, slug, sector, score, verdict }) => {
-                const vf = verdictFromString(verdict)
+                const vf = findingFromString(verdict)
                 return (
                   <tr key={slug}>
                     <td colSpan={4} style={{ padding: 0, border: 'none' }}>

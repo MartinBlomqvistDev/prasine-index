@@ -53,6 +53,7 @@ from core.database import get_session, init_db, teardown_db  # noqa: E402
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
 from models.claim import SourceType  # noqa: E402
 from models.company_score import CompanyScore  # noqa: E402
+from models.score import finding_label  # noqa: E402
 
 _REPORTS_DIR = Path(__file__).parent.parent / "docs" / "reports"
 _SCRIPTS_DIR = Path(__file__).parent
@@ -139,7 +140,7 @@ def _build_aggregate_header(
         f"**Overall Score: {company_score.score:.0f}/100** "
         f"(top-3 severity-weighted across {n} claim{'s' if n != 1 else ''})  ",
         f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f}  ",
-        f"**Verdict:** {company_score.verdict.value}  ",
+        f"**Finding:** {finding_label(company_score.verdict)}  ",
         f"**Confidence:** {company_score.confidence:.0%}",
     ]
     if company_score.floor_applied:
@@ -160,12 +161,14 @@ def _build_aggregate_header(
         )
     lines += [
         "",
-        "| # | Score | Verdict | Claim |",
+        "| # | Score | Finding | Claim |",
         "|---|-------|---------|-------|",
     ]
     for i, claim in enumerate(company_score.claims, start=1):
         preview = claim.claim_text[:120].replace("|", "/").replace("\n", " ")
-        lines.append(f"| {i} | {claim.score:.0f}/100 | {claim.verdict.value} | {preview} |")
+        lines.append(
+            f"| {i} | {claim.score:.0f}/100 | {finding_label(claim.verdict)} | {preview} |"
+        )
 
     best_score = max(r.score.score for r in results)
     lines += [
