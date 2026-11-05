@@ -81,6 +81,7 @@ class _TPIRecord:
         "mq_assessed",
         "mq_level",
         "mq_published",
+        "notes",
         "retrieved",
         "sector",
         "source_url",
@@ -100,6 +101,7 @@ class _TPIRecord:
         self.mq_published = row.get("MQ Publication Date", "").strip()
         self.retrieved = row.get("Retrieved", "").strip()
         self.source_url = row.get("Source URL", "").strip()
+        self.notes = row.get("TPI Centre Notes", "").strip()
 
     @property
     def short_term(self) -> tuple[str, str]:
@@ -283,6 +285,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         f"{'; ' + dates if dates else ''}{retrieved}): "
         f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}). "
         f"Carbon Performance alignment: {cp_summary}."
+        + (f" TPI Centre notes on the assessment: {rec.notes}" if rec.notes else "")
     )
 
     logger.info(
@@ -305,6 +308,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         "cp_assessed": rec.cp_assessed,
         "mq_published": rec.mq_published,
         "retrieved": rec.retrieved,
+        "notes": rec.notes,
     }
 
     return [

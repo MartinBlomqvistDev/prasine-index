@@ -378,7 +378,7 @@ async def fetch_coal_exit_data(claim: Claim, company: object) -> list[Evidence]:
             trace_id=claim.trace_id,
             source=EvidenceSource.COAL_EXIT,
             evidence_type=EvidenceType.TARGET_RECORD,
-            source_url="https://www.urgewald.org/en/themen/global-coal-exit-list",
+            source_url="https://www.coalexit.org/",
             raw_data={
                 "company": record.company,
                 "country": record.country,
@@ -420,11 +420,19 @@ def _build_summary(company_name: str, record: _GCELRecord) -> str:
     capacity_str = record.details or "; ".join(capacity_parts) or "capacity not disclosed"
 
     if record.is_expanding:
+        definition = (
+            " The list's methodology (https://www.coalexit.org/methodology) counts as "
+            'mining expansion companies "engaged in coal exploration activities, planning '
+            "to develop new coal mines, extending their coal mines or the life of coal "
+            'mines by applying for new permits".'
+            if record.mining_expansion.strip().lower() in _EXPANDING_VALUES
+            else ""
+        )
         return (
             f"Urgewald Global Coal Exit List: {company_name} is listed with "
             f"coal expansion ({capacity_str}). "
             f"Mining expansion status: {record.mining_expansion or 'unknown'}; "
-            f"power expansion status: {record.power_expansion or 'unknown'}."
+            f"power expansion status: {record.power_expansion or 'unknown'}.{definition}"
         )
 
     if record.is_phasing_out:

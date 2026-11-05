@@ -44,7 +44,7 @@ _OUTCOME_TEXT: dict[str, str] = {
     "COMMITMENTS": "commitments to change practices; no decision against the company",
     "WARNING": "guidance or warning, without a finding on the company's own marketing",
     "INVESTIGATION": "case opened; no outcome is recorded",
-    "NOT_UPHELD": "complaint not upheld",
+    "NOT_UPHELD": "not upheld",
     "ANNULLED": "decision annulled on appeal",
 }
 

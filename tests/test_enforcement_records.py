@@ -70,7 +70,7 @@ class TestIndexCompanies:
     def test_bp_has_only_a_complaint_that_was_not_upheld(self) -> None:
         evidence = _evidence_for("BP plc")
         assert _references("BP plc") == {"G16-1014902": "NOT_UPHELD"}
-        assert "complaint not upheld" in evidence[0].summary
+        assert "not upheld" in evidence[0].summary
 
     def test_hm(self) -> None:
         assert _references("H&M Group") == {

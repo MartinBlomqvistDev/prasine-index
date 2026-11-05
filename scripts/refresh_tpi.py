@@ -19,6 +19,7 @@ import csv
 import datetime as dt
 import re
 import sys
+from html import unescape
 from pathlib import Path
 
 import httpx
@@ -44,6 +45,7 @@ _COLUMNS = [
     "Carbon Performance Alignment 2030",
     "Carbon Performance Alignment 2035",
     "Carbon Performance Alignment 2050",
+    "TPI Centre Notes",
     "Retrieved",
     "Source URL",
 ]
@@ -65,6 +67,18 @@ _ITEM = re.compile(r'\{"value":(?:"(?P<value>[^"]*)"|null),"year":(?P<year>\d{4}
 def _field(html: str, pattern: str) -> str:
     found = re.search(pattern, html)
     return found.group(1) if found else ""
+
+
+def _notes(html: str) -> str:
+    """Return the TPI Centre's notes on the current assessment, as plain text.
+
+    The notes say what an assessment covers, for example which business lines a
+    carbon performance rating leaves out.
+    """
+    found = re.search(
+        r'TPI Centre notes</h3>\s*<p class="primary-notes__text">(.*?)</p>', html, flags=re.S
+    )
+    return " ".join(unescape(re.sub(r"<[^>]+>", " ", found.group(1))).split()) if found else ""
 
 
 def _day(iso: str) -> str:
@@ -125,6 +139,7 @@ def read_company(slug: str) -> dict[str, str]:
         "Carbon Performance Alignment 2030": alignments.get("2030", ""),
         "Carbon Performance Alignment 2035": alignments.get("2035", ""),
         "Carbon Performance Alignment 2050": alignments.get("2050", ""),
+        "TPI Centre Notes": _notes(html),
         "Retrieved": dt.date.today().isoformat(),
         "Source URL": url,
     }

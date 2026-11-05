@@ -16,7 +16,7 @@ Saves to data/gcel_companies.csv. Run refresh_cache() from ingest.coal_exit to
 reload without restarting.
 
 Sources:
-  https://www.urgewald.org/en/themen/global-coal-exit-list
+  https://www.coalexit.org/
   https://coalexit.org/
 """
 

@@ -22,6 +22,7 @@ from core.evidence_scope import (
     HLEG_URL,
     is_recent_finding,
 )
+from ingest.ca100 import describe_indicators
 from ingest.coal_exit import _EXPANDING_VALUES as _GCEL_EXPANDING
 from ingest.gogel import _EXPANDING_VALUES as _GOGEL_EXPANDING
 from ingest.lobby_map import _OBSTRUCTIVE_BANDS, engagement_text
@@ -36,7 +37,7 @@ _OUTCOMES = {
     "COMMITMENTS": "commitments to change practices; no decision against the company",
     "WARNING": "guidance or warning",
     "INVESTIGATION": "case opened, no outcome recorded",
-    "NOT_UPHELD": "complaint not upheld",
+    "NOT_UPHELD": "not upheld",
     "ANNULLED": "decision annulled on appeal",
 }
 
@@ -226,19 +227,24 @@ def _investors(evidence: list[Evidence]) -> str:
     lines = []
     ca100 = _first(evidence, EvidenceSource.CA100)
     if ca100 is not None:
-        lines.append(
-            f"Climate Action 100+: Net Zero Ambition {ca100.raw_data.get('nz_ambition') or 'not assessed'}, "
-            f"capex alignment {ca100.raw_data.get('capex_alignment') or 'not assessed'}."
-        )
+        lines.append(f"Climate Action 100+, {describe_indicators(ca100.raw_data)}")
     tpi = _first(evidence, EvidenceSource.TPI)
     if tpi is not None:
         raw = tpi.raw_data
-        assessed = raw.get("cp_assessed") or raw.get("mq_assessed")
-        when = f", assessed {assessed}" if assessed else ""
+        mq_dates = ", ".join(
+            part
+            for part in (
+                f"assessed {raw['mq_assessed']}" if raw.get("mq_assessed") else "",
+                f"published {raw['mq_published']}" if raw.get("mq_published") else "",
+            )
+            if part
+        )
+        cp_date = f" (assessed {raw['cp_assessed']})" if raw.get("cp_assessed") else ""
         lines.append(
-            f"TPI ({raw.get('sector')}{when}): Management Quality Level "
+            f"TPI ({raw.get('sector')}): Management Quality Level "
             f"{str(raw.get('mq_level') or '').replace('STAR', '*')} "
-            f"({raw.get('mq_label')}); carbon performance "
+            f"({raw.get('mq_label')}{'; ' + mq_dates if mq_dates else ''}); "
+            f"carbon performance{cp_date} "
             f"{raw.get('cp_alignment_2030') or raw.get('cp_alignment_2025') or 'not assessed'} "
             f"for {'2030' if raw.get('cp_alignment_2030') else '2025'}, "
             f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
@@ -267,8 +273,9 @@ def _track_record(evidence: list[Evidence]) -> str:
     records = [e for e in evidence if e.source == EvidenceSource.ENFORCEMENT]
     if not records:
         return (
-            "**Track record: no decisions on record.** Prasine's list of verified "
-            "decisions on environmental marketing has no entry for this company."
+            "**Track record in Prasine's list: no decisions.** The list holds decisions on "
+            "environmental marketing checked against the authority's own page; it has no "
+            "entry for this company and is not a complete record."
         )
 
     findings = [e for e in records if e.raw_data.get("ruling_type") in _FINDINGS]
@@ -296,7 +303,10 @@ def _track_record(evidence: list[Evidence]) -> str:
             f"({record.raw_data.get('decision_date')}), {record.raw_data.get('party_as_named')}: "
             f"{outcome}{_cite(record)}"
         )
-    return f"**Track record: {rating}.** {'; '.join(entries)}."
+    return (
+        f"**Track record in Prasine's list: {rating}.** {'; '.join(entries)}. The list holds "
+        "decisions checked against the authority's own page and is not a complete record."
+    )
 
 
 def render_company_record(evidence: Iterable[Evidence]) -> str:

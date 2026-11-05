@@ -89,8 +89,8 @@ class TestTrackRecord:
             ]
         )
         assert (
-            "**Track record: one finding against its environmental marketing, "
-            "more than five years old.**" in record
+            "**Track record in Prasine's list: one finding against its environmental "
+            "marketing, more than five years old.**" in record
         )
         assert record.index("IP/25/2608") < record.index("G19-1035778")
 
@@ -106,11 +106,14 @@ class TestTrackRecord:
                 )
             ]
         )
-        assert "**Track record: no findings against its environmental marketing.**" in record
-        assert "complaint not upheld" in record
+        assert (
+            "**Track record in Prasine's list: no findings against its environmental marketing.**"
+            in record
+        )
+        assert ": not upheld" in record
 
     def test_no_records(self) -> None:
-        assert "**Track record: no decisions on record.**" in render_company_record([])
+        assert "**Track record in Prasine's list: no decisions.**" in render_company_record([])
 
 
 class TestEmissions:

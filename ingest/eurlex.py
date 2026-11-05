@@ -56,8 +56,11 @@ _FUTURE_PERFORMANCE = (
     _EMPCO_CELEX,
     "Directive (EU) 2024/825: UCPD Article 6(2)(d), future environmental performance",
     _EMPCO_YEAR,
-    "Under Article 6(2)(d) of the UCPD as amended, a practice is misleading where it "
-    "is likely to change the average consumer's transactional decision and involves "
+    'Article 6(2) of the UCPD reads: "A commercial practice shall also be regarded as '
+    "misleading if, in its factual context, taking account of all its features and "
+    "circumstances, it causes or is likely to cause the average consumer to take a "
+    "transactional decision that he would not have taken otherwise, and it "
+    'involves:". Directive (EU) 2024/825 adds point (d): '
     '"making an environmental claim related to future environmental performance '
     "without clear, objective, publicly available and verifiable commitments set out "
     "in a detailed and realistic implementation plan that includes measurable and "
@@ -129,8 +132,7 @@ _CSRD = (
     "emissions, including Scope 3, under the European Sustainability Reporting "
     "Standards. EU simplification measures adopted in 2025 and 2026 postponed "
     "reporting and narrowed the scope, so whether a given company reports, and for "
-    "which financial year, must be checked for that company. CSRD reports are "
-    "addressed to investors and are not consumer marketing.",
+    "which financial year, must be checked for that company.",
 )
 
 _EU_ETS = (

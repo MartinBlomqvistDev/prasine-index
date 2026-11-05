@@ -2,9 +2,15 @@
 
 The company record is built in code from records that describe a company as a
 whole, with no model involved, so it can be rebuilt without running an
-assessment again: after a change to how the record is written, or to bring
-its data up to date. Each company is looked up the way the pipeline looks it
-up, by name, with its EU ETS installations read from the database.
+assessment again after a change to how the record is written. Each company is
+looked up the way the pipeline looks it up, by name, with its EU ETS
+installations read from the database.
+
+Never use it to bring a published report's data up to date: the claims in the
+report were judged on the data of their run, and a record rebuilt from newer
+data would disagree with the evidence beside it (a newer TPI assessment in the
+record, an older one in the evidence). Refresh data by running the assessment
+again.
 
 Usage:
     python scripts/render_company_records.py "Ryanair Holdings plc" "BP plc"
