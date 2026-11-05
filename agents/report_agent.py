@@ -471,15 +471,9 @@ def _build_report_prompt(input: ReportInput) -> str:
         for gap in vr.data_gaps:
             parts.append(f"  - {gap}")
 
-    if input.lobbying:
-        lb = input.lobbying
-        parts += [
-            "",
-            "LOBBYING RECORD (company-level context):",
-            f"  Stance: {lb.stance.value}",
-        ]
-        if lb.contradiction_explanation:
-            parts.append(f"  Detail: {lb.contradiction_explanation}")
+    # The lobbying agent's own stance label is not given to the report: it is
+    # the index's classification, not a source's, and the LobbyMap and EU
+    # Transparency Register records above already state what the sources say.
 
     return "\n".join(parts)
 
