@@ -52,7 +52,7 @@ from core.company_record import render_company_record  # noqa: E402
 from core.data_manifest import build_manifest, manifest_to_markdown  # noqa: E402
 from core.database import get_session, init_db, teardown_db  # noqa: E402
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
-from models.claim import SourceType  # noqa: E402
+from models.claim import source_type_for_url  # noqa: E402
 from models.company_score import CompanyScore  # noqa: E402
 from models.score import finding_label  # noqa: E402
 
@@ -264,7 +264,7 @@ async def run(
                 trace_id=uuid.uuid4(),
                 company_id=company_id,
                 source_url=source_url,
-                source_type=SourceType.IR_PAGE,
+                source_type=source_type_for_url(source_url),
                 raw_content=claim_text,
             )
             results = await pipeline.run_from_document(extraction_input)

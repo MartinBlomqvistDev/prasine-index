@@ -356,24 +356,30 @@ def _get_cache() -> tuple[
         assert _cache_by_isin is not None
         assert _cache_by_ticker is not None
         return _cache_by_isin, _cache_by_name, _cache_by_ticker
-    if _CA100_XLSX.exists():
-        _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_xlsx(_CA100_XLSX)
-        logger.info(
-            f"CA100+ cache loaded from XLSX: {len(_cache_by_name)} companies",
-            extra={"operation": "ca100_cache_loaded", "source": "xlsx"},
-        )
-    elif _CA100_CSV.exists():
+    # The curated CSV comes first. The benchmark's own workbook changes layout
+    # between editions, so it is only a fallback, and a load that finds no
+    # companies is reported instead of passing silently as "not covered".
+    _cache_by_isin, _cache_by_name, _cache_by_ticker = {}, {}, {}
+    if _CA100_CSV.exists():
         _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_csv(_CA100_CSV)
         logger.info(
             f"CA100+ cache loaded from CSV: {len(_cache_by_name)} companies",
             extra={"operation": "ca100_cache_loaded", "source": "csv"},
         )
-    else:
-        _cache_by_isin = {}
-        _cache_by_name = {}
-        _cache_by_ticker = {}
+    if not _cache_by_name and _CA100_XLSX.exists():
+        _cache_by_isin, _cache_by_name, _cache_by_ticker = _load_from_xlsx(_CA100_XLSX)
         logger.info(
-            f"CA100+ data file not found: run scripts/refresh_ca100.py. Expected at: {_CA100_XLSX}",
+            f"CA100+ cache loaded from XLSX: {len(_cache_by_name)} companies",
+            extra={"operation": "ca100_cache_loaded", "source": "xlsx"},
+        )
+    if not _cache_by_name and (_CA100_CSV.exists() or _CA100_XLSX.exists()):
+        logger.error(
+            "CA100+ data files exist but no company could be read from them",
+            extra={"operation": "ca100_cache_empty"},
+        )
+    elif not _cache_by_name:
+        logger.info(
+            f"CA100+ data file not found: run scripts/refresh_ca100.py. Expected at: {_CA100_CSV}",
             extra={"operation": "ca100_cache_missing"},
         )
 

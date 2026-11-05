@@ -39,14 +39,13 @@ class TestPractices:
     def test_obstructive_lobbying_and_expansion(self) -> None:
         record = render_company_record(
             [
-                _evidence(EvidenceSource.LOBBY_MAP, performance_band="D+", year=2025),
+                _evidence(EvidenceSource.LOBBY_MAP, performance_band="D", year=2025),
                 _evidence(EvidenceSource.COAL_EXIT, mining_expansion="yes", power_expansion=""),
             ]
         )
         assert "the exit lists or asset trackers record new fossil fuel supply" in record
         assert (
-            "LobbyMap rates its climate policy engagement D+, within its obstructive range"
-            in record
+            "LobbyMap rates its climate policy engagement D, within its obstructive range" in record
         )
         assert "Global Coal Exit List: listed as expanding (https://example.org/record)." in record
 
@@ -54,6 +53,10 @@ class TestPractices:
         record = render_company_record([])
         assert "do not list it as expanding supply" in record
         assert "LobbyMap has no rating for the company" in record
+
+    def test_d_plus_is_outside_lobbymaps_obstructive_range(self) -> None:
+        record = render_company_record([_evidence(EvidenceSource.LOBBY_MAP, performance_band="D+")])
+        assert "D+, outside its obstructive range" in record
 
     def test_repeated_records_from_several_claims_count_once(self) -> None:
         lobbying = [_evidence(EvidenceSource.LOBBY_MAP, performance_band="B") for _ in range(3)]

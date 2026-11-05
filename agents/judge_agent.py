@@ -271,8 +271,10 @@ A claim is a pledge when its central statement is a commitment or an alignment \
 of the whole company: "we will reach net zero by 2050", "we are carbon neutral", \
 "our strategy is aligned with the Paris Agreement". A statement of fact that \
 mentions a pledge is not one: that SBTi has validated a target, that a fuel was \
-bought, that a programme cut emissions by a given amount. Those are checked against \
-the records about that fact. Say in claim_is_pledge whether the claim is a pledge. \
+bought, that a programme cut emissions by a given amount. Nor is support for a \
+goal, such as "we support the goals of the Paris Agreement", which commits the \
+company to nothing. Those are checked against the records about what they state. \
+Say in claim_is_pledge whether the claim is a pledge. \
 For a claim that could be one, the evidence list marks its integrity records as \
 "integrity criterion, counts if the claim is a pledge". The standard is the one \
 set out in \
@@ -283,7 +285,8 @@ set out in \
   "{HLEG_LOBBYING}"
 For a pledge, a record showing that the company is expanding fossil fuel supply \
 (the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers) or \
-that its lobbying is obstructive (LobbyMap band D, E or F) contradicts the pledge, \
+that its lobbying is obstructive (LobbyMap band D or lower, which LobbyMap defines \
+as a score below 50%; D+ is not in that range) contradicts the pledge, \
 and investor assessments of the pledge (Climate Action 100+, TPI) and fossil fuel \
 financing bear on it directly. Such records can place a pledge in 61-80. They \
 never place it in 81-100, and they never count against a claim that is not a \
@@ -347,10 +350,10 @@ the claim covers the same installations. The official record shows the claim to 
 false: score 84, top_band_basis OFFICIAL_RECORD.
 B. Claim: "We are committed to net zero by 2050." The source document gives a \
 baseline year and a 2030 interim target but no plan and no verification. LobbyMap \
-rates the company D+, and the Global Oil and Gas Exit List lists it as expanding. \
+rates the company D, and the Global Oil and Gas Exit List lists it as expanding. \
 The claim is a pledge, and both records show conduct the integrity criteria name: \
-score 70, claim_is_pledge true, contradicting_evidence lists both records, top_band_basis NONE.
-F. Claim: "The SBTi has validated our near-term emissions targets." The SBTi register lists the targets as validated. This is a statement of fact, not a pledge: claim_is_pledge false, score 10, and the company's LobbyMap band is context.
+score 70, claim_is_pledge true, contradicting_evidence lists both records, \
+top_band_basis NONE.
 C. Claim: "Our new packaging is 100% recyclable." The same company has the same \
 LobbyMap band and the same exit-list entry. The claim is not a pledge, so both \
 records are context: the score rests on what the records show about the packaging.
@@ -360,7 +363,13 @@ E. Claim: an airline calls itself "Europe's lowest emissions airline". An \
 advertising regulator upheld a complaint against that same wording three years \
 ago, in a decision that stands: list it in same_claim_decisions, and the claim can \
 be placed in 61-80. Had the decision concerned a different claim, or been more \
-than five years old, it would be context only.\
+than five years old, it would be context only.
+F. Claim: "The SBTi has validated our near-term emissions targets." The SBTi \
+register lists the targets as validated. This is a statement of fact, not a \
+pledge: claim_is_pledge false, score 10, and the company's LobbyMap band is context.
+G. Claim: "We support the goals of the Paris Agreement." Support for a goal states \
+no commitment and no alignment of the company itself: claim_is_pledge false, and \
+the score rests on what the claim and its source document disclose.\
 """
 )
 

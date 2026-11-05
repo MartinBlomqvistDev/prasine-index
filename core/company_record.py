@@ -48,7 +48,12 @@ _TRACKERS = (
         "field(s) in development",
     ),
     (EvidenceSource.GCPT, "expanding_units", "Global Coal Plant Tracker", "unit(s) in development"),
-    (EvidenceSource.EGT, "expanding", "Europe Gas Tracker", "asset(s) in development"),
+    (
+        EvidenceSource.EGT,
+        "expanding",
+        "Europe Gas Tracker",
+        "asset(s) proposed, announced or under construction",
+    ),
 )
 
 
@@ -81,12 +86,12 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
     year = record.raw_data.get("year")
     when = f" ({year})" if year else ""
     if band.lower() in _OBSTRUCTIVE_BANDS:
-        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range of D to F{_cite(record)}."
+        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range, D and below (a score below 50%){_cite(record)}."
         return (
             line,
             f"LobbyMap rates its climate policy engagement {band}, within its obstructive range",
         )
-    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range of D to F{_cite(record)}."
+    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range, D and below (a score below 50%){_cite(record)}."
     return (
         line,
         f"LobbyMap rates its climate policy engagement {band}, outside its obstructive range",
@@ -193,10 +198,15 @@ def _investors(evidence: list[Evidence]) -> str:
         )
     tpi = _first(evidence, EvidenceSource.TPI)
     if tpi is not None:
+        raw = tpi.raw_data
+        assessed = raw.get("cp_assessed") or raw.get("mq_assessed")
+        when = f", assessed {assessed}" if assessed else ""
         lines.append(
-            f"TPI: Management Quality Level {tpi.raw_data.get('mq_level')} "
-            f"({tpi.raw_data.get('mq_label')}), carbon performance 2050 "
-            f"{tpi.raw_data.get('cp_alignment_2050') or 'not assessed'}."
+            f"TPI ({raw.get('sector')}{when}): Management Quality Level {raw.get('mq_level')} "
+            f"({raw.get('mq_label')}); carbon performance "
+            f"{raw.get('cp_alignment_2025') or 'not assessed'} for 2025, "
+            f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
+            f"{raw.get('cp_alignment_2050') or 'not assessed'} for 2050."
         )
     return " ".join(lines) or "No Climate Action 100+ or TPI assessment."
 

@@ -154,8 +154,10 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
             "summary": {
                 "type": "string",
                 "description": (
-                    "Concise factual summary citing actual figures and missing elements. "
-                    "Be specific: name the emissions figures, the gaps, and the SAF numbers."
+                    "Concise factual summary citing the document's figures and the elements "
+                    "it does not show, in plain words. Quote what the document says about "
+                    "the company's fossil fuel strategy if it says anything. Never name or "
+                    "cite a law or a legal provision."
                 ),
             },
         },
@@ -183,8 +185,15 @@ clear, objective, publicly available and verifiable commitments; a detailed and 
 realistic implementation plan; measurable and time-bound targets; other elements \
 needed to implement it, such as allocation of resources; regular verification by \
 an independent third-party expert; and findings of that verification made \
-available to consumers. Record which of these the document does not show. Do not \
-decide whether any law is breached.
+available to consumers. Record which of these the document does not show. In the \
+summary, describe them in plain words, such as "no implementation plan" or "no \
+independent verification": never name or cite the provision or any other law, and \
+never say whether a law is breached.
+
+If the document says anything about the company's own fossil fuel strategy, such \
+as coal, oil or gas production, a phase-down or an expansion, quote it in the \
+summary: it is the company's stated position and belongs beside any record about \
+its fossil fuel supply.
 
 Offset credits bought for emissions outside the company's value chain are not \
 the same as carbon removals. Record what the document says about each, as stated.\

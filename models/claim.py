@@ -68,6 +68,40 @@ class SourceType(StrEnum):
     SOCIAL_MEDIA = "SOCIAL_MEDIA"
 
 
+SOURCE_TYPE_LABELS: dict[SourceType, str] = {
+    SourceType.CSRD_REPORT: "sustainability statement",
+    SourceType.ANNUAL_REPORT: "annual report",
+    SourceType.PRESS_RELEASE: "press release",
+    SourceType.IR_PAGE: "investor relations page",
+    SourceType.WEBSITE: "company web page",
+    SourceType.SOCIAL_MEDIA: "social media post",
+}
+
+
+def source_type_for_url(url: str) -> SourceType:
+    """Return the source type a page's address points to.
+
+    Crawled pages used to be labelled investor relations pages by default,
+    and the label then decided whether consumer law was said to apply. The
+    address is a better guide: news and press paths are press releases,
+    investor paths are investor material, PDFs named as annual or
+    sustainability reports are those reports, and everything else is a
+    company web page.
+    """
+    path = url.lower().split("?", 1)[0]
+    if path.endswith(".pdf"):
+        if "annual" in path or "integrated" in path:
+            return SourceType.ANNUAL_REPORT
+        if any(term in path for term in ("sustainab", "csrd", "esg", "statement")):
+            return SourceType.CSRD_REPORT
+        return SourceType.WEBSITE
+    if any(term in path for term in ("/news", "/press", "press-release", "/media/")):
+        return SourceType.PRESS_RELEASE
+    if any(term in path for term in ("investor", "/ir/", "/ir-")):
+        return SourceType.IR_PAGE
+    return SourceType.WEBSITE
+
+
 def _utc_now() -> datetime:
     """Return the current UTC-aware datetime.
 

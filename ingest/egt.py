@@ -164,6 +164,11 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("PipelineName", "") or "").strip()
                 if not name:
                     continue
+                # An expansion of an operating pipeline is listed as its own
+                # segment; without the segment name it reads as a new pipeline.
+                segment = str(r.get("SegmentName", "") or "").strip()
+                if segment and segment.lower() not in name.lower():
+                    name = f"{name}, {segment}"
                 assets.append(
                     _EGTAsset(
                         name=name,
@@ -333,7 +338,8 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
             for a in expanding[:5]
         )
         lines.append(
-            f"EXPANDING: {len(expanding)} asset(s) in active development. Examples: {exp_names}."
+            f"{len(expanding)} asset(s) listed as proposed, announced, in pre-construction or "
+            f"under construction. Examples: {exp_names}."
         )
 
     if operating:

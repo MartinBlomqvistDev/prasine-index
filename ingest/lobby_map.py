@@ -73,13 +73,16 @@ _COL_YEAR = ("Year", "year", "Assessment Year", "ReportYear")
 # ---------------------------------------------------------------------------
 
 # Bands that indicate obstructive lobbying: contradict green claims.
-_OBSTRUCTIVE_BANDS = frozenset({"d+", "d", "d-", "e+", "e", "e-", "f+", "f", "f-"})
+# LobbyMap's own definition: "grades from D to F (i.e., below 50%) indicating
+# increasingly obstructive climate policy engagement". D+ is 50-55%, so it is not
+# in that range.
+_OBSTRUCTIVE_BANDS = frozenset({"d", "d-", "e+", "e", "e-", "f+", "f", "f-"})
 
 # Bands that indicate supportive engagement: support green claims.
 _SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
 
 # Bands that are neutral / inconclusive.
-_NEUTRAL_BANDS = frozenset({"b-", "c+", "c", "c-"})
+_NEUTRAL_BANDS = frozenset({"b-", "c+", "c", "c-", "d+"})
 
 
 class _LobbyMapRecord:

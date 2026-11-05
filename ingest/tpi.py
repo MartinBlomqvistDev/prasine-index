@@ -75,7 +75,9 @@ class _TPIRecord:
         "cp_2025",
         "cp_2035",
         "cp_2050",
+        "cp_assessed",
         "geography",
+        "mq_assessed",
         "mq_level",
         "sector",
     )
@@ -88,16 +90,30 @@ class _TPIRecord:
         self.cp_2025 = row.get("Carbon Performance Alignment 2025", "").strip()
         self.cp_2035 = row.get("Carbon Performance Alignment 2035", "").strip()
         self.cp_2050 = row.get("Carbon Performance Alignment 2050", "").strip()
+        self.mq_assessed = row.get("MQ Assessment Date", "").strip()
+        self.cp_assessed = row.get("CP Assessment Date", "").strip()
+
+    @property
+    def assessed_year(self) -> int | None:
+        """Return the year of the most recent assessment in the row."""
+        years = [
+            int(date[-4:])
+            for date in (self.mq_assessed, self.cp_assessed)
+            if len(date) >= 4 and date[-4:].isdigit()
+        ]
+        return max(years) if years else None
 
     @property
     def mq_label(self) -> str:
+        # TPI's own names for the management quality levels.
         labels = {
             "0": "Unaware",
-            "1": "Cognizant",
-            "2": "Acknowledging",
-            "3": "Integrating",
-            "4": "Strategic",
-            "4STAR": "Strategic+",
+            "1": "Awareness",
+            "2": "Building Capacity",
+            "3": "Integrated into Operational Decision Making",
+            "4": "Strategic Assessment",
+            "4STAR": "Strategic Assessment, 4*",
+            "5": "Transition Planning and Implementation",
         }
         return labels.get(
             self.mq_level, f"Level {self.mq_level}" if self.mq_level else "Not assessed"
@@ -197,8 +213,17 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         )
         return []
 
-    # Use the first match (name matching is already tight)
-    rec = matched[0]
+    # A company can have one row per sector segment. Prefer the row for the
+    # company's own sector, then one with a carbon performance assessment.
+    company_sector = str(getattr(company, "sector", "") or "").lower()
+
+    def _fit(record: _TPIRecord) -> tuple[int, int]:
+        sector_words = [w for w in company_sector.replace("&", " ").split() if len(w) > 3]
+        in_sector = any(w in record.sector.lower() for w in sector_words)
+        assessed = record.cp_2050 not in ("", "Not Assessed", "No or unsuitable disclosure")
+        return int(in_sector), int(assessed)
+
+    rec = max(matched, key=_fit)
 
     # Determine supports_claim and confidence
     supports_claim: bool | None = None
@@ -228,8 +253,17 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         f"CP 2050: {rec.cp_2050 or 'N/A'}"
     )
 
+    dates = "; ".join(
+        f"{label} assessed {date}"
+        for label, date in (
+            ("management quality", rec.mq_assessed),
+            ("carbon performance", rec.cp_assessed),
+        )
+        if date
+    )
     summary = (
-        f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}): "
+        f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}"
+        f"{'; ' + dates if dates else ''}): "
         f"Management Quality Level {rec.mq_level} ({rec.mq_label}). "
         f"Carbon Performance alignment: {cp_summary}."
     )
@@ -249,6 +283,8 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         "cp_alignment_2025": rec.cp_2025,
         "cp_alignment_2035": rec.cp_2035,
         "cp_alignment_2050": rec.cp_2050,
+        "mq_assessed": rec.mq_assessed,
+        "cp_assessed": rec.cp_assessed,
     }
 
     return [
@@ -260,7 +296,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
             source_url="https://www.transitionpathwayinitiative.org/corporates",
             raw_data=raw_data,
             summary=summary,
-            data_year=2022,
+            data_year=rec.assessed_year,
             supports_claim=supports_claim,
             confidence=confidence,
         )

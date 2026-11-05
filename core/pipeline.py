@@ -34,7 +34,7 @@ from agents.verification_agent import VerificationAgent, VerificationInput
 from core.database import get_session
 from core.logger import bind_trace_context, get_logger
 from core.textutil import html_to_text as _html_to_text
-from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType
+from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType, source_type_for_url
 from models.company import Company
 from models.evidence import Evidence, VerificationResult
 from models.score import GreenwashingScore
@@ -655,7 +655,7 @@ class Pipeline:
         self,
         company_id: uuid.UUID,
         source_url: str,
-        source_type: SourceType = SourceType.IR_PAGE,
+        source_type: SourceType | None = None,
         max_subpages: int = 20,
         max_claims: int = 7,
     ) -> list[PipelineResult]:
@@ -672,7 +672,8 @@ class Pipeline:
         Args:
             company_id: UUID of the company being assessed.
             source_url: Entry-point URL: the main sustainability or IR page.
-            source_type: Source type applied to all discovered pages.
+            source_type: Source type for every page, or None to take each page's
+                type from its address.
             max_subpages: Maximum number of additional subpages to fetch.
             max_claims: Maximum number of claims to run through the full
                 verification + judge + report pipeline.  Controls token spend.
@@ -707,7 +708,7 @@ class Pipeline:
                 trace_id=run_trace_id,
                 company_id=company_id,
                 source_url=page_url,
-                source_type=source_type,
+                source_type=source_type or source_type_for_url(page_url),
                 raw_content=page_content,
             )
             extraction_result = await self._extraction_agent.run(extraction_input)
@@ -770,7 +771,7 @@ class Pipeline:
         self,
         company_id: uuid.UUID,
         source_url: str,
-        source_type: SourceType = SourceType.IR_PAGE,
+        source_type: SourceType | None = None,
         max_subpages: int = 20,
         max_claims: int = 7,
     ) -> list[Claim]:
@@ -782,7 +783,8 @@ class Pipeline:
         Args:
             company_id: UUID of the company being assessed.
             source_url: Entry-point URL.
-            source_type: Source type applied to all discovered pages.
+            source_type: Source type for every page, or None to take each page's
+                type from its address.
             max_subpages: Maximum number of additional subpages to fetch.
             max_claims: Maximum number of top-ranked claims to return.
 
@@ -798,7 +800,7 @@ class Pipeline:
                 trace_id=run_trace_id,
                 company_id=company_id,
                 source_url=page_url,
-                source_type=source_type,
+                source_type=source_type or source_type_for_url(page_url),
                 raw_content=page_content,
             )
             extraction_result = await self._extraction_agent.run(extraction_input)

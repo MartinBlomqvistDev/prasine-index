@@ -27,7 +27,7 @@ from core.database import get_session
 from core.logger import bind_trace_context, get_logger
 from core.retry import DataSourceError, RetryConfig, agent_error_boundary, retry_async
 from core.textutil import html_to_text
-from models.claim import SourceType
+from models.claim import SourceType, source_type_for_url
 from models.company import Company
 from models.trace import AgentName, AgentOutcome, AgentTrace
 
@@ -407,7 +407,7 @@ class DiscoveryAgent:
                         for sub_url in extract_relevant_links(raw_html or "", url, max_links=20):
                             if sub_url not in queued:
                                 queued.add(sub_url)
-                                pending.append((sub_url, SourceType.IR_PAGE))
+                                pending.append((sub_url, source_type_for_url(sub_url)))
                                 logger.info(
                                     f"Subpage queued for discovery: {sub_url}",
                                     extra={

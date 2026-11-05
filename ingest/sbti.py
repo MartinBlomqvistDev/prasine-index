@@ -64,6 +64,7 @@ _COL_TEMP = (
     "Classification",
 )
 _COL_NET_ZERO = (
+    "net_zero_status",
     "long_term_status",
     "Net-Zero Target in SBTi",
     "Net-zero target status",
@@ -71,7 +72,12 @@ _COL_NET_ZERO = (
     "Net Zero Status",
 )
 _COL_SECTOR = ("Sector", "sector", "Industry")
-_COL_DATE = ("Date", "Commitment Date", "date_committed", "Target Set Date")
+_COL_DATE = ("date_updated", "Date", "Commitment Date", "date_committed", "Target Set Date")
+_COL_NET_ZERO_YEAR = ("net_zero_year", "Net-Zero Year")
+_COL_TARGET_TEXT = ("full_target_language", "Target Language", "Target Wording")
+
+# The register's own wording of the targets is quoted up to this many characters.
+_TARGET_TEXT_LIMIT = 1500
 
 # Status values that indicate a withdrawn/removed target.
 _REMOVED_STATUSES = frozenset(
@@ -85,16 +91,19 @@ _REMOVED_STATUSES = frozenset(
     }
 )
 
-# Status values that indicate an active, validated target.
+# Status values that indicate a validated target. "Committed" is a commitment to
+# set a target, not a validated one.
 _ACTIVE_STATUSES = frozenset(
     {
+        "validated targets",
+        "validated",
         "targets set",
-        "committed",
+        "target set",
         "achieved",
-        "net zero",
         "science-based target set",
     }
 )
+_COMMITTED_STATUSES = frozenset({"committed", "commitment"})
 
 
 class _SBTiRecord:
@@ -105,8 +114,10 @@ class _SBTiRecord:
         "isin",
         "name",
         "net_zero_status",
+        "net_zero_year",
         "sector",
         "status",
+        "target_text",
         "temp_classification",
     )
 
@@ -119,7 +130,11 @@ class _SBTiRecord:
         net_zero_status: str,
         sector: str,
         date: str,
+        net_zero_year: str = "",
+        target_text: str = "",
     ) -> None:
+        self.net_zero_year = net_zero_year
+        self.target_text = target_text
         self.name = name
         self.isin = isin
         self.status = status
@@ -135,6 +150,10 @@ class _SBTiRecord:
     @property
     def is_active(self) -> bool:
         return self.status.lower().strip() in _ACTIVE_STATUSES
+
+    @property
+    def is_committed(self) -> bool:
+        return self.status.lower().strip() in _COMMITTED_STATUSES
 
 
 # Module-level cache: {isin: _SBTiRecord} and {normalised_name: _SBTiRecord}
@@ -258,6 +277,8 @@ def _load_from_xlsx(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTi
             net_zero_status=_pick(row, _COL_NET_ZERO),
             sector=_pick(row, _COL_SECTOR),
             date=_pick(row, _COL_DATE),
+            net_zero_year=_pick(row, _COL_NET_ZERO_YEAR),
+            target_text=_pick(row, _COL_TARGET_TEXT),
         )
         if record.isin:
             by_isin[record.isin.upper()] = record
@@ -442,7 +463,9 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     status_display = record.status or "unknown"
     temp_display = record.temp_classification or "not classified"
     net_zero_display = record.net_zero_status or "none"
-    date_display = f", committed {record.date}" if record.date else ""
+    year = record.net_zero_year.split(".")[0] if record.net_zero_year else ""
+    net_zero_display += f" (net-zero year {year})" if year else ""
+    date_display = f"; register entry updated {record.date[:10]}" if record.date else ""
 
     if record.is_removed:
         return (
@@ -451,9 +474,22 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
             f"valid{date_display}."
         )
 
-    return (
-        f"SBTi target for {company_name}: status={status_display}, "
-        f"temperature classification={temp_display}, "
-        f"net-zero target={net_zero_display}{date_display}. "
-        f"{'Claim references SBTi: target is ' + ('active and validated' if record.is_active else 'committed but not yet validated') + '.' if is_sbti_claim else 'SBTi record provides context for emissions reduction claims.'}"
+    if record.is_active:
+        standing = "The register lists the targets as validated."
+    elif record.is_committed:
+        standing = "The register lists a commitment to set targets, not validated targets."
+    else:
+        standing = f"The register lists the status as {status_display}."
+
+    summary = (
+        f"SBTi target for {company_name}: status {status_display}, temperature "
+        f"classification {temp_display}, net-zero target {net_zero_display}{date_display}. "
+        f"{standing}"
     )
+    text = " ".join(record.target_text.split())
+    if text:
+        if len(text) > _TARGET_TEXT_LIMIT:
+            cut = text[:_TARGET_TEXT_LIMIT]
+            text = cut[: cut.rfind(". ") + 1] if ". " in cut else cut
+        summary += f' Target wording in the register: "{text}"'
+    return summary
