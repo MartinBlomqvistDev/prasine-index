@@ -6,10 +6,10 @@ assessments and enforcement decisions. Each line states what its source says,
 and the record is built in code from the evidence of a run, with no model
 involved.
 
-Two of its lines are the integrity criteria for a climate pledge set out by the
-UN High-Level Expert Group on net-zero commitments: no new fossil fuel supply and
-no lobbying against climate policy. The record says how many of the two the
-company's records show it not meeting. It gives no score.
+It opens with the two practices that the UN High-Level Expert Group on net-zero
+commitments says a credible climate pledge rules out, new fossil fuel supply and
+lobbying against climate policy, and states what the records show on each. It
+gives no score.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ from __future__ import annotations
 from collections.abc import Iterable
 
 from core.evidence_scope import (
-    HLEG_CITATION,
     HLEG_FOSSIL_SUPPLY,
     HLEG_LOBBYING,
     HLEG_URL,
@@ -41,6 +40,17 @@ _OUTCOMES = {
     "ANNULLED": "decision annulled on appeal",
 }
 
+_TRACKERS = (
+    (
+        EvidenceSource.GOGET,
+        "developing",
+        "Global Oil and Gas Extraction Tracker",
+        "field(s) in development",
+    ),
+    (EvidenceSource.GCPT, "expanding_units", "Global Coal Plant Tracker", "unit(s) in development"),
+    (EvidenceSource.EGT, "expanding", "Europe Gas Tracker", "asset(s) in development"),
+)
+
 
 def _first(evidence: list[Evidence], source: EvidenceSource) -> Evidence | None:
     return next((e for e in evidence if e.source == source), None)
@@ -58,70 +68,79 @@ def _unique(evidence: Iterable[Evidence]) -> list[Evidence]:
     return unique
 
 
-def _lobbying(evidence: list[Evidence]) -> tuple[str, bool | None]:
+def _cite(record: Evidence) -> str:
+    return f" ({record.source_url})" if record.source_url else ""
+
+
+def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
+    """Return the record line and the finding on the lobbying practice."""
     record = _first(evidence, EvidenceSource.LOBBY_MAP)
-    if record is None:
-        return "No LobbyMap record for this company.", None
-    band = str(record.raw_data.get("performance_band") or "").strip()
-    if not band:
-        return "LobbyMap lists the company without a band.", None
+    band = str(record.raw_data.get("performance_band") or "").strip() if record else ""
+    if record is None or not band:
+        return "No LobbyMap rating for this company.", "LobbyMap has no rating for the company"
     year = record.raw_data.get("year")
-    obstructive = band.lower() in _OBSTRUCTIVE_BANDS
-    reading = (
-        "in LobbyMap's obstructive range (D to F)"
-        if obstructive
-        else "outside LobbyMap's obstructive range (D to F)"
-    )
     when = f" ({year})" if year else ""
-    return f"LobbyMap band {band}{when}, {reading}. {record.source_url}", obstructive
+    if band.lower() in _OBSTRUCTIVE_BANDS:
+        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range of D to F{_cite(record)}."
+        return (
+            line,
+            f"LobbyMap rates its climate policy engagement {band}, within its obstructive range",
+        )
+    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range of D to F{_cite(record)}."
+    return (
+        line,
+        f"LobbyMap rates its climate policy engagement {band}, outside its obstructive range",
+    )
 
 
-def _fossil_supply(evidence: list[Evidence]) -> tuple[list[str], bool | None]:
+def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
+    """Return the record line and the finding on new fossil fuel supply."""
     lines: list[str] = []
     expanding = False
-    seen_any = False
 
-    gogel = _first(evidence, EvidenceSource.GOGEL)
-    if gogel is not None:
-        seen_any = True
-        upstream = str(gogel.raw_data.get("upstream_expansion") or "").lower().strip()
-        lng = str(gogel.raw_data.get("lng_expansion") or "").lower().strip()
-        if upstream in _GOGEL_EXPANDING or lng in _GOGEL_EXPANDING:
-            expanding = True
-            lines.append(f"Global Oil and Gas Exit List: listed as expanding. {gogel.source_url}")
-        else:
-            lines.append(
-                f"Global Oil and Gas Exit List: listed, no expansion recorded. {gogel.source_url}"
-            )
-
-    gcel = _first(evidence, EvidenceSource.COAL_EXIT)
-    if gcel is not None:
-        seen_any = True
-        mining = str(gcel.raw_data.get("mining_expansion") or "").lower().strip()
-        power = str(gcel.raw_data.get("power_expansion") or "").lower().strip()
-        if mining in _GCEL_EXPANDING or power in _GCEL_EXPANDING:
-            expanding = True
-            lines.append(f"Global Coal Exit List: listed as expanding. {gcel.source_url}")
-        else:
-            lines.append(f"Global Coal Exit List: listed, no expansion recorded. {gcel.source_url}")
-
-    for source, field, noun in (
-        (EvidenceSource.GOGET, "developing", "oil and gas field(s) in development"),
-        (EvidenceSource.GCPT, "expanding_units", "coal unit(s) in development"),
-        (EvidenceSource.EGT, "expanding", "gas asset(s) in development"),
+    for source, upstream_key, power_key, values, name in (
+        (
+            EvidenceSource.GOGEL,
+            "upstream_expansion",
+            "lng_expansion",
+            _GOGEL_EXPANDING,
+            "Global Oil and Gas Exit List",
+        ),
+        (
+            EvidenceSource.COAL_EXIT,
+            "mining_expansion",
+            "power_expansion",
+            _GCEL_EXPANDING,
+            "Global Coal Exit List",
+        ),
     ):
         record = _first(evidence, source)
         if record is None:
             continue
-        seen_any = True
-        count = record.raw_data.get(field)
-        if isinstance(count, int) and count > 0:
+        first = str(record.raw_data.get(upstream_key) or "").lower().strip()
+        second = str(record.raw_data.get(power_key) or "").lower().strip()
+        if first in values or second in values:
             expanding = True
-            lines.append(f"{record.source.value}: {count} {noun}. {record.source_url}")
+            lines.append(f"{name}: listed as expanding{_cite(record)}.")
+        else:
+            lines.append(f"{name}: listed, with no expansion recorded{_cite(record)}.")
 
-    if not seen_any:
-        return ["No record in the fossil fuel exit lists or asset trackers."], None
-    return lines, expanding
+    for source, field, name, noun in _TRACKERS:
+        record = _first(evidence, source)
+        count = record.raw_data.get(field) if record else None
+        if record is not None and isinstance(count, int) and count > 0:
+            expanding = True
+            lines.append(f"{name}: {count} {noun}{_cite(record)}.")
+
+    if not lines:
+        line = "Not listed in the fossil fuel exit lists or in development in the asset trackers."
+        return (
+            line,
+            "the fossil fuel exit lists and asset trackers do not list it as expanding supply",
+        )
+    if expanding:
+        return " ".join(lines), "the exit lists or asset trackers record new fossil fuel supply"
+    return " ".join(lines), "the exit lists record no expansion"
 
 
 def _emissions(evidence: list[Evidence]) -> str:
@@ -138,24 +157,19 @@ def _emissions(evidence: list[Evidence]) -> str:
         if history:
             histories.append(history)
     if not histories:
-        return f"EU ETS: {len(records)} installation(s) mapped, no verified emissions read."
-    # Compare only years in which every mapped installation reported, so that an
-    # installation joining the scheme does not read as a rise in emissions.
-    common = sorted(set.intersection(*(set(h) for h in histories)))
-    if len(common) < 2:
-        last = max(max(h) for h in histories)
-        total = sum(h.get(last, 0.0) for h in histories)
-        return (
-            f"EU ETS verified emissions for {len(histories)} mapped installation(s): "
-            f"{total / 1e6:,.2f} Mt CO2e in {last}."
-        )
-    first, last = common[0], common[-1]
-    start = sum(h[first] for h in histories)
-    end = sum(h[last] for h in histories)
+        return f"EU ETS: {len(records)} mapped installation(s), no verified emissions read."
+    # Only years in which every mapped installation reported, so that an
+    # installation joining the scheme does not read as a change in emissions.
+    common = sorted(set.intersection(*(set(h) for h in histories)))[-3:]
+    if not common:
+        return f"EU ETS: {len(histories)} mapped installation(s) with no year in common."
+    totals = [
+        f"{sum(h[year] for h in histories) / 1e6:,.2f} Mt CO2e in {year}"
+        for year in reversed(common)
+    ]
     return (
         f"EU ETS verified emissions for {len(histories)} mapped installation(s): "
-        f"{end / 1e6:,.2f} Mt CO2e in {last}, against {start / 1e6:,.2f} Mt in {first}, "
-        "counting years in which all of them reported."
+        f"{'; '.join(totals)}."
     )
 
 
@@ -169,7 +183,7 @@ def _targets(evidence: list[Evidence]) -> str:
     return f"SBTi: status {status}, temperature classification {temperature}, net-zero target {net_zero}."
 
 
-def _investors(evidence: list[Evidence]) -> list[str]:
+def _investors(evidence: list[Evidence]) -> str:
     lines = []
     ca100 = _first(evidence, EvidenceSource.CA100)
     if ca100 is not None:
@@ -184,24 +198,24 @@ def _investors(evidence: list[Evidence]) -> list[str]:
             f"({tpi.raw_data.get('mq_label')}), carbon performance 2050 "
             f"{tpi.raw_data.get('cp_alignment_2050') or 'not assessed'}."
         )
-    return lines or ["No Climate Action 100+ or TPI assessment."]
+    return " ".join(lines) or "No Climate Action 100+ or TPI assessment."
 
 
-def _enforcement(evidence: list[Evidence]) -> list[str]:
+def _enforcement(evidence: list[Evidence]) -> str:
     records = [e for e in evidence if e.source == EvidenceSource.ENFORCEMENT]
     if not records:
-        return ["No enforcement records."]
-    lines = []
+        return "No enforcement records."
+    entries = []
     for record in sorted(
         records, key=lambda e: str(e.raw_data.get("decision_date", "")), reverse=True
     ):
         outcome = _OUTCOMES.get(str(record.raw_data.get("ruling_type")), "outcome not recorded")
-        recent = " Finding from the last five years." if is_recent_finding(record) else ""
-        lines.append(
+        recent = ", a finding from the last five years" if is_recent_finding(record) else ""
+        entries.append(
             f"{record.raw_data.get('authority')} {record.raw_data.get('case_reference')} "
-            f"({record.raw_data.get('decision_date')}): {outcome}.{recent} {record.source_url}"
+            f"({record.raw_data.get('decision_date')}): {outcome}{recent}{_cite(record)}"
         )
-    return lines
+    return "; ".join(entries) + "."
 
 
 def render_company_record(evidence: Iterable[Evidence]) -> str:
@@ -214,38 +228,22 @@ def render_company_record(evidence: Iterable[Evidence]) -> str:
         The section body in Markdown.
     """
     records = _unique(evidence)
-    lobbying, obstructive = _lobbying(records)
-    fossil_lines, expanding = _fossil_supply(records)
-
-    met = [
-        name
-        for name, flag in (("lobbying", obstructive), ("new fossil fuel supply", expanding))
-        if flag
-    ]
-    unknown = [
-        name
-        for name, flag in (("lobbying", obstructive), ("new fossil fuel supply", expanding))
-        if flag is None
-    ]
-    if met:
-        integrity = f"The records show {len(met)} of the 2 conducts the expert group names: {' and '.join(met)}."
-    else:
-        integrity = "The records show neither of the 2 conducts the expert group names."
-    if unknown:
-        integrity += f" No record for: {' and '.join(unknown)}."
+    lobbying_line, lobbying_finding = _lobbying(records)
+    fossil_line, fossil_finding = _fossil_supply(records)
 
     lines = [
-        "Records about the company as a whole, set beside its claims. For a climate pledge, "
-        f"the {HLEG_CITATION} names two conducts a credible pledge excludes: "
-        f'"{HLEG_FOSSIL_SUPPLY}" and "{HLEG_LOBBYING}" ({HLEG_URL})',
+        "Records about the company as a whole, set beside its claims.",
         "",
-        f"**Integrity criteria for a climate pledge.** {integrity}",
+        "**Integrity of a climate pledge.** The UN High-Level Expert Group on the Net Zero "
+        "Emissions Commitments of Non-State Entities names two practices that a credible "
+        f'pledge rules out (Integrity Matters, 2022, p. 7; {HLEG_URL}): "{HLEG_FOSSIL_SUPPLY}" '
+        f'"{HLEG_LOBBYING}" On the first, {fossil_finding}. On the second, {lobbying_finding}.',
         "",
-        f"- **Lobbying:** {lobbying}",
-        f"- **New fossil fuel supply:** {' '.join(fossil_lines)}",
+        f"- **Lobbying:** {lobbying_line}",
+        f"- **New fossil fuel supply:** {fossil_line}",
         f"- **Verified emissions:** {_emissions(records)}",
         f"- **Targets:** {_targets(records)}",
-        f"- **Investor assessments:** {' '.join(_investors(records))}",
-        f"- **Enforcement records:** {' '.join(_enforcement(records))}",
+        f"- **Investor assessments:** {_investors(records)}",
+        f"- **Enforcement records:** {_enforcement(records)}",
     ]
     return "\n".join(lines)

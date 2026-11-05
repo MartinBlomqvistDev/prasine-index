@@ -122,6 +122,15 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
                     "Company-level records never belong here. Empty if there are none."
                 ),
             },
+            "claim_is_pledge": {
+                "type": "boolean",
+                "description": (
+                    "True when the claim's central statement is a company-wide climate "
+                    "pledge: a net-zero, carbon-neutrality or Paris-alignment commitment "
+                    "or status. False for a statement of fact that mentions a pledge, "
+                    "such as an SBTi validation, a purchase or a programme's effect."
+                ),
+            },
             "same_claim_decisions": {
                 "type": "array",
                 "items": {"type": "integer", "minimum": 1},
@@ -197,6 +206,7 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
             "score_breakdown",
             "verdict",
             "contradicting_evidence",
+            "claim_is_pledge",
             "top_band_basis",
             "reasoning",
             "confidence",
@@ -257,10 +267,15 @@ they cannot move it above 60, and the reasoning presents them as context, never 
 as proof about the claim.
 
 INTEGRITY OF CLIMATE PLEDGES
-A net-zero target, a carbon-neutrality claim, a science-based target, or a claim \
-that the company is aligned with the Paris Agreement or 1.5°C is a pledge about \
-the whole company. The evidence list marks such a claim's integrity records as \
-"claim-level for this pledge". The standard is the one set out in \
+A claim is a pledge when its central statement is a commitment or an alignment \
+of the whole company: "we will reach net zero by 2050", "we are carbon neutral", \
+"our strategy is aligned with the Paris Agreement". A statement of fact that \
+mentions a pledge is not one: that SBTi has validated a target, that a fuel was \
+bought, that a programme cut emissions by a given amount. Those are checked against \
+the records about that fact. Say in claim_is_pledge whether the claim is a pledge. \
+For a claim that could be one, the evidence list marks its integrity records as \
+"integrity criterion, counts if the claim is a pledge". The standard is the one \
+set out in \
 """
     + HLEG_CITATION
     + f""":
@@ -334,7 +349,8 @@ B. Claim: "We are committed to net zero by 2050." The source document gives a \
 baseline year and a 2030 interim target but no plan and no verification. LobbyMap \
 rates the company D+, and the Global Oil and Gas Exit List lists it as expanding. \
 The claim is a pledge, and both records show conduct the integrity criteria name: \
-score 70, contradicting_evidence lists both records, top_band_basis NONE.
+score 70, claim_is_pledge true, contradicting_evidence lists both records, top_band_basis NONE.
+F. Claim: "The SBTi has validated our near-term emissions targets." The SBTi register lists the targets as validated. This is a statement of fact, not a pledge: claim_is_pledge false, score 10, and the company's LobbyMap band is context.
 C. Claim: "Our new packaging is 100% recyclable." The same company has the same \
 LobbyMap band and the same exit-list entry. The claim is not a pledge, so both \
 records are context: the score rests on what the records show about the packaging.
@@ -378,17 +394,22 @@ def _admitted(
     return [
         e
         for e in _records(verdict.get("contradicting_evidence"), evidence)
-        if is_claim_level(e, claim) or e.id in same_claim
+        if is_claim_level(e, claim, _pledge(verdict)) or e.id in same_claim
     ] + [e for e in evidence if e.id in same_claim]
 
 
+def _pledge(verdict: dict[str, Any]) -> bool:
+    """Return whether the judge found the claim's central statement to be a pledge."""
+    return verdict.get("claim_is_pledge") is True
+
+
 def _claim_level_ids(
-    numbers: Any, evidence: list[Evidence], claim: Claim | None
+    numbers: Any, evidence: list[Evidence], claim: Claim | None, pledge: bool
 ) -> list[uuid.UUID]:
     """Return the ids of the claim-level records the judge cited, once each, in order."""
     ids: list[uuid.UUID] = []
     for record in _records(numbers, evidence):
-        if is_claim_level(record, claim) and record.id not in ids:
+        if is_claim_level(record, claim, pledge) and record.id not in ids:
             ids.append(record.id)
     return ids
 
@@ -707,7 +728,7 @@ class JudgeAgent:
             contradicting_ids = [e.id for e in _admitted(verdict, evidence, input.claim)]
             contradicting_ids = list(dict.fromkeys(contradicting_ids))
             supporting_ids = _claim_level_ids(
-                verdict.get("supporting_evidence"), evidence, input.claim
+                verdict.get("supporting_evidence"), evidence, input.claim, _pledge(verdict)
             )
             derived_verdict = verdict_for_score(score_value)
             llm_verdict = verdict.get("verdict")

@@ -1,8 +1,9 @@
 """Tests for the company record set beside a company's claim findings.
 
 The record is built in code from a run's evidence and states what each source
-says. These tests pin the two integrity criteria it counts and the emissions
-comparison, which must not read an installation joining the scheme as a rise.
+says. These tests pin how it reads the two practices the UN expert group names,
+and the emissions lines, which must not read an installation joining the scheme
+as a change in emissions.
 """
 
 from __future__ import annotations
@@ -34,33 +35,40 @@ def _ets(*rows: tuple[int, float]) -> Evidence:
     return _evidence(EvidenceSource.EU_ETS, f"ETS {rows}", verified_emissions=history)
 
 
-class TestIntegrityCriteria:
-    def test_obstructive_lobbying_and_expansion_are_both_counted(self) -> None:
+class TestPractices:
+    def test_obstructive_lobbying_and_expansion(self) -> None:
         record = render_company_record(
             [
                 _evidence(EvidenceSource.LOBBY_MAP, performance_band="D+", year=2025),
                 _evidence(EvidenceSource.COAL_EXIT, mining_expansion="yes", power_expansion=""),
             ]
         )
-        assert "The records show 2 of the 2 conducts" in record
-        assert "LobbyMap band D+ (2025), in LobbyMap's obstructive range" in record
+        assert "the exit lists or asset trackers record new fossil fuel supply" in record
+        assert (
+            "LobbyMap rates its climate policy engagement D+, within its obstructive range"
+            in record
+        )
+        assert "Global Coal Exit List: listed as expanding (https://example.org/record)." in record
 
-    def test_missing_records_are_named_and_not_counted(self) -> None:
+    def test_a_company_not_on_the_lists(self) -> None:
         record = render_company_record([])
-        assert "neither of the 2 conducts" in record
-        assert "No record for: lobbying and new fossil fuel supply." in record
+        assert "do not list it as expanding supply" in record
+        assert "LobbyMap has no rating for the company" in record
 
     def test_repeated_records_from_several_claims_count_once(self) -> None:
         lobbying = [_evidence(EvidenceSource.LOBBY_MAP, performance_band="B") for _ in range(3)]
         record = render_company_record(lobbying)
         assert record.count("LobbyMap band B") == 1
-        assert "outside LobbyMap's obstructive range" in record
+        assert "outside its obstructive range" in record
 
 
 class TestEmissions:
-    def test_compares_only_years_every_installation_reported(self) -> None:
+    def test_only_years_every_installation_reported(self) -> None:
         record = render_company_record(
-            [_ets((2013, 6e6), (2025, 12e6)), _ets((2021, 0.1e6), (2025, 0.1e6))]
+            [
+                _ets((2013, 6e6), (2023, 10e6), (2024, 11e6), (2025, 12e6)),
+                _ets((2021, 0.1e6), (2023, 0.1e6), (2024, 0.1e6), (2025, 0.1e6)),
+            ]
         )
-        assert "12.10 Mt CO2e in 2025" in record
-        assert "against" not in record
+        assert "12.10 Mt CO2e in 2025; 11.10 Mt CO2e in 2024; 10.10 Mt CO2e in 2023." in record
+        assert "2013" not in record and "2021" not in record

@@ -36,8 +36,8 @@ __all__ = [
     "HLEG_URL",
     "INTEGRITY_SOURCES",
     "OFFICIAL_RECORD_SOURCES",
+    "can_be_pledge",
     "is_claim_level",
-    "is_pledge",
     "is_recent_finding",
     "record_scope",
 ]
@@ -121,12 +121,13 @@ HLEG_LOBBYING = (
 )
 
 
-def is_pledge(claim: Claim | None) -> bool:
-    """Return whether a claim is a company-wide climate pledge.
+def can_be_pledge(claim: Claim | None) -> bool:
+    """Return whether a claim could be a company-wide climate pledge.
 
-    A pledge is a net-zero target, a carbon-neutrality claim, a science-based
-    target, or a claim that names net zero, climate neutrality, the Paris
-    Agreement or 1.5°C.
+    This is the precondition: a net-zero, carbon-neutrality or science-based
+    target claim, or one that names net zero, climate neutrality, the Paris
+    Agreement or 1.5°C. Whether the claim's central statement is in fact a
+    pledge, and not a statement of fact that mentions one, is the judge's call.
     """
     if claim is None:
         return False
@@ -149,15 +150,22 @@ def is_recent_finding(evidence: Evidence, today: date | None = None) -> bool:
     return year - int(decided) <= FINDING_MAX_AGE_YEARS
 
 
-def is_claim_level(evidence: Evidence, claim: Claim | None = None) -> bool:
+def is_claim_level(evidence: Evidence, claim: Claim | None = None, pledge: bool = False) -> bool:
     """Return whether a record can speak to this specific claim.
+
+    Args:
+        evidence: The record.
+        claim: The claim under assessment.
+        pledge: Whether the judge found the claim's central statement to be a
+            pledge. Integrity records count only for a pledge, and only for a
+            claim that can be one.
 
     Enforcement records are never claim-level by source alone; a finding on the
     same claim is admitted separately, by the judge naming it.
     """
     if evidence.source in CLAIM_LEVEL_SOURCES:
         return True
-    return evidence.source in INTEGRITY_SOURCES and is_pledge(claim)
+    return evidence.source in INTEGRITY_SOURCES and pledge and can_be_pledge(claim)
 
 
 def record_scope(evidence: Evidence, claim: Claim | None = None) -> str:
@@ -169,6 +177,6 @@ def record_scope(evidence: Evidence, claim: Claim | None = None) -> str:
         return f"enforcement record, context ({outcome})"
     if evidence.source in CLAIM_LEVEL_SOURCES:
         return "claim-level"
-    if evidence.source in INTEGRITY_SOURCES and is_pledge(claim):
-        return "claim-level for this pledge (integrity criterion)"
+    if evidence.source in INTEGRITY_SOURCES and can_be_pledge(claim):
+        return "integrity criterion, counts if the claim is a pledge"
     return "company-level"

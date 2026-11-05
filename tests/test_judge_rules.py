@@ -14,7 +14,7 @@ import uuid
 from typing import Any
 
 from agents.judge_agent import score_cap
-from core.evidence_scope import is_pledge, record_scope
+from core.evidence_scope import can_be_pledge, record_scope
 from models.claim import Claim, ClaimCategory, SourceType
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -79,11 +79,20 @@ def _cap(claim: Claim, **verdict: Any) -> float:
 class TestPledges:
     def test_paris_wording_makes_a_pledge(self) -> None:
         claim = _claim("Our strategy is aligned with the Paris Agreement.", ClaimCategory.OTHER)
-        assert is_pledge(claim)
-        assert not is_pledge(PRODUCT)
+        assert can_be_pledge(claim)
+        assert not can_be_pledge(PRODUCT)
 
     def test_lobbying_counts_against_a_pledge(self) -> None:
-        assert _cap(PLEDGE, contradicting_evidence=[2], top_band_basis="NONE") == 80.0
+        verdict = {"contradicting_evidence": [2], "claim_is_pledge": True}
+        assert _cap(PLEDGE, top_band_basis="NONE", **verdict) == 80.0
+
+    def test_lobbying_is_context_when_the_judge_finds_no_pledge(self) -> None:
+        verdict = {"contradicting_evidence": [2], "claim_is_pledge": False}
+        assert _cap(PLEDGE, top_band_basis="NONE", **verdict) == 60.0
+
+    def test_the_judge_cannot_make_any_claim_a_pledge(self) -> None:
+        verdict = {"contradicting_evidence": [2], "claim_is_pledge": True}
+        assert _cap(PRODUCT, top_band_basis="NONE", **verdict) == 60.0
 
     def test_lobbying_is_context_for_another_claim(self) -> None:
         assert _cap(PRODUCT, contradicting_evidence=[2], top_band_basis="NONE") == 60.0
@@ -91,6 +100,7 @@ class TestPledges:
     def test_lobbying_never_opens_the_top_band(self) -> None:
         verdict = {
             "contradicting_evidence": [2],
+            "claim_is_pledge": True,
             "top_band_basis": "OFFICIAL_RECORD",
             "top_band_evidence": [2],
         }
@@ -143,6 +153,6 @@ class TestRecordScope:
     def test_labels(self) -> None:
         assert record_scope(EU_ETS) == "claim-level"
         assert record_scope(LOBBY_MAP, PRODUCT) == "company-level"
-        assert record_scope(LOBBY_MAP, PLEDGE).startswith("claim-level for this pledge")
+        assert record_scope(LOBBY_MAP, PLEDGE).startswith("integrity criterion")
         assert record_scope(OLD_FINDING) == "enforcement record, context (BANNED)"
         assert record_scope(RECENT_FINDING).startswith("enforcement finding")

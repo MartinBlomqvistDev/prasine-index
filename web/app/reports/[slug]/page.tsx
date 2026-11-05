@@ -26,6 +26,23 @@ function renderInline(text: string): React.ReactNode[] {
   )
 }
 
+// Bold text as in renderInline, with each URL shown as a link named by its site.
+function siteName(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
+
+function renderLinked(text: string): React.ReactNode[] {
+  return text.split(/(https?:\/\/[^\s)]+)/g).flatMap((part, i) =>
+    /^https?:\/\//.test(part)
+      ? [<a key={`u${i}`} href={part} target="_blank" rel="noopener">{siteName(part)}</a>]
+      : renderInline(part).map((node, j) => <span key={`t${i}-${j}`}>{node}</span>),
+  )
+}
+
 // ── Static params ─────────────────────────────────────────────────────────────
 
 export function generateStaticParams() {
@@ -207,6 +224,21 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
               ))}
             </tbody>
           </table>
+        )}
+
+        {/* ── Company record ── */}
+        {r.companyRecord.items.length > 0 && (
+          <div className="report-body" style={{ marginBottom: '2rem' }}>
+            <h2>Company record</h2>
+            {r.companyRecord.paras.map((para, i) => (
+              <p key={i}>{renderLinked(para)}</p>
+            ))}
+            <ul>
+              {r.companyRecord.items.map((item, i) => (
+                <li key={i}>{renderLinked(item)}</li>
+              ))}
+            </ul>
+          </div>
         )}
 
         {/* ── Divider ── */}
