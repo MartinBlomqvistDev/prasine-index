@@ -133,11 +133,15 @@ extract that sentence.
 - A bare figure or label without the sentence that makes it an assertion.
 - Statements about another company, such as a customer's, partner's or \
 supplier's targets, aspirations or validations, even when they appear on this \
-company's pages. Extract only what the company states about itself.
+company's pages. Extract only what the company states about itself. For example, \
+on a steelmaker's page about a partnership, "Epiroc's reduction target to halve \
+absolute CO2e emissions ... is validated by the Science Based Targets initiative" \
+states Epiroc's target, not the steelmaker's: leave it out.
 - Tables of historical data with no statement attached.
 - Statements about matters other than climate: social, ethical or governance \
 practices, responsible sourcing, safety or product quality, and environmental \
-statements with no climate or emissions content.
+statements with no climate or emissions content, such as water withdrawal, \
+freshwater management, biodiversity, waste or recycling.
 - Legal boilerplate.
 
 RULES
