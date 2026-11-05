@@ -29,6 +29,7 @@ from urllib.parse import urljoin
 import anthropic
 import httpx
 
+from core.local_copies import read_copy
 from core.logger import get_logger
 from core.model_requests import TOOL_CALL_ATTEMPTS
 from core.retry import DataSourceError
@@ -297,7 +298,11 @@ async def fetch_source_document_data(
                 extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
             )
         else:
-            text = _extract_pdf_text(content_bytes)[:_MAX_HTML_CHARS]
+            # A long report: read the pages that concern climate, not its first pages.
+            text = (
+                climate_pages(content_bytes, _MAX_HTML_CHARS)
+                or _extract_pdf_text(content_bytes)[:_MAX_HTML_CHARS]
+            )
             content_blocks.append({"type": "text", "text": text})
             logger.info(
                 f"PDF has {page_count} pages (>{_MAX_PDF_PAGES} limit) — falling back to text extraction "
@@ -465,7 +470,7 @@ def _linked_report(html: str, page_url: str) -> str | None:
     return best[1] if best else None
 
 
-def _climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS) -> str:
+def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS) -> str:
     """Return the pages of a PDF that concern climate most, in page order.
 
     Args:
@@ -508,7 +513,7 @@ async def _read_linked_report(url: str) -> str:
         return ""
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
         return ""
-    text = await asyncio.to_thread(_climate_pages, content)
+    text = await asyncio.to_thread(climate_pages, content)
     logger.info(
         f"Linked report read: {url} ({len(text)} chars)",
         extra={"operation": "source_doc_linked_read", "url": url, "chars": len(text)},
@@ -553,6 +558,9 @@ async def _fetch_content(url: str) -> tuple[str, bytes]:
     Raises:
         DataSourceError: On HTTP 4xx/5xx.
     """
+    copy = read_copy(url)
+    if copy is not None:
+        return copy
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://prasineindex.com)",
         "Accept": "text/html,application/xhtml+xml,application/pdf,*/*",

@@ -32,6 +32,7 @@ from agents.lobbying_agent import LobbyingAgent, LobbyingInput
 from agents.report_agent import ReportAgent, ReportInput
 from agents.verification_agent import VerificationAgent, VerificationInput
 from core.database import get_session
+from core.local_copies import read_copy
 from core.logger import bind_trace_context, get_logger
 from core.textutil import html_to_text as _html_to_text
 from models.claim import Claim, ClaimLifecycle, ClaimStatus, SourceType, source_type_for_url
@@ -126,6 +127,22 @@ async def _fetch_pages(
     Raises:
         RuntimeError: If the entry page cannot be fetched.
     """
+    copy = read_copy(source_url)
+    if copy is not None:
+        # A local copy of a public document, downloaded by a person because the
+        # site refuses automated requests. It is read as one document.
+        from ingest.source_document import climate_pages
+
+        kind, content = copy
+        if kind == "application/pdf":
+            text = (
+                climate_pages(content, _MAX_PDF_CHARS)
+                or _extract_pdf_text(content)[:_MAX_PDF_CHARS]
+            )
+        else:
+            text = _html_to_text(content.decode("utf-8", errors="replace"))[:_MAX_FETCH_CHARS]
+        return [(source_url, text)] if text else []
+
     try:
         resp = await http_client.get(source_url, headers=_FETCH_HEADERS)
         resp.raise_for_status()

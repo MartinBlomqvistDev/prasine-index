@@ -424,7 +424,19 @@ if __name__ == "__main__":
         "verification, judge, or report. Use this to preview discovered claims "
         "before committing to a full Opus run.",
     )
+    parser.add_argument(
+        "--local-copy",
+        default=None,
+        help="A local copy (PDF or HTML) of the document at --url, downloaded by a person "
+        "because the site refuses automated requests. It is read in place of the fetch; "
+        "the report still cites --url.",
+    )
     args = parser.parse_args()
+
+    if args.local_copy:
+        from core.local_copies import register_copy
+
+        register_copy(args.url, Path(args.local_copy))
 
     if args.refresh_data:
         print("Refreshing data sources...\n")

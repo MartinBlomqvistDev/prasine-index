@@ -26,3 +26,19 @@ class TestLinkedReport:
     def test_ignores_unrelated_pdfs(self) -> None:
         html = '<a href="/files/cookie-policy.pdf">Cookies</a><a href="/menu.pdf">Menu</a>'
         assert _linked_report(html, "https://example.com/") is None
+
+
+class TestLocalCopies:
+    """A registered local copy is read in place of the fetch, under its public address."""
+
+    def test_copy_is_found_by_its_public_address(self, tmp_path) -> None:
+        from core.local_copies import read_copy, register_copy
+
+        copy = tmp_path / "annual-report.pdf"
+        copy.write_bytes(b"%PDF-1.7 test")
+        register_copy("https://example.com/report.pdf", copy)
+        assert read_copy("https://example.com/report.pdf#page=4") == (
+            "application/pdf",
+            b"%PDF-1.7 test",
+        )
+        assert read_copy("https://example.com/other.pdf") is None
