@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import csv
 import os
-import re
 from pathlib import Path
 
 from core.logger import get_logger
@@ -177,14 +176,6 @@ def _get_country_totals(country_code: str) -> dict[int, float]:
     return cache.get(country_code, {})
 
 
-def _extract_proportion_claim(claim_text: str) -> float | None:
-    """Extract a percentage from a claim text, e.g. '10%' → 10.0."""
-    m = re.search(r"(\d+(?:[.,]\d+)?)\s*%", claim_text)
-    if m:
-        return float(m.group(1).replace(",", "."))
-    return None
-
-
 async def fetch_eea_national_data(claim: Claim, company: object) -> list[Evidence]:
     """Return EEA national emissions context for the company's home country.
 
@@ -259,23 +250,11 @@ async def fetch_eea_national_data(claim: Claim, company: object) -> list[Evidenc
             f"{latest_total_mt:.1f} Mt CO2e in {latest_year})."
         )
 
-    # Check if the claim makes a country-proportion statement
-    claim_text = getattr(claim, "raw_text", "") or ""
-    proportion = _extract_proportion_claim(claim_text)
-    proportion_str = ""
-    if proportion is not None:
-        implied_mt = latest_total_mt * proportion / 100
-        proportion_str = (
-            f" Claim implies {proportion:.0f}% of {country_name}'s emissions "
-            f"≈ {implied_mt:.2f} Mt CO2e/year based on {latest_year} data."
-        )
-
     summary = (
         f"EEA National Emissions Inventory: {country_name} total GHG emissions "
         f"(excl. LULUCF) were {latest_total_mt:.1f} Mt CO2e in {latest_year} "
         f"({latest_total_gg:,.0f} Gg CO2e), per UNFCCC reporting to EEA."
-        f"{trend_str}{proportion_str} "
-        f"This national baseline is used to verify proportionality claims."
+        f"{trend_str}"
     )
 
     logger.info(

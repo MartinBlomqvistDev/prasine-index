@@ -375,16 +375,4 @@ def _build_summary(
     if sector_pcts:
         lines.append(f"Sector shares ({latest_year}): {'; '.join(sector_pcts)}.")
 
-    # Proportion check if claim mentions a percentage
-    import re
-
-    m = re.search(r"(\d+(?:[.,]\d+)?)\s*%", claim_text)
-    if m:
-        claimed_pct = float(m.group(1).replace(",", "."))
-        implied_mt = total_mt * claimed_pct / 100
-        lines.append(
-            f"Claim implies {claimed_pct:.0f}% of {geo} national total "
-            f"≈ {implied_mt:.2f} Mt CO2e ({latest_year} baseline)."
-        )
-
     return " ".join(lines)

@@ -438,9 +438,9 @@ def _build_report_prompt(input: ReportInput) -> str:
 
     _dim_labels = {
         "EMISSIONS_DISCREPANCY": "emissions discrepancy",
-        "SUBSTANTIATION_FAILURE": "substantiation failure",
-        "LOBBYING_CONTRADICTION": "lobbying contradiction",
-        "PRIOR_VIOLATIONS": "prior violations",
+        "SUBSTANTIATION_FAILURE": "missing substantiation",
+        "LOBBYING_CONTRADICTION": "lobbying context",
+        "PRIOR_VIOLATIONS": "earlier decisions on the same claim",
         "TARGET_CREDIBILITY_GAP": "target credibility gap",
     }
     for dim, dim_score in score.score_breakdown.items():
