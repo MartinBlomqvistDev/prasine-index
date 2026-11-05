@@ -226,11 +226,10 @@ class GreenwashingScore(BaseModel):
     empco_violation: bool | None = Field(
         default=None,
         description=(
-            "Whether this claim violates the EmpCo Directive (EU 2024/825). "
-            "True = confirmed violation (e.g. offset-based net-zero claim without certified permanent removals, "
-            "or a claim that fails the mandatory substantiation standard). "
-            "False = no EmpCo violation found. "
-            "None = not assessed (insufficient data, claim type out of scope, or pre-EmpCo archive)."
+            "Deprecated; kept so rows written before November 2026 still load. "
+            "The pipeline no longer produces a legal-violation flag: whether a practice "
+            "breaches Directive (EU) 2024/825 is for national authorities and courts to "
+            "decide, case by case. New verdicts leave this None."
         ),
     )
 

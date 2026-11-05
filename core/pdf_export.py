@@ -137,7 +137,7 @@ def _parse_aggregate_header(markdown: str) -> _AggregateHeader | None:
 
     Returns None for single-claim reports that lack the aggregate prefix.
     """
-    agg_m = re.match(r"^## (.+?) — Company Assessment \((\d+) claims?\)", markdown.lstrip())
+    agg_m = re.match(r"^## (.+?)(?: — |: )Company Assessment \((\d+) claims?\)", markdown.lstrip())
     if not agg_m:
         return None
 
@@ -186,7 +186,7 @@ def _parse(markdown: str) -> _Report:
     parts = re.split(r"\n---\n", markdown, maxsplit=2)
     detail = parts[-1] if len(parts) >= 2 else markdown
 
-    title_m = re.search(r"^## (.+?) —", detail, re.M)
+    title_m = re.search(r"^## (.+?)(?: — |: )\w+ Assessment", detail, re.M)
     company = title_m.group(1).strip() if title_m else "Unknown Company"
 
     meta_m = re.search(
@@ -336,7 +336,7 @@ def _render_cover(pdf: _PDF, data: _Report, agg: _AggregateHeader | None = None)
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*_MUTED)
     subtitle = (
-        f"Greenwashing Assessment — {agg.claim_count} claims assessed"
+        f"Greenwashing Assessment: {agg.claim_count} claims assessed"
         if agg
         else "Greenwashing Assessment"
     )

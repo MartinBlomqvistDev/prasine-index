@@ -24,6 +24,7 @@ import time
 from pathlib import Path
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.company import Company
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -277,10 +278,10 @@ def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
     if norm in by_name:
         return by_name[norm]
 
-    # Partial substring match as last resort
+    # Partial whole-word match as last resort
     if len(norm) >= 5:
         for key, record in by_name.items():
-            if norm in key:
+            if contains_name(key, norm):
                 return record
 
     return None

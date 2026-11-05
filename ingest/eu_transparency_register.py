@@ -29,6 +29,7 @@ import os
 from pathlib import Path
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -208,10 +209,10 @@ def _lookup(company_name: str) -> _TRRecord | None:
     if norm in cache:
         return cache[norm]
 
-    # Substring fallback
+    # Whole-word fallback
     if len(norm) >= 5:
         for key, record in cache.items():
-            if norm in key:
+            if contains_name(key, norm):
                 return record
 
     return None

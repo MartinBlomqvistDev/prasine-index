@@ -150,3 +150,31 @@ class TestTransparencyRegisterLookup:
     def test_export_available_reflects_cache(self) -> None:
         self._inject({"Enel SpA": "333-33"})
         assert eu_tr.register_export_available() is True
+
+
+class TestWholeWordMatching:
+    """Name matches must not land inside another word."""
+
+    def test_enel_does_not_match_genel_energy(self) -> None:
+        from ingest.goget import _owner_matches
+
+        assert not _owner_matches("enel", "Genel Energy")
+        assert _owner_matches("enel", "Enel Produzione SpA")
+
+    def test_partial_match_still_works_on_word_boundaries(self) -> None:
+        from ingest.name_matching import contains_name, names_overlap
+
+        assert contains_name("ryanair dac", "ryanair")
+        assert names_overlap("ryanair", "ryanair holdings")
+        assert not contains_name("genel energy", "enel")
+
+    def test_non_ascii_letters_count_as_word_characters(self) -> None:
+        from ingest.name_matching import contains_name
+
+        assert not contains_name("ørsted", "rsted")
+        assert contains_name("ørsted wind power", "ørsted")
+
+    def test_empty_needle_never_matches(self) -> None:
+        from ingest.name_matching import contains_name
+
+        assert not contains_name("anything", "")

@@ -22,6 +22,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -478,10 +479,10 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
     # Direct match
     rulings = _BY_COMPANY.get(norm, [])
 
-    # Partial substring match: catches "Ryanair Holdings plc" vs "Ryanair"
+    # Partial whole-word match: catches "Ryanair Holdings plc" vs "Ryanair"
     if not rulings and len(norm) >= 5:
         for key, key_rulings in _BY_COMPANY.items():
-            if norm in key:
+            if contains_name(key, norm):
                 rulings = key_rulings
                 break
 

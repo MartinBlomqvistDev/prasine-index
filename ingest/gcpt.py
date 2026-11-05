@@ -47,6 +47,7 @@ from pathlib import Path
 from typing import Any
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -189,10 +190,10 @@ def _normalise(name: str) -> str:
 
 def _owner_matches(company_norm: str, owner_name: str) -> bool:
     own_norm = _normalise(owner_name)
-    if company_norm in own_norm or own_norm in company_norm:
+    if names_overlap(company_norm, own_norm):
         return True
     company_first = company_norm.split()[0] if company_norm.split() else company_norm
-    return len(company_first) >= 4 and company_first in own_norm
+    return len(company_first) >= 4 and contains_name(own_norm, company_first)
 
 
 async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:

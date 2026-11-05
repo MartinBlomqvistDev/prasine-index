@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import Any
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -161,10 +162,10 @@ def _normalise(name: str) -> str:
 
 def _name_matches(company_norm: str, record_name: str) -> bool:
     rec_norm = _normalise(record_name)
-    if company_norm in rec_norm or rec_norm in company_norm:
+    if names_overlap(company_norm, rec_norm):
         return True
     company_first = company_norm.split()[0] if company_norm.split() else company_norm
-    return len(company_first) >= 4 and company_first in rec_norm
+    return len(company_first) >= 4 and contains_name(rec_norm, company_first)
 
 
 async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:

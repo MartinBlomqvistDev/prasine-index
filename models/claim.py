@@ -38,10 +38,12 @@ class ClaimStatus(StrEnum):
 
 
 class ClaimCategory(StrEnum):
-    """Taxonomy of green claim types, aligned with EU environmental claims taxonomy (EmpCo 2024/825).
+    """Taxonomy of green claim types used by the pipeline.
 
-    This classification drives how the Verification Agent selects evidence sources
-    and how the Judge Agent weights contradicting data.
+    Directive (EU) 2024/825 defines no claim categories; these exist so the
+    pipeline can match a claim to the evidence sources and legal provisions
+    relevant to it. The classification drives how the Verification Agent
+    selects evidence sources and how the Judge Agent weights contradicting data.
     """
 
     NET_ZERO_TARGET = "NET_ZERO_TARGET"
@@ -99,7 +101,7 @@ class Claim(BaseModel):
         raw_text: Verbatim claim text as found in the source document.
         normalised_text: Cleaned, lower-cased text used for pgvector semantic
             similarity comparison against historical claims.
-        claim_category: EU environmental claim taxonomy classification (EmpCo 2024/825).
+        claim_category: Pipeline category of the claim (see :py:class:`ClaimCategory`).
         page_reference: Page number or section identifier within the source
             document, if applicable.
         publication_date: Date the source document was published, if known.
@@ -133,7 +135,7 @@ class Claim(BaseModel):
     )
     claim_category: ClaimCategory = Field(
         default=ClaimCategory.OTHER,
-        description="EU environmental claim taxonomy classification (EmpCo 2024/825).",
+        description="Pipeline category of the claim, used to select evidence sources and legal provisions.",
     )
     page_reference: str | None = Field(
         default=None,

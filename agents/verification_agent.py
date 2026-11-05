@@ -292,12 +292,12 @@ async def _node_fetch_cdp(state: VerificationState) -> dict[str, Any]:
 
 
 async def _node_fetch_eurlex(state: VerificationState) -> dict[str, Any]:
-    """LangGraph node: fetch legislative and CSRD context from EUR-Lex.
+    """LangGraph node: return the EU provisions relevant to the claim.
 
-    Queries the EUR-Lex REST API for CSRD disclosure records, Green Claims
-    Directive references, and any legislative proceedings relevant to the
-    claim's subject matter. Legislative records provide the regulatory
-    framework within which claims are assessed.
+    Returns the embedded provisions of Directive (EU) 2024/825, the CSRD and
+    the EU ETS Directive that apply to the claim's category, without a
+    network call. Legislative records provide the regulatory framework within
+    which claims are assessed.
 
     Args:
         state: Current verification graph state.

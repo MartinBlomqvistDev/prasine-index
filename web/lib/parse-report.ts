@@ -202,7 +202,8 @@ function parseEvidence(section: string): EvidenceItem[] {
 }
 
 export function parseReport(md: string): ParsedReport {
-  const headerMatch = md.match(/^## (.+?) — Company Assessment \((\d+) claim/m) // style-ok: matches the header written into docs/reports/*.md
+  // style-ok: reports written before November 2026 use the dashed header form.
+  const headerMatch = md.match(/^## (.+?)(?: — |: )Company Assessment \((\d+) claim/m) // style-ok
   const company = headerMatch?.[1] ?? 'Unknown Company'
   const claimCount = parseInt(headerMatch?.[2] ?? '1')
 

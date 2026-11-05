@@ -134,7 +134,7 @@ def _build_aggregate_header(
 ) -> str:
     n = company_score.claim_count
     lines = [
-        f"## {company_name} — Company Assessment ({n} claim{'s' if n != 1 else ''})",
+        f"## {company_name}: Company Assessment ({n} claim{'s' if n != 1 else ''})",
         "",
         f"**Overall Score: {company_score.score:.0f}/100** "
         f"(top-3 severity-weighted across {n} claim{'s' if n != 1 else ''})  ",

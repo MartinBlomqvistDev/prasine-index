@@ -1,20 +1,23 @@
 """Regulatory context module for the Prasine Index Verification Agent.
 
-Provides static EU legislative standards against which green claims are judged.
-EUR-Lex does not contain company CSRD reports (those go to national registers);
-it contains the legislation itself. Rather than making fragile API calls for
-content that does not change, this module returns the key legal standards as
-structured Evidence so the Judge Agent always has the regulatory baseline.
+Provides the EU legal provisions that bear on a green claim, as structured
+Evidence, so the Judge Agent always has the regulatory baseline. EUR-Lex holds
+the legislation itself, not company reports, and the legislation does not change
+between runs, so the provisions are embedded rather than fetched.
 
 Sources embedded here:
-- EmpCo Directive (EU 2024/825), in force March 2024, amends UCPD Annex I
-- UCPD (Directive 2005/29/EC) Article 6: misleading commercial practices
-- CSRD (Directive 2022/2464): mandatory disclosure obligations
-- EU ETS Regulation 2003/87/EC: verified emissions as legal ground truth
+- Directive (EU) 2024/825, which amends the Unfair Commercial Practices
+  Directive 2005/29/EC (UCPD). Member States must apply it from 27 September
+  2026, and it covers commercial practices aimed at consumers.
+- The CSRD, Directive (EU) 2022/2464: corporate sustainability reporting.
+- The EU ETS Directive 2003/87/EC: verified emissions of covered installations.
 
-Note: The Green Claims Directive proposal (COM/2023/0166) was withdrawn by the
-European Commission in June 2025 before adoption. It is NOT cited here.
-The EmpCo Directive is the in-force instrument for environmental claim standards.
+Provisions are quoted from the Official Journal text. Each record states what a
+provision requires and never concludes that a claim breaches it: whether a
+practice is unfair is decided case by case by national authorities and courts.
+
+The Green Claims Directive proposal, COM(2023) 166, was never adopted and is not
+cited.
 """
 
 from __future__ import annotations
@@ -25,119 +28,127 @@ from models.evidence import Evidence, EvidenceSource, EvidenceType
 __all__ = ["fetch_eurlex_data"]
 
 # ---------------------------------------------------------------------------
-# Regulatory standards by claim category
+# Provisions
 # Each entry: (celex_id, title, year, summary_for_judge)
 # ---------------------------------------------------------------------------
 
+_CONSUMER_SCOPE = (
+    " Member States must apply Directive (EU) 2024/825 from 27 September 2026 "
+    "through national law, so its effect in a given country depends on "
+    "transposition. It covers commercial practices aimed at consumers; the "
+    "Commission's guidance of September 2026 says communications addressed to "
+    "investors, such as sustainability reports, are typically outside its scope. "
+    "Whether a practice is unfair is decided case by case by national authorities "
+    "and courts."
+)
+
+_EMPCO_CELEX = "32024L0825"
+_EMPCO_YEAR = 2024
+
+_FUTURE_PERFORMANCE = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Article 6(2)(d), future environmental performance",
+    _EMPCO_YEAR,
+    "Under Article 6(2)(d) of the UCPD as amended, a practice is misleading where it "
+    "is likely to change the average consumer's transactional decision and involves "
+    '"making an environmental claim related to future environmental performance '
+    "without clear, objective, publicly available and verifiable commitments set out "
+    "in a detailed and realistic implementation plan that includes measurable and "
+    "time-bound targets and other relevant elements necessary to support its "
+    "implementation, such as allocation of resources, and that is regularly verified "
+    "by an independent third party expert, whose findings are made available to "
+    'consumers".' + _CONSUMER_SCOPE,
+)
+
+_OFFSETTING = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Annex I point 4c, offset-based product claims",
+    _EMPCO_YEAR,
+    "Annex I point 4c of the UCPD as amended prohibits in all circumstances: "
+    '"Claiming, based on the offsetting of greenhouse gas emissions, that a product '
+    "has a neutral, reduced or positive impact on the environment in terms of "
+    "greenhouse gas emissions.\" The Commission's guidance states that point 4c "
+    "does not apply to claims based on offsetting at company level, which remain "
+    "subject to the directive's other provisions." + _CONSUMER_SCOPE,
+)
+
+_GENERIC_CLAIM = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Annex I point 4a, generic environmental claims",
+    _EMPCO_YEAR,
+    "Annex I point 4a of the UCPD as amended prohibits in all circumstances: "
+    '"Making a generic environmental claim for which the trader is not able to '
+    "demonstrate recognised excellent environmental performance relevant to the "
+    'claim." A claim is generic when its specification is not provided in clear and '
+    "prominent terms on the same medium. Recognised excellent environmental "
+    "performance means compliance with the EU Ecolabel, an officially recognised "
+    "EN ISO 14024 type I ecolabel, or top environmental performance under other "
+    "applicable Union law." + _CONSUMER_SCOPE,
+)
+
+_WHOLE_BUSINESS = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Annex I point 4b, whole-product or whole-business claims",
+    _EMPCO_YEAR,
+    "Annex I point 4b of the UCPD as amended prohibits in all circumstances: "
+    "\"Making an environmental claim about the entire product or the trader's entire "
+    "business when it concerns only a certain aspect of the product or a specific "
+    "activity of the trader's business.\"" + _CONSUMER_SCOPE,
+)
+
+_LABELS = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Annex I point 2a, sustainability labels",
+    _EMPCO_YEAR,
+    "Annex I point 2a of the UCPD as amended prohibits in all circumstances: "
+    '"Displaying a sustainability label that is not based on a certification scheme '
+    'or not established by public authorities."' + _CONSUMER_SCOPE,
+)
+
+_MAIN_CHARACTERISTICS = (
+    _EMPCO_CELEX,
+    "Directive (EU) 2024/825: UCPD Article 6(1), environmental characteristics",
+    _EMPCO_YEAR,
+    "As amended, Article 6(1) of the UCPD lists a product's environmental and social "
+    "characteristics and circularity aspects among the main characteristics about "
+    "which a practice can mislead consumers, assessed case by case." + _CONSUMER_SCOPE,
+)
+
+_CSRD = (
+    "32022L2464",
+    "CSRD: Corporate Sustainability Reporting Directive (EU) 2022/2464",
+    2022,
+    "The CSRD requires companies within its scope to report greenhouse gas "
+    "emissions, including Scope 3, under the European Sustainability Reporting "
+    "Standards. EU simplification measures adopted in 2025 and 2026 postponed "
+    "reporting and narrowed the scope, so whether a given company reports, and for "
+    "which financial year, must be checked for that company. CSRD reports are "
+    "addressed to investors and are not consumer marketing.",
+)
+
+_EU_ETS = (
+    "32003L0087",
+    "EU ETS Directive 2003/87/EC as amended",
+    2003,
+    "Operators in the EU ETS report annual emissions that accredited verifiers check "
+    "under Implementing Regulation (EU) 2018/2067, and the verified figures are "
+    "published in the Union Registry. They cover the installations and aviation "
+    "activities an operator has in the scheme, not a company's whole value chain. "
+    "Emissions from biomass that meets the sustainability criteria count as zero in "
+    "the EU ETS, so a fall in verified emissions can reflect a switch to biomass "
+    "rather than an equal fall in the CO2 actually released.",
+)
+
 _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
-    ClaimCategory.NET_ZERO_TARGET: [
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. Amends UCPD Annex I to blacklist environmental "
-            "claims that are not substantiated by recognised scientific evidence. "
-            "Net-zero claims must demonstrate that residual emissions will be permanently "
-            "removed by certified carbon removals, not offset credits. Generic net-zero "
-            "pledges without a credible, verifiable transition plan are automatically "
-            "unfair commercial practices under the amended Annex I. Claims based solely "
-            "on carbon offsetting schemes are blacklisted.",
-        ),
-        (
-            "32022L2464",
-            "CSRD: Corporate Sustainability Reporting Directive (2022/2464)",
-            2022,
-            "Large companies must disclose scope 1, 2 and 3 GHG emissions under ESRS E1. "
-            "A net-zero claim that contradicts or is absent from the mandatory CSRD disclosure "
-            "constitutes a material inconsistency. CSRD applies to companies with >500 employees "
-            "or listed on EU-regulated markets from FY2024 reporting.",
-        ),
-    ],
-    ClaimCategory.CARBON_NEUTRAL: [
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. Carbon-neutral claims must be based on actual "
-            "emission reductions across the full lifecycle, not offset purchases. "
-            "The amended UCPD Annex I blacklists carbon neutrality claims that rely "
-            "primarily on offset schemes without verified absolute emission reductions. "
-            "UCPD Article 6(1) covers misleading claims that deceive the average consumer "
-            "about the environmental impact of a product or the trader.",
-        ),
-    ],
-    ClaimCategory.EMISSIONS_REDUCTION: [
-        (
-            "32003L0087",
-            "EU ETS Directive 2003/87/EC as amended",
-            2003,
-            "EU ETS verified emissions (Article 15) represent the highest-quality legal "
-            "ground truth for actual GHG emissions. Verified figures are produced by "
-            "accredited independent third-party verifiers under Regulation 601/2012. "
-            "A company claiming emissions reductions that are not reflected in EUTL "
-            "verified data is making a claim contradicted by mandatory legal disclosure.",
-        ),
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. Emissions reduction claims must state the baseline "
-            "year, scope (Scope 1/2/3), and methodology. Per-unit or intensity-based "
-            "reduction claims that obscure absolute emission increases are misleading "
-            "under UCPD Article 6(1). Aggregating reductions and increases to manufacture "
-            "a net reduction figure violates the substantiation standard.",
-        ),
-    ],
-    ClaimCategory.RENEWABLE_ENERGY: [
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. Renewable energy claims must specify the percentage "
-            "of total energy consumption covered, the source, and whether RECs/GOs are used. "
-            "Claims of 100% renewable electricity that rely on unbundled certificates without "
-            "physical supply contracts are misleading under UCPD Article 6(1). The amended "
-            "Annex I blacklists sustainability labels not based on a transparent, publicly "
-            "available verification scheme.",
-        ),
-    ],
-    ClaimCategory.SUSTAINABLE_SUPPLY_CHAIN: [
-        (
-            "32022L2464",
-            "CSRD: Corporate Sustainability Reporting Directive (2022/2464)",
-            2022,
-            "ESRS E1-6 requires disclosure of Scope 3 GHG emissions covering the full value "
-            "chain. Supply chain sustainability claims must be consistent with CSRD Scope 3 "
-            "disclosures. Claims of sustainable supply chains without supporting Scope 3 "
-            "data are unsubstantiated under UCPD Article 6 and the EmpCo Directive (EU 2024/825).",
-        ),
-    ],
-    ClaimCategory.SCIENCE_BASED_TARGETS: [
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. Science-based target claims require that the target "
-            "methodology is publicly disclosed and independently validated (e.g. SBTi approval). "
-            "Reference to science-based targets without current validation status is misleading "
-            "under UCPD Article 6(1). Expired or withdrawn SBTi approvals render the claim false. "
-            "The amended Annex I blacklists sustainability labels not based on a transparent "
-            "and publicly available verification scheme.",
-        ),
-    ],
-    ClaimCategory.OTHER: [
-        (
-            "32024L0825",
-            "EmpCo Directive (EU 2024/825), amending UCPD Annex I",
-            2024,
-            "In force since March 2024. All explicit environmental claims must be substantiated "
-            "by recognised scientific evidence, cover the full lifecycle where relevant, and not "
-            "mislead consumers by omission. The amended UCPD Annex I blacklists generic "
-            "environmental claims such as 'eco-friendly', 'green' or 'sustainable', without specific, "
-            "verifiable substantiation. UCPD Article 6(1) covers any claim that deceives the "
-            "average consumer about the environmental impact of a product or trader.",
-        ),
-    ],
+    ClaimCategory.NET_ZERO_TARGET: [_FUTURE_PERFORMANCE, _CSRD],
+    ClaimCategory.SCIENCE_BASED_TARGETS: [_FUTURE_PERFORMANCE],
+    ClaimCategory.CARBON_NEUTRAL: [_OFFSETTING, _WHOLE_BUSINESS],
+    ClaimCategory.EMISSIONS_REDUCTION: [_EU_ETS, _MAIN_CHARACTERISTICS, _WHOLE_BUSINESS],
+    ClaimCategory.RENEWABLE_ENERGY: [_MAIN_CHARACTERISTICS, _WHOLE_BUSINESS],
+    ClaimCategory.SUSTAINABLE_SUPPLY_CHAIN: [_CSRD, _MAIN_CHARACTERISTICS, _WHOLE_BUSINESS],
+    ClaimCategory.CIRCULAR_ECONOMY: [_MAIN_CHARACTERISTICS, _GENERIC_CLAIM, _WHOLE_BUSINESS],
+    ClaimCategory.BIODIVERSITY: [_GENERIC_CLAIM, _WHOLE_BUSINESS],
+    ClaimCategory.OTHER: [_GENERIC_CLAIM, _LABELS, _WHOLE_BUSINESS],
 }
 
 
@@ -145,11 +156,12 @@ async def fetch_eurlex_data(
     claim: Claim,
     company: object,  # Company, typed loosely to avoid circular import
 ) -> list[Evidence]:
-    """Return EU regulatory standards applicable to the claim category.
+    """Return the EU provisions relevant to the claim category.
 
-    No network calls are made. Returns static regulatory context from the
-    EmpCo Directive (EU 2024/825), CSRD, and EU ETS legislation so the
-    Judge Agent always has the legal baseline regardless of API availability.
+    No network calls are made. Returns the embedded provisions of Directive
+    (EU) 2024/825, the CSRD and the EU ETS Directive so the Judge Agent always
+    has the legal baseline regardless of API availability. The records are
+    context: they neither support nor contradict the claim.
 
     Args:
         claim: The claim under assessment.
@@ -157,7 +169,7 @@ async def fetch_eurlex_data(
             compatibility with other ingest modules).
 
     Returns:
-        List of Evidence records containing applicable regulatory standards.
+        List of Evidence records containing the applicable provisions.
     """
     standards = _REGULATORY_CONTEXT.get(
         claim.claim_category,

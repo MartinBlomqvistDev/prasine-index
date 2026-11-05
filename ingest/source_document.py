@@ -2,15 +2,16 @@
 
 When a claim references a company document (sustainability report, annual
 report, IR page), this module fetches that document and uses Claude Haiku
-with forced tool use to extract structured climate disclosures: scope 1/2/3
-emissions, net-zero baseline year, interim targets, and certified carbon
-removal plan.
+with tool use to extract structured climate disclosures: scope 1/2/3
+emissions, the target baseline year, interim targets, the use of offset credits
+and removals, and which elements of an implementation plan the document shows.
 
 This is the most direct verification step: comparing the claim against the
-document it explicitly cites. A company that says "see our sustainability
-report for our net-zero goals" but whose report lacks EmpCo-required elements
-is in substantiation failure under binding EU law, regardless of what external
-sources show.
+document it explicitly cites. For a claim about future performance, the
+checklist is the list of elements in Article 6(2)(d) of the Unfair Commercial
+Practices Directive as amended by Directive (EU) 2024/825. The module records
+which elements the document shows; it does not decide whether the law is
+breached.
 
 Handles both HTML pages (tag-stripped) and PDF documents (passed as base64
 document blocks to the Anthropic API).
@@ -75,30 +76,32 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                 "type": "integer",
                 "description": "Baseline year for the net-zero or reduction target. Omit if not disclosed.",
             },
-            "interim_target_2030": {
-                "type": "string",
-                "description": "Description of the 2030 interim reduction target. Omit if absent.",
+            "interim_targets": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": (
+                    "Each interim target the document states, as 'YEAR: target'. "
+                    "Empty if the document states none."
+                ),
             },
-            "interim_target_2035": {
-                "type": "string",
-                "description": "Description of the 2035 interim target. Omit if absent.",
-            },
-            "interim_target_2040": {
-                "type": "string",
-                "description": "Description of the 2040 interim target. Omit if absent.",
-            },
-            "has_certified_removal_plan": {
+            "relies_on_offset_credits": {
                 "type": "boolean",
                 "description": (
-                    "True only if the document explicitly describes certified permanent "
-                    "carbon removal mechanisms (DAC, BECCS, biochar, etc.) — NOT carbon "
-                    "offsets or offset credits. False if only offsets are mentioned or "
-                    "removals are not addressed."
+                    "True if the document says the target or claim will be met partly "
+                    "or wholly by buying offset credits for emissions outside the "
+                    "company's own value chain."
+                ),
+            },
+            "removals_described": {
+                "type": "boolean",
+                "description": (
+                    "True if the document describes carbon removals (for example "
+                    "direct air capture, BECCS or biochar) as distinct from offset credits."
                 ),
             },
             "removal_mechanism_description": {
                 "type": "string",
-                "description": "Description of the certified removal mechanism if present.",
+                "description": "What the document says about removals, if anything.",
             },
             "saf_current_pct": {
                 "type": "number",
@@ -112,25 +115,34 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                 "type": "integer",
                 "description": "Year by which the SAF target is to be achieved.",
             },
-            "empco_gaps": {
+            "missing_plan_elements": {
                 "type": "array",
-                "items": {"type": "string"},
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "public_verifiable_commitments",
+                        "detailed_implementation_plan",
+                        "measurable_time_bound_targets",
+                        "resource_allocation",
+                        "independent_third_party_verification",
+                        "verification_findings_published",
+                    ],
+                },
                 "description": (
-                    "EmpCo Directive (EU 2024/825) substantiation elements MISSING from "
-                    "the document. Include only elements that are genuinely absent. "
-                    "Valid values: 'baseline_year', 'interim_2030', 'interim_2035', "
-                    "'interim_2040', 'abatement_removal_split', "
-                    "'certified_removal_plan', 'verified_transition_plan'."
+                    "Only for a claim about future environmental performance: the "
+                    "elements listed in Article 6(2)(d) of the Unfair Commercial "
+                    "Practices Directive, as amended, that this document does not show. "
+                    "Include only elements that are genuinely absent from the document. "
+                    "Leave empty for a claim about past or present performance."
                 ),
             },
             "supports_claim": {
                 "type": "boolean",
                 "description": (
-                    "False if the document fails to substantiate the claim — i.e. the "
-                    "claim implies verified net-zero credentials but the document lacks "
-                    "required EmpCo elements, or disclosed emissions data is inconsistent "
-                    "with the claimed trajectory. True only if the document provides "
-                    "genuine, complete substantiation."
+                    "False if the document does not back the claim as made: its figures "
+                    "contradict the claim, or the claim is about future performance and "
+                    "the document lacks the plan elements needed to support it. True "
+                    "only if the document substantiates the claim as made."
                 ),
             },
             "confidence": {
@@ -148,8 +160,7 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
             },
         },
         "required": [
-            "has_certified_removal_plan",
-            "empco_gaps",
+            "missing_plan_elements",
             "supports_claim",
             "confidence",
             "summary",
@@ -162,15 +173,21 @@ You are a specialist in EU corporate climate disclosure analysis. \
 Read the company's source document and extract structured factual data \
 about what it actually discloses regarding climate and net-zero commitments.
 
-Be strictly factual â€” extract only what the document explicitly states. \
+Be strictly factual: extract only what the document explicitly states. \
 Do not infer or assume information that is not present.
 
-Under the EmpCo Directive (EU 2024/825), a net-zero claim requires: \
-a disclosed baseline year, interim reduction checkpoints at 2030/2035/2040, \
-a split between emissions abatement and certified permanent carbon removals, \
-and a verified transition plan that does NOT rely solely on offset credits. \
-Carbon offsetting is NOT the same as certified carbon removal. \
-A document that relies on offsets for net-zero has NOT met the removal requirement.\
+For a claim about future environmental performance, such as a net-zero target, \
+check the document against the elements that Article 6(2)(d) of the Unfair \
+Commercial Practices Directive, as amended by Directive (EU) 2024/825, lists: \
+clear, objective, publicly available and verifiable commitments; a detailed and \
+realistic implementation plan; measurable and time-bound targets; other elements \
+needed to implement it, such as allocation of resources; regular verification by \
+an independent third-party expert; and findings of that verification made \
+available to consumers. Record which of these the document does not show. Do not \
+decide whether any law is breached.
+
+Offset credits bought for emissions outside the company's value chain are not \
+the same as carbon removals. Record what the document says about each, as stated.\
 """
 
 
@@ -304,7 +321,7 @@ async def fetch_source_document_data(
     supports_claim: bool | None = extraction.get("supports_claim")
     confidence: float = float(extraction.get("confidence", 0.70))
     summary: str = extraction.get("summary", "Source document analysis completed.")
-    empco_gaps: list[str] = extraction.get("empco_gaps", [])
+    missing_plan_elements: list[str] = extraction.get("missing_plan_elements", [])
 
     raw_data: dict[str, Any] = {
         "source_url": claim.source_url,
@@ -314,25 +331,24 @@ async def fetch_source_document_data(
         "scope3_mt": extraction.get("scope3_mt"),
         "emissions_year": extraction.get("emissions_year"),
         "baseline_year": extraction.get("baseline_year"),
-        "interim_target_2030": extraction.get("interim_target_2030"),
-        "interim_target_2035": extraction.get("interim_target_2035"),
-        "interim_target_2040": extraction.get("interim_target_2040"),
-        "has_certified_removal_plan": extraction.get("has_certified_removal_plan"),
+        "interim_targets": extraction.get("interim_targets", []),
+        "relies_on_offset_credits": extraction.get("relies_on_offset_credits"),
+        "removals_described": extraction.get("removals_described"),
         "removal_mechanism_description": extraction.get("removal_mechanism_description"),
         "saf_current_pct": extraction.get("saf_current_pct"),
         "saf_target_pct": extraction.get("saf_target_pct"),
         "saf_target_year": extraction.get("saf_target_year"),
-        "empco_gaps": empco_gaps,
+        "missing_plan_elements": missing_plan_elements,
     }
 
     logger.info(
         f"Source document analysis complete: supports_claim={supports_claim}, "
-        f"confidence={confidence:.2f}, empco_gaps={empco_gaps}",
+        f"confidence={confidence:.2f}, missing_plan_elements={missing_plan_elements}",
         extra={
             "operation": "source_doc_complete",
             "supports_claim": supports_claim,
             "confidence": confidence,
-            "empco_gap_count": len(empco_gaps),
+            "missing_plan_element_count": len(missing_plan_elements),
         },
     )
 

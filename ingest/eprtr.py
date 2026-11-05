@@ -22,6 +22,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -326,11 +327,11 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
         for year, records in by_parent[norm].items():
             merged[year].extend(records)
 
-    # Partial match: collect ALL keys where the company name is a substring
+    # Partial match: collect ALL keys where the company name appears as whole words
     for key, records_by_year in by_parent.items():
         if key == norm:
             continue  # already handled above
-        if len(norm) >= 5 and norm in key:
+        if len(norm) >= 5 and contains_name(key, norm):
             for year, records in records_by_year.items():
                 merged[year].extend(records)
 

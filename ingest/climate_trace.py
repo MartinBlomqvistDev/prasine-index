@@ -36,6 +36,7 @@ import urllib.request
 from typing import Any, cast
 
 from core.logger import get_logger
+from ingest.name_matching import contains_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -139,12 +140,12 @@ def _normalise(name: str) -> str:
 def _name_matches(company_norm: str, source_name: str) -> bool:
     """Check if the company name appears in or substantially overlaps a source name."""
     src_norm = _normalise(source_name)
-    # Direct substring
-    if company_norm in src_norm or src_norm in company_norm:
+    # Whole-word match in either direction
+    if names_overlap(company_norm, src_norm):
         return True
     # First word match (catches "Shell" in "Shell Pernis refinery")
     company_first = company_norm.split()[0] if company_norm.split() else company_norm
-    return len(company_first) >= 4 and company_first in src_norm
+    return len(company_first) >= 4 and contains_name(src_norm, company_first)
 
 
 def _fetch_sources_sync(gadm_id: str, company_norm: str) -> list[dict[str, Any]]:
