@@ -231,6 +231,7 @@ async def run(
     report_model: str = "claude-sonnet-5-5",
     dry_run: bool = False,
     extract_only: bool = False,
+    display_name: str | None = None,
 ) -> None:
     if dry_run:
         print("Prasine Index: Dry Run")
@@ -275,7 +276,11 @@ async def run(
     company_id = uuid.uuid5(uuid.NAMESPACE_DNS, company_name.lower())
     await _ensure_company(company_name, company_id)
 
-    pipeline = Pipeline(config=PipelineConfig(judge_model=judge_model, report_model=report_model))
+    pipeline = Pipeline(
+        config=PipelineConfig(
+            judge_model=judge_model, report_model=report_model, display_name=display_name
+        )
+    )
 
     try:
         if claim_text:
@@ -342,7 +347,7 @@ async def run(
         best = max(results, key=lambda r: r.score.score)
         best_path = _REPORTS_DIR / f"{slug}.md"
         header = _build_aggregate_header(
-            company_name,
+            display_name or company_name,
             company_score,
             results,
             failed_claims=pipeline.last_run_failed_claims,
@@ -425,6 +430,12 @@ if __name__ == "__main__":
         "before committing to a full Opus run.",
     )
     parser.add_argument(
+        "--display-name",
+        default=None,
+        help="The name the report gives the company, when it differs from --company, "
+        "the registered name the data sources are matched on and the report file is named by.",
+    )
+    parser.add_argument(
         "--local-copy",
         default=None,
         help="A local copy (PDF or HTML) of the document at --url, downloaded by a person "
@@ -453,5 +464,6 @@ if __name__ == "__main__":
             args.report_model,
             dry_run=args.dry_run,
             extract_only=args.extract_only,
+            display_name=args.display_name,
         )
     )

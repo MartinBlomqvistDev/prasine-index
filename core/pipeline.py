@@ -481,6 +481,13 @@ class PipelineConfig(BaseModel):
     report_model: str = Field(default="claude-sonnet-5-5")
     persist_traces: bool = Field(default=True)
     persist_claims: bool = Field(default=True)
+    display_name: str | None = Field(
+        default=None,
+        description=(
+            "The name the report gives the company, when it differs from the registered "
+            "name the data sources are matched on."
+        ),
+    )
 
 
 class PipelineResult(BaseModel):
@@ -916,10 +923,19 @@ class Pipeline:
             )
 
             # Step 5: Report
+            report_context = context_result.context
+            if self._config.display_name:
+                report_context = report_context.model_copy(
+                    update={
+                        "company": report_context.company.model_copy(
+                            update={"name": self._config.display_name}
+                        )
+                    }
+                )
             report_result = await self._report_agent.run(
                 ReportInput(
                     claim=claim,
-                    context=context_result.context,
+                    context=report_context,
                     verification=verification_result,
                     lobbying=lobbying_result.record,
                     score=judge_result.score,
