@@ -50,6 +50,10 @@ class CompanyScore(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0, description="Mean confidence across claims.")
     claim_count: int = Field(ge=1)
     claims: list[ClaimSummary]
+    mean_score: float | None = Field(
+        default=None,
+        description="The confidence-weighted mean before any floor; equals score unless floor_applied.",
+    )
     floor_applied: bool = Field(
         default=False,
         description=(

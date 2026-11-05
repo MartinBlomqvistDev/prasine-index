@@ -138,6 +138,19 @@ def _aggregate_label(n: int) -> str:
     return f"(confidence-weighted mean of the {_COUNT_WORDS[top]} highest-scoring of {n} claims)"
 
 
+def _score_label(company_score: CompanyScore) -> str:
+    """Name what produced the company score: the mean, or the floor it was raised to."""
+    label = _aggregate_label(company_score.claim_count)
+    if company_score.floor_applied and company_score.mean_score is not None:
+        mean = label.strip("()")
+        return (
+            f"(raised to {company_score.score:.0f}, the lower bound of the band of the "
+            f"highest-scoring claim; the {mean[0].lower()}{mean[1:]} is "
+            f"{company_score.mean_score:.0f})"
+        )
+    return label
+
+
 def _preview(text: str, limit: int = 160) -> str:
     """Shorten a claim at a word boundary, marking any cut with an ellipsis."""
     flat = " ".join(text.split())
@@ -159,17 +172,12 @@ def _build_aggregate_header(
     lines = [
         f"## {company_name}: Company Assessment ({n} claim{'s' if n != 1 else ''})",
         "",
-        f"**Overall Score: {company_score.score:.0f}/100** {_aggregate_label(n)}  ",
+        f"**Overall Score: {company_score.score:.0f}/100** {_score_label(company_score)}  ",
         f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f} "
         "(the same mean, over the judge's low and high estimate for each claim)  ",
         f"**Finding:** {finding_label(company_score.verdict)}  ",
         f"**Confidence:** {company_score.confidence:.0%}",
     ]
-    if company_score.floor_applied:
-        lines.append(
-            "\n*Score raised to the bottom of the band of the highest-scoring claim, "
-            "so that one claim's finding is not averaged away by milder claims.*"
-        )
     if failed_claims:
         lines.append(
             f"\n*{len(failed_claims)} additional claim(s) could not be completed "

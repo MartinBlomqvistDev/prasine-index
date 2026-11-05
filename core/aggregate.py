@@ -95,10 +95,11 @@ def aggregate_claim_scores(
     worst_score = max(s.score for s in summaries)
     floor = band_floor(worst_score)
     floor_applied = agg_score < floor
+    mean_score = agg_score
     if floor_applied:
+        # Only the score is raised. The range stays the mean of the judge's own low and
+        # high estimates, so it is what the published label says it is.
         agg_score = floor
-        agg_low = max(agg_low, floor)
-        agg_high = max(agg_high, floor)
 
     return CompanyScore(
         company_name=company_name,
@@ -111,4 +112,5 @@ def aggregate_claim_scores(
         claim_count=len(summaries),
         claims=summaries,
         floor_applied=floor_applied,
+        mean_score=round(mean_score, 1),
     )

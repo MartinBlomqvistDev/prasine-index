@@ -79,7 +79,8 @@ class TestAggregateFloor:
         assert company.score >= 81.0
         assert company.verdict == ScoreVerdict.CONFIRMED_GREENWASHING
         assert company.floor_applied is True
-        assert company.score_low >= 81.0
+        # The range stays the mean of the judge's estimates; only the score is raised.
+        assert company.mean_score is not None and company.mean_score < 81.0
 
     def test_misleading_claim_floors_out_of_unverifiable(self) -> None:
         """H&M case: worst claim 52 (misleading) floors the aggregate at 41."""
