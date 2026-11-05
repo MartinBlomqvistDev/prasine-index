@@ -448,9 +448,9 @@ class PipelineConfig(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    extraction_model: str = Field(default="claude-haiku-4-5-20251001")
-    judge_model: str = Field(default="claude-opus-4-8")
-    report_model: str = Field(default="claude-sonnet-5")
+    extraction_model: str = Field(default="claude-haiku-5-5")
+    judge_model: str = Field(default="claude-opus-5-5")
+    report_model: str = Field(default="claude-sonnet-5-5")
     persist_traces: bool = Field(default=True)
     persist_claims: bool = Field(default=True)
 

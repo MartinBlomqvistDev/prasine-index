@@ -2,8 +2,8 @@
 
 Receives the full evidence package (extracted claim, company context,
 verification results, and lobbying record) and uses the Anthropic SDK with
-forced tool use to produce a calibrated GreenwashingScore with chain-of-thought
-reasoning. Uses raw Anthropic SDK because the judging logic is the most sensitive
+tool use to produce a calibrated GreenwashingScore with a written explanation of
+the verdict. Uses raw Anthropic SDK because the judging logic is the most sensitive
 part of the pipeline: framework abstraction here would obscure what the model is
 being asked to do and make prompt iteration harder to audit.
 """
@@ -18,6 +18,12 @@ import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.logger import bind_trace_context, get_logger
+from core.model_requests import (
+    TOOL_CALL_ATTEMPTS,
+    fallback_body,
+    fallback_headers,
+    raise_if_refused,
+)
 from core.retry import (
     ExtractionError,
     LLMError,
@@ -96,11 +102,11 @@ _JUDGE_TOOL: anthropic.types.ToolParam = {
             "reasoning": {
                 "type": "string",
                 "description": (
-                    "Full chain-of-thought reasoning for the verdict. Be specific: "
-                    "cite the evidence records that drove the score, name the data "
-                    "sources, and explain any data gaps. This reasoning is preserved "
-                    "verbatim in the published report and may be cited in journalism "
-                    "or legal proceedings. Minimum 200 words."
+                    "Written explanation of the verdict for the reader of the report. "
+                    "Be specific: cite the evidence records that drove the score, name "
+                    "the data sources, and explain any data gaps. This explanation is "
+                    "published in the report and may be cited in journalism or legal "
+                    "proceedings. Minimum 200 words."
                 ),
             },
             "confidence": {
@@ -433,16 +439,15 @@ class JudgeResult(BaseModel):
 class JudgeAgent:
     """Produces a calibrated greenwashing verdict using LLM-as-judge.
 
-    Receives the full evidence package and uses the Anthropic SDK with forced
-    tool use to produce a :py:class:`~models.score.GreenwashingScore`. The
-    LLM is instructed to reason through each scoring dimension explicitly before
-    producing a final score, ensuring the chain-of-thought is preserved verbatim
-    in the output for audit and citation.
+    Receives the full evidence package and uses the Anthropic SDK with tool use
+    to produce a :py:class:`~models.score.GreenwashingScore`. The LLM scores
+    each dimension explicitly and writes an explanation of the verdict, which
+    is preserved in the output for audit and citation.
 
     Raw Anthropic SDK is used here, not LangGraph, because the judging logic
-    is the most legally sensitive step in the pipeline. Every token the model
-    produces is either part of the chain-of-thought reasoning (preserved in the
-    ``reasoning`` field) or part of the structured verdict. Framework abstraction
+    is the most legally sensitive step in the pipeline. The published output is
+    the written explanation (the ``reasoning`` field) and the structured
+    verdict; the model's own thinking is not published. Framework abstraction
     at this step would make it harder to audit, iterate on, and explain to a
     legal audience what exactly the model was asked to do.
 
@@ -455,19 +460,19 @@ class JudgeAgent:
     def __init__(
         self,
         client: anthropic.AsyncAnthropic,
-        model_id: str = "claude-haiku-4-5-20251001",
-        max_tokens: int = 8192,
+        model_id: str = "claude-haiku-5-5",
+        max_tokens: int = 16000,
     ) -> None:
         """Initialise the Judge Agent.
 
         Args:
             client: Configured async Anthropic client.
-            model_id: Model identifier. Defaults to ``claude-haiku-4-5-20251001``
-                for cost-efficient development. Switch to ``claude-opus-4-6`` for
-                production: the judge produces legally citable output and Opus
-                reasoning quality matters for calibration.
-            max_tokens: Maximum tokens. 8192 accommodates verbose chain-of-thought
-                reasoning for complex multi-source verdicts.
+            model_id: Model identifier. Defaults to ``claude-haiku-5-5`` for
+                cost-efficient development. The pipeline runs ``claude-opus-5-5``
+                in production: the judge produces legally citable output and
+                Opus quality matters for calibration.
+            max_tokens: Maximum tokens. Thinking counts toward the limit, so it
+                leaves room for thinking as well as a long explanation.
         """
         self._client = client
         self._model_id = model_id
@@ -554,8 +559,10 @@ class JudgeAgent:
     async def _call_llm(self, input: JudgeInput) -> tuple[dict[str, Any], int]:
         """Call the Anthropic API to produce the verdict.
 
-        Builds a detailed user message from the full evidence package and
-        forces the model to respond via the ``produce_verdict`` tool.
+        Builds a detailed user message from the full evidence package, which
+        asks for the verdict through the ``produce_verdict`` tool. Current
+        models reject a forced ``tool_choice``, so the request leaves it on
+        ``auto`` and is sent again if the model answers without the tool.
 
         Args:
             input: The complete evidence package.
@@ -564,62 +571,74 @@ class JudgeAgent:
             A tuple of (verdict_dict, tokens_used).
 
         Raises:
-            :py:class:`~core.retry.LLMError`: On API failure or missing tool block.
+            :py:class:`~core.retry.LLMError`: On API failure, a refusal, a
+                truncated response, or no tool call after every attempt.
         """
         user_message = _build_judge_prompt(input)
+        tokens_used = 0
 
-        try:
-            response = await self._client.messages.create(
-                model=self._model_id,
-                max_tokens=self._max_tokens,
-                system=[
-                    {
-                        "type": "text",
-                        "text": _SYSTEM_PROMPT,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                tools=[_JUDGE_TOOL],
-                tool_choice=anthropic.types.ToolChoiceToolParam(type="tool", name=_JUDGE_TOOL_NAME),
-                messages=[{"role": "user", "content": user_message}],
+        for attempt in range(1, TOOL_CALL_ATTEMPTS + 1):
+            try:
+                response = await self._client.messages.create(
+                    model=self._model_id,
+                    max_tokens=self._max_tokens,
+                    system=[
+                        {
+                            "type": "text",
+                            "text": _SYSTEM_PROMPT,
+                            "cache_control": {"type": "ephemeral"},
+                        }
+                    ],
+                    tools=[_JUDGE_TOOL],
+                    output_config={"effort": "high"},
+                    messages=[{"role": "user", "content": user_message}],
+                    extra_headers=fallback_headers(self._model_id),
+                    extra_body=fallback_body(self._model_id),
+                )
+            except anthropic.APIStatusError as exc:
+                raise classify_anthropic_error(
+                    exc,
+                    agent=AgentName.JUDGE.value,
+                    llm_model_id=self._model_id,
+                ) from exc
+
+            raise_if_refused(response, agent=AgentName.JUDGE.value, model_id=self._model_id)
+            tokens_used += response.usage.input_tokens + response.usage.output_tokens
+
+            if response.stop_reason == "max_tokens":
+                raise LLMError(
+                    message=(
+                        f"Judge response truncated at max_tokens={self._max_tokens}, "
+                        "the verdict tool call is incomplete. Increase max_tokens rather "
+                        "than retrying the same request."
+                    ),
+                    agent=AgentName.JUDGE.value,
+                    retryable=False,
+                    llm_model_id=self._model_id,
+                )
+
+            tool_block = next(
+                (b for b in response.content if b.type == "tool_use"),
+                None,
             )
-        except anthropic.APIStatusError as exc:
-            raise classify_anthropic_error(
-                exc,
-                agent=AgentName.JUDGE.value,
-                llm_model_id=self._model_id,
-            ) from exc
+            if tool_block is not None:
+                return tool_block.input, tokens_used
 
-        tokens_used = response.usage.input_tokens + response.usage.output_tokens
-
-        if response.stop_reason == "max_tokens":
-            raise LLMError(
-                message=(
-                    f"Judge response truncated at max_tokens={self._max_tokens}, "
-                    "the verdict tool call is incomplete. Increase max_tokens rather "
-                    "than retrying the same request."
-                ),
-                agent=AgentName.JUDGE.value,
-                retryable=False,
-                llm_model_id=self._model_id,
+            logger.warning(
+                f"Judge answered without calling {_JUDGE_TOOL_NAME} "
+                f"(attempt {attempt}/{TOOL_CALL_ATTEMPTS})",
+                extra={"operation": "judge_no_tool_call", "stop_reason": response.stop_reason},
             )
 
-        tool_block = next(
-            (b for b in response.content if b.type == "tool_use"),
-            None,
+        raise LLMError(
+            message=(
+                f"Judge model {self._model_id} returned no tool use block after "
+                f"{TOOL_CALL_ATTEMPTS} attempts."
+            ),
+            agent=AgentName.JUDGE.value,
+            retryable=False,
+            llm_model_id=self._model_id,
         )
-        if tool_block is None:
-            raise LLMError(
-                message=(
-                    f"Judge model {self._model_id} returned no tool use block. "
-                    f"Stop reason: {response.stop_reason!r}."
-                ),
-                agent=AgentName.JUDGE.value,
-                retryable=False,
-                llm_model_id=self._model_id,
-            )
-
-        return tool_block.input, tokens_used
 
     def _build_score(self, verdict: dict[str, Any], input: JudgeInput) -> GreenwashingScore:
         """Construct a GreenwashingScore from the LLM tool response.

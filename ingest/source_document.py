@@ -27,6 +27,7 @@ import anthropic
 import httpx
 
 from core.logger import get_logger
+from core.model_requests import TOOL_CALL_ATTEMPTS
 from core.retry import DataSourceError
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -36,6 +37,7 @@ __all__ = ["fetch_source_document_data"]
 logger = get_logger(__name__)
 
 _TOOL_NAME = "extract_climate_disclosures"
+_MODEL_ID = "claude-haiku-5-5"
 _MAX_HTML_CHARS = 80_000
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 _FETCH_TIMEOUT = 45.0
@@ -254,28 +256,43 @@ async def fetch_source_document_data(
             "text": (
                 f'\nCLAIM UNDER ASSESSMENT:\n"{claim.raw_text}"\n\n'
                 "Extract all climate and net-zero disclosures from this document "
-                "as they relate to the claim above."
+                f"as they relate to the claim above. Call the {_TOOL_NAME} tool once "
+                "with your findings."
             ),
         }
     )
 
-    try:
-        response = await client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=2048,
-            system=_SYSTEM_PROMPT,
-            tools=[_EXTRACTION_TOOL],
-            tool_choice=anthropic.types.ToolChoiceToolParam(type="tool", name=_TOOL_NAME),
-            messages=[{"role": "user", "content": content_blocks}],  # type: ignore[typeddict-item]
-        )
-    except anthropic.APIStatusError as exc:
-        raise DataSourceError(
-            message=f"Anthropic API error analysing source document: {exc.status_code}",
-            source="SOURCE_DOCUMENT",
-            status_code=exc.status_code,
-        ) from exc
+    # Current models reject a forced tool_choice, so the request asks for the
+    # tool in the prompt and is sent again if the model answers without it.
+    tool_block: anthropic.types.ToolUseBlock | None = None
+    for _attempt in range(TOOL_CALL_ATTEMPTS):
+        try:
+            response = await client.messages.create(  # type: ignore[call-overload]
+                model=_MODEL_ID,
+                max_tokens=16000,
+                system=_SYSTEM_PROMPT,
+                tools=[_EXTRACTION_TOOL],
+                output_config={"effort": "medium"},
+                messages=[{"role": "user", "content": content_blocks}],
+            )
+        except anthropic.APIStatusError as exc:
+            raise DataSourceError(
+                message=f"Anthropic API error analysing source document: {exc.status_code}",
+                source="SOURCE_DOCUMENT",
+                status_code=exc.status_code,
+            ) from exc
 
-    tool_block = next((b for b in response.content if b.type == "tool_use"), None)
+        if response.stop_reason == "refusal":
+            raise DataSourceError(
+                message="The model declined to analyse the source document.",
+                source="SOURCE_DOCUMENT",
+                retryable=False,
+            )
+
+        tool_block = next((b for b in response.content if b.type == "tool_use"), None)
+        if tool_block is not None:
+            break
+
     if tool_block is None:
         logger.warning(
             "Source document analysis returned no tool block",

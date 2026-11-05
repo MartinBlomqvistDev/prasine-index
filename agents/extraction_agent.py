@@ -20,6 +20,7 @@ import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.logger import bind_trace_context, get_logger
+from core.model_requests import TOOL_CALL_ATTEMPTS, raise_if_refused
 from core.retry import (
     LLMError,
     RetryConfig,
@@ -302,20 +303,20 @@ class ExtractionAgent:
     def __init__(
         self,
         client: anthropic.AsyncAnthropic,
-        model_id: str = "claude-haiku-4-5-20251001",
-        max_tokens: int = 4096,
+        model_id: str = "claude-haiku-5-5",
+        max_tokens: int = 16000,
     ) -> None:
         """Initialise the Extraction Agent.
 
         Args:
             client: Configured async Anthropic client. The caller is responsible
                 for lifecycle management (the client is not closed by this agent).
-            model_id: Anthropic model identifier. Defaults to ``claude-haiku-4-5-20251001``
-                for cost-efficient extraction. Use ``claude-opus-4-6``
-                in development to reduce latency and cost.
-            max_tokens: Maximum tokens to request in the completion. The default
-                of 4096 accommodates documents with a large number of claims.
-                Increase for unusually claim-dense CSRD reports.
+            model_id: Anthropic model identifier. Defaults to ``claude-haiku-5-5``
+                for cost-efficient extraction.
+            max_tokens: Maximum tokens to request in the completion. Thinking
+                counts toward the limit, so it leaves room for thinking as well
+                as a long claim list. Increase for unusually claim-dense CSRD
+                reports.
         """
         self._client = client
         self._model_id = model_id
@@ -443,12 +444,12 @@ class ExtractionAgent:
 
     @retry_async(config=RetryConfig.DEFAULT_LLM, operation="extraction_llm_call")
     async def _call_llm(self, document: str) -> tuple[list[dict[str, Any]], int]:
-        """Call the Anthropic API with forced tool use to extract claims.
+        """Call the Anthropic API with tool use to extract claims.
 
-        Forces the model to call the ``extract_green_claims`` tool exactly once
-        by setting ``tool_choice`` to the specific tool name. This guarantees
-        that the response is always a tool use block; there is no fallback text
-        path to handle. The tool input contains the structured claims list.
+        The system prompt asks the model to call the ``extract_green_claims``
+        tool exactly once. Current models reject a forced ``tool_choice``, so
+        the request leaves it on ``auto`` and is sent again if the model answers
+        without the tool. The tool input contains the structured claims list.
 
         Args:
             document: Full text content of the document to analyse.
@@ -464,62 +465,77 @@ class ExtractionAgent:
             :py:class:`~core.retry.LLMError`: If the API call fails or the
                 response does not contain the expected tool use block.
         """
-        try:
-            response = await self._client.messages.create(
-                model=self._model_id,
-                max_tokens=self._max_tokens,
-                system=[
-                    {
-                        "type": "text",
-                        "text": _SYSTEM_PROMPT,
-                        "cache_control": {"type": "ephemeral"},
-                    }
-                ],
-                tools=[_EXTRACT_TOOL],
-                tool_choice=anthropic.types.ToolChoiceToolParam(
-                    type="tool", name=_EXTRACT_TOOL_NAME
-                ),
-                messages=[
-                    {
-                        "role": "user",
-                        "content": (
-                            "Please extract all green claims from the following document.\n\n"
-                            f"{document}"
-                        ),
-                    }
-                ],
+        tokens_used = 0
+        tool_block: anthropic.types.ToolUseBlock | None = None
+
+        for attempt in range(1, TOOL_CALL_ATTEMPTS + 1):
+            try:
+                response = await self._client.messages.create(
+                    model=self._model_id,
+                    max_tokens=self._max_tokens,
+                    system=[
+                        {
+                            "type": "text",
+                            "text": _SYSTEM_PROMPT,
+                            "cache_control": {"type": "ephemeral"},
+                        }
+                    ],
+                    tools=[_EXTRACT_TOOL],
+                    output_config={"effort": "medium"},
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": (
+                                "Please extract all green claims from the following document.\n\n"
+                                f"{document}"
+                            ),
+                        }
+                    ],
+                )
+            except anthropic.APIStatusError as exc:
+                raise classify_anthropic_error(
+                    exc,
+                    agent=AgentName.EXTRACTION.value,
+                    llm_model_id=self._model_id,
+                ) from exc
+
+            raise_if_refused(response, agent=AgentName.EXTRACTION.value, model_id=self._model_id)
+            tokens_used += response.usage.input_tokens + response.usage.output_tokens
+
+            if response.stop_reason == "max_tokens":
+                raise LLMError(
+                    message=(
+                        f"Extraction response truncated at max_tokens={self._max_tokens}, "
+                        "the tool call is incomplete. Increase max_tokens for claim-dense "
+                        "documents rather than retrying the same request."
+                    ),
+                    agent=AgentName.EXTRACTION.value,
+                    retryable=False,
+                    llm_model_id=self._model_id,
+                )
+
+            tool_block = next(
+                (block for block in response.content if block.type == "tool_use"),
+                None,
             )
-        except anthropic.APIStatusError as exc:
-            raise classify_anthropic_error(
-                exc,
-                agent=AgentName.EXTRACTION.value,
-                llm_model_id=self._model_id,
-            ) from exc
+            if tool_block is not None:
+                break
 
-        tokens_used = response.usage.input_tokens + response.usage.output_tokens
-
-        if response.stop_reason == "max_tokens":
-            raise LLMError(
-                message=(
-                    f"Extraction response truncated at max_tokens={self._max_tokens}, "
-                    "the tool call is incomplete. Increase max_tokens for claim-dense "
-                    "documents rather than retrying the same request."
-                ),
-                agent=AgentName.EXTRACTION.value,
-                retryable=False,
-                llm_model_id=self._model_id,
+            logger.warning(
+                f"Extraction answered without calling {_EXTRACT_TOOL_NAME} "
+                f"(attempt {attempt}/{TOOL_CALL_ATTEMPTS})",
+                extra={
+                    "operation": "extraction_no_tool_call",
+                    "stop_reason": response.stop_reason,
+                },
             )
 
-        tool_block = next(
-            (block for block in response.content if block.type == "tool_use"),
-            None,
-        )
         if tool_block is None:
             raise LLMError(
                 message=(
-                    f"Anthropic response for model {self._model_id} contained no tool use block. "
-                    f"Stop reason: {response.stop_reason!r}. "
-                    "This indicates a prompt or model behaviour change and requires investigation."
+                    f"Anthropic response for model {self._model_id} contained no tool use block "
+                    f"after {TOOL_CALL_ATTEMPTS} attempts. This indicates a prompt or model "
+                    "behaviour change and requires investigation."
                 ),
                 agent=AgentName.EXTRACTION.value,
                 retryable=False,

@@ -18,6 +18,7 @@ import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.logger import bind_trace_context, get_logger
+from core.model_requests import fallback_body, fallback_headers, raise_if_refused
 from core.retry import (
     LLMError,
     RetryConfig,
@@ -213,15 +214,17 @@ class ReportAgent:
     def __init__(
         self,
         client: anthropic.AsyncAnthropic,
-        model_id: str = "claude-haiku-4-5-20251001",
-        max_tokens: int = 4096,
+        model_id: str = "claude-haiku-5-5",
+        max_tokens: int = 16000,
     ) -> None:
         """Initialise the Report Agent.
 
         Args:
             client: Configured async Anthropic client.
-            model_id: Model identifier. Defaults to ``claude-haiku-4-5-20251001``.
-            max_tokens: Maximum tokens for the generated report.
+            model_id: Model identifier. Defaults to ``claude-haiku-5-5``.
+            max_tokens: Maximum tokens for the generated report. Thinking counts
+                toward the limit, so it leaves room for thinking as well as the
+                full report.
         """
         self._client = client
         self._model_id = model_id
@@ -326,7 +329,10 @@ class ReportAgent:
                         "cache_control": {"type": "ephemeral"},
                     }
                 ],
+                output_config={"effort": "medium"},
                 messages=[{"role": "user", "content": user_message}],
+                extra_headers=fallback_headers(self._model_id),
+                extra_body=fallback_body(self._model_id),
             )
         except anthropic.APIStatusError as exc:
             raise classify_anthropic_error(
@@ -335,6 +341,7 @@ class ReportAgent:
                 llm_model_id=self._model_id,
             ) from exc
 
+        raise_if_refused(response, agent=AgentName.REPORT.value, model_id=self._model_id)
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
         if response.stop_reason == "max_tokens":
@@ -344,7 +351,8 @@ class ReportAgent:
                 extra={"operation": "report_truncated", "max_tokens": self._max_tokens},
             )
 
-        report_text = "".join(block.text for block in response.content if hasattr(block, "text"))
+        # Thinking blocks come first on current models; only text blocks are report.
+        report_text = "".join(block.text for block in response.content if block.type == "text")
 
         if not report_text.strip():
             raise LLMError(
