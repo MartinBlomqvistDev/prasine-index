@@ -112,7 +112,7 @@ class _TPIRecord:
             "2": "Building Capacity",
             "3": "Integrated into Operational Decision Making",
             "4": "Strategic Assessment",
-            "4STAR": "Strategic Assessment, 4*",
+            "4STAR": "Strategic Assessment",
             "5": "Transition Planning and Implementation",
         }
         return labels.get(
@@ -264,7 +264,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
     summary = (
         f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}"
         f"{'; ' + dates if dates else ''}): "
-        f"Management Quality Level {rec.mq_level} ({rec.mq_label}). "
+        f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}). "
         f"Carbon Performance alignment: {cp_summary}."
     )
 

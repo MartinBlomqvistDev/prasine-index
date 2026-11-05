@@ -229,7 +229,8 @@ def _investors(evidence: list[Evidence]) -> str:
         assessed = raw.get("cp_assessed") or raw.get("mq_assessed")
         when = f", assessed {assessed}" if assessed else ""
         lines.append(
-            f"TPI ({raw.get('sector')}{when}): Management Quality Level {raw.get('mq_level')} "
+            f"TPI ({raw.get('sector')}{when}): Management Quality Level "
+            f"{str(raw.get('mq_level') or '').replace('STAR', '*')} "
             f"({raw.get('mq_label')}); carbon performance "
             f"{raw.get('cp_alignment_2025') or 'not assessed'} for 2025, "
             f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
