@@ -1,21 +1,16 @@
-"""Climate Action 100+ (CA100+) benchmark assessment ingest module.
+"""Climate Action 100+ (CA100+) Net Zero Company Benchmark ingest module.
 
-Loads the CA100+ Net Zero Company Benchmark results from data/ca100_companies.csv,
-downloaded via scripts/refresh_ca100.py. CA100+ is the world's largest investor-led
-initiative, tracking 170 of the highest-emitting listed companies against a
-standardised net-zero benchmark.
+Loads the benchmark's assessments from data/ca100_companies.csv, which
+scripts/refresh_ca100.py writes from the data sheet CA100+ publishes with each
+benchmark. CA100+ is an investor-led initiative; its benchmark assesses the
+highest-emitting listed companies on ten indicators, from a net zero ambition and
+targets to capital allocation, climate policy engagement and historical
+emissions reductions. The TPI Centre, InfluenceMap and the World Benchmarking
+Alliance assess the indicators from company disclosures.
 
-CA100+ provides independent third-party assessments of whether companies have:
-  - A credible net-zero ambition aligned to 1.5°C
-  - Near-, medium-, and long-term decarbonisation targets
-  - Capital expenditure aligned to a net-zero pathway
-  - Transparent and positive climate policy engagement
+Each record names the benchmark it comes from and links the company's
+assessment page on climateaction100.org.
 
-A company claiming net-zero ambition while rated "Not Aligned" by CA100+ is a
-strong third-party contradiction, assessed by the largest institutional investor
-coalition in the world (700+ investors, $68 trillion AUM).
-
-Data source: climateaction100.org/companies
 Refresh: python scripts/refresh_ca100.py
 """
 
@@ -31,7 +26,7 @@ from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_ca100_data", "refresh_cache"]
+__all__ = ["describe_indicators", "fetch_ca100_data", "refresh_cache"]
 
 logger = get_logger(__name__)
 
@@ -102,6 +97,31 @@ _COL_LOBBYING = (
     "Policy Engagement",
 )
 _COL_YEAR = ("Year", "year", "Assessment Year", "Benchmark Year")
+_COL_BENCHMARK = ("Benchmark",)
+_COL_PAGE = ("Assessment Page",)
+
+_BENCHMARK_PAGE = "https://www.climateaction100.org/net-zero-company-benchmark/"
+
+# The benchmark's ten indicators: the CSV column and the indicator's name in prose,
+# in the benchmark's order. A CSV from an earlier edition may hold only some.
+_INDICATORS: tuple[tuple[str, str], ...] = (
+    ("Net Zero Ambition Benchmark", "net zero by 2050 ambition"),
+    ("Long-term Target", "long-term target (2036 to 2050)"),
+    ("Medium-term Target", "medium-term target (2031 to 2035)"),
+    ("Short-term Target", "short-term target (up to 2030)"),
+    ("Decarbonisation Strategy", "decarbonisation strategy"),
+    ("Capex Alignment", "capital allocation"),
+    ("Climate Policy Engagement", "climate policy engagement"),
+    ("Climate Governance", "climate governance"),
+    ("Just Transition", "just transition"),
+    ("Historical Emissions Reductions", "historical emissions reductions"),
+)
+# What the data sheet's progress column says, in prose. "No change in score" and
+# "Not Applicable" add nothing to the score.
+_CHANGES = {
+    "decline in score": "lower than in the previous benchmark",
+    "improvement in score": "higher than in the previous benchmark",
+}
 
 # ---------------------------------------------------------------------------
 # Assessment value normalisation
@@ -149,13 +169,16 @@ class _CA100Record:
     """Internal representation of one CA100+ benchmark result."""
 
     __slots__ = (
+        "benchmark",
         "capex_alignment",
         "climate_lobbying",
         "company",
         "country",
+        "indicators",
         "isin",
         "long_term_target",
         "nz_ambition",
+        "page",
         "sector",
         "short_term_target",
         "ticker",
@@ -175,6 +198,9 @@ class _CA100Record:
         capex_alignment: str,
         climate_lobbying: str,
         year: int | None,
+        benchmark: str = "",
+        page: str = "",
+        indicators: list[dict[str, str]] | None = None,
     ) -> None:
         self.company = company
         self.sector = sector
@@ -187,6 +213,9 @@ class _CA100Record:
         self.capex_alignment = capex_alignment
         self.climate_lobbying = climate_lobbying
         self.year = year
+        self.benchmark = benchmark or (f"{year}" if year else "")
+        self.page = page or _BENCHMARK_PAGE
+        self.indicators = indicators or []
 
     def _classify(self, value: str) -> str:
         """Classify a benchmark value as ALIGNED / PARTIAL / NOT_ALIGNED / UNKNOWN."""
@@ -292,6 +321,19 @@ def _build_records(
             capex_alignment=_pick(row, _COL_CAPEX),
             climate_lobbying=_pick(row, _COL_LOBBYING),
             year=year,
+            benchmark=_pick(row, _COL_BENCHMARK),
+            page=_pick(row, _COL_PAGE),
+            indicators=[
+                {
+                    "indicator": label,
+                    "score": row[column].strip(),
+                    "change": _CHANGES.get(
+                        (row.get(f"{column} Progress") or "").strip().lower(), ""
+                    ),
+                }
+                for column, label in _INDICATORS
+                if (row.get(column) or "").strip()
+            ],
         )
 
         norm = _normalise_name(company)
@@ -403,11 +445,7 @@ def _lookup(name: str, isin: str | None, ticker: str | None) -> _CA100Record | N
 
 
 async def fetch_ca100_data(claim: Claim, company: object) -> list[Evidence]:
-    """Return CA100+ net-zero benchmark assessment for a company.
-
-    CA100+ is assessed by 700+ institutional investors representing $68 trillion AUM.
-    A company claiming net-zero ambition while rated "Not Aligned" by CA100+ is a
-    strong investor-consensus contradiction of that claim.
+    """Return the CA100+ Net Zero Company Benchmark assessment of a company.
 
     Args:
         claim: The claim under assessment.
@@ -449,8 +487,10 @@ async def fetch_ca100_data(claim: Claim, company: object) -> list[Evidence]:
             trace_id=claim.trace_id,
             source=EvidenceSource.CA100,
             evidence_type=EvidenceType.BENCHMARK_ASSESSMENT,
-            source_url="https://www.climateaction100.org/company-responses/",
+            source_url=record.page,
             raw_data={
+                "benchmark": record.benchmark,
+                "indicators": record.indicators,
                 "company": record.company,
                 "sector": record.sector,
                 "country": record.country,
@@ -494,10 +534,29 @@ def _assess_record(record: _CA100Record) -> tuple[bool | None, float]:
 
 
 def _build_summary(company_name: str, record: _CA100Record) -> str:
-    year_str = f" ({record.year} benchmark)" if record.year else ""
     return (
-        f"CA100+ Net Zero Company Benchmark for {company_name}{year_str}: "
-        f"Net Zero Ambition = {record.nz_ambition or 'not assessed'}; "
-        f"Capex Alignment = {record.capex_alignment or 'not assessed'}; "
-        f"Short-term target = {record.short_term_target or 'not assessed'}."
+        f"Climate Action 100+ Net Zero Company Benchmark for {company_name}: "
+        f"{describe_indicators({'benchmark': record.benchmark, 'indicators': record.indicators})}"
     )
+
+
+def describe_indicators(raw_data: dict[str, object]) -> str:
+    """State a CA100+ record's benchmark and every indicator it scores, in prose.
+
+    Args:
+        raw_data: The raw_data of a CA100+ Evidence record.
+
+    Returns:
+        For example "October 2026 benchmark: net zero by 2050 ambition No, lower
+        than in the previous benchmark; long-term target (2036 to 2050) Partial; ..."
+    """
+    benchmark = str(raw_data.get("benchmark") or "")
+    indicators = raw_data.get("indicators")
+    if not isinstance(indicators, list) or not indicators:
+        return f"{benchmark} benchmark: no indicator scores.".lstrip()
+    scores = "; ".join(
+        f"{item['indicator']} {item['score']}"
+        + (f", {item['change']}" if item.get("change") else "")
+        for item in indicators
+    )
+    return f"{benchmark} benchmark: {scores}.".lstrip()
