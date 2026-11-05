@@ -112,7 +112,8 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
         )
         return (
             line,
-            f"LobbyMap rates its climate policy engagement {band}, within its obstructive range",
+            f"LobbyMap rates the company's climate policy engagement {band}, within the range it "
+            "defines as obstructive",
         )
     line = (
         f"LobbyMap band {band}{when}, outside the range it defines as obstructive "
@@ -120,7 +121,8 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
     )
     return (
         line,
-        f"LobbyMap rates its climate policy engagement {band}, outside its obstructive range",
+        f"LobbyMap rates the company's climate policy engagement {band}, outside the range it "
+        "defines as obstructive",
     )
 
 
@@ -167,7 +169,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         line = "Not listed in the fossil fuel exit lists or in development in the asset trackers."
         return (
             line,
-            "the fossil fuel exit lists and asset trackers do not list it as expanding supply",
+            "neither the fossil fuel exit lists nor the asset trackers record it as expanding supply",
         )
     if expanding:
         return " ".join(lines), "the exit lists or asset trackers record new fossil fuel supply"

@@ -45,24 +45,25 @@ class TestPractices:
         )
         assert "the exit lists or asset trackers record new fossil fuel supply" in record
         assert (
-            "LobbyMap rates its climate policy engagement D, within its obstructive range" in record
+            "LobbyMap rates the company's climate policy engagement D, within the range it defines as obstructive"
+            in record
         )
         assert "Global Coal Exit List: listed as expanding (https://example.org/record)." in record
 
     def test_a_company_not_on_the_lists(self) -> None:
         record = render_company_record([])
-        assert "do not list it as expanding supply" in record
+        assert "nor the asset trackers record it as expanding supply" in record
         assert "LobbyMap has no rating for the company" in record
 
     def test_d_plus_is_outside_lobbymaps_obstructive_range(self) -> None:
         record = render_company_record([_evidence(EvidenceSource.LOBBY_MAP, performance_band="D+")])
-        assert "D+, outside its obstructive range" in record
+        assert "D+, outside the range it defines as obstructive" in record
 
     def test_repeated_records_from_several_claims_count_once(self) -> None:
         lobbying = [_evidence(EvidenceSource.LOBBY_MAP, performance_band="B") for _ in range(3)]
         record = render_company_record(lobbying)
         assert record.count("LobbyMap band B") == 1
-        assert "outside its obstructive range" in record
+        assert "outside the range it defines as obstructive" in record
 
 
 class TestTrackRecord:
