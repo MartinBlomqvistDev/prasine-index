@@ -29,7 +29,7 @@ import os
 from pathlib import Path
 
 from core.logger import get_logger
-from ingest.name_matching import contains_name
+from ingest.name_matching import contains_name, fold_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -110,7 +110,7 @@ def refresh_cache() -> None:
 
 
 def _normalise_name(name: str) -> str:
-    name = name.lower().strip()
+    name = fold_name(name)
     for suffix in (
         " plc",
         " ag",
@@ -210,7 +210,7 @@ def _lookup(company_name: str) -> _TRRecord | None:
         return cache[norm]
 
     # Whole-word fallback
-    if len(norm) >= 5:
+    if len(norm) >= 4 or "&" in norm:
         for key, record in cache.items():
             if contains_name(key, norm):
                 return record

@@ -24,7 +24,7 @@ import time
 from pathlib import Path
 
 from core.logger import get_logger
-from ingest.name_matching import contains_name
+from ingest.name_matching import contains_name, fold_name
 from models.claim import Claim
 from models.company import Company
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -164,7 +164,7 @@ def _pick(row: dict[str, str], candidates: tuple[str, ...]) -> str:
 
 def _normalise_name(name: str) -> str:
     """Lowercase and strip legal suffixes for fuzzy matching."""
-    name = name.lower().strip()
+    name = fold_name(name)
     for suffix in (
         " plc",
         " ag",
@@ -283,7 +283,7 @@ def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
         return by_name[norm]
 
     # Partial whole-word match as last resort
-    if len(norm) >= 5:
+    if len(norm) >= 4 or "&" in norm:
         for key, record in by_name.items():
             if contains_name(key, norm):
                 return record

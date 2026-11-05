@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import Any
 
 from core.logger import get_logger
-from ingest.name_matching import contains_name, names_overlap
+from ingest.name_matching import contains_name, fold_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -173,7 +173,7 @@ def _load() -> list[_TPIRecord]:
 
 
 def _normalise(name: str) -> str:
-    return name.lower().strip()
+    return fold_name(name)
 
 
 def _name_matches(company_norm: str, record_name: str) -> bool:

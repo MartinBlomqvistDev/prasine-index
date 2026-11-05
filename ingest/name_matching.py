@@ -10,8 +10,31 @@ matches ("ryanair" in "ryanair dac") without matching inside another word.
 from __future__ import annotations
 
 import re
+import unicodedata
 
-__all__ = ["contains_name", "names_overlap"]
+__all__ = ["contains_name", "fold_name", "names_overlap"]
+
+_TRANSLITERATE = str.maketrans({"ø": "o", "æ": "ae", "œ": "oe", "ß": "ss", "ł": "l", "đ": "d"})
+
+
+def fold_name(name: str) -> str:
+    """Lowercase a company name and fold the ways the same name gets written.
+
+    Letters with diacritics become their base letter (Ørsted and Orsted), dots
+    in abbreviations go (p.l.c. and plc, S.p.A. and SpA), and "&" loses the
+    spaces around it (H & M and H&M), so one company written two ways compares
+    equal. Apply it to both sides of a comparison.
+
+    Args:
+        name: A company name as a dataset writes it.
+
+    Returns:
+        The folded name.
+    """
+    text = unicodedata.normalize("NFKD", name.lower().translate(_TRANSLITERATE))
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = re.sub(r"\s*&\s*", "&", text.replace(".", ""))
+    return " ".join(text.split())
 
 
 def contains_name(haystack: str, needle: str) -> bool:

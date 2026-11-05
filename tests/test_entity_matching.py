@@ -76,10 +76,11 @@ class TestNordicSuffixes:
         from ingest.eprtr import _normalise_name as eprtr_norm
         from ingest.fossil_finance import _normalise_name as ff_norm
         from ingest.lobby_map import _normalise_name as lm_norm
+        from ingest.name_matching import fold_name
         from ingest.sbti import _normalise_name as sbti_norm
 
         for norm in (sbti_norm, cdp_norm, eprtr_norm, ff_norm, lm_norm):
-            assert norm("Ørsted A/S") == "ørsted"
+            assert fold_name(norm("Ørsted A/S")) == "orsted"
             assert norm("SSAB AB") == "ssab"
 
     def test_slug_handles_danish_o(self) -> None:
@@ -178,3 +179,15 @@ class TestWholeWordMatching:
         from ingest.name_matching import contains_name
 
         assert not contains_name("anything", "")
+
+
+class TestFoldName:
+    """One company written two ways compares equal after folding."""
+
+    def test_spelling_variants_fold_together(self) -> None:
+        from ingest.name_matching import fold_name
+
+        assert fold_name("Ørsted A/S") == fold_name("Orsted A/S")
+        assert fold_name("BP p.l.c.") == "bp plc"
+        assert fold_name("H & M Hennes & Mauritz AB") == "h&m hennes&mauritz ab"
+        assert fold_name("  Enel  S.p.A. ") == "enel spa"
