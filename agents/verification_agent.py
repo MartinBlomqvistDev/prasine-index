@@ -535,13 +535,14 @@ async def _node_fetch_coal_exit(state: VerificationState) -> dict[str, Any]:
 
 
 async def _node_fetch_enforcement(state: VerificationState) -> dict[str, Any]:
-    """LangGraph node: look up national and EU enforcement rulings for the company.
+    """LangGraph node: look up enforcement records for the company.
 
-    Queries the static enforcement rulings database for confirmed bans, fines,
-    misleading-claim rulings, and active investigations from ASA, ACM, AGCM, CMA,
-    courts, and the European Commission. A confirmed ruling from a regulator is the
-    strongest possible evidence: it means an authority has already independently
-    determined that the company's green claims were unsubstantiated.
+    Returns the verified records in :py:mod:`ingest.enforcement_records`:
+    rulings, commitments, warnings and cases from advertising regulators,
+    consumer authorities, courts and the European Commission, each with a
+    verbatim quote from the official source. A record concerns earlier
+    marketing unless the scoring rules establish that it concerns the claim
+    under assessment.
 
     Args:
         state: Current verification graph state.
