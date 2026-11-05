@@ -158,6 +158,15 @@ h1, h2 {
 }
 
 /* ── Report body ── */
+.report-body p,
+.report-body li { line-height: 1.7; }
+.report-body p + p,
+.report-body p + ul,
+.report-body ul + p { margin-top: 14px; }
+.report-body ul { padding-left: 24px; }
+.report-body li + li { margin-top: 6px; }
+.report-body a { text-decoration: underline; }
+.report-body a:hover { color: var(--green); }
 .report-body h2 {
   font-size: 1.0625rem;
   color: var(--faint);

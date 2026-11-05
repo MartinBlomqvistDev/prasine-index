@@ -36,7 +36,7 @@ export default function MethodologyPage() {
           <p style={{ fontSize: 14, lineHeight: 1.7 }}>
             A review on 3 November 2026 found that parts of this page do not match how
             the pipeline works. It will be rewritten alongside the corrected
-            assessments. <a href="/#notice">Read the notice</a>.
+            assessments. <a href="/corrections">Read the corrections</a>.
           </p>
         </div>
 

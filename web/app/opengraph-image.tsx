@@ -47,7 +47,7 @@ export default function Image() {
             display: 'flex',
           }}
         >
-          Every green claim. Verified against reality.
+          Climate claims, checked against public records.
         </div>
 
         <div

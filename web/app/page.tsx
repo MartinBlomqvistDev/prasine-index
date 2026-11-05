@@ -6,6 +6,8 @@ export const metadata = {
   alternates: { canonical: '/' },
 }
 
+const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+
 function verdictFromString(v: string): { cls: string; label: string } {
   const u = v.toUpperCase()
   if (u.includes('CONFIRMED'))    return { cls: 'confirmed',    label: 'Confirmed'          }
@@ -17,15 +19,6 @@ function verdictFromString(v: string): { cls: string; label: string } {
 
 export default function HomePage() {
   const summaries = loadReportSummaries(PUBLISHED_SLUGS).sort((a, b) => b.score - a.score)
-
-  const counts = { confirmed: 0, likely: 0, misleading: 0, substantiated: 0 }
-  for (const s of summaries) {
-    const u = s.verdict.toUpperCase()
-    if (u.includes('CONFIRMED'))    counts.confirmed++
-    else if (u.includes('LIKELY'))  counts.likely++
-    else if (u.includes('MISLEADING') || u.includes('UNVERIFIABLE')) counts.misleading++
-    else counts.substantiated++
-  }
 
   return (
     <>
@@ -45,66 +38,35 @@ export default function HomePage() {
       <section className="intro">
         <div className="doc-container">
           <p className="intro-text">
-            Prasine Index verifies EU corporate sustainability claims against enforcement
-            records, regulatory filings, lobbying data, and open climate datasets. Research
-            built for journalists, NGOs, and researchers investigating greenwashing.
+            Prasine Index checks the climate claims of large European companies against
+            public records: verified emissions in the EU Emissions Trading System,
+            enforcement records on environmental marketing, climate target registries,
+            lobbying assessments and open climate datasets. Each assessment is published
+            with its evidence and sources, and the code is open source.
           </p>
         </div>
       </section>
 
-      {/* ── Notice ── */}
-      <section id="notice" className="report-section">
+      {/* ── Status ── */}
+      <section id="status" className="report-section">
         <div className="doc-container">
           <div className="report-meta">
-            <span className="report-label">Notice</span>
+            <span className="report-label">Status</span>
             <span className="report-date">{WITHDRAWN_ON}</span>
           </div>
-          <h1 className="report-company">Three assessments withdrawn</h1>
+          <h2 className="index-heading">Version 2 in progress</h2>
           <div className="report-body">
             <p>
-              The assessments of Ryanair, Glencore and BP have been withdrawn. A review of
-              the published reports on 3 November 2026 found that their confirmed verdicts
-              rested on enforcement records that were wrong or could not be found:
-            </p>
-            <ul>
-              <li>
-                <strong>Ryanair:</strong> the report cited ASA ruling G20-1089921, which
-                concerns a 2021 advertisement about Covid-19 vaccination. The ASA&apos;s
-                ruling on Ryanair&apos;s emissions advertising is dated 5 February 2020. The
-                report also called the EU consumer authorities&apos; action on airline
-                climate claims unresolved; Ryanair&apos;s part was resolved with commitments
-                in November 2025.
-              </li>
-              <li>
-                <strong>BP:</strong> the report cited an ASA ruling from July 2019 as a prior
-                finding against BP&apos;s advertising. No such ruling could be found.
-              </li>
-              <li>
-                <strong>Glencore:</strong> the report cited an open investigation by the UK
-                Competition and Markets Authority. No such investigation could be found.
-              </li>
-            </ul>
-            <p>
-              The review also found that a single company-level rating could place every
-              claim from the same company in the confirmed band. The verdicts cannot stand
-              as published.
+              In November 2026 every published assessment was reviewed against its
+              sources. Since then, each enforcement record in the pipeline has been checked
+              twice against its official source and now carries a verbatim quotation. The
+              scoring is being redesigned so that a score can be traced to the records
+              behind it.
             </p>
             <p>
-              The five remaining reports stay online while they are corrected, and each is
-              marked as under revision. All eight reports describe the Green Claims
-              Directive as enforced from September 2026; it was never adopted. Seven state
-              that a claim violates the Empowering Consumers Directive, (EU) 2024/825. The
-              reports were published in July, and that directive applies from 27 September
-              2026, to marketing aimed at consumers.
-            </p>
-            <p>
-              The pipeline is being changed so that an enforcement record can only be cited
-              with a verbatim quotation from the authority&apos;s own page. Corrected
-              assessments will be published with a log of what changed.
-            </p>
-            <p>
-              Questions and corrections:{' '}
-              <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>
+              Three assessments were withdrawn after the review, and the{' '}
+              <a href="/corrections">corrections page</a> explains why. The five below are
+              under revision.
             </p>
           </div>
         </div>
@@ -113,19 +75,12 @@ export default function HomePage() {
       {/* ── Index (dynamic) ── */}
       <section id="index" className="index-section">
         <div className="doc-container">
-          <h2 className="index-heading">The Index</h2>
+          <h2 className="index-heading">Version 1 assessments</h2>
           <p className="index-sub">
-            {summaries.length} EU companies assessed across multiple sectors. Evidence drawn from 22 open data sources per run.
+            These {NUMBER_WORDS[summaries.length] ?? summaries.length} assessments were made
+            with the version 1 method. Each report sets out the claims, the evidence and its
+            sources.
           </p>
-          <div className="index-stats">
-            <span className="index-stat"><strong>{counts.confirmed}</strong> confirmed</span>
-            <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>{counts.likely}</strong> likely greenwashing</span>
-            <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>{counts.misleading}</strong> misleading / unverifiable</span>
-            <span className="index-stat-sep">·</span>
-            <span className="index-stat"><strong>{counts.substantiated}</strong> substantiated</span>
-          </div>
           <table className="assessments-table">
             <thead>
               <tr>
@@ -159,8 +114,7 @@ export default function HomePage() {
             </tbody>
           </table>
           <p className="index-note">
-            Click any row for the full evidence chain. All five assessments are under
-            revision; see the notice above.
+            Each report is under revision and will be reassessed with version 2.
           </p>
         </div>
       </section>
@@ -191,6 +145,7 @@ export default function HomePage() {
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>
             <a href="https://linkedin.com/in/martin-blomqvist" target="_blank" rel="noopener">LinkedIn</a>
             <a href="/about">About</a>
+            <a href="/corrections">Corrections</a>
             <a href="mailto:cm.blomqvist@gmail.com">Contact</a>
           </div>
         </div>

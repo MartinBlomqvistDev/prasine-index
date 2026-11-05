@@ -114,7 +114,7 @@ function WithdrawnPage({ company, reason }: { company: string; reason: string })
           <p>{reason}</p>
           <p>
             Any corrected assessment will be published with a log of what changed.{' '}
-            <a href="/#notice">Read the full notice</a>.
+            <a href="/corrections">Read the full notice</a>.
           </p>
           <p>
             Questions and corrections:{' '}
@@ -161,7 +161,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           <p style={{ fontSize: 14, lineHeight: 1.7 }}>
             A review on 3 November 2026 found errors in this report, including statements
             about EU law. A corrected version will replace it, with a log of what
-            changed. <a href="/#notice">Read the notice</a>.
+            changed. <a href="/corrections">Read the notice</a>.
           </p>
         </div>
 
