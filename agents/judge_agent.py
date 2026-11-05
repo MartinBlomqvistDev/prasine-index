@@ -739,7 +739,6 @@ def _build_judge_prompt(input: JudgeInput) -> str:
         "# CLAIM UNDER ASSESSMENT",
         f"Company:       {company.name} ({company.country})",
         f"Sector:        {company.sector}",
-        f"CSRD obligated: {'Yes' if company.csrd_reporting else 'No'}",
         f"Category:      {claim.claim_category.value}",
         f"Source:        {claim.source_type.value} — {claim.source_url}",
         f"Published:     {claim.publication_date.date() if claim.publication_date else 'unknown'}",
@@ -750,16 +749,10 @@ def _build_judge_prompt(input: JudgeInput) -> str:
         claim.raw_text,
         "</untrusted_claim_text>",
         "",
+        # Earlier Prasine scores for the company are deliberately left out: a
+        # re-run must be judged on the evidence alone, not pulled towards the
+        # score it was given before.
         "# COMPANY HISTORICAL CONTEXT",
-        f"Total prior claims assessed: {ctx.total_claims_assessed}",
-        f"Prior repeat claims:         {ctx.repeat_claim_count}",
-        f"Average greenwashing score:  {ctx.average_greenwashing_score:.1f}"
-        if ctx.average_greenwashing_score is not None
-        else "Average greenwashing score:  no prior data",
-        f"Worst greenwashing score:    {ctx.worst_greenwashing_score:.1f}"
-        if ctx.worst_greenwashing_score is not None
-        else "Worst greenwashing score:    no prior data",
-        f"Score trend:                 {ctx.score_trend.value}",
         f"Similar prior claims found:  {len(ctx.similar_historical_claim_ids)}",
         f"Is this a repeat claim:      {'YES — company has made equivalent claims before' if claim.is_repeat else 'No prior equivalent claims detected'}",
     ]

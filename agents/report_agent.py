@@ -28,7 +28,7 @@ from core.retry import (
 )
 from models.claim import Claim
 from models.company import CompanyContext
-from models.evidence import VerificationResult
+from models.evidence import Evidence, VerificationResult
 from models.lobbying import LobbyingRecord
 from models.score import GreenwashingScore
 from models.trace import AgentName, AgentOutcome, AgentTrace
@@ -109,9 +109,8 @@ Use exactly this Markdown structure:
 *Source: [source type], [URL], [date]*
 
 ### Evidence
-[For each evidence record that bears on the claim: what the data shows, the \
-source name, the data year, and the URL if available. Start each record with \
-**[n] Source name**.]
+[Leave this section empty: the pipeline inserts the evidence records here, \
+numbered as in EVIDENCE RECORDS. Cite them elsewhere by those numbers.]
 
 ### Assessment
 [Plain-language explanation of why the claim received this score, citing the \
@@ -381,7 +380,7 @@ class ReportAgent:
                 llm_model_id=self._model_id,
             )
 
-        return report_text, tokens_used
+        return _insert_evidence_section(report_text, input.verification.evidence), tokens_used
 
 
 # ---------------------------------------------------------------------------
@@ -440,24 +439,13 @@ def _build_report_prompt(input: ReportInput) -> str:
         "PRIOR_VIOLATIONS": "prior violations",
         "TARGET_CREDIBILITY_GAP": "target credibility gap",
     }
-    _src_labels = {
-        "SOURCE_DOCUMENT": "source document",
-        "LOBBY_MAP": "LobbyMap",
-        "EUR_LEX": "EUR-Lex",
-        "EU_TRANSPARENCY_REGISTER": "EU Transparency Register",
-        "ENFORCEMENT_RULING": "enforcement ruling",
-        "EU_ETS": "EU ETS",
-        "SBTI": "SBTi",
-        "EPRTR": "E-PRTR",
-        "IR_PAGE": "investor relations page",
-    }
     for dim, dim_score in score.score_breakdown.items():
         label = _dim_labels.get(dim, dim.lower().replace("_", " "))
         parts.append(f"  {label}: {dim_score:.1f}/100")
 
     parts += ["", "EVIDENCE RECORDS:"]
     for i, ev in enumerate(vr.evidence, 1):
-        src = _src_labels.get(ev.source.value, ev.source.value.replace("_", " ").title())
+        src = _source_label(ev)
         parts.append(
             f"[{i}] {src} | Year: {ev.data_year or 'not specified'} | "
             f"Retrieved: {ev.retrieved_at.date().isoformat()} | "
@@ -483,17 +471,91 @@ def _build_report_prompt(input: ReportInput) -> str:
         if lb.contradiction_explanation:
             parts.append(f"  Detail: {lb.contradiction_explanation}")
 
-    if input.context.total_claims_assessed > 0:
-        parts += [
-            "",
-            "COMPANY HISTORY:",
-            f"  Prior claims assessed: {input.context.total_claims_assessed}",
-            f"  Repeat claims:         {input.context.repeat_claim_count}",
-            f"  Score trend:           {input.context.score_trend.value}",
-            f"  This claim is a repeat: {'YES' if claim.is_repeat else 'No'}",
-        ]
-
     return "\n".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# Evidence section
+# ---------------------------------------------------------------------------
+
+_SOURCE_LABELS = {
+    "SOURCE_DOCUMENT": "source document",
+    "LOBBY_MAP": "LobbyMap",
+    "EUR_LEX": "EUR-Lex",
+    "EU_TRANSPARENCY_REGISTER": "EU Transparency Register",
+    "ENFORCEMENT_RULING": "enforcement ruling",
+    "EU_ETS": "EU ETS",
+    "SBTI": "SBTi",
+    "EPRTR": "E-PRTR",
+    "IR_PAGE": "investor relations page",
+}
+
+
+def _source_label(evidence: Evidence) -> str:
+    """Return the reader-facing name of an evidence record's source."""
+    value = evidence.source.value
+    return _SOURCE_LABELS.get(value, value.replace("_", " ").title())
+
+
+def _supports_label(supports_claim: bool | None) -> str:
+    """Return how an evidence record relates to the claim, as printed in the report."""
+    if supports_claim is True:
+        return "Yes"
+    if supports_claim is False:
+        return "No"
+    return "Context"
+
+
+def render_evidence_section(evidence: list[Evidence]) -> str:
+    """Render the Evidence section of a report from the verification records.
+
+    The evidence list in a published report is generated from the records the
+    judge saw rather than written by the model, so a source cannot be
+    misdescribed there, and every record carries its support label, confidence
+    and URL in the form the site's parser reads. Records are numbered in the
+    order the report model was given them, so its citations by number match.
+
+    Args:
+        evidence: The verification evidence, in the order passed to the model.
+
+    Returns:
+        The section body in Markdown, one paragraph per record.
+    """
+    paragraphs = []
+    for i, ev in enumerate(evidence, 1):
+        summary = " ".join(ev.summary.split())
+        year = ev.data_year if ev.data_year is not None else "year not specified"
+        url = f" {ev.source_url}" if ev.source_url else ""
+        paragraphs.append(
+            f"**[{i}] {_source_label(ev)}** {summary} ({year}). "
+            f"Supports claim: {_supports_label(ev.supports_claim)}. "
+            f"(confidence {ev.confidence:.2f}){url}"
+        )
+    return "\n\n".join(paragraphs) or "No evidence records were returned."
+
+
+def _insert_evidence_section(markdown: str, evidence: list[Evidence]) -> str:
+    """Replace the body of the report's Evidence section with the rendered records.
+
+    Args:
+        markdown: The report as written by the model.
+        evidence: The verification evidence, in prompt order.
+
+    Returns:
+        The report with a generated Evidence section.
+    """
+    rendered = render_evidence_section(evidence)
+    start = markdown.find("### Evidence")
+    if start == -1:
+        block = f"### Evidence\n\n{rendered}\n\n"
+        anchor = markdown.find("### Assessment")
+        if anchor == -1:
+            return f"{markdown.rstrip()}\n\n{block}"
+        return markdown[:anchor] + block + markdown[anchor:]
+    body_start = markdown.find("\n", start) + 1
+    next_heading = markdown.find("\n### ", body_start)
+    end = next_heading + 1 if next_heading != -1 else len(markdown)
+    return f"{markdown[:body_start]}\n{rendered}\n\n{markdown[end:]}"
 
 
 def _markdown_to_plain(markdown: str) -> str:

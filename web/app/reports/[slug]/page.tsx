@@ -141,6 +141,13 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
   const r = parseReport(md)
   const agg    = verdictFromString(r.verdict)
   const detail = verdictFromString(r.detailVerdict)
+  // The table previews each claim; mark the one the detailed section covers,
+  // matching on text first because several claims can share a score.
+  const textIndex = r.claims.findIndex(c => {
+    const preview = c.text.replace(/(\.{3}|…)$/, '').trim()
+    return preview.length > 0 && r.claim.startsWith(preview.slice(0, 60))
+  })
+  const detailIndex = textIndex > -1 ? textIndex : r.claims.findIndex(c => c.score === r.detailScore)
 
   return (
     <>
@@ -186,12 +193,12 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
               <tr><th>Score</th><th>Verdict</th><th>Claim assessed</th></tr>
             </thead>
             <tbody>
-              {r.claims.map(c => (
+              {r.claims.map((c, i) => (
                 <tr
                   key={c.num}
-                  style={c.score === r.detailScore ? { background: 'var(--surface-alt, #f7f7f7)' } : {}}
+                  style={i === detailIndex ? { background: 'var(--surface-alt, #f7f7f7)' } : {}}
                 >
-                  <td style={c.score === r.detailScore ? { fontWeight: 700 } : {}}>
+                  <td style={i === detailIndex ? { fontWeight: 700 } : {}}>
                     {c.score} / 100
                   </td>
                   <td>
@@ -200,8 +207,8 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
                     </span>
                   </td>
                   <td style={{ fontSize: 12 }}>
-                    {c.score === r.detailScore
-                      ? <strong>&ldquo;{c.text}&rdquo; &mdash; detailed below</strong>
+                    {i === detailIndex
+                      ? <strong>&ldquo;{c.text}&rdquo; (detailed below)</strong>
                       : <>&ldquo;{c.text}&rdquo;</>
                     }
                   </td>
@@ -273,6 +280,30 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
             </>
           )}
 
+          {/* ── Company context ── */}
+          {r.companyContext.length > 0 && (
+            <>
+              <h2>Company context</h2>
+              <div className="report-reasoning">
+                {r.companyContext.map((para, i) => (
+                  <p key={i}>{renderInline(para)}</p>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* ── Regulatory context ── */}
+          {r.regulatoryContext.length > 0 && (
+            <>
+              <h2>Regulatory context</h2>
+              <div className="report-reasoning">
+                {r.regulatoryContext.map((para, i) => (
+                  <p key={i}>{renderInline(para)}</p>
+                ))}
+              </div>
+            </>
+          )}
+
           {/* ── Key finding ── */}
           {r.keyFinding && (
             <div className="key-finding">
@@ -321,6 +352,16 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
               </ol>
             </>
           )}
+
+          {/* ── Disclaimer ── */}
+          <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: '2.5rem', lineHeight: 1.6 }}>
+            This assessment was produced by an automated pipeline from the sources listed
+            above. The score describes how the evidence relates to the claim and is not a
+            legal finding. Corrections and replies:{' '}
+            <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>. The{' '}
+            <a href="/about">about page</a> sets out the corrections policy and the right of
+            reply.
+          </p>
 
         </div>
       </main>

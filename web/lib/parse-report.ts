@@ -35,6 +35,8 @@ export interface ParsedReport {
   claimSource: string
   evidence: EvidenceItem[]
   assessmentParas: string[]
+  companyContext: string[]
+  regulatoryContext: string[]
   keyFinding: string
   dataGaps: string[]
 }
@@ -248,47 +250,43 @@ export function parseReport(md: string): ParsedReport {
   const evSection = evStart > -1 && evEnd > -1 ? md.slice(evStart, evEnd) : ''
   const evidence = parseEvidence(evSection)
 
-  const assStart = md.indexOf('### Assessment')
-  const kfStart = md.indexOf('### Key Finding')
-  const assessmentParas =
-    assStart > -1 && kfStart > -1
-      ? md
-          .slice(assStart + '### Assessment\n'.length, kfStart)
-          .split(/\n\n+/)
-          .map(p => humanizeText(p.trim()))
-          .filter(p => p.length > 0 && !p.startsWith('#') && !/^-{3,}$/.test(p))
-      : []
+  // Each section runs to the next heading, so a section the site does not show
+  // (such as the pre-November 2026 "Regulatory Exposure") never leaks into the
+  // one before it.
+  const assessmentParas = sectionParas(md, 'Assessment')
+  const companyContext = sectionParas(md, 'Company Context')
+  const regulatoryContext = sectionParas(md, 'Regulatory Context')
+  const keyFinding = sectionParas(md, 'Key Finding').join(' ')
 
-  const dgStart = md.indexOf('### Data Gaps')
-  const keyFinding =
-    kfStart > -1
-      ? humanizeText(
-          md
-            .slice(kfStart + '### Key Finding\n'.length, dgStart > -1 ? dgStart : undefined)
-            .split(/\n\n+/)
-            .map(p => p.trim())
-            .filter(p => p.length > 0 && !p.startsWith('#') && !/^-{3,}$/.test(p))
-            .join(' ')
-        )
-      : ''
-
-  const methStart = md.indexOf('### Methodology')
-  const dataGapsRaw =
-    dgStart > -1
-      ? md.slice(dgStart + '### Data Gaps\n'.length, methStart > -1 ? methStart : undefined)
-      : ''
-  const dataGaps = dataGapsRaw
+  const dataGaps = sectionBody(md, 'Data Gaps')
     .split('\n')
-    .filter(l => l.startsWith('**') || l.startsWith('- ') || /^\*\*/.test(l))
-    .filter(l => l.trim().length > 0)
+    .filter(l => l.startsWith('**') || l.startsWith('- '))
     .map(l => l.replace(/^- /, '').trim())
 
   return {
     company, claimCount, overallScore, scoreRange, verdict, confidence, claims,
     detailVerdict, detailScore, detailRange, detailConfidence,
     publishDate, traceId, claim, claimSource,
-    evidence, assessmentParas, keyFinding, dataGaps,
+    evidence, assessmentParas, companyContext, regulatoryContext, keyFinding, dataGaps,
   }
+}
+
+function sectionBody(md: string, title: string): string {
+  const heading = `### ${title}`
+  const start = md.indexOf(`\n${heading}\n`)
+  if (start === -1) return ''
+  const bodyStart = start + heading.length + 2
+  const nextHeading = md.indexOf('\n### ', bodyStart)
+  const rule = md.indexOf('\n---\n', bodyStart)
+  const ends = [nextHeading, rule].filter(i => i > -1)
+  return md.slice(bodyStart, ends.length ? Math.min(...ends) : undefined)
+}
+
+function sectionParas(md: string, title: string): string[] {
+  return sectionBody(md, title)
+    .split(/\n\n+/)
+    .map(p => humanizeText(p.trim()))
+    .filter(p => p.length > 0 && !p.startsWith('#') && !/^-{3,}$/.test(p))
 }
 
 // NOTE: must add an entry here whenever a company is added to SLUGS.
