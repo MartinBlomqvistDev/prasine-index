@@ -19,10 +19,12 @@ document blocks to the Anthropic API).
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import io
 import re
 from typing import Any
+from urllib.parse import urljoin
 
 import anthropic
 import httpx
@@ -40,6 +42,38 @@ logger = get_logger(__name__)
 _TOOL_NAME = "extract_climate_disclosures"
 _MODEL_ID = "claude-haiku-5-5"
 _MAX_HTML_CHARS = 80_000
+_MAX_LINKED_CHARS = 60_000
+
+# Words in a PDF link's address that mark the company report behind a claim
+# page, with their weight. A link needs a weight of two to be read.
+_REPORT_WORDS = (
+    ("sustainab", 2),
+    ("climate", 2),
+    ("esg", 1),
+    ("report", 1),
+    ("statement", 1),
+    ("annual", 1),
+    ("integrated", 1),
+    ("transition", 1),
+    ("csrd", 1),
+    ("tcfd", 1),
+)
+
+# Words that mark the pages of a long report that concern climate.
+_PAGE_WORDS = (
+    "net zero",
+    "net-zero",
+    "scope 1",
+    "scope 2",
+    "scope 3",
+    "emission",
+    "target",
+    "transition plan",
+    "carbon",
+    "co2",
+    "sustainable aviation fuel",
+    "renewable",
+)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 _FETCH_TIMEOUT = 45.0
 
@@ -240,6 +274,8 @@ async def fetch_source_document_data(
         ) from exc
 
     content_blocks: list[dict[str, Any]] = []
+    linked_url: str | None = None
+    linked_read = False
 
     is_pdf = "pdf" in content_type.lower() or claim.source_url.lower().endswith(".pdf")
     if is_pdf:
@@ -269,12 +305,28 @@ async def fetch_source_document_data(
                 extra={"operation": "source_doc_pdf_text_fallback", "page_count": page_count},
             )
     else:
-        text = _strip_html(content_bytes.decode("utf-8", errors="replace"))[:_MAX_HTML_CHARS]
+        html = content_bytes.decode("utf-8", errors="replace")
+        text = _strip_html(html)[:_MAX_HTML_CHARS]
         content_blocks.append({"type": "text", "text": text})
         logger.info(
             f"Source document is HTML ({len(text)} chars after stripping)",
             extra={"operation": "source_doc_html", "chars": len(text)},
         )
+        linked_url = _linked_report(html, claim.source_url)
+        if linked_url:
+            linked_text = await _read_linked_report(linked_url)
+            if linked_text:
+                linked_read = True
+                content_blocks.append(
+                    {
+                        "type": "text",
+                        "text": (
+                            f"\nLINKED DOCUMENT: the page links to {linked_url}. The pages "
+                            "of it that concern climate follow, each marked with its page "
+                            f"number.\n{linked_text}"
+                        ),
+                    }
+                )
 
     content_blocks.append(
         {
@@ -284,6 +336,13 @@ async def fetch_source_document_data(
                 "Extract all climate and net-zero disclosures from this document "
                 f"as they relate to the claim above. Call the {_TOOL_NAME} tool once "
                 "with your findings."
+                + (
+                    " The page and the linked document are both the company's own. "
+                    "In the summary, say which statements come from the page and "
+                    "which from the linked document, with its page numbers."
+                    if linked_read
+                    else ""
+                )
             ),
         }
     )
@@ -331,6 +390,8 @@ async def fetch_source_document_data(
     confidence: float = float(extraction.get("confidence", 0.70))
     summary: str = extraction.get("summary", "Source document analysis completed.")
     missing_plan_elements: list[str] = extraction.get("missing_plan_elements", [])
+    if linked_url and not linked_read:
+        summary = f"{summary} The page links to {linked_url}, which this assessment could not read."
 
     raw_data: dict[str, Any] = {
         "source_url": claim.source_url,
@@ -348,6 +409,8 @@ async def fetch_source_document_data(
         "saf_target_pct": extraction.get("saf_target_pct"),
         "saf_target_year": extraction.get("saf_target_year"),
         "missing_plan_elements": missing_plan_elements,
+        "linked_document": linked_url,
+        "linked_document_read": linked_read,
     }
 
     logger.info(
@@ -377,6 +440,80 @@ async def fetch_source_document_data(
             confidence=confidence,
         )
     ]
+
+
+def _linked_report(html: str, page_url: str) -> str | None:
+    """Return the address of the company report a claim page links to, if any.
+
+    A climate page often states a claim in a sentence and links to the report
+    that sets it out. The PDF link whose address weighs most as a
+    sustainability, climate or annual report is read with the page.
+
+    Args:
+        html: The page's HTML.
+        page_url: The page's address, for resolving relative links.
+
+    Returns:
+        The absolute address of the report, or None.
+    """
+    best: tuple[int, str] | None = None
+    for href in re.findall(r"href=[\"']([^\"']+?\.pdf[^\"']*)[\"']", html, flags=re.IGNORECASE):
+        url = urljoin(page_url, href.replace("&amp;", "&"))
+        weight = sum(w for word, w in _REPORT_WORDS if word in url.lower())
+        if weight >= 2 and (best is None or weight > best[0]):
+            best = (weight, url)
+    return best[1] if best else None
+
+
+def _climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS) -> str:
+    """Return the pages of a PDF that concern climate most, in page order.
+
+    Args:
+        pdf_bytes: The PDF.
+        limit: The most characters to return.
+
+    Returns:
+        The chosen pages, each marked with its page number, or "" when the PDF
+        cannot be read or no page concerns climate.
+    """
+    try:
+        import pypdf
+
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        pages = [re.sub(r"\s+", " ", page.extract_text() or "").strip() for page in reader.pages]
+    except Exception:
+        return ""
+    weights = [sum(text.lower().count(word) for word in _PAGE_WORDS) for text in pages]
+    chosen: list[int] = []
+    total = 0
+    for index in sorted(range(len(pages)), key=lambda i: -weights[i]):
+        if weights[index] == 0:
+            break
+        if total + len(pages[index]) > limit:
+            continue
+        chosen.append(index)
+        total += len(pages[index])
+    return "\n".join(f"[page {i + 1}] {pages[i]}" for i in sorted(chosen))
+
+
+async def _read_linked_report(url: str) -> str:
+    """Fetch a linked report and return its climate pages, or "" if unreadable."""
+    try:
+        content_type, content = await _fetch_content(url)
+    except Exception as exc:
+        logger.warning(
+            f"Linked report could not be fetched: {url}: {exc}",
+            extra={"operation": "source_doc_linked_fetch_failed", "url": url},
+        )
+        return ""
+    if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
+        return ""
+    text = await asyncio.to_thread(_climate_pages, content)
+    logger.info(
+        f"Linked report read: {url} ({len(text)} chars)",
+        extra={"operation": "source_doc_linked_read", "url": url, "chars": len(text)},
+    )
+    return text
 
 
 def _pdf_page_count(pdf_bytes: bytes) -> int:
