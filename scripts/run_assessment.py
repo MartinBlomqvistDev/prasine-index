@@ -127,6 +127,26 @@ def _refresh_data() -> None:
             print(f"  [warn] {script_name} failed: {exc}")
 
 
+_COUNT_WORDS = {2: "two", 3: "three"}
+
+
+def _aggregate_label(n: int) -> str:
+    """Describe the company score as core/aggregate.py computes it."""
+    if n == 1:
+        return "(the score of the single claim)"
+    top = min(n, 3)
+    return f"(confidence-weighted mean of the {_COUNT_WORDS[top]} highest-scoring of {n} claims)"
+
+
+def _preview(text: str, limit: int = 160) -> str:
+    """Shorten a claim at a word boundary, marking any cut with an ellipsis."""
+    flat = " ".join(text.split())
+    if len(flat) <= limit:
+        return flat
+    cut = flat[:limit].rsplit(" ", 1)[0].rstrip(",;:")
+    return f"{cut}…"
+
+
 def _build_aggregate_header(
     company_name: str,
     company_score: CompanyScore,
@@ -139,16 +159,16 @@ def _build_aggregate_header(
     lines = [
         f"## {company_name}: Company Assessment ({n} claim{'s' if n != 1 else ''})",
         "",
-        f"**Overall Score: {company_score.score:.0f}/100** "
-        f"(top-3 severity-weighted across {n} claim{'s' if n != 1 else ''})  ",
-        f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f}  ",
+        f"**Overall Score: {company_score.score:.0f}/100** {_aggregate_label(n)}  ",
+        f"**Score range:** {company_score.score_low:.0f}–{company_score.score_high:.0f} "
+        "(the same mean, over the judge's low and high estimate for each claim)  ",
         f"**Finding:** {finding_label(company_score.verdict)}  ",
         f"**Confidence:** {company_score.confidence:.0%}",
     ]
     if company_score.floor_applied:
         lines.append(
-            "\n*Score floored at the bottom of the worst claim's verdict band; "
-            "a severe finding cannot be averaged away by milder claims.*"
+            "\n*Score raised to the bottom of the band of the highest-scoring claim, "
+            "so that one claim's finding is not averaged away by milder claims.*"
         )
     if failed_claims:
         lines.append(
@@ -167,7 +187,7 @@ def _build_aggregate_header(
         "|---|-------|---------|-------|",
     ]
     for i, claim in enumerate(company_score.claims, start=1):
-        preview = claim.claim_text[:120].replace("|", "/").replace("\n", " ")
+        preview = _preview(claim.claim_text).replace("|", "/")
         lines.append(
             f"| {i} | {claim.score:.0f}/100 | {finding_label(claim.verdict)} | {preview} |"
         )
@@ -303,10 +323,7 @@ async def run(
         n = company_score.claim_count
         print(f"\n{'=' * 60}")
         print(f"Company Assessment -- {company_name}")
-        print(
-            f"  Overall score : {company_score.score:.0f}/100  "
-            f"(top-3 severity-weighted, {n} claim{'s' if n != 1 else ''})"
-        )
+        print(f"  Overall score : {company_score.score:.0f}/100  {_aggregate_label(n)}")
         print(f"  Score range   : {company_score.score_low:.0f}-{company_score.score_high:.0f}")
         print(f"  Verdict       : {company_score.verdict.value}")
         print(f"{'=' * 60}\n")

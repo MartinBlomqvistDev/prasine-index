@@ -17,7 +17,7 @@ Each new field approved for development locks in decades of upstream emissions.
 Status values:
   operating: currently producing
   in-development: FID taken, under construction or commissioning
-  discovered: discovered but pre-FID, development likely
+  discovered: discovered, no final investment decision recorded
   mothballed: paused, not yet abandoned
   decommissioning: actively being wound down
   abandoned: development abandoned
@@ -258,7 +258,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     if discovered:
         disc_names = "; ".join(f"{f.name} ({f.country})" for f in discovered[:3])
         lines.append(
-            f"DISCOVERED (pre-FID): {len(discovered)} field(s) likely entering development. "
+            f"DISCOVERED: {len(discovered)} field(s) discovered, with no final investment decision recorded. "
             f"Examples: {disc_names}."
         )
 

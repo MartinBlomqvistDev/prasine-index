@@ -277,11 +277,11 @@ goal, such as "we support the goals of the Paris Agreement", which commits the \
 company to nothing. Those are checked against the records about what they state. \
 Say in claim_is_pledge whether the claim is a pledge. \
 For a claim that could be one, the evidence list marks its integrity records as \
-"integrity criterion, counts if the claim is a pledge". The standard is the one \
-set out in \
+"integrity criterion, counts if the claim is a pledge". Two of the criteria set \
+out in \
 """
     + HLEG_CITATION
-    + f""":
+    + f""" apply here:
   "{HLEG_FOSSIL_SUPPLY}"
   "{HLEG_LOBBYING}"
 For a pledge, a record showing that the company is expanding fossil fuel supply \

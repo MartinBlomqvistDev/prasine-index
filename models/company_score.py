@@ -42,7 +42,7 @@ class CompanyScore(BaseModel):
     score: float = Field(
         ge=0.0,
         le=100.0,
-        description="Top-3 severity-weighted score, floored at the worst claim's band.",
+        description="Confidence-weighted mean of the three highest-scoring claims, floored at the band of the highest-scoring claim.",
     )
     score_low: float = Field(ge=0.0, le=100.0)
     score_high: float = Field(ge=0.0, le=100.0)

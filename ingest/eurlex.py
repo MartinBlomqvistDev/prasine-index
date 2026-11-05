@@ -35,11 +35,18 @@ __all__ = ["fetch_eurlex_data"]
 _CONSUMER_SCOPE = (
     " Member States must apply Directive (EU) 2024/825 from 27 September 2026 "
     "through national law, so its effect in a given country depends on "
-    "transposition. It covers commercial practices aimed at consumers; the "
-    "Commission's guidance of September 2026 says communications addressed to "
-    "investors, such as sustainability reports, are typically outside its scope. "
-    "Whether a practice is unfair is decided case by case by national authorities "
-    "and courts."
+    "transposition. It covers commercial practices aimed at consumers. Questions "
+    "and Answers on the directive from the Commission's Directorate-General for "
+    "Justice and Consumers (September 2026), which give the preliminary views of "
+    'the Commission services, say that corporate sustainability reporting "is '
+    "typically not in scope of the UCPD/ECGT Directive, because these reports are "
+    "often mandatory and addressed to investors, rather than being part of B2C "
+    'commercial practices", and that when a company uses information from its '
+    'sustainability report "in voluntary advertising or marketing directed at '
+    'consumers, such communication falls under the UCPD/ECGT Directive" '
+    "(https://commission.europa.eu/document/download/3c257883-bb2a-4dd9-a6dc-"
+    "501d587bb34f_en?filename=Q%26A%20ECGT_Directive_Sept%202026.pdf). Whether a "
+    "practice is unfair is decided case by case by national authorities and courts."
 )
 
 _EMPCO_CELEX = "32024L0825"

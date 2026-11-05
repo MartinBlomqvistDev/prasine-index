@@ -58,9 +58,9 @@ def aggregate_claim_scores(
         results: Non-empty list of completed pipeline results.
 
     Returns:
-        A :py:class:`~models.company_score.CompanyScore` with a top-K
-        severity-weighted score, floored at the bottom of the worst claim's
-        verdict band, and a verdict derived from that final score.
+        A :py:class:`~models.company_score.CompanyScore` whose score is the
+        confidence-weighted mean of the top-K claims, floored at the bottom of
+        the highest-scoring claim's band, with a finding derived from that score.
 
     Raises:
         ValueError: If *results* is empty.

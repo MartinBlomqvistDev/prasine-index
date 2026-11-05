@@ -39,9 +39,9 @@ _RULING_TYPES = frozenset(
 # How each outcome is described in the evidence summary.
 _OUTCOME_TEXT: dict[str, str] = {
     "BANNED": "complaint upheld; the advertising must not appear again in that form",
-    "CONFIRMED_MISLEADING": "finding that the advertising breached the rules",
+    "CONFIRMED_MISLEADING": "decision against the marketing",
     "FINED": "fine imposed",
-    "COMMITMENTS": "commitments to change practices, without a finding of breach",
+    "COMMITMENTS": "commitments to change practices; no decision against the company",
     "WARNING": "guidance or warning, without a finding on the company's own marketing",
     "INVESTIGATION": "case opened; no outcome is recorded",
     "NOT_UPHELD": "complaint not upheld",

@@ -61,6 +61,7 @@ _COL_SCORE = (
 )
 _COL_PERFORMANCE_BAND = ("Performance Band", "performance_band", "Band Letter", "Grade")
 _COL_ENGAGEMENT = (
+    "Engagement Intensity",
     "Active Engagement on Climate Policy",
     "engagement",
     "Engagement",
@@ -387,10 +388,46 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
         A plain-text summary string.
     """
     band = record.band_normalised.upper() or "not scored"
-    engagement = record.active_engagement or "not assessed"
     year_str = f" (assessment year: {record.year})" if record.year else ""
+    return " ".join(
+        filter(
+            None,
+            (
+                f"LobbyMap performance band for {company_name}: {band}{year_str}.",
+                engagement_text(record.active_engagement),
+            ),
+        )
+    )
 
+
+def engagement_text(value: str | None) -> str:
+    """Describe a LobbyMap engagement intensity in LobbyMap's own terms.
+
+    LobbyMap's methodology: "A score above 12 indicates active engagement, while
+    a score above 25 indicates highly active or strategic engagement. A score
+    below 12 indicates relatively limited engagement." LobbyMap measures it
+    independently of the band, so it says nothing about the direction of the
+    engagement.
+
+    Args:
+        value: The Engagement Intensity column (0 to 100) as text.
+
+    Returns:
+        One sentence, or an empty string when the data gives no intensity.
+    """
+    try:
+        intensity = float(str(value).strip())
+    except (TypeError, ValueError):
+        return ""
+    if intensity > 25:
+        meaning = "highly active or strategic engagement (above 25)"
+    elif intensity > 12:
+        meaning = "active engagement (above 12)"
+    elif intensity < 12:
+        meaning = "relatively limited engagement (below 12)"
+    else:
+        meaning = "the threshold of active engagement (12)"
     return (
-        f"LobbyMap climate policy engagement score for {company_name}: {band}{year_str}. "
-        f"Active engagement classification: {engagement}."
+        f"Engagement intensity {intensity:g} of 100, which LobbyMap describes as "
+        f"{meaning} and measures independently of the band."
     )

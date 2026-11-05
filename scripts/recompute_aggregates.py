@@ -1,6 +1,6 @@
 """Recompute top-3 aggregate scores from stored per-claim report files.
 
-No API calls. Reads per-claim markdown files, applies the top-3 severity-weighted
+No API calls. Reads per-claim markdown files, applies the top-3 confidence-weighted
 formula, and rewrites the aggregate header in each company's main report file.
 """
 
@@ -132,7 +132,7 @@ def recompute(slug: str) -> None:
 
     md = re.sub(
         r"\*\*Overall Score: \d+/100\*\*[^\n]*",
-        f"**Overall Score: {agg_score_r}/100** (top-{k} severity-weighted across {n} claims)",
+        f"**Overall Score: {agg_score_r}/100** (confidence-weighted mean of the top {k} of {n} claims)",
         md,
     )
     md = re.sub(

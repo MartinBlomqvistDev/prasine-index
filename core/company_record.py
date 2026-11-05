@@ -6,8 +6,8 @@ assessments and enforcement decisions. Each line states what its source says,
 and the record is built in code from the evidence of a run, with no model
 involved.
 
-It opens with the two practices that the UN High-Level Expert Group on net-zero
-commitments says a credible climate pledge rules out, new fossil fuel supply and
+It opens with two of the practices that the UN High-Level Expert Group on
+net-zero commitments says a credible climate pledge rules out, new fossil fuel supply and
 lobbying against climate policy, and states what the records show on each. It
 gives no score.
 """
@@ -24,16 +24,16 @@ from core.evidence_scope import (
 )
 from ingest.coal_exit import _EXPANDING_VALUES as _GCEL_EXPANDING
 from ingest.gogel import _EXPANDING_VALUES as _GOGEL_EXPANDING
-from ingest.lobby_map import _OBSTRUCTIVE_BANDS
+from ingest.lobby_map import _OBSTRUCTIVE_BANDS, engagement_text
 from models.evidence import Evidence, EvidenceSource
 
 __all__ = ["render_company_record"]
 
 _OUTCOMES = {
     "BANNED": "complaint upheld",
-    "CONFIRMED_MISLEADING": "finding that the advertising breached the rules",
+    "CONFIRMED_MISLEADING": "decision against the marketing",
     "FINED": "fine imposed",
-    "COMMITMENTS": "commitments, without a finding of breach",
+    "COMMITMENTS": "commitments to change practices; no decision against the company",
     "WARNING": "guidance or warning",
     "INVESTIGATION": "case opened, no outcome recorded",
     "NOT_UPHELD": "complaint not upheld",
@@ -85,13 +85,15 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
         return "No LobbyMap rating for this company.", "LobbyMap has no rating for the company"
     year = record.raw_data.get("year")
     when = f" ({year})" if year else ""
+    intensity = engagement_text(record.raw_data.get("active_engagement"))
+    intensity = f" {intensity[:-1]}" if intensity else ""
     if band.lower() in _OBSTRUCTIVE_BANDS:
-        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range, D and below (a score below 50%){_cite(record)}."
+        line = f"LobbyMap band {band}{when}, within LobbyMap's obstructive range, D and below (a score below 50%).{intensity}{_cite(record)}."
         return (
             line,
             f"LobbyMap rates its climate policy engagement {band}, within its obstructive range",
         )
-    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range, D and below (a score below 50%){_cite(record)}."
+    line = f"LobbyMap band {band}{when}, outside LobbyMap's obstructive range, D and below (a score below 50%).{intensity}{_cite(record)}."
     return (
         line,
         f"LobbyMap rates its climate policy engagement {band}, outside its obstructive range",
@@ -230,7 +232,10 @@ def _track_record(evidence: list[Evidence]) -> str:
     """
     records = [e for e in evidence if e.source == EvidenceSource.ENFORCEMENT]
     if not records:
-        return "**Track record: no enforcement records.**"
+        return (
+            "**Track record: no decisions on record.** Prasine's list of verified "
+            "decisions on environmental marketing has no entry for this company."
+        )
 
     findings = [e for e in records if e.raw_data.get("ruling_type") in _FINDINGS]
     recent = [e for e in findings if is_recent_finding(e)]
@@ -254,7 +259,8 @@ def _track_record(evidence: list[Evidence]) -> str:
         outcome = _OUTCOMES.get(str(record.raw_data.get("ruling_type")), "outcome not recorded")
         entries.append(
             f"{record.raw_data.get('authority')} {record.raw_data.get('case_reference')} "
-            f"({record.raw_data.get('decision_date')}): {outcome}{_cite(record)}"
+            f"({record.raw_data.get('decision_date')}), {record.raw_data.get('party_as_named')}: "
+            f"{outcome}{_cite(record)}"
         )
     return f"**Track record: {rating}.** {'; '.join(entries)}."
 
@@ -276,9 +282,10 @@ def render_company_record(evidence: Iterable[Evidence]) -> str:
         "Records about the company as a whole, set beside its claims.",
         "",
         "**Integrity of a climate pledge.** The UN High-Level Expert Group on the Net Zero "
-        "Emissions Commitments of Non-State Entities names two practices that a credible "
-        f'pledge rules out (Integrity Matters, 2022, p. 7; {HLEG_URL}): "{HLEG_FOSSIL_SUPPLY}" '
-        f'"{HLEG_LOBBYING}" On the first, {fossil_finding}. On the second, {lobbying_finding}.',
+        "Emissions Commitments of Non-State Entities lists practices that a credible pledge "
+        f"rules out (Integrity Matters, 2022, p. 7; {HLEG_URL}). Two of them are checked here: "
+        f'"{HLEG_FOSSIL_SUPPLY}" "{HLEG_LOBBYING}" On the first, {fossil_finding}. '
+        f"On the second, {lobbying_finding}.",
         "",
         _track_record(records),
         "",

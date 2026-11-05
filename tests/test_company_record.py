@@ -1,7 +1,7 @@
 """Tests for the company record set beside a company's claim findings.
 
 The record is built in code from a run's evidence and states what each source
-says. These tests pin how it reads the two practices the UN expert group names,
+says. These tests pin how it reads two of the practices the UN expert group names,
 and the emissions lines, which must not read an installation joining the scheme
 as a change in emissions.
 """
@@ -109,7 +109,7 @@ class TestTrackRecord:
         assert "complaint not upheld" in record
 
     def test_no_records(self) -> None:
-        assert "**Track record: no enforcement records.**" in render_company_record([])
+        assert "**Track record: no decisions on record.**" in render_company_record([])
 
 
 class TestEmissions:
@@ -122,3 +122,16 @@ class TestEmissions:
         )
         assert "12.10 Mt CO2e in 2025; 11.10 Mt CO2e in 2024; 10.10 Mt CO2e in 2023." in record
         assert "2013" not in record and "2021" not in record
+
+
+class TestLobbyingIntensity:
+    """The engagement intensity is read from the file and described in LobbyMap's terms."""
+
+    def test_intensity_described(self) -> None:
+        from ingest.lobby_map import engagement_text
+
+        assert "highly active or strategic engagement (above 25)" in engagement_text("45")
+        assert "active engagement (above 12)" in engagement_text("19")
+        assert "relatively limited engagement (below 12)" in engagement_text("8")
+        assert engagement_text("") == ""
+        assert engagement_text(None) == ""
