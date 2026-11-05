@@ -85,6 +85,18 @@ def _extract_pdf_text(content: bytes) -> str:
         return ""
 
 
+def _pdf_climate_text(content: bytes) -> str:
+    """Return the text of a PDF for claim extraction, up to _MAX_PDF_CHARS.
+
+    A long report such as an annual report puts its sustainability statement
+    far from the first pages, so the pages that concern climate are read; a
+    PDF with no such page falls back to its opening text.
+    """
+    from ingest.source_document import climate_pages
+
+    return climate_pages(content, _MAX_PDF_CHARS) or _extract_pdf_text(content)[:_MAX_PDF_CHARS]
+
+
 def _is_pdf(response: httpx.Response) -> bool:
     """Return True if the HTTP response contains a PDF document."""
     ct = response.headers.get("content-type", "").lower()
@@ -131,14 +143,9 @@ async def _fetch_pages(
     if copy is not None:
         # A local copy of a public document, downloaded by a person because the
         # site refuses automated requests. It is read as one document.
-        from ingest.source_document import climate_pages
-
         kind, content = copy
         if kind == "application/pdf":
-            text = (
-                climate_pages(content, _MAX_PDF_CHARS)
-                or _extract_pdf_text(content)[:_MAX_PDF_CHARS]
-            )
+            text = _pdf_climate_text(content)
         else:
             text = _html_to_text(content.decode("utf-8", errors="replace"))[:_MAX_FETCH_CHARS]
         return [(source_url, text)] if text else []
@@ -177,7 +184,7 @@ async def _fetch_pages(
             f"_fetch_pages: PDF detected at {source_url}, extracting text with pypdf",
             extra={"operation": "pipeline_pdf_fetch", "url": source_url},
         )
-        pdf_text = _extract_pdf_text(resp.content)[:_MAX_PDF_CHARS]
+        pdf_text = _pdf_climate_text(resp.content)
         return [(source_url, pdf_text)] if pdf_text else []
 
     raw_html = resp.text
@@ -1035,7 +1042,7 @@ class Pipeline:
                 f"_fetch_and_populate: PDF detected at {url}, extracting text with pypdf",
                 extra={"operation": "pipeline_pdf_fetch", "url": url},
             )
-            raw_text = _extract_pdf_text(response.content)[:_MAX_PDF_CHARS]
+            raw_text = _pdf_climate_text(response.content)
         else:
             raw_text = _html_to_text(response.text)[:_MAX_FETCH_CHARS]
             if len(raw_text) < _SPA_THRESHOLD:
