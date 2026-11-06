@@ -13,9 +13,11 @@ import asyncio
 import contextlib
 import io
 import json
+import os
 import re
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import anthropic
@@ -334,6 +336,25 @@ async def _fetch_pages_playwright(
 
 
 logger = get_logger(__name__)
+
+
+def _save_judge_input(judge_input: JudgeInput) -> None:
+    """Write the judge's input to the folder PRASINE_JUDGE_INPUTS names, when it is set.
+
+    The file holds the claim and every record the judge saw, so that
+    scripts/rejudge.py can score the same input again without a new run.
+
+    Args:
+        judge_input: The input the judge is about to score.
+    """
+    folder = os.environ.get("PRASINE_JUDGE_INPUTS")
+    if not folder:
+        return
+    path = Path(folder)
+    path.mkdir(parents=True, exist_ok=True)
+    (path / f"{judge_input.claim.id}.json").write_text(
+        judge_input.model_dump_json(), encoding="utf-8"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -915,14 +936,14 @@ class Pipeline:
             await self._persist_trace(lobbying_result.trace)
 
             # Step 4: Judge
-            judge_result = await self._judge_agent.run(
-                JudgeInput(
-                    claim=claim,
-                    context=context_result.context,
-                    verification=verification_result,
-                    lobbying=lobbying_result.record,
-                )
+            judge_input = JudgeInput(
+                claim=claim,
+                context=context_result.context,
+                verification=verification_result,
+                lobbying=lobbying_result.record,
             )
+            _save_judge_input(judge_input)
+            judge_result = await self._judge_agent.run(judge_input)
             traces.append(judge_result.trace)
             await self._persist_trace(judge_result.trace)
             await self._persist_score(judge_result.score)
