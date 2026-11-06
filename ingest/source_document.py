@@ -45,27 +45,29 @@ _TOOL_NAME = "extract_climate_disclosures"
 _MODEL_ID = "claude-haiku-5-5"
 _MAX_HTML_CHARS = 80_000
 _MAX_LINKED_CHARS = 60_000
-# Up to two linked documents are read. Together they get a little more room than
-# one, and the first gets the larger share.
+# Up to two linked documents are read, the company's newest report and a transition
+# plan or climate report, each with the room one document would get alone.
 _MAX_LINKED_DOCUMENTS = 2
-_LINKED_SHARES = (50_000, 30_000)
+_LINKED_SHARES = (_MAX_LINKED_CHARS, _MAX_LINKED_CHARS)
 _MAX_MORE_CHARS = 30_000
 # How far after a claim, in characters of page text, its "Read more" link may sit.
 _MORE_DISTANCE = 1_200
 
-# Kinds of company document a claim page links to, in the order they are read,
-# with the words in a link's address or text that mark each. A transition plan
-# sets out the route a pledge rests on, so it is read first. Of several
+# Kinds of company document a claim page links to, in the order they are read, with
+# the words in a link's address or text that mark each. The company's newest annual or
+# sustainability report comes first: it holds the latest figures and any assurance
+# report. A transition plan, which sets out the route a pledge rests on, comes next,
+# and a climate report or CDP response only when there is no plan. Of several
 # documents of one kind, the most recent is read.
 _DOCUMENT_KINDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (
         "transition plan",
         ("transition-plan", "transition_plan", "transition+plan", "transition plan"),
     ),
-    ("climate report", ("climate", "tcfd")),
-    ("sustainability report", ("sustainab", "esg", "csrd", "non-financial")),
-    ("annual report", ("annual", "integrated")),
+    ("report", ("sustainab", "esg", "csrd", "non-financial", "annual", "integrated")),
+    ("climate report", ("climate", "tcfd", "cdp")),
 )
+_READING_ORDER = ("report", "transition plan", "climate report")
 
 # Words that mark the pages of a long report that concern climate.
 _PAGE_WORDS = (
@@ -90,7 +92,8 @@ _PAGE_WORDS = (
 # Phrases that mark an assurance report on sustainability information. Its pages
 # are always read, because independent verification is one of the elements
 # checked. A financial audit report says "reasonable assurance", so that phrase
-# is left out.
+# is left out. A page counts only if it also holds the practitioner's conclusion,
+# so that a table of contents that lists the report is not taken for it.
 _ASSURANCE_WORDS = (
     "limited assurance",
     "assurance engagement",
@@ -98,14 +101,25 @@ _ASSURANCE_WORDS = (
     "isae 3410",
     "issa 5000",
 )
+_ASSURANCE_CONCLUSIONS = (
+    "nothing has come to our attention",
+    "nothing came to our attention",
+    "conclusion",
+)
 _MAX_ASSURANCE_PAGES = 3
+# Pages that hold one of the claim's own figures, such as "41%", are read next.
+_MAX_FIGURE_PAGES = 3
 
 _ANCHOR = re.compile(
     r"<a\b[^>]*?href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", flags=re.IGNORECASE | re.DOTALL
 )
-_MORE_LABEL = re.compile(r"\b(?:read|learn|find out|discover) more\b", flags=re.IGNORECASE)
+_MORE_LABEL = re.compile(
+    r"\b(?:read|learn|find out|discover|see)\b(?:\s+\w+){0,2}?\s+(?:more|about)\b",
+    flags=re.IGNORECASE,
+)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
-_FETCH_TIMEOUT = 45.0
+# A long annual report can take minutes to download.
+_FETCH_TIMEOUT = 180.0
 
 _EXTRACTION_TOOL: anthropic.types.ToolParam = {
     "name": _TOOL_NAME,
@@ -269,6 +283,12 @@ reasonable) and what it covers, and say whether it covers the delivery of the pl
 or only the reported information. Never write that a document has no independent \
 assurance or verification when such a report is in the pages.
 
+Never name a person in the summary: refer to a document by its title, its \
+organisation and its date.
+
+If the document states what share of Scope 1 emissions falls under an emission \
+trading scheme such as the EU ETS, give that share and its year in the summary.
+
 Offset credits bought for emissions outside the company's value chain are not \
 the same as carbon removals. Record what the document says about each, as stated.\
 """
@@ -341,7 +361,7 @@ async def fetch_source_document_data(
         else:
             # A long report: read the pages that concern climate, not its first pages.
             text = (
-                climate_pages(content_bytes, _MAX_HTML_CHARS)
+                climate_pages(content_bytes, _MAX_HTML_CHARS, figures=claim_figures(claim.raw_text))
                 or _extract_pdf_text(content_bytes)[:_MAX_HTML_CHARS]
             )
             content_blocks.append({"type": "text", "text": text})
@@ -377,8 +397,9 @@ async def fetch_source_document_data(
                 candidates += _report_links(more_html, more_url)
         linked_urls = _choose_reports(candidates)
         source = "the page or the linked page" if more_read else "the page"
+        figures = claim_figures(claim.raw_text)
         for url, share in zip(linked_urls, _LINKED_SHARES, strict=False):
-            linked_text = await _read_linked_report(url, share)
+            linked_text = await _read_linked_report(url, share, figures)
             if linked_text:
                 linked_read.append(url)
                 content_blocks.append(
@@ -386,9 +407,9 @@ async def fetch_source_document_data(
                         "type": "text",
                         "text": (
                             f"\nLINKED DOCUMENT: {url}, a company document linked from "
-                            f"{source}. The pages of it that concern climate, and any "
-                            "assurance report in it, follow, each marked with its page "
-                            f"number.\n{linked_text}"
+                            f"{source}. The pages of it that concern climate, any assurance "
+                            "report in it and any page with the claim's own figures follow, "
+                            f"each marked with its PDF page number.\n{linked_text}"
                         ),
                     }
                 )
@@ -404,7 +425,8 @@ async def fetch_source_document_data(
                 + (
                     " The page and everything linked from it are the company's own. In "
                     "the summary, say which statements come from the page and which from "
-                    "each linked page or document, with the document's page numbers. Only "
+                    "each linked page or document, citing a document's pages as 'PDF page "
+                    "N' with the number of the marker. Only "
                     "the pages given were read from each linked document: write 'in the "
                     "pages read' for anything they do not show, and never say that a "
                     "document does not contain something."
@@ -564,9 +586,9 @@ def _latest_year(text: str) -> int:
 def _choose_reports(candidates: list[tuple[str, str, int]]) -> list[str]:
     """Choose the linked documents to read.
 
-    Kinds are read in the order of _DOCUMENT_KINDS, and of each kind the most
-    recent document, the first in page order on a tie. A document more than two
-    years older than the most recent one linked is left out.
+    Kinds are read in _READING_ORDER, and of each kind the most recent document,
+    the first in page order on a tie. A document more than two years older than
+    the most recent one linked is left out.
 
     Args:
         candidates: (kind, address, year) for each linked company document.
@@ -581,7 +603,9 @@ def _choose_reports(candidates: list[tuple[str, str, int]]) -> list[str]:
         if year == 0 or year >= latest - 2
     ]
     chosen: list[str] = []
-    for name, _marks in _DOCUMENT_KINDS:
+    for name in _READING_ORDER:
+        if name == "climate report" and len(chosen) > 1:
+            break
         of_kind = [(year, -index, url) for index, kind, url, year in current if kind == name]
         if of_kind:
             url = max(of_kind)[2]
@@ -594,10 +618,12 @@ def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
     """Return the page that a "Read more" link right after the claim opens, if any.
 
     An index page often gives a claim as a short teaser and sets out its
-    substance on the page the teaser's "Read more" link opens. The first such
-    link within _MORE_DISTANCE characters after the claim is followed when it
-    opens another page of the same site. A link to a PDF is left to
-    _report_links.
+    substance on the page the teaser's "Read more" link opens, and a claim that
+    rests on a document often links it in its own sentence ("verified in our
+    EPDs"). A link inside the claim is followed first; otherwise the first
+    "Read more" or "Learn all about" link within _MORE_DISTANCE characters after
+    the claim. Only a page of the same site is followed; a link to a PDF is left
+    to _report_links.
 
     Args:
         html: The page's HTML.
@@ -624,18 +650,25 @@ def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
         if tail < 0:
             return None
         end = tail + len(claim[-60:])
-    for index in re.findall(r"\x00(\d+)\x00", text[end : end + _MORE_DISTANCE]):
-        href, label = anchors[int(index)]
-        if not _MORE_LABEL.search(label):
-            continue
+    begin = max(0, end - len(claim))
+    page = page_url.split("#")[0].rstrip("/")
+
+    def target(index: str) -> str | None:
+        href, _label = anchors[int(index)]
         url = urljoin(page_url, href.replace("&amp;", "&")).split("#")[0]
-        if (
-            ".pdf" in url.lower()
-            or _host(url) != _host(page_url)
-            or url.rstrip("/") == page_url.split("#")[0].rstrip("/")
-        ):
+        if ".pdf" in url.lower() or _host(url) != _host(page_url) or url.rstrip("/") == page:
             return None
         return url
+
+    # A link inside the claim's own sentence names what the claim rests on.
+    for index in re.findall(r"\x00(\d+)\x00", text[begin:end]):
+        url = target(index)
+        if url:
+            return url
+    for index in re.findall(r"\x00(\d+)\x00", text[end : end + _MORE_DISTANCE]):
+        if not _MORE_LABEL.search(anchors[int(index)][1]):
+            continue
+        return target(index)
     return None
 
 
@@ -653,18 +686,26 @@ def _comparable(text: str) -> str:
     return " ".join(text.replace("\u00a0", " ").split())
 
 
-def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS, assurance: bool = True) -> str:
+def climate_pages(
+    pdf_bytes: bytes,
+    limit: int = _MAX_LINKED_CHARS,
+    assurance: bool = True,
+    figures: tuple[str, ...] = (),
+) -> str:
     """Return the pages of a PDF that concern climate most, in page order.
 
     Args:
         pdf_bytes: The PDF.
         limit: The most characters to return.
         assurance: Whether to take first the pages of an assurance report on
-            sustainability information, up to _MAX_ASSURANCE_PAGES of them.
+            sustainability information that hold its conclusion, up to
+            _MAX_ASSURANCE_PAGES of them.
+        figures: Figures from the claim, as claim_figures gives them; up to
+            _MAX_FIGURE_PAGES pages that hold one are taken next.
 
     Returns:
-        The chosen pages, each marked with its page number, or "" when the PDF
-        cannot be read or no page concerns climate.
+        The chosen pages, each marked with its PDF page number, or "" when the
+        PDF cannot be read or no page concerns climate.
     """
     try:
         import pypdf
@@ -676,11 +717,25 @@ def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS, assurance: b
     lowered = [text.lower() for text in pages]
     weights = [sum(text.count(word) for word in _PAGE_WORDS) for text in lowered]
     order = sorted((i for i in range(len(pages)) if weights[i]), key=lambda i: -weights[i])
+    first: list[int] = []
     if assurance:
-        marks = [sum(text.count(word) for word in _ASSURANCE_WORDS) for text in lowered]
+        marks = [
+            sum(text.count(word) for word in _ASSURANCE_WORDS)
+            if any(phrase in text for phrase in _ASSURANCE_CONCLUSIONS)
+            else 0
+            for text in lowered
+        ]
         first = sorted((i for i in range(len(pages)) if marks[i]), key=lambda i: -marks[i])
         first = first[:_MAX_ASSURANCE_PAGES]
-        order = first + [i for i in order if i not in first]
+    if figures:
+        compact = [_percent(text) for text in lowered]
+        with_figures = [
+            i
+            for i in sorted(range(len(pages)), key=lambda i: -weights[i])
+            if i not in first and any(figure in compact[i] for figure in figures)
+        ]
+        first += with_figures[:_MAX_FIGURE_PAGES]
+    order = first + [i for i in order if i not in first]
     chosen: list[int] = []
     total = 0
     for index in order:
@@ -690,12 +745,33 @@ def climate_pages(pdf_bytes: bytes, limit: int = _MAX_LINKED_CHARS, assurance: b
         total += len(pages[index])
     if not any(weights[i] for i in chosen):
         return ""
-    return "\n".join(f"[page {i + 1}] {pages[i]}" for i in sorted(chosen))
+    return "\n".join(f"[PDF page {i + 1}] {pages[i]}" for i in sorted(chosen))
 
 
 # A run reads the same linked report for several claims, so a read is kept for the
 # rest of the process.
-_linked_reads: dict[tuple[str, int], str] = {}
+_linked_reads: dict[tuple[str, int, tuple[str, ...]], str] = {}
+
+
+def claim_figures(text: str) -> tuple[str, ...]:
+    """Return the figures in a claim that can find its page in a report.
+
+    Percentages and decimal numbers only, written without a space before "%": a
+    bare year or round number is on too many pages to point at one.
+
+    Args:
+        text: The claim.
+
+    Returns:
+        The figures, lower case, in the order they appear, without repeats.
+    """
+    found = re.findall(r"\d+(?:[.,]\d+)?%|\b\d+[.,]\d+\b", _percent(text))
+    return tuple(dict.fromkeys(figure.lower() for figure in found))
+
+
+def _percent(text: str) -> str:
+    """Write a percentage one way: "41 %", "41 percent" and "41 per cent" as "41%"."""
+    return re.sub(r"(\d)\s*(?:%|percent\b|per cent\b)", r"\1%", text, flags=re.IGNORECASE)
 
 
 async def _read_more_html(url: str) -> str:
@@ -713,10 +789,13 @@ async def _read_more_html(url: str) -> str:
     return content.decode("utf-8", errors="replace")
 
 
-async def _read_linked_report(url: str, limit: int = _MAX_LINKED_CHARS) -> str:
+async def _read_linked_report(
+    url: str, limit: int = _MAX_LINKED_CHARS, figures: tuple[str, ...] = ()
+) -> str:
     """Fetch a linked report and return its climate and assurance pages, or "" if unreadable."""
-    if (url, limit) in _linked_reads:
-        return _linked_reads[(url, limit)]
+    key = (url, limit, figures)
+    if key in _linked_reads:
+        return _linked_reads[key]
     try:
         content_type, content = await _fetch_content(url)
     except Exception as exc:
@@ -727,9 +806,9 @@ async def _read_linked_report(url: str, limit: int = _MAX_LINKED_CHARS) -> str:
         return ""
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
         return ""
-    text = await asyncio.to_thread(climate_pages, content, limit)
+    text = await asyncio.to_thread(climate_pages, content, limit, True, figures)
     if text:
-        _linked_reads[(url, limit)] = text
+        _linked_reads[key] = text
     logger.info(
         f"Linked report read: {url} ({len(text)} chars)",
         extra={"operation": "source_doc_linked_read", "url": url, "chars": len(text)},
@@ -762,11 +841,19 @@ def _extract_pdf_text(pdf_bytes: bytes) -> str:
         return f"[PDF text extraction failed: {exc}]"
 
 
+# A run reads the same document for several claims, often at the same time. Each address
+# is fetched once per process: the first claim fetches it, the others wait for that fetch
+# and share its result, so one document cannot be read for one claim and missing for
+# another.
+_fetched: dict[str, tuple[str, bytes]] = {}
+_fetch_locks: dict[str, asyncio.Lock] = {}
+
+
 async def _fetch_content(url: str) -> tuple[str, bytes]:
-    """Fetch a URL and return (content_type, raw_bytes).
+    """Fetch a URL once per run and return (content_type, raw_bytes).
 
     Args:
-        url: The URL to fetch.
+        url: The URL to fetch. Its fragment is ignored.
 
     Returns:
         Tuple of (content_type, response_body_bytes).
@@ -777,6 +864,20 @@ async def _fetch_content(url: str) -> tuple[str, bytes]:
     copy = read_copy(url)
     if copy is not None:
         return copy
+    address = url.split("#")[0]
+    lock = _fetch_locks.setdefault(address, asyncio.Lock())
+    async with lock:
+        if address not in _fetched:
+            try:
+                _fetched[address] = await _download(address)
+            except httpx.TimeoutException:
+                # One retry: a slow server is the usual cause, not a missing document.
+                _fetched[address] = await _download(address)
+        return _fetched[address]
+
+
+async def _download(url: str) -> tuple[str, bytes]:
+    """Download a URL with the index's user agent and return (content_type, raw_bytes)."""
     headers = {
         "User-Agent": "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://prasineindex.com)",
         "Accept": "text/html,application/xhtml+xml,application/pdf,*/*",

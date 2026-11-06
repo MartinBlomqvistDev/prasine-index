@@ -9,6 +9,7 @@ from ingest.source_document import (
     _choose_reports,
     _read_more_page,
     _report_links,
+    claim_figures,
     climate_pages,
 )
 
@@ -19,7 +20,7 @@ RYANAIR = "https://corporate.ryanair.com/sustainability/"
 class TestLinkedReports:
     """The documents a page links to are chosen by kind and by year."""
 
-    def test_transition_plan_first_then_the_report(self) -> None:
+    def test_the_newest_report_first_then_the_transition_plan(self) -> None:
         html = (
             '<a href="/docs/GLEN-2025-Sustainability-Report.pdf">2025 Sustainability Report</a>'
             '<a href="/docs/GLEN-2025-Annual-Report.pdf">2025 Annual Report</a>'
@@ -29,8 +30,30 @@ class TestLinkedReports:
             '<a href="/docs/2025+Modern+Slavery+Statement.pdf">Modern Slavery Statement</a>'
         )
         assert _choose_reports(_report_links(html, GLENCORE_CLIMATE)) == [
-            "https://www.glencore.com/docs/GLEN-2024-2026-Climate-Action-Transition-Plan.pdf",
             "https://www.glencore.com/docs/GLEN-2025-Sustainability-Report.pdf",
+            "https://www.glencore.com/docs/GLEN-2024-2026-Climate-Action-Transition-Plan.pdf",
+        ]
+
+    def test_a_cdp_response_does_not_push_out_the_annual_report(self) -> None:
+        html = (
+            '<a href="/files/HM-Group-Climate-Transition-Plan-2024.pdf">Climate Transition Plan</a>'
+            '<a href="/files/HM-Group-Annual-and-Sustainability-Report-2025.pdf">'
+            "Annual and Sustainability Report 2025</a>"
+            '<a href="/files/HM-Group-CDP-Climate-Change-Response-2025.pdf">CDP response</a>'
+        )
+        assert _choose_reports(_report_links(html, "https://hmgroup.com/climate")) == [
+            "https://hmgroup.com/files/HM-Group-Annual-and-Sustainability-Report-2025.pdf",
+            "https://hmgroup.com/files/HM-Group-Climate-Transition-Plan-2024.pdf",
+        ]
+
+    def test_a_climate_report_when_there_is_no_plan(self) -> None:
+        html = (
+            '<a href="/files/annual-report-2025.pdf">Annual Report 2025</a>'
+            '<a href="/files/tcfd-climate-report-2025.pdf">Climate report</a>'
+        )
+        assert _choose_reports(_report_links(html, "https://example.com/")) == [
+            "https://example.com/files/annual-report-2025.pdf",
+            "https://example.com/files/tcfd-climate-report-2025.pdf",
         ]
 
     def test_the_latest_report_of_a_kind_without_its_fragment(self) -> None:
@@ -60,7 +83,7 @@ class TestLinkedReports:
         html = '<a href="/static/a2031b9c/Sustainability-Report.pdf">Sustainability Report</a>'
         assert _report_links(html, "https://example.com/") == [
             (
-                "sustainability report",
+                "report",
                 "https://example.com/static/a2031b9c/Sustainability-Report.pdf",
                 0,
             )
@@ -102,6 +125,22 @@ class TestReadMorePage:
             "https://example.com/news/sbti"
         )
 
+    def test_a_link_inside_the_claim_comes_first(self) -> None:
+        html = (
+            '<p>The carbon footprint of SSAB Zero is third party verified in our <a href="/zero/epd">'
+            'EPDs</a>.</p><a href="/green-steel">Learn more about green steel</a>'
+        )
+        claim = "The carbon footprint of SSAB Zero is third party verified in our EPDs."
+        assert _read_more_page(html, "https://www.ssab.com/en/zero", claim) == (
+            "https://www.ssab.com/zero/epd"
+        )
+
+    def test_learn_all_about(self) -> None:
+        html = '<p>Net zero by 2045.</p><a href="/zero">Learn all about SSAB Zero steel</a>'
+        assert _read_more_page(html, "https://www.ssab.com/en/", "Net zero by 2045.") == (
+            "https://www.ssab.com/zero"
+        )
+
     def test_a_pdf_or_another_site_is_not_followed(self) -> None:
         pdf = '<p>Net zero by 2050.</p><a href="/report.pdf#page=79">Read more</a>'
         other = '<p>Net zero by 2050.</p><a href="https://other.org/net-zero">Read more</a>'
@@ -133,12 +172,36 @@ class TestClimatePages:
 
     def test_assurance_pages_come_first(self, monkeypatch) -> None:
         climate = "Scope 1 emissions fell. Net zero by 2050. " * 40
-        assurance = "Independent practitioner's limited assurance report on the statement."
+        assurance = (
+            "Independent practitioner's limited assurance report. Limited assurance "
+            "conclusion: nothing has come to our attention."
+        )
         self._patch_pages(monkeypatch, [climate, climate, "Board report", assurance])
         text = climate_pages(b"%PDF", limit=len(climate) + len(assurance) + 10)
-        assert "[page 4]" in text
-        assert "[page 1]" in text
-        assert "[page 2]" not in text
+        assert "[PDF page 4]" in text
+        assert "[PDF page 1]" in text
+        assert "[PDF page 2]" not in text
+
+    def test_a_table_of_contents_is_not_an_assurance_page(self, monkeypatch) -> None:
+        contents = (
+            "Contents. Auditor's limited assurance report on the sustainability statement 180"
+        )
+        climate = "Scope 1 emissions fell. Net zero by 2050. " * 40
+        self._patch_pages(monkeypatch, [contents, climate, climate])
+        text = climate_pages(b"%PDF", limit=len(climate) + 10)
+        assert "[PDF page 1]" not in text
+        assert "[PDF page 2]" in text
+
+    def test_pages_with_the_claims_figures_come_next(self, monkeypatch) -> None:
+        climate = "Scope 1 emissions fell. Net zero by 2050. " * 40
+        figure_page = "Energy table. Renewable electricity share 34.6 % in 2025."
+        self._patch_pages(monkeypatch, [climate, climate, figure_page])
+        text = climate_pages(
+            b"%PDF", limit=len(climate) + len(figure_page) + 10, figures=("34.6%",)
+        )
+        assert "[PDF page 3]" in text
+        assert "[PDF page 1]" in text
+        assert "[PDF page 2]" not in text
 
     def test_no_assurance_pages_for_claim_extraction(self, monkeypatch) -> None:
         climate = "Net zero by 2050. " * 10
@@ -149,6 +212,14 @@ class TestClimatePages:
     def test_assurance_alone_is_not_a_climate_page(self, monkeypatch) -> None:
         self._patch_pages(monkeypatch, ["Board report", "limited assurance on the statement"])
         assert climate_pages(b"%PDF") == ""
+
+
+class TestClaimFigures:
+    """The figures that can find a claim's page are its percentages and decimals."""
+
+    def test_percentages_and_decimals_without_years(self) -> None:
+        claim = "We cut emissions 41 % by 2025 and use 34.6% renewable electricity in 2030."
+        assert claim_figures(claim) == ("41%", "34.6%")
 
 
 class TestLocalCopies:
