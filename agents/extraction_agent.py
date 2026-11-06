@@ -141,6 +141,9 @@ company's pages. Extract only what the company states about itself. For example,
 on a steelmaker's page about a partnership, "Epiroc's reduction target to halve \
 absolute CO2e emissions ... is validated by the Science Based Targets initiative" \
 states Epiroc's target, not the steelmaker's: leave it out.
+- A general view about a technology, a policy or the energy transition that \
+commits the company to nothing of its own, such as "carbon capture will play an \
+important role in reaching net zero".
 - Tables of historical data with no statement attached.
 - Statements about matters other than climate: social, ethical or governance \
 practices, responsible sourcing, safety or product quality, and environmental \
@@ -155,17 +158,23 @@ language. The assessment happens later.
 sentences: never a clause cut from a longer sentence. A sentence that refers back \
 ("In this circumstance", "these emissions", "this target") is extracted together \
 with the sentence it refers to, or not at all. A figure's caption without its \
-figure is not a claim.
-3. Assign the most specific ClaimCategory.
-4. Record the page number or section heading if the text shows it.
-5. Return only real climate claims. Fewer claims are better than padding: if the \
+figure is not a claim. The claim starts where its sentence starts.
+3. Leave out the attribution of a quotation to a person, such as "says the head \
+of the division", and any sentence in the passage that is not about climate.
+4. Assign the most specific ClaimCategory. A claim whose central statement is a \
+net zero aim or target with a year is NET_ZERO_TARGET, whatever emissions it \
+covers.
+5. Record the page number or section heading if the text shows it.
+6. Return only real climate claims. Fewer claims are better than padding: if the \
 document holds two climate claims, return two.
-6. Return at most one claim per ClaimCategory: the most specific and verifiable one.
-7. Do not return near-duplicates. Two passages that state the same target, with \
+7. Return at most one claim per ClaimCategory: the most specific and verifiable one. \
+Net zero targets for different emissions, such as operations and products sold, \
+are each returned.
+8. Do not return near-duplicates. Two passages that state the same target, with \
 the same figure and year, are one claim, such as an announcement and the footnote \
 that gives the target's wording: return the fuller one. Claims about different \
 emission scopes are different claims.
-8. Call the extract_green_claims tool exactly once with the complete list.\
+9. Call the extract_green_claims tool exactly once with the complete list.\
 """
 
 

@@ -22,6 +22,9 @@ cited.
 
 from __future__ import annotations
 
+import re
+from datetime import UTC, datetime
+
 from models.claim import Claim, ClaimCategory
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -167,6 +170,18 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
 }
 
 
+_FUTURE_WORDS = ("we will", "commit", "aim to", "ambition", "pledge", "plan to")
+
+
+def _forward_looking(text: str) -> bool:
+    """Tell whether a claim speaks of future performance: a later year or a commitment."""
+    this_year = datetime.now(UTC).year
+    if any(int(y) > this_year for y in re.findall(r"(?<!\d)(20[2-9]\d)(?!\d)", text)):
+        return True
+    lowered = text.lower()
+    return any(word in lowered for word in _FUTURE_WORDS)
+
+
 async def fetch_eurlex_data(
     claim: Claim,
     company: object,  # Company, typed loosely to avoid circular import
@@ -190,6 +205,9 @@ async def fetch_eurlex_data(
         claim.claim_category,
         _REGULATORY_CONTEXT[ClaimCategory.OTHER],
     )
+    # A claim about future performance meets Article 6(2)(d) whatever its category.
+    if _forward_looking(claim.raw_text or "") and _FUTURE_PERFORMANCE not in standards:
+        standards = [_FUTURE_PERFORMANCE, *standards]
 
     return [
         Evidence(

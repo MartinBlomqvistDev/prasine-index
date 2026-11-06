@@ -252,3 +252,13 @@ class TestLocalCopies:
             b"%PDF-1.7 test",
         )
         assert read_copy("https://example.com/other.pdf") is None
+
+    def test_the_next_card_link_is_not_followed(self) -> None:
+        html = (
+            "<p>We aim to become climate positive by 2030.</p>"
+            "<h3>Transitioning towards a circular business</h3>"
+            "<p>We design products to be repaired.</p>"
+            '<a href="/circular">Learn more</a>'
+        )
+        claim = "We aim to become climate positive by 2030."
+        assert _read_more_page(html, "https://www.ikea.com/global/en/", claim) is None

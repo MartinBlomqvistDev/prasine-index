@@ -54,6 +54,10 @@ _MAX_MORE_CHARS = 30_000
 # How far after a claim, in characters of page text, its "Read more" link may sit: a
 # teaser's link follows it directly, and a link further down belongs to the next card.
 _MORE_DISTANCE = 300
+# The most text, in characters, that may stand between a claim and its own "Read more"
+# link, and the heading tags that mark the start of the next item on a page.
+_MORE_GAP = 60
+_HEADING = re.compile(r"<h[1-6][\s>]", re.IGNORECASE)
 
 # Kinds of company document a claim page links to, in the order they are read, with
 # the words in a link's address or text that mark each. The company's newest annual or
@@ -736,7 +740,8 @@ def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
         anchors.append((match.group(1), _strip_html(match.group(2))))
         return f" \x00{len(anchors) - 1}\x00 "
 
-    text = _comparable(_strip_html(_ANCHOR.sub(mark, _PAGE_CHROME.sub(" ", html))))
+    marked = _ANCHOR.sub(mark, _PAGE_CHROME.sub(" ", html))
+    text = _comparable(_strip_html(_HEADING.sub(" \x01 ", marked)))
     claim = _comparable(claim_text)
     if not claim:
         return None
@@ -762,10 +767,16 @@ def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
         url = target(index)
         if url:
             return url
-    for index in re.findall(r"\x00(\d+)\x00", text[end : end + _MORE_DISTANCE]):
-        if not _MORE_LABEL.search(anchors[int(index)][1]):
+    window = text[end : end + _MORE_DISTANCE]
+    for match in re.finditer(r"\x00(\d+)\x00", window):
+        if not _MORE_LABEL.search(anchors[int(match.group(1))][1]):
             continue
-        return target(index)
+        # A heading or a block of other text between the claim and the link means the
+        # link belongs to the next item on the page.
+        between = re.sub(r"\x00\d+\x00", "", window[: match.start()])
+        if "\x01" in between or len(between.strip()) > _MORE_GAP:
+            return None
+        return target(match.group(1))
     return None
 
 
