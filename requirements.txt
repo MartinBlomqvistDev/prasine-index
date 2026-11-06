@@ -52,6 +52,10 @@ playwright>=1.40.0
 # pypdf: PDF text extraction for sustainability reports and annual reports
 pypdf>=5.0.0
 
+# openpyxl: reads the Global Energy Monitor trackers, the GCEL workbook and the SBTi
+# register, which are published as Excel files
+openpyxl>=3.1.0
+
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
