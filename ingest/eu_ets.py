@@ -334,7 +334,9 @@ def _build_evidence(
             trend_base = trend_base[i:]
             break
     base_year, base_emissions = trend_base[0]
-    if len(history) >= 2 and base_year != most_recent_year:
+    if not any(emissions for _year, emissions in history):
+        direction = "no emissions reported in any year"
+    elif len(history) >= 2 and base_year != most_recent_year:
         pct_change = (
             ((most_recent_emissions - base_emissions) / base_emissions * 100)
             if base_emissions

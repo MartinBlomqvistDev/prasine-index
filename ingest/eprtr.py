@@ -371,6 +371,20 @@ def _co2_by_year(records_by_year: dict[int, list[_EprtrRecord]]) -> dict[int, fl
     return result
 
 
+def _co2_facilities(records_by_year: dict[int, list[_EprtrRecord]]) -> dict[int, int]:
+    """Count the matched facilities that report total CO2 to air, per year."""
+    return {
+        year: len(
+            {
+                r.facility_name
+                for r in records
+                if _air(r) and r.pollutant.lower().strip() in _CO2_NAMES
+            }
+        )
+        for year, records in records_by_year.items()
+    }
+
+
 def _other_pollutants(records: list[_EprtrRecord]) -> dict[str, float]:
     """Sum each tracked pollutant other than CO2 released to air, in tonnes."""
     totals: dict[str, float] = defaultdict(float)
@@ -455,9 +469,23 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     ]
     if co2_by_year:
         years = sorted(co2_by_year)
-        series = "; ".join(f"{yr}: {co2_by_year[yr]:,.1f} t" for yr in years[-5:])
+        counts = _co2_facilities(records_by_year)
+
+        def covered(yr: int) -> str:
+            n = counts.get(yr, 0)
+            return f"{n} {'facility' if n == 1 else 'facilities'}"
+
+        series = "; ".join(
+            f"{yr}: {co2_by_year[yr]:,.1f} t from {covered(yr)}" for yr in years[-5:]
+        )
         supports, confidence, trend_text = _assess_trend(co2_by_year)
         parts.append(f"Carbon dioxide (CO2), total as reported: {series}. {trend_text}")
+        if counts.get(years[0]) != counts.get(years[-1]):
+            parts.append(
+                f"The first year, {years[0]}, covers {covered(years[0])} and the last, "
+                f"{years[-1]}, {covered(years[-1])}, so the change between them is not like "
+                "for like."
+            )
     else:
         supports, confidence = None, 0.4
         parts.append("No CO2 release is reported for these facilities.")
@@ -467,6 +495,11 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
         parts.append(
             "Some of these facilities also report CO2 excluding biomass, a figure not "
             "combined with the totals above."
+        )
+    elif co2_by_year:
+        parts.append(
+            "E-PRTR's CO2 total includes CO2 from burning biomass, and these facilities "
+            "report no figure excluding biomass."
         )
     summary = " ".join(parts)
     ghg_by_year = co2_by_year
@@ -509,14 +542,12 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
 def _assess_trend(ghg_by_year: dict[int, float]) -> tuple[bool | None, float, str]:
     """Assess whether the emissions trend supports or contradicts a green claim.
 
-    Uses the median of the three most recent consecutive years as the "current"
-    value, and the median of the three earliest years as the baseline. This
-    prevents a single first-disclosure year (where a new facility or pollutant
-    type appears in the dataset for the first time) from being misread as a
-    genuine multi-year increase. E-PRTR reporting scope changes, for example a
-    facility crossing the reporting threshold, or CO2 being added to a
-    facility's permit, are common and produce step-changes that are not
-    real emissions trends.
+    Compares the first and the last year of the series. A last year more than ten
+    times the year before is read as a first-disclosure event (a facility or
+    pollutant entering the reporting scope), and the trend is then taken without
+    it. E-PRTR reporting scope changes, for example a facility crossing the
+    reporting threshold, produce step-changes that are not real emissions trends,
+    and the summary states how many facilities each year covers.
 
     Args:
         ghg_by_year: Year → total regulated emissions in tonnes.

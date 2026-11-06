@@ -294,7 +294,10 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
             trace_id=claim.trace_id,
             source=EvidenceSource.EU_TRANSPARENCY_REGISTER,
             evidence_type=EvidenceType.LOBBYING_RECORD,
-            source_url="https://ec.europa.eu/transparencyregister/public/consultation/search.do",
+            source_url=(
+                "https://transparency-register.europa.eu/search-register-or-update/"
+                f"organisation-detail_en?id={record.reg_number}"
+            ),
             raw_data={
                 "reg_number": record.reg_number,
                 "name": record.name,
@@ -319,12 +322,10 @@ def _build_summary(company_name: str, record: _TRRecord) -> str:
         else f"registered as: {record.category}"
     )
 
+    matched = f" (matched to {company_name})" if record.name != company_name else ""
     return (
-        f"EU Transparency Register: {company_name} is {status_str}ly registered "
-        f"as an EU lobbyist ({direct_str}, HQ: {record.country}, "
-        f"reg. no. {record.reg_number}). "
-        f"Registration confirms the organisation actively engages EU institutions "
-        f"on policy matters. The direction of lobbying (for or against climate policy) "
-        f"is not indicated by registration alone; cross-reference with LobbyMap "
-        f"data for lobbying positions."
+        f"EU Transparency Register: {record.name}{matched} is {status_str}ly registered "
+        f"({direct_str}, head office in {record.country.title()}, registration number "
+        f"{record.reg_number}). Registration shows that the organisation engages EU "
+        f"institutions on policy; it does not show the direction of that engagement."
     )

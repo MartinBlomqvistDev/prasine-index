@@ -119,9 +119,14 @@ _MAIN_CHARACTERISTICS = (
     _EMPCO_CELEX,
     "Directive (EU) 2024/825: UCPD Article 6(1), environmental characteristics",
     _EMPCO_YEAR,
-    "As amended, Article 6(1) of the UCPD lists a product's environmental and social "
-    "characteristics and circularity aspects among the main characteristics about "
-    "which a practice can mislead consumers, assessed case by case." + _CONSUMER_SCOPE,
+    'Article 6(1) of the UCPD reads: "A commercial practice shall be regarded as '
+    "misleading if it contains false information and is therefore untruthful or in any "
+    "way, including overall presentation, deceives or is likely to deceive the average "
+    "consumer, even if the information is factually correct, in relation to one or more "
+    "of the following elements, and in either case causes or is likely to cause him to "
+    'take a transactional decision that he would not have taken otherwise:". Directive '
+    "(EU) 2024/825 adds a product's environmental or social characteristics and its "
+    "circularity aspects to the main characteristics listed in point (b)." + _CONSUMER_SCOPE,
 )
 
 _CSRD = (

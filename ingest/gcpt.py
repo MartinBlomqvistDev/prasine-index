@@ -196,6 +196,15 @@ def _owner_matches(company_norm: str, owner_name: str) -> bool:
     return len(company_first) >= 4 and contains_name(own_norm, company_first)
 
 
+def _unit_name(unit: object) -> str:
+    """Name a unit with its plant: "Brindisi Sud unit 3" rather than "Unit 3"."""
+    plant = str(getattr(unit, "plant_name", "") or "")
+    name = str(getattr(unit, "unit_name", "") or "")
+    if name and plant and plant.lower() not in name.lower():
+        return f"{plant} {name}"
+    return name or plant
+
+
 async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
     """Return GCPT coal unit evidence for a company.
 
@@ -255,34 +264,39 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
         confidence = 0.65
 
     # Build summary
+    countries = len({u.country for u in matched})
     lines: list[str] = [
-        f"GCPT (Jan 2026): {company_name!r} has {len(matched)} coal unit(s) "
-        f"across {len({u.country for u in matched})} country/countries."
+        f"Global Coal Plant Tracker (Global Energy Monitor, January 2026): {company_name} is "
+        f"named as an owner or parent of {len(matched)} coal "
+        f"{'unit' if len(matched) == 1 else 'units'} in {countries} "
+        f"{'country' if countries == 1 else 'countries'}."
     ]
 
     if expanding:
         expanding_names = "; ".join(
-            f"{u.unit_name or u.plant_name} ({u.country}, {u.status.title()}, "
-            f"{u.capacity_mw:.0f} MW)"
+            f"{_unit_name(u)} ({u.country}, {u.status}, {u.capacity_mw:.0f} MW)"
             for u in expanding[:5]
         )
         lines.append(
-            f"EXPANDING: {len(expanding)} unit(s) in active development pipeline "
-            f"({total_expanding_mw:.0f} MW total). "
-            f"Examples: {expanding_names}."
+            f"In development: {len(expanding)} {'unit' if len(expanding) == 1 else 'units'} "
+            f"({total_expanding_mw:.0f} MW in all): {expanding_names}."
         )
 
     if operating:
         lines.append(
-            f"OPERATING: {len(operating)} unit(s) currently generating "
-            f"({total_operating_mw:.0f} MW total)."
+            f"Operating: {len(operating)} {'unit' if len(operating) == 1 else 'units'} "
+            f"({total_operating_mw:.0f} MW in all)."
         )
 
     if exiting:
-        exiting_names = "; ".join(
-            f"{u.unit_name or u.plant_name} ({u.status.title()})" for u in exiting[:3]
+        statuses: dict[str, int] = {}
+        for unit in exiting:
+            statuses[unit.status] = statuses.get(unit.status, 0) + 1
+        lines.append(
+            "No longer operating or not going ahead: "
+            + ", ".join(f"{n} {status}" for status, n in sorted(statuses.items()))
+            + "."
         )
-        lines.append(f"RETIRING/CANCELLED: {len(exiting)} unit(s), {exiting_names}.")
 
     summary = " ".join(lines)
 

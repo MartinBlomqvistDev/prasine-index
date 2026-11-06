@@ -251,22 +251,27 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
     if developing:
         dev_names = "; ".join(f"{f.name} ({f.country}, {f.fuel_type})" for f in developing[:5])
         lines.append(
-            f"IN DEVELOPMENT: {len(developing)} field(s) with FID, capital committed "
-            f"to new fossil fuel extraction. Examples: {dev_names}."
+            f"In development: {len(developing)} {'field' if len(developing) == 1 else 'fields'} "
+            f"with a final investment decision: {dev_names}."
         )
 
     if discovered:
         disc_names = "; ".join(f"{f.name} ({f.country})" for f in discovered[:3])
         lines.append(
-            f"DISCOVERED: {len(discovered)} field(s) discovered, with no final investment decision recorded. "
-            f"Examples: {disc_names}."
+            f"Discovered: {len(discovered)} {'field' if len(discovered) == 1 else 'fields'} "
+            f"with no final investment decision recorded: {disc_names}."
         )
 
     if operating:
-        lines.append(f"OPERATING: {len(operating)} field(s) currently producing.")
+        lines.append(
+            f"Operating: {len(operating)} {'field' if len(operating) == 1 else 'fields'} producing."
+        )
 
     if exiting:
-        lines.append(f"DECOMMISSIONING/ABANDONED: {len(exiting)} field(s).")
+        lines.append(
+            f"Decommissioning or abandoned: {len(exiting)} "
+            f"{'field' if len(exiting) == 1 else 'fields'}."
+        )
 
     summary = " ".join(lines)
 
