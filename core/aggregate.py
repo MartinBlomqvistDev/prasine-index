@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 
 from core.pipeline import PipelineResult
@@ -15,6 +16,35 @@ __all__ = ["aggregate_claim_scores"]
 # Rationale: a verified freshwater reduction shouldn't dilute the score for
 # a confirmed net-zero greenwashing claim: they're different signal types.
 _SCORE_TOP_K = 3
+
+# Target years a pledge names, such as "net zero by 2040".
+_YEAR = re.compile(r"(?<!\d)(20[2-9]\d|2100)(?!\d)")
+
+
+def _pledge_years(result: PipelineResult) -> frozenset[str]:
+    """Return the target years a pledge names, or nothing for a claim that is no pledge."""
+    if not result.score.claim_is_pledge:
+        return frozenset()
+    return frozenset(_YEAR.findall(result.claim.raw_text or ""))
+
+
+def _distinct_pledges(results: list[PipelineResult]) -> tuple[list[int], int]:
+    """Return the indexes of the claims that enter the mean, and how many were left out.
+
+    Claims the judge found to be pledges and that name the same target years state
+    the same pledge, which counts once, through the highest-scoring of those claims.
+    Every other claim enters as it is.
+    """
+    best: dict[frozenset[str], int] = {}
+    keep: list[int] = []
+    for index, result in enumerate(results):
+        years = _pledge_years(result)
+        if not years:
+            keep.append(index)
+        elif years not in best or result.score.score > results[best[years]].score.score:
+            best[years] = index
+    keep += best.values()
+    return sorted(keep), len(results) - len(keep)
 
 
 def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, float]:
@@ -86,8 +116,11 @@ def aggregate_claim_scores(
         for r in results
     ]
 
-    # Score on the top-K most severe claims only.
-    top_k = sorted(summaries, key=lambda s: s.score, reverse=True)[:_SCORE_TOP_K]
+    # Score on the top-K most severe claims only, with each pledge counted once.
+    entering, counted_once = _distinct_pledges(results)
+    top_k = sorted((summaries[i] for i in entering), key=lambda s: s.score, reverse=True)[
+        :_SCORE_TOP_K
+    ]
     agg_score, agg_low, agg_high, agg_conf = _weighted_agg(top_k)
 
     # Floor at the worst claim's band: a confirmed (or otherwise severe)
@@ -113,4 +146,5 @@ def aggregate_claim_scores(
         claims=summaries,
         floor_applied=floor_applied,
         mean_score=round(mean_score, 1),
+        pledges_counted_once=counted_once,
     )

@@ -170,7 +170,12 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             continue
         first = str(record.raw_data.get(upstream_key) or "").lower().strip()
         second = str(record.raw_data.get(power_key) or "").lower().strip()
-        if first in values or second in values:
+        if record.raw_data.get("lng_counted") is False and first not in values:
+            lines.append(
+                f"{name}: listed for LNG capacity under development that matches a proposal "
+                f"more than ten years old, not counted as new supply{_cite(record)}."
+            )
+        elif first in values or second in values:
             expanding.append(name)
             lines.append(f"{name}: listed as expanding{_cite(record)}.")
         else:
@@ -182,6 +187,18 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         if record is not None and isinstance(count, int) and count > 0:
             expanding.append(name)
             lines.append(f"{name}: {count} {noun}{_assets(record)}{_cite(record)}.")
+        stalled = record.raw_data.get("stalled_assets") if record else None
+        if record is not None and stalled:
+            listed = "; ".join(
+                f"{asset.get('name')} (proposed in {asset.get('proposal_year')})"
+                for asset in stalled[:3]
+            )
+            lines.append(
+                f"{name}: {len(stalled)} "
+                f"{'proposal' if len(stalled) == 1 else 'proposals'} still at the proposal "
+                f"stage more than ten years later, not counted as new supply: {listed}"
+                f"{_cite(record)}."
+            )
 
     if not lines:
         line = "Not listed in the fossil fuel exit lists or in development in the asset trackers."

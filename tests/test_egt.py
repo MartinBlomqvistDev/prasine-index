@@ -40,6 +40,7 @@ def tracker(tmp_path, monkeypatch):
             "Capacity",
             "CapacityUnits",
             "ProposalYear",
+            "CapacityinMtpa",
         ]
     )
     terminals.append(
@@ -54,6 +55,7 @@ def tracker(tmp_path, monkeypatch):
             8,
             "bcm/y",
             2007,
+            5.88,
         ]
     )
     plants = workbook.create_sheet("Oil & Gas Plants")
@@ -121,15 +123,49 @@ class TestPlants:
     def test_power_units_in_development_are_not_supply(self, tracker) -> None:
         evidence = _evidence("Enel SpA")
         summary = evidence[0].summary
-        assert evidence[0].raw_data["expanding"] == 1
         assert evidence[0].raw_data["expanding_power"] == 1
-        assert "Gas supply infrastructure in development" in summary
-        assert (
-            "Porto Empedocle LNG Terminal (LNG terminal unit, import terminal, 8 bcm/y" in summary
-        )
         assert (
             "Gas-fired power units in development, which use gas rather than supply it" in summary
         )
+
+    def test_a_proposal_more_than_ten_years_old_is_not_counted(self, tracker) -> None:
+        evidence = _evidence("Enel SpA")
+        summary = evidence[0].summary
+        assert evidence[0].raw_data["expanding"] == 0
+        assert evidence[0].raw_data["stalled"] == 1
+        assert "Proposed more than 10 years ago and still not past the proposal stage" in summary
+        assert (
+            "Porto Empedocle LNG Terminal (LNG terminal unit, import terminal, 8 bcm/y, "
+            "proposed in 2007" in summary
+        )
+        assert egt.stalled_lng("Enel SpA") == [("Porto Empedocle LNG Terminal", 2007, 5.88)]
+
+
+class TestExitListLng:
+    """The exit list's LNG expansion is not counted when it is the same stalled terminal."""
+
+    def _record(self, upstream: str, details: str) -> SimpleNamespace:
+        return SimpleNamespace(upstream_expansion=upstream, lng_expansion="yes", details=details)
+
+    def test_matched_by_capacity(self, monkeypatch) -> None:
+        import ingest.gogel as gogel
+
+        monkeypatch.setattr(
+            gogel, "stalled_lng", lambda _name: [("Porto Empedocle LNG Terminal", 2007, 5.88)]
+        )
+        note = gogel._stalled_lng_note(
+            "Enel SpA", self._record("no", "GOGEL 2025; LNG capacity under development 5.88 Mtpa")
+        )
+        assert "Porto Empedocle LNG Terminal, proposed in 2007" in note
+
+    def test_counted_when_larger_or_upstream(self, monkeypatch) -> None:
+        import ingest.gogel as gogel
+
+        monkeypatch.setattr(gogel, "stalled_lng", lambda _name: [("Terminal", 2007, 5.88)])
+        larger = self._record("no", "LNG capacity under development 9.5 Mtpa")
+        upstream = self._record("yes", "LNG capacity under development 5.88 Mtpa")
+        assert gogel._stalled_lng_note("X", larger) == ""
+        assert gogel._stalled_lng_note("X", upstream) == ""
 
     def test_a_share_the_tracker_does_not_give(self, tracker) -> None:
         summary = _evidence("Enel SpA")[0].summary

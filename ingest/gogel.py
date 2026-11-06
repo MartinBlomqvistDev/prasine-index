@@ -26,6 +26,7 @@ import re
 from pathlib import Path
 
 from core.logger import get_logger
+from ingest.egt import STALLED_YEARS, stalled_lng
 from ingest.name_matching import contains_name
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -352,6 +353,12 @@ async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
 
     supports, confidence = _assess_record(record)
     summary = _build_summary(name, record)
+    lng_counted = True
+    stalled_note = _stalled_lng_note(name, record)
+    if stalled_note:
+        lng_counted = False
+        summary = f"{summary} {stalled_note}"
+        supports, confidence = None, 0.6
 
     logger.info(
         f"GOGEL: {name!r} found, expanding={record.is_expanding}, "
@@ -380,6 +387,8 @@ async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
                 "production_boed": record.production_boed,
                 "proven_reserves_boe": record.proven_reserves_boe,
                 "details": record.details,
+                "lng_counted": lng_counted,
+                "lng_note": stalled_note,
             },
             summary=summary,
             data_year=_edition_year(record.details),
@@ -387,6 +396,38 @@ async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
             confidence=confidence,
         )
     ]
+
+
+def _stalled_lng_note(company_name: str, record: _GOGELRecord) -> str:
+    """Say when the list's only expansion is LNG capacity of a long-stalled proposal.
+
+    The exit list records LNG capacity under development without naming the project.
+    When the company has no upstream expansion, and the Europe Gas Tracker names it on
+    LNG terminals still at the proposal stage more than ten years after they were
+    proposed whose capacity covers the listed capacity, the list's LNG expansion is
+    taken to be those terminals and is not counted as new supply.
+
+    Returns:
+        The sentence to add to the summary, or "" when the rule does not apply.
+    """
+    if record.upstream_expansion.lower().strip() in _EXPANDING_VALUES:
+        return ""
+    if record.lng_expansion.lower().strip() not in _EXPANDING_VALUES:
+        return ""
+    found = re.search(r"LNG capacity under development ([\d.]+) Mtpa", record.details or "")
+    if not found:
+        return ""
+    listed = float(found.group(1))
+    stalled = stalled_lng(company_name)
+    if not stalled or sum(mtpa for _name, _year, mtpa in stalled) + 0.01 < listed:
+        return ""
+    names = "; ".join(f"{name}, proposed in {year}" for name, year, _mtpa in stalled)
+    return (
+        f"The LNG capacity under development, {listed:g} Mtpa, matches what the Europe Gas "
+        f"Tracker lists for the company as still at the proposal stage more than "
+        f"{STALLED_YEARS} years after it was proposed ({names}); Prasine does not count "
+        "such a proposal as new supply."
+    )
 
 
 def _assess_record(record: _GOGELRecord) -> tuple[bool | None, float]:

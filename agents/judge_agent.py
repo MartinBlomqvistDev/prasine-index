@@ -299,7 +299,8 @@ out in \
 For a pledge, a record showing that the company is expanding fossil fuel supply \
 (the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers; \
 gas-fired power units in development use gas rather than supply it and are \
-context) or \
+context; a project still at the proposal stage more than ten years after it was \
+proposed is not counted as new supply, and the records say so where that applies) or \
 that its lobbying is obstructive (LobbyMap band D or lower, which LobbyMap defines \
 as a score below 50%; D+ is not in that range) contradicts the pledge, \
 and investor assessments of the pledge (Climate Action 100+, TPI) and fossil fuel \
@@ -811,6 +812,7 @@ class JudgeAgent:
                 verdict=derived_verdict,
                 reasoning="\n\n".join(filter(None, (verdict["reasoning"], capped_note))),
                 confidence=float(verdict.get("confidence", 0.7)),
+                claim_is_pledge=_pledge(verdict) and can_be_pledge(input.claim),
                 score_low=min(float(verdict["score_low"]), score_value)
                 if verdict.get("score_low") is not None
                 else None,

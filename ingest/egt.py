@@ -39,6 +39,7 @@ Coverage: European gas infrastructure, March 2026 release
 from __future__ import annotations
 
 import re
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +48,7 @@ from ingest.name_matching import contains_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_egt_data"]
+__all__ = ["fetch_egt_data", "stalled_lng"]
 
 logger = get_logger(__name__)
 
@@ -65,15 +66,28 @@ _EXITING_STATUSES = {
 }
 
 
+# A project still at the proposal stage this many years after it was proposed is not
+# counted as new supply: it is listed, with its proposal year, as long stalled.
+STALLED_YEARS = 10
+
+
+def _data_year() -> int:
+    """Return the year of the tracker file, from its name, or this year."""
+    found = re.search(r"(20\d\d)-\d\d-\d\d", _XLSX_PATH.name)
+    return int(found.group(1)) if found else date.today().year
+
+
 class _EGTAsset:
     __slots__ = (
         "asset_type",
         "capacity",
         "country",
         "detail",
+        "mtpa",
         "name",
         "owner_raw",
         "parent_raw",
+        "proposal_year",
         "status",
     )
 
@@ -87,8 +101,12 @@ class _EGTAsset:
         capacity: str,
         asset_type: str,
         detail: str = "",
+        proposal_year: int | None = None,
+        mtpa: float | None = None,
     ) -> None:
         self.detail = detail.strip()
+        self.proposal_year = proposal_year
+        self.mtpa = mtpa
         self.name = name.strip()
         self.country = country.strip()
         self.status = status.strip().lower()
@@ -104,6 +122,14 @@ class _EGTAsset:
     @property
     def is_operating(self) -> bool:
         return self.status in _OPERATING_STATUSES
+
+    def is_stalled(self, year: int) -> bool:
+        """Still proposed or announced more than STALLED_YEARS after it was proposed."""
+        return (
+            self.status in {"proposed", "announced"}
+            and self.proposal_year is not None
+            and year - self.proposal_year > STALLED_YEARS
+        )
 
     @property
     def is_exiting(self) -> bool:
@@ -231,6 +257,8 @@ def _load() -> list[_EGTAsset]:
                         parent_raw=str(r.get("Parent", "") or ""),
                         capacity=f"{capacity} {units}".strip() if capacity else "",
                         asset_type="lng_terminal",
+                        proposal_year=int(float(proposed)) if proposed else None,
+                        mtpa=float(_number(r.get("CapacityinMtpa")) or 0) or None,
                         detail=", ".join(
                             part
                             for part in (
@@ -360,6 +388,28 @@ def _listing(assets: list[_EGTAsset], company_name: str, company_norm: str, limi
     return shown + (f"; and {more} more" if more > 0 else "")
 
 
+def stalled_lng(company_name: str) -> list[tuple[str, int, float]]:
+    """Return the company's LNG terminals that are long-stalled proposals.
+
+    Args:
+        company_name: The company's name.
+
+    Returns:
+        (name, proposal year, capacity in Mtpa) for each LNG terminal unit the company
+        is named on that is still proposed or announced more than STALLED_YEARS after
+        it was proposed.
+    """
+    company_norm = _normalise(company_name)
+    year = _data_year()
+    found = []
+    for asset in _load():
+        if asset.asset_type != "lng_terminal" or not asset.is_stalled(year):
+            continue
+        if any(_owner_matches(company_norm, owner) for owner in asset.owner_names()):
+            found.append((asset.name, asset.proposal_year or 0, asset.mtpa or 0.0))
+    return found
+
+
 async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     """Return Europe Gas Tracker evidence for a company.
 
@@ -399,7 +449,10 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
 
     # New gas-fired power units burn gas; they do not supply it. They are listed apart
     # and do not count as new fossil fuel supply.
-    expanding = [a for a in matched if a.is_expanding and a.asset_type != "gas_plant"]
+    year = _data_year()
+    proposals = [a for a in matched if a.is_expanding and a.asset_type != "gas_plant"]
+    stalled = [a for a in proposals if a.is_stalled(year)]
+    expanding = [a for a in proposals if not a.is_stalled(year)]
     expanding_power = [a for a in matched if a.is_expanding and a.asset_type == "gas_plant"]
     operating = [a for a in matched if a.is_operating]
     exiting = [a for a in matched if a.is_exiting]
@@ -434,6 +487,12 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
             f"Gas supply infrastructure in development (proposed, announced, pre-construction "
             f"or construction): {_listing(expanding, company_name, company_norm, 5)}."
         )
+    if stalled:
+        lines.append(
+            f"Proposed more than {STALLED_YEARS} years ago and still not past the proposal "
+            f"stage, so not counted as new supply: "
+            f"{_listing(stalled, company_name, company_norm, 5)}."
+        )
     if expanding_power:
         lines.append(
             f"Gas-fired power units in development, which use gas rather than supply it: "
@@ -450,7 +509,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
             + ", ".join(f"{n} {status}" for status, n in sorted(statuses.items()))
             + "."
         )
-    if not (expanding or expanding_power or operating or exiting):
+    if not (expanding or stalled or expanding_power or operating or exiting):
         other = sorted({a.status for a in matched if a.status})
         lines.append(f"Status in the tracker: {', '.join(other) or 'not given'}.")
 
@@ -467,6 +526,10 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         "total_assets": len(matched),
         "expanding": len(expanding),
         "expanding_power": len(expanding_power),
+        "stalled": len(stalled),
+        "stalled_assets": [
+            {"name": a.name, "proposal_year": a.proposal_year, "mtpa": a.mtpa} for a in stalled
+        ],
         "operating": len(operating),
         "exiting": len(exiting),
         "by_type": type_counts,

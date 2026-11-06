@@ -63,7 +63,7 @@ class ScoreVerdict(StrEnum):
 # shown to readers.
 FINDING_LABELS: dict[ScoreVerdict, str] = {
     ScoreVerdict.SUBSTANTIATED_CLAIM: "Supported by records",
-    ScoreVerdict.UNVERIFIABLE_CLAIM: "Not independently verified",
+    ScoreVerdict.UNVERIFIABLE_CLAIM: "Not checked against public records",
     ScoreVerdict.MISLEADING_CLAIM: "Not fully supported",
     ScoreVerdict.LIKELY_GREENWASHING: "Conflicts with records",
     ScoreVerdict.CONFIRMED_GREENWASHING: "Contradicted by records",
@@ -214,6 +214,10 @@ class GreenwashingScore(BaseModel):
             "Judge's confidence in the verdict, in [0.0, 1.0]. "
             "Reduced when key data sources were unavailable or signals were conflicting."
         ),
+    )
+    claim_is_pledge: bool = Field(
+        default=False,
+        description="Whether the judge found the claim's central statement to be a company-wide climate pledge.",
     )
     score_low: float | None = Field(
         default=None,

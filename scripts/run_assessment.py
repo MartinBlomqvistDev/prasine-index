@@ -141,14 +141,19 @@ def _aggregate_label(n: int) -> str:
 def _score_label(company_score: CompanyScore) -> str:
     """Name what produced the company score: the mean, or the floor it was raised to."""
     label = _aggregate_label(company_score.claim_count)
+    once = (
+        "; a pledge stated in more than one claim counts once"
+        if company_score.pledges_counted_once
+        else ""
+    )
     if company_score.floor_applied and company_score.mean_score is not None:
         mean = label.strip("()")
         return (
             f"(raised to {company_score.score:.0f}, the lower bound of the band of the "
             f"highest-scoring claim; the {mean[0].lower()}{mean[1:]} is "
-            f"{company_score.mean_score:.0f})"
+            f"{company_score.mean_score:.0f}{once})"
         )
-    return label
+    return f"{label[:-1]}{once})"
 
 
 def _preview(text: str, limit: int = 160) -> str:

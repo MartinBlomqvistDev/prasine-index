@@ -16,7 +16,7 @@ class TestFindingLabels:
 
     def test_labels_follow_the_bands(self) -> None:
         assert finding_label(verdict_for_score(10)) == "Supported by records"
-        assert finding_label(verdict_for_score(30)) == "Not independently verified"
+        assert finding_label(verdict_for_score(30)) == "Not checked against public records"
         assert finding_label(verdict_for_score(55)) == "Not fully supported"
         assert finding_label(verdict_for_score(70)) == "Conflicts with records"
         assert finding_label(verdict_for_score(90)) == "Contradicted by records"

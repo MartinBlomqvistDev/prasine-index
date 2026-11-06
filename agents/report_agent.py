@@ -81,8 +81,8 @@ REPORT STANDARDS
 records provided. Never add a fact, figure, ruling, date or name that is not \
 in the evidence.
 - Quote the claim verbatim and in full. Never paraphrase or shorten it.
-- Never name a person: refer to a document by its title, its organisation and its \
-date.
+- Never name a private person outside a verbatim quotation: refer to a document by \
+its title, its organisation and its date.
 - Describe an enforcement record only through the verbatim quotation and the \
 source URL given in its evidence record, with its reference and date exactly as \
 recorded. Do not characterise a ruling beyond what its quotation says.

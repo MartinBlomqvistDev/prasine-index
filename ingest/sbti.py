@@ -392,10 +392,9 @@ async def fetch_sbti_data(claim: Claim, company: object) -> list[Evidence]:
             return []
         # Claim references SBTi but company has no SBTi record.
         summary = (
-            f"{name} is not listed in the SBTi Companies Taking Action database. "
-            "The company has no validated, committed, or removed SBTi target on record. "
-            "A claim referencing science-based targets without SBTi registration "
-            "cannot be independently verified."
+            f"The SBTi Companies Taking Action register has no entry matched to {name}, "
+            "so the claim's reference to science-based targets cannot be checked against "
+            "the register."
         )
         logger.info(
             f"SBTi: {name!r} not found in database",

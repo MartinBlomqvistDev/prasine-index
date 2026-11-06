@@ -106,3 +106,46 @@ class TestAggregateFloor:
     def test_empty_results_raise(self) -> None:
         with pytest.raises(ValueError):
             aggregate_claim_scores("Empty", _COMPANY_ID, [])
+
+
+def _stated(score: float, text: str, pledge: bool = True) -> PipelineResult:
+    """A claim with its own text, which the judge did or did not find to be a pledge."""
+    result = _result(score)
+    return PipelineResult(
+        claim=result.claim.model_copy(update={"raw_text": text}),
+        score=result.score.model_copy(update={"claim_is_pledge": pledge}),
+        report_markdown="# test",
+    )
+
+
+class TestPledgeCountedOnce:
+    """A pledge stated in several claims enters the mean once, through its highest score."""
+
+    def test_the_same_pledge_counts_once(self) -> None:
+        results = [
+            _stated(48.0, "The Group confirms its objective to achieve net zero by 2040."),
+            _stated(57.0, "From 2040 onwards, consistent with the net zero target, ..."),
+            _result(43.0),
+            _result(42.0),
+        ]
+        company = aggregate_claim_scores("Enel SpA", _COMPANY_ID, results)
+        assert company.pledges_counted_once == 1
+        assert company.mean_score == pytest.approx((57.0 + 43.0 + 42.0) / 3, abs=0.1)
+        assert company.claim_count == 4
+
+    def test_pledges_with_different_years_both_count(self) -> None:
+        results = [
+            _stated(50.0, "Net zero by 2040."),
+            _stated(45.0, "Halve emissions by 2030."),
+            _result(44.0),
+        ]
+        company = aggregate_claim_scores("X", _COMPANY_ID, results)
+        assert company.pledges_counted_once == 0
+
+    def test_statements_of_fact_are_not_grouped(self) -> None:
+        results = [
+            _stated(50.0, "Our 2040 target was validated.", pledge=False),
+            _stated(45.0, "We cut emissions 40% towards 2040.", pledge=False),
+        ]
+        company = aggregate_claim_scores("X", _COMPANY_ID, results)
+        assert company.pledges_counted_once == 0
