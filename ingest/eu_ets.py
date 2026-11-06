@@ -272,6 +272,46 @@ def _breaks(previous: float, current: float) -> bool:
     return bool(previous) and (current > previous * 1.5 or current < previous * 0.5)
 
 
+_operator_names: dict[tuple[str, int], str] | None = None
+
+
+def _operator_name(display_id: str) -> str:
+    """Return an installation's name and account holder from the registry snapshot.
+
+    Args:
+        display_id: Installation ID as it appears in the company record, as in "DK_80".
+
+    Returns:
+        Text such as "Esbjergvaerket; account holder Orsted A/S", or "" if unknown.
+    """
+    global _operator_names
+    if _operator_names is None:
+        _operator_names = {}
+        path = _EUTL_DAILY_CSV.parent / "operators_daily.csv"
+        if path.exists():
+            with path.open(encoding="utf-8") as fh:
+                for row in csv.DictReader(fh):
+                    try:
+                        key = (
+                            row["REGISTRY_CODE"].strip().upper(),
+                            int(row["INSTALLATION_IDENTIFIER"]),
+                        )
+                    except (KeyError, ValueError):
+                        continue
+                    name = (row.get("INSTALLATION_NAME") or "").strip()
+                    holder = (row.get("ACCOUNT_HOLDER_NAME") or "").strip()
+                    _operator_names[key] = "; ".join(
+                        part
+                        for part in (name, f"account holder {holder}" if holder else "")
+                        if part
+                    )
+    registry, _, number = display_id.rpartition("_")
+    try:
+        return _operator_names.get((registry.upper(), int(number)), "")
+    except ValueError:
+        return ""
+
+
 def _build_evidence(
     claim: Claim,
     display_id: str,
@@ -369,8 +409,10 @@ def _build_evidence(
             direction += " (trend baseline 2013; earlier ETS phases had narrower reporting scope)"
         direction += last_step
 
+    operator = _operator_name(display_id)
+    named = f"{display_id} ({operator})" if operator else display_id
     summary = (
-        f"EU ETS verified emissions for installation {display_id}: "
+        f"EU ETS verified emissions for installation {named}: "
         f"{most_recent_emissions:,.0f} tCO2e in {most_recent_year} "
         f"(trend: {direction}). "
         f"Full history: {trend_summary}."
