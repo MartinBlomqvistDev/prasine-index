@@ -316,11 +316,8 @@ async def fetch_eu_transparency_register_data(claim: Claim, company: object) -> 
 
 def _build_summary(company_name: str, record: _TRRecord) -> str:
     status_str = "active" if record.is_active else "suspended"
-    direct_str = (
-        "direct corporate lobbyist"
-        if record.is_direct_lobbyist
-        else f"registered as: {record.category}"
-    )
+    # The register's own category name, as in "Companies & groups".
+    direct_str = f"registered in the category {record.category}"
 
     matched = f" (matched to {company_name})" if record.name != company_name else ""
     return (

@@ -77,7 +77,8 @@ _OFFSETTING = (
     "Annex I point 4c of the UCPD as amended prohibits in all circumstances: "
     '"Claiming, based on the offsetting of greenhouse gas emissions, that a product '
     "has a neutral, reduced or positive impact on the environment in terms of "
-    "greenhouse gas emissions.\" The Commission's guidance states that point 4c "
+    "greenhouse gas emissions.\" The Commission services' Questions and Answers "
+    "(September 2026) state that point 4c "
     "does not apply to claims based on offsetting at company level, which remain "
     "subject to the directive's other provisions." + _CONSUMER_SCOPE,
 )

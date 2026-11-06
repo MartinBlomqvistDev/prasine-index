@@ -34,6 +34,7 @@ from core.local_copies import read_copy
 from core.logger import get_logger
 from core.model_requests import TOOL_CALL_ATTEMPTS
 from core.retry import DataSourceError
+from core.textutil import final_counters
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -121,6 +122,45 @@ _MORE_LABEL = re.compile(
 # Navigation and footers hold "Read more" links that belong to no claim.
 _PAGE_CHROME = re.compile(r"<(nav|footer)\b.*?</\1\s*>", flags=re.IGNORECASE | re.DOTALL)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
+_MARKER = re.compile(r"\[PDF page (\d+)\]")
+
+
+def _page_ranges(numbers: list[int]) -> str:
+    """Write sorted page numbers as ranges: [3, 4, 5, 9] gives "3-5 and 9"."""
+    spans: list[str] = []
+    start = prev = numbers[0]
+    for number in [*numbers[1:], 0]:
+        if number == prev + 1:
+            prev = number
+            continue
+        spans.append(str(start) if start == prev else f"{start}-{prev}")
+        start = prev = number
+    return spans[0] if len(spans) == 1 else ", ".join(spans[:-1]) + " and " + spans[-1]
+
+
+def pages_read_note(document: str, text: str, page_count: int) -> str:
+    """Say which pages of a long document were read, from the page markers in its text.
+
+    Args:
+        document: The document's address.
+        text: The text that was read, with its [PDF page N] markers.
+        page_count: The document's number of pages, or 0 if unknown.
+
+    Returns:
+        A sentence that starts with a space, or "" when every page was read.
+    """
+    numbers = sorted({int(n) for n in _MARKER.findall(text)})
+    if page_count and len(numbers) >= page_count:
+        return ""
+    size = f", a PDF of {page_count} pages," if page_count else ","
+    if not numbers:
+        return f" Of {document}{size} only the opening pages were read."
+    return (
+        f" Of {document}{size} only PDF pages {_page_ranges(numbers)} were read: the "
+        "pages on climate, any assurance report and the pages with the claim's own figures."
+    )
+
+
 # A long annual report can take minutes to download.
 _FETCH_TIMEOUT = 180.0
 
@@ -263,6 +303,27 @@ about what it actually discloses regarding climate and net-zero commitments.
 Be strictly factual: extract only what the document explicitly states. \
 Do not infer or assume information that is not present.
 
+Keep every target, milestone and action with the year or period it belongs to. A \
+table or a timeline gives that year in a column or a heading: carry it into the \
+summary, as in "by 2040 it plans to exit gas-fired generation". Never state a \
+planned action as done.
+
+When the document gives the share of Scope 1, 2 or 3 emissions that a target \
+covers, name that target, and give the coverage of all targets together where the \
+document states it. Name the target each interim figure belongs to, with the \
+boundary the document gives for it.
+
+Quote verbatim the conditions and qualifications of a target, the description of a \
+project, and any words that limit a commitment, such as a condition it depends on.
+
+Where the pages state progress since a base year, give it beside what remains to \
+be done.
+
+Page numbers printed in the text, in footers or in a table of contents are not the \
+markers. Cite only the [PDF page N] marker of the page where the text appears.
+
+Before writing that the pages do not give something, check every page supplied.
+
 For a claim about future environmental performance, such as a net-zero target, \
 check the document against the elements that Article 6(2)(d) of the Unfair \
 Commercial Practices Directive, as amended by Directive (EU) 2024/825, lists: \
@@ -284,8 +345,10 @@ An assurance report by an independent practitioner on the company's sustainabili
 information is independent verification of what it covers. When the pages include \
 one, name in the summary the practitioner, the level of assurance (limited or \
 reasonable) and what it covers, and say whether it covers the delivery of the plan \
-or only the reported information. Never write that a document has no independent \
-assurance or verification when such a report is in the pages.
+or only the reported information. If the assured statement includes a transition \
+plan, targets or the results against them, by reference or otherwise, say so. Never \
+write that a document has no independent assurance or verification when such a \
+report is in the pages.
 
 Never name a private person in the summary: refer to a document by its title, its \
 organisation and its date. Firms and organisations, such as the assurance \
@@ -345,6 +408,7 @@ async def fetch_source_document_data(
     more_read = False
 
     partial = False
+    read_notes: list[str] = []
     is_pdf = "pdf" in content_type.lower() or claim.source_url.lower().endswith(".pdf")
     if is_pdf:
         address = claim.source_url.split("#")[0]
@@ -376,6 +440,7 @@ async def fetch_source_document_data(
                 or " ".join(pages)[:_MAX_HTML_CHARS]
             )
             partial = True
+            read_notes.append(pages_read_note(claim.source_url, text, page_count))
             content_blocks.append(
                 {
                     "type": "text",
@@ -424,6 +489,9 @@ async def fetch_source_document_data(
             linked_text = await _read_linked_report(url, share, figures)
             if linked_text:
                 linked_read.append(url)
+                read_notes.append(
+                    pages_read_note(url, linked_text, len(_page_texts.get(url.split("#")[0], [])))
+                )
                 content_blocks.append(
                     {
                         "type": "text",
@@ -491,20 +559,22 @@ async def fetch_source_document_data(
             )
 
         tool_block = next((b for b in response.content if b.type == "tool_use"), None)
-        if tool_block is not None:
+        # A call without a summary is a failed read: sent again, never filled in.
+        if tool_block is not None and str(tool_block.input.get("summary") or "").strip():
             break
+        tool_block = None
 
     if tool_block is None:
-        logger.warning(
-            "Source document analysis returned no tool block",
-            extra={"operation": "source_doc_no_tool_block"},
+        raise DataSourceError(
+            message="The source document analysis returned no summary.",
+            source="SOURCE_DOCUMENT",
+            retryable=False,
         )
-        return []
 
     extraction: dict[str, Any] = tool_block.input
     supports_claim: bool | None = extraction.get("supports_claim")
     confidence: float = float(extraction.get("confidence", 0.70))
-    summary: str = str(extraction.get("summary", "Source document analysis completed.")).strip()
+    summary: str = str(extraction["summary"]).strip().replace('\\"', '"')
     # A summary that ends on a quotation mark it never opened is cut, not quoting.
     if summary.count('"') % 2 and summary.endswith('"'):
         summary = summary[:-1].rstrip()
@@ -517,6 +587,7 @@ async def fetch_source_document_data(
             f"{summary} The page links to {', '.join(unread)}, which this assessment "
             "could not read."
         )
+    summary += "".join(read_notes)
 
     raw_data: dict[str, Any] = {
         "source_url": claim.source_url,
@@ -958,7 +1029,7 @@ def _strip_html(html: str) -> str:
     html = re.sub(
         r"<(script|style)[^>]*>.*?</(script|style)>",
         " ",
-        html,
+        final_counters(html),
         flags=re.DOTALL | re.IGNORECASE,
     )
     html = re.sub(r"<[^>]+>", " ", html)

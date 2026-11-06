@@ -11,11 +11,29 @@ from __future__ import annotations
 import re
 from html.parser import HTMLParser
 
-__all__ = ["html_to_text"]
+__all__ = ["final_counters", "html_to_text"]
 
 _SKIP_TAGS = frozenset(
     {"script", "style", "nav", "footer", "header", "noscript", "iframe", "aside", "form"}
 )
+
+# An animated counter shows a starting number and keeps its real value in data-final.
+_COUNTER = re.compile(
+    r"<(\w+)([^>]*?)\sdata-final=([\"'])([^\"']*)\3([^>]*)>[^<]*</\1>", re.IGNORECASE
+)
+
+
+def final_counters(html: str) -> str:
+    """Put each animated counter's final value in place of its starting number.
+
+    Args:
+        html: Raw HTML string.
+
+    Returns:
+        The HTML with the text of every element that has a data-final value replaced
+        by that value.
+    """
+    return _COUNTER.sub(lambda m: f"<{m[1]}{m[2]}{m[5]}>{m[4]}</{m[1]}>", html)
 
 
 class _TextExtractor(HTMLParser):
@@ -53,5 +71,5 @@ def html_to_text(html: str) -> str:
         Plain text with one line per text node.
     """
     extractor = _TextExtractor()
-    extractor.feed(html)
+    extractor.feed(final_counters(html))
     return extractor.get_text()

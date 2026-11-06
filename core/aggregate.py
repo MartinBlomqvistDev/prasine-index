@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 import uuid
 
@@ -17,34 +18,59 @@ __all__ = ["aggregate_claim_scores"]
 # a confirmed net-zero greenwashing claim: they're different signal types.
 _SCORE_TOP_K = 3
 
-# Target years a pledge names, such as "net zero by 2040".
+# Target years a pledge names, such as "net zero by 2040", "FY30" or "FY2030".
 _YEAR = re.compile(r"(?<!\d)(20[2-9]\d|2100)(?!\d)")
+_FISCAL_YEAR = re.compile(r"\bFY ?(\d{2})(?!\d)", re.IGNORECASE)
+
+# Words that say which emissions a pledge covers. Two pledges for the same year that
+# cover different emissions, such as operations and products sold, are two pledges.
+_SCOPE_WORDS = (
+    ("scope 1", "scope 1"),
+    ("scope 2", "scope 2"),
+    ("scope 3", "scope 3"),
+    ("operation", "operations"),
+    ("product", "products"),
+    ("sold", "products"),
+    ("value chain", "value chain"),
+    ("supply chain", "supply chain"),
+)
 
 
-def _pledge_years(result: PipelineResult) -> frozenset[str]:
-    """Return the target years a pledge names, or nothing for a claim that is no pledge."""
+def _pledge_key(result: PipelineResult) -> tuple[frozenset[str], frozenset[str]] | None:
+    """Return the target years and the emissions a pledge covers, or None for no pledge."""
     if not result.score.claim_is_pledge:
-        return frozenset()
-    return frozenset(_YEAR.findall(result.claim.raw_text or ""))
+        return None
+    text = result.claim.raw_text or ""
+    years = {*_YEAR.findall(text), *(f"20{yy}" for yy in _FISCAL_YEAR.findall(text))}
+    if not years:
+        return None
+    lowered = text.lower()
+    scope = frozenset(tag for word, tag in _SCOPE_WORDS if word in lowered)
+    return frozenset(years), scope
 
 
 def _distinct_pledges(results: list[PipelineResult]) -> tuple[list[int], int]:
     """Return the indexes of the claims that enter the mean, and how many were left out.
 
-    Claims the judge found to be pledges and that name the same target years state
-    the same pledge, which counts once, through the highest-scoring of those claims.
-    Every other claim enters as it is.
+    Claims the judge found to be pledges that name the same target years and cover the
+    same emissions state the same pledge, which counts once, through the
+    highest-scoring of those claims. Every other claim enters as it is.
     """
-    best: dict[frozenset[str], int] = {}
+    best: dict[tuple[frozenset[str], frozenset[str]], int] = {}
     keep: list[int] = []
     for index, result in enumerate(results):
-        years = _pledge_years(result)
-        if not years:
+        key = _pledge_key(result)
+        if key is None:
             keep.append(index)
-        elif years not in best or result.score.score > results[best[years]].score.score:
-            best[years] = index
+        elif key not in best or result.score.score > results[best[key]].score.score:
+            best[key] = index
     keep += best.values()
     return sorted(keep), len(results) - len(keep)
+
+
+def _whole(value: float) -> float:
+    """Round half up to a whole number, once, so that 46.52 is 47 and 55.49 is 55."""
+    return float(math.floor(value + 0.5))
 
 
 def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, float]:
@@ -116,18 +142,19 @@ def aggregate_claim_scores(
         for r in results
     ]
 
-    # Score on the top-K most severe claims only, with each pledge counted once.
+    # Score on the top-K most severe claims only, with each pledge counted once. Of two
+    # claims with the same score, the one the judge is more confident in comes first.
     entering, counted_once = _distinct_pledges(results)
-    top_k = sorted((summaries[i] for i in entering), key=lambda s: s.score, reverse=True)[
-        :_SCORE_TOP_K
-    ]
+    top_k = sorted(
+        (summaries[i] for i in entering), key=lambda s: (s.score, s.confidence), reverse=True
+    )[:_SCORE_TOP_K]
     agg_score, agg_low, agg_high, agg_conf = _weighted_agg(top_k)
 
     # Floor at the worst claim's band: a confirmed (or otherwise severe)
     # finding cannot be averaged away by milder claims.
     worst_score = max(s.score for s in summaries)
     floor = band_floor(worst_score)
-    floor_applied = agg_score < floor
+    floor_applied = _whole(agg_score) < floor
     mean_score = agg_score
     if floor_applied:
         # Only the score is raised. The range stays the mean of the judge's own low and
@@ -137,14 +164,14 @@ def aggregate_claim_scores(
     return CompanyScore(
         company_name=company_name,
         company_id=company_id,
-        score=round(agg_score, 1),
-        score_low=round(agg_low, 1),
-        score_high=round(agg_high, 1),
-        verdict=verdict_for_score(round(agg_score, 1)),
+        score=_whole(agg_score),
+        score_low=_whole(agg_low),
+        score_high=_whole(agg_high),
+        verdict=verdict_for_score(_whole(agg_score)),
         confidence=round(agg_conf, 3),
         claim_count=len(summaries),
         claims=summaries,
         floor_applied=floor_applied,
-        mean_score=round(mean_score, 1),
+        mean_score=_whole(mean_score),
         pledges_counted_once=counted_once,
     )

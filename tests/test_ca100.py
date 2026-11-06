@@ -37,7 +37,7 @@ class TestRecords:
         assert record.page.endswith("/company-assessments/glencore-plc/")
         assert record.indicators == [
             {
-                "indicator": "net zero by 2050 ambition",
+                "indicator": "net zero by 2050 or sooner ambition",
                 "score": "No",
                 "change": "lower than in the previous benchmark",
             },
@@ -61,7 +61,7 @@ class TestDescription:
         record = _build_records([_row()])[1]["glencore"]
         text = describe_indicators({"benchmark": record.benchmark, "indicators": record.indicators})
         assert text == (
-            "October 2026 benchmark: net zero by 2050 ambition No, lower than in the previous "
+            "October 2026 benchmark: net zero by 2050 or sooner ambition No, lower than in the previous "
             "benchmark; long-term target (2036 to 2050) Partial; climate policy engagement "
             "Partial."
         )

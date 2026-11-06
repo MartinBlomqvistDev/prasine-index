@@ -105,7 +105,7 @@ _BENCHMARK_PAGE = "https://www.climateaction100.org/net-zero-company-benchmark/"
 # The benchmark's ten indicators: the CSV column and the indicator's name in prose,
 # in the benchmark's order. A CSV from an earlier edition may hold only some.
 _INDICATORS: tuple[tuple[str, str], ...] = (
-    ("Net Zero Ambition Benchmark", "net zero by 2050 ambition"),
+    ("Net Zero Ambition Benchmark", "net zero by 2050 or sooner ambition"),
     ("Long-term Target", "long-term target (2036 to 2050)"),
     ("Medium-term Target", "medium-term target (2031 to 2035)"),
     ("Short-term Target", "short-term target (up to 2030)"),

@@ -306,6 +306,7 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
             f"{'unit' if len(mothballed) == 1 else 'units'} "
             f"({sum(u.capacity_mw for u in mothballed):.0f} MW in all): "
             + "; ".join(_unit_name(u) for u in mothballed[:5])
+            + (f"; and {len(mothballed) - 5} more" if len(mothballed) > 5 else "")
             + "."
         )
     if exiting:

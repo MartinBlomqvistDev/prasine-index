@@ -74,13 +74,14 @@ class TestIndexCompanies:
 
     def test_hm(self) -> None:
         assert _references("H&M Group") == {
-            "2019/1144": "INVESTIGATION",
+            "annual report 2019": "INVESTIGATION",
             "22/5262-1": "WARNING",
             "ACM/22/179209 (Document no. ACM/UIT/583382)": "COMMITMENTS",
         }
 
     def test_ikea(self) -> None:
-        assert _references("IKEA Group") == {"2201-14": "CONFIRMED_MISLEADING"}
+        assert _references("IKEA Group") == {}  # Inter IKEA only; the decision concerns Ingka
+        assert _references("Ingka Group") == {"2201-14": "CONFIRMED_MISLEADING"}
 
     @pytest.mark.parametrize("name", ["Glencore plc", "Enel SpA", "SSAB AB", "Ørsted A/S"])
     def test_companies_without_records(self, name: str) -> None:

@@ -130,7 +130,7 @@ class TestPledgeCountedOnce:
         ]
         company = aggregate_claim_scores("Enel SpA", _COMPANY_ID, results)
         assert company.pledges_counted_once == 1
-        assert company.mean_score == pytest.approx((57.0 + 43.0 + 42.0) / 3, abs=0.1)
+        assert company.mean_score == 47.0  # (57 + 43 + 42) / 3, rounded once
         assert company.claim_count == 4
 
     def test_pledges_with_different_years_both_count(self) -> None:
@@ -149,3 +149,41 @@ class TestPledgeCountedOnce:
         ]
         company = aggregate_claim_scores("X", _COMPANY_ID, results)
         assert company.pledges_counted_once == 0
+
+    def test_pledges_for_different_emissions_both_count(self) -> None:
+        results = [
+            _stated(66.0, "Net zero across our operations by 2050 or sooner."),
+            _stated(64.0, "Net zero for the carbon intensity of the products we sell by 2050."),
+            _result(42.0),
+        ]
+        company = aggregate_claim_scores("BP plc", _COMPANY_ID, results)
+        assert company.pledges_counted_once == 0
+
+    def test_fiscal_years_name_the_same_pledge(self) -> None:
+        results = [
+            _stated(40.0, "Halve emissions by FY30 and reach net zero by FY50."),
+            _stated(38.0, "Halve emissions by 2030 and reach net zero by 2050."),
+            _result(30.0),
+        ]
+        company = aggregate_claim_scores("IKEA", _COMPANY_ID, results)
+        assert company.pledges_counted_once == 1
+
+
+class TestRounding:
+    def test_rounds_once_half_up(self) -> None:
+        results = [_result(50.0, 0.60), _result(45.0, 0.70), _result(45.0, 0.68)]
+        results = [
+            PipelineResult(
+                claim=r.claim,
+                score=r.score.model_copy(update={"score_low": r.score.score}),
+                report_markdown="# test",
+            )
+            for r in results
+        ]
+        company = aggregate_claim_scores("X", _COMPANY_ID, results)
+        assert company.score_low == 47.0  # 46.52, never rounded to 46.5 and then to 46
+
+    def test_a_tie_for_third_goes_to_the_higher_confidence(self) -> None:
+        results = [_result(60.0, 0.6), _result(50.0, 0.6), _result(38.0, 0.55), _result(38.0, 0.6)]
+        company = aggregate_claim_scores("X", _COMPANY_ID, results)
+        assert company.confidence == pytest.approx(0.6)

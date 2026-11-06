@@ -341,7 +341,10 @@ and lower the confidence.
 FORWARD-LOOKING CLAIMS
 For a target or commitment, assess what the claim and its source document disclose: \
 baseline, scope, interim targets, a plan, resources and independent verification. \
-Gaps in these specifics place the claim in 41-60. Verified emissions on a \
+Gaps in these specifics place the claim in 41-60. When a record says that only \
+some pages of a document were read, what those pages do not show is a limit of \
+the reading, not a gap in the company's disclosure, and it never raises the \
+score. Verified emissions on a \
 trajectory clearly inconsistent with the target are a claim-level contradiction \
 (61-80). Company-level records may inform the target credibility dimension, within \
 the cap above.

@@ -186,7 +186,8 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         count = record.raw_data.get(field) if record else None
         if record is not None and isinstance(count, int) and count > 0:
             expanding.append(name)
-            lines.append(f"{name}: {count} {noun}{_assets(record)}{_cite(record)}.")
+            plural = noun.replace("(s)", "" if count == 1 else "s")
+            lines.append(f"{name}: {count} {plural}{_assets(record)}{_cite(record)}.")
         stalled = record.raw_data.get("stalled_assets") if record else None
         if record is not None and stalled:
             listed = "; ".join(
@@ -231,19 +232,21 @@ def _emissions(evidence: list[Evidence]) -> str:
         if history:
             histories.append(history)
     if not histories:
-        return f"EU ETS: {len(records)} mapped installation(s), no verified emissions read."
+        return f"EU ETS: {_installations(len(records))}, no verified emissions read."
     # Only years in which every mapped installation reported, so that an
     # installation joining the scheme does not read as a change in emissions.
     common = sorted(set.intersection(*(set(h) for h in histories)))[-3:]
     if not common:
-        return f"EU ETS: {len(histories)} mapped installation(s) with no year in common."
+        return f"EU ETS: {_installations(len(histories))} with no year in common."
     totals = [
         f"{_tonnes(sum(h[year] for h in histories))} CO2e in {year}" for year in reversed(common)
     ]
-    return (
-        f"EU ETS verified emissions for {len(histories)} mapped installation(s): "
-        f"{'; '.join(totals)}."
-    )
+    return f"EU ETS verified emissions for {_installations(len(histories))}: {'; '.join(totals)}."
+
+
+def _installations(count: int) -> str:
+    """Write a count of mapped installations, as in "1 mapped installation"."""
+    return f"{count} mapped installation{'' if count == 1 else 's'}"
 
 
 def _targets(evidence: list[Evidence]) -> str:

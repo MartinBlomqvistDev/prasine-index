@@ -98,7 +98,11 @@ installations, records or registrations because a source returned nothing.
 - Company-level context, such as a lobbying rating or fossil fuel expansion \
 plans, belongs in the Company Context section. It may appear in the Assessment \
 only where the judge used it for this claim.
-- Tone: precise and neutral, not campaigning.
+- Tone: precise and neutral, not campaigning. Never call the claim or the company \
+deceptive, misleading or greenwashing; where an authority's decision used such a \
+word, attribute it to the authority.
+- Keep every target, milestone and action with the year or period the record gives \
+for it, and never state a planned action as done.
 - Punctuation: do not use em dashes or en dashes in prose. Use a colon for an \
 introduction, a semicolon for a connective pause, or commas for an aside. An \
 en dash is allowed only inside a numeric range such as 41–60.
@@ -121,7 +125,12 @@ numbered as in EVIDENCE RECORDS. Cite them elsewhere by those numbers.]
 ### Assessment
 [Plain-language explanation of why the claim received this score, citing the \
 evidence records by number and source name. Lead with the evidence about this \
-specific claim.]
+specific claim. Only records marked "Judge: contradicts the claim" may be \
+described as conflicting with the claim or weighing against it. Facts in other \
+records that favour the claim are given as such, and what a record does not show \
+belongs in Data Gaps. When a record says that only some pages of a document were \
+read, never write that the document lacks something: write that the pages read do \
+not show it.]
 
 ### Company Context
 [Company-level signals in the evidence, such as the LobbyMap band, fossil fuel \
@@ -158,7 +167,9 @@ this claim.]
 ### Data Gaps
 [Each source that could not be queried or returned insufficient data, and what \
 that means for confidence. Start each item with **Source name**:. Absence from an \
-exit list or tracker is not a data gap: leave it out of Data Gaps.]
+exit list or tracker is not a data gap: leave it out of Data Gaps. When a record \
+says that only some pages of a document were read, add an item that says so and \
+names those pages.]
 
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
@@ -455,7 +466,7 @@ def _build_report_prompt(input: ReportInput) -> str:
         "</untrusted_claim_text>",
         "",
         f"FINDING: {finding_label(score.verdict)}",
-        f"SCORE: {score.score:.1f}/100"
+        f"SCORE: {score.score:.0f}/100"
         + (
             f" (range: {score.score_low:.0f}–{score.score_high:.0f})"
             if score.score_low is not None and score.score_high is not None

@@ -64,8 +64,11 @@ def _validate(rulings: tuple[Ruling, ...]) -> None:
             problems.append("no official URL")
         if r.ruling_type not in _RULING_TYPES:
             problems.append(f"unknown outcome {r.ruling_type!r}")
-        if len(r.decision_date) != 10 or r.decision_date[4] != "-" or r.decision_date[7] != "-":
-            problems.append(f"date {r.decision_date!r} is not YYYY-MM-DD")
+        # A bare year where the source gives no date, as an annual report does.
+        full = len(r.decision_date) == 10 and r.decision_date[4] == "-" == r.decision_date[7]
+        year_only = len(r.decision_date) == 4 and r.decision_date.isdigit()
+        if not (full or year_only):
+            problems.append(f"date {r.decision_date!r} is neither YYYY-MM-DD nor YYYY")
         if problems:
             raise ValueError(f"Enforcement record {r.case_reference!r}: {', '.join(problems)}")
 
