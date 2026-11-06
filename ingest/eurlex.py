@@ -56,7 +56,7 @@ _FUTURE_PERFORMANCE = (
     _EMPCO_CELEX,
     "Directive (EU) 2024/825: UCPD Article 6(2)(d), future environmental performance",
     _EMPCO_YEAR,
-    'Article 6(2) of the UCPD reads: "A commercial practice shall also be regarded as '
+    'Article 6(2) of Directive 2005/29/EC (the UCPD) reads: "A commercial practice shall also be regarded as '
     "misleading if, in its factual context, taking account of all its features and "
     "circumstances, it causes or is likely to cause the average consumer to take a "
     "transactional decision that he would not have taken otherwise, and it "
@@ -119,7 +119,7 @@ _MAIN_CHARACTERISTICS = (
     _EMPCO_CELEX,
     "Directive (EU) 2024/825: UCPD Article 6(1), environmental characteristics",
     _EMPCO_YEAR,
-    'Article 6(1) of the UCPD reads: "A commercial practice shall be regarded as '
+    'Article 6(1) of Directive 2005/29/EC (the UCPD) reads: "A commercial practice shall be regarded as '
     "misleading if it contains false information and is therefore untruthful or in any "
     "way, including overall presentation, deceives or is likely to deceive the average "
     "consumer, even if the information is factually correct, in relation to one or more "

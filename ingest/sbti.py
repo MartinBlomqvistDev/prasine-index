@@ -494,7 +494,7 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     """
     status_display = record.status or "unknown"
     temp_display = record.temp_classification or "not classified"
-    net_zero_display = record.net_zero_status or "none"
+    net_zero_display = record.net_zero_status or "none on the register"
     year = _year(record.net_zero_year)
     net_zero_display += f" (net-zero year {year})" if year else ""
     date_display = f"; register entry updated {record.date[:10]}" if record.date else ""
@@ -505,10 +505,13 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     details = record.details
 
     if record.is_removed:
+        removed = (
+            "a commitment to set targets as removed"
+            if "commitment" in record.status.lower()
+            else "an earlier target as removed or no longer valid"
+        )
         return (
-            f"{entry}: status {status_display}. "
-            f"The SBTi register records an earlier target as removed or no longer "
-            f"valid{date_display}."
+            f"{entry}: status {status_display}. The SBTi register records {removed}{date_display}."
         )
 
     if record.is_active:
@@ -574,7 +577,7 @@ def describe_targets(raw_data: dict[str, object]) -> str:
         if field("long_term_year"):
             long_term += f" for {_year(field('long_term_year'))}"
         parts.append(long_term)
-    net_zero = f"net-zero target {field('net_zero_status') or 'none'}"
+    net_zero = f"net-zero target {field('net_zero_status') or 'none on the register'}"
     if field("net_zero_year"):
         net_zero += f" for {field('net_zero_year')}"
     parts.append(net_zero)

@@ -267,6 +267,11 @@ async def fetch_eu_ets_data(
     return evidence_records
 
 
+def _breaks(previous: float, current: float) -> bool:
+    """Say whether a year-on-year step changes emissions by more than half."""
+    return bool(previous) and (current > previous * 1.5 or current < previous * 0.5)
+
+
 def _build_evidence(
     claim: Claim,
     display_id: str,
@@ -320,11 +325,20 @@ def _build_evidence(
     trend_base = [(y, e) for y, e in history if y >= 2013] or history
     # A change of more than half from one year to the next can come from a change
     # in what the installation reports, such as two permits merged into one, as
-    # well as from a real change in emissions. The trend then starts after it.
+    # well as from a real change in emissions. The trend then starts after it. A
+    # change in the last year is stated on its own and the trend ends the year before.
+    last_step = ""
+    if len(trend_base) >= 3 and _breaks(trend_base[-2][1], trend_base[-1][1]):
+        (prev_year, prev), (last_year, last) = trend_base[-2], trend_base[-1]
+        last_step = (
+            f"; {last_year} is {last:,.0f} tCO2e against {prev:,.0f} in {prev_year}, a change "
+            "of more than half, which can reflect a change in what the installation reports "
+            "as well as in its emissions"
+        )
+        trend_base = trend_base[:-1]
     break_note = ""
     for i in range(len(trend_base) - 1, 0, -1):
-        previous, current = trend_base[i - 1][1], trend_base[i][1]
-        if previous and (current > previous * 1.5 or current < previous * 0.5):
+        if _breaks(trend_base[i - 1][1], trend_base[i][1]):
             break_note = (
                 f"; the series changes by more than half between {trend_base[i - 1][0]} and "
                 f"{trend_base[i][0]}, which can reflect a change in what the installation "
@@ -333,25 +347,27 @@ def _build_evidence(
             )
             trend_base = trend_base[i:]
             break
-    base_year, base_emissions = trend_base[0]
-    if not any(emissions for _year, emissions in history):
-        direction = "no emissions reported in any year"
-    elif len(history) >= 2 and base_year != most_recent_year:
-        pct_change = (
-            ((most_recent_emissions - base_emissions) / base_emissions * 100)
-            if base_emissions
-            else 0
-        )
+    (base_year, base_emissions), (end_year, end_emissions) = trend_base[0], trend_base[-1]
+    if len(history) < 2:
+        direction = "insufficient data for trend"
+    elif base_year == end_year:
+        direction = "no comparable years for a trend"
+    elif not any(emissions for _year, emissions in trend_base):
+        direction = f"verified emissions of zero in every year from {base_year} to {end_year}"
+    elif not base_emissions:
+        direction = f"from zero in {base_year} to {end_emissions:,.0f} tCO2e in {end_year}"
+    else:
+        pct_change = (end_emissions - base_emissions) / base_emissions * 100
         direction = (
             f"{'down' if pct_change < 0 else 'up'} {abs(pct_change):.0f}% "
-            f"from {base_year} to {most_recent_year}"
+            f"from {base_year} to {end_year}"
         )
+    if len(history) >= 2:
         if break_note:
             direction += break_note
         elif base_year != oldest_year:
             direction += " (trend baseline 2013; earlier ETS phases had narrower reporting scope)"
-    else:
-        direction = "insufficient data for trend"
+        direction += last_step
 
     summary = (
         f"EU ETS verified emissions for installation {display_id}: "

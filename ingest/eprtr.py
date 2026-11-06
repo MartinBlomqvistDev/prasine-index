@@ -463,8 +463,8 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     )
 
     parts = [
-        f"E-PRTR releases to air from {len(facilities)} facilit"
-        f"{'y' if len(facilities) == 1 else 'ies'} whose names match {name} "
+        f"E-PRTR releases to air from {len(facilities)} "
+        f"{'facility whose name matches' if len(facilities) == 1 else 'facilities whose names match'} {name} "
         f"in {latest_year} ({named}). Each pollutant is reported separately."
     ]
     if co2_by_year:
@@ -487,7 +487,7 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
                 "for like."
             )
     else:
-        supports, confidence = None, 0.4
+        supports, confidence, trend_text = None, 0.4, "no CO2 reported"
         parts.append("No CO2 release is reported for these facilities.")
     if other_text:
         parts.append(f"Other pollutants in {latest_year}: {other_text}.")

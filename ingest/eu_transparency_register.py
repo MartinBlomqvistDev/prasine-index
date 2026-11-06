@@ -324,7 +324,8 @@ def _build_summary(company_name: str, record: _TRRecord) -> str:
 
     matched = f" (matched to {company_name})" if record.name != company_name else ""
     return (
-        f"EU Transparency Register: {record.name}{matched} is {status_str}ly registered "
+        f"EU Transparency Register: {record.name}{matched} "
+        f"{'is registered' if status_str == 'active' else 'has a suspended registration'} "
         f"({direct_str}, head office in {record.country.title()}, registration number "
         f"{record.reg_number}). Registration shows that the organisation engages EU "
         f"institutions on policy; it does not show the direction of that engagement."
