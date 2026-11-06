@@ -297,7 +297,9 @@ out in \
   "{HLEG_FOSSIL_SUPPLY}"
   "{HLEG_LOBBYING}"
 For a pledge, a record showing that the company is expanding fossil fuel supply \
-(the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers) or \
+(the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers; \
+gas-fired power units in development use gas rather than supply it and are \
+context) or \
 that its lobbying is obstructive (LobbyMap band D or lower, which LobbyMap defines \
 as a score below 50%; D+ is not in that range) contradicts the pledge, \
 and investor assessments of the pledge (Climate Action 100+, TPI) and fossil fuel \

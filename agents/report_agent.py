@@ -157,9 +157,8 @@ this claim.]
 
 ### Data Gaps
 [Each source that could not be queried or returned insufficient data, and what \
-that means for confidence. Start each item with **Source name**:. A company that \
-is not on an exit list or tracker is a finding about it, stated in Company \
-Context, not a data gap.]
+that means for confidence. Start each item with **Source name**:. Absence from an \
+exit list or tracker is not a data gap: leave it out of Data Gaps.]
 
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
