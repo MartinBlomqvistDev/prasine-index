@@ -178,6 +178,9 @@ def _forward_looking(text: str) -> bool:
     this_year = datetime.now(UTC).year
     if any(int(y) > this_year for y in re.findall(r"(?<!\d)(20[2-9]\d)(?!\d)", text)):
         return True
+    due = re.findall(r"\b(?:by|until|before)\s+(?:the end of\s+)?(20[2-9]\d)\b", text, re.I)
+    if any(int(y) >= this_year for y in due):
+        return True
     lowered = text.lower()
     return any(word in lowered for word in _FUTURE_WORDS)
 

@@ -263,6 +263,11 @@ def _lookup(company: Company) -> _CDPRecord | None:
     return by_name.get(_normalise_name(company.name))
 
 
+def data_available() -> bool:
+    """Tell whether the CDP file is in place, so that its absence is reported."""
+    return _CDP_CSV.exists()
+
+
 async def fetch_cdp_data(claim: Claim, company: Company) -> list[Evidence]:
     """Fetch self-reported climate data from the local CDP bulk dataset.
 

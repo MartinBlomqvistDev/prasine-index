@@ -520,7 +520,7 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     else:
         standing = f"The register lists the status as {status_display}."
 
-    near = f"near-term targets {status_display}"
+    near = f"near-term targets {_status_words(status_display)}"
     if details.get("near_term_year"):
         near += f" for {_year(details['near_term_year'])}"
     near += f", temperature classification {temp_display}"
@@ -550,6 +550,14 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     return summary
 
 
+def _status_words(status: str) -> str:
+    """Write a register status in running text: "Validated Targets" as "validated"."""
+    words = status.strip().lower()
+    for tail in (" targets", " target"):
+        words = words.removesuffix(tail)
+    return words
+
+
 def describe_targets(raw_data: dict[str, object]) -> str:
     """State an SBTi record for the company record: statuses, classification and years.
 
@@ -564,7 +572,7 @@ def describe_targets(raw_data: dict[str, object]) -> str:
     def field(key: str) -> str:
         return str(raw_data.get(key) or "")
 
-    near = f"near-term targets {field('status') or 'unknown'}"
+    near = f"near-term targets {_status_words(field('status')) or 'unknown'}"
     if field("near_term_year"):
         near += f" for {_year(field('near_term_year'))}"
     near += f", classification {field('temp_classification') or 'none'}"
@@ -572,11 +580,13 @@ def describe_targets(raw_data: dict[str, object]) -> str:
         near += f' ("{field("classification_text")}")'
     parts = [near]
     if field("long_term_status"):
-        long_term = f"long-term targets {field('long_term_status')}"
+        long_term = f"long-term targets {_status_words(field('long_term_status'))}"
         if field("long_term_year"):
             long_term += f" for {_year(field('long_term_year'))}"
         parts.append(long_term)
-    net_zero = f"net-zero target {field('net_zero_status') or 'none on the register'}"
+    net_zero = (
+        f"net-zero target {_status_words(field('net_zero_status')) or 'none on the register'}"
+    )
     if field("net_zero_year"):
         net_zero += f" for {field('net_zero_year')}"
     parts.append(net_zero)

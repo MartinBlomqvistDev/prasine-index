@@ -140,9 +140,10 @@ def _aggregate_label(n: int) -> str:
 
 def _score_label(company_score: CompanyScore) -> str:
     """Name what produced the company score: the mean, or the floor it was raised to."""
-    label = _aggregate_label(company_score.claim_count)
+    # A pledge stated in several claims enters once, so fewer claims compete for the mean.
+    label = _aggregate_label(company_score.claim_count - company_score.pledges_counted_once)
     once = (
-        "; a pledge stated in more than one claim counts once"
+        f"; a pledge stated in more than one of the {company_score.claim_count} claims counts once"
         if company_score.pledges_counted_once
         else ""
     )
@@ -345,7 +346,7 @@ async def run(
 
         # Aggregate all claims into a company-level score.
         company_score = aggregate_claim_scores(company_name, company_id, results)
-        n = company_score.claim_count
+        n = company_score.claim_count - company_score.pledges_counted_once
         print(f"\n{'=' * 60}")
         print(f"Company Assessment -- {company_name}")
         print(f"  Overall score : {company_score.score:.0f}/100  {_aggregate_label(n)}")

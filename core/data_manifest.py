@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -76,16 +77,20 @@ class DataManifest:
         generated_at: UTC timestamp when the manifest was built.
         sources: Maps source key to SHA-256 hex digest (first 16 chars),
                  or "not_present" if the expected file was not found.
+        code_commit: The commit of the code that ran, with "+changes" when the
+                 pipeline code differed from it, or "" if unknown.
     """
 
     generated_at: datetime
     sources: dict[str, str] = field(default_factory=dict)
+    code_commit: str = ""
 
     def to_json(self) -> str:
         """Serialise to a compact JSON string."""
         return json.dumps(
             {
                 "generated_at": self.generated_at.isoformat(),
+                "code_commit": self.code_commit,
                 "sources": self.sources,
             },
             indent=2,
@@ -116,7 +121,45 @@ def build_manifest() -> DataManifest:
             # If multiple versions exist (e.g. dated GEM files), take the newest.
             path = max(matches, key=lambda p: p.stat().st_mtime)
             sources[key] = _sha256_prefix(path)
-    return DataManifest(generated_at=datetime.now(UTC), sources=sources)
+    return DataManifest(generated_at=datetime.now(UTC), sources=sources, code_commit=_commit())
+
+
+def _commit() -> str:
+    """Return the commit of the code that runs, so that a report can be tied to it.
+
+    The reports a run writes change the working tree, so only the pipeline code is
+    checked for changes against the commit.
+    """
+    root = Path(__file__).parent.parent
+    try:
+        head = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
+        ).stdout.strip()
+        changed = subprocess.run(
+            [
+                "git",
+                "diff",
+                "--quiet",
+                "HEAD",
+                "--",
+                "agents",
+                "core",
+                "ingest",
+                "models",
+                "scripts",
+            ],
+            cwd=root,
+            capture_output=True,
+            timeout=10,
+        ).returncode
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    return f"{head}+changes" if changed else head
 
 
 def manifest_to_markdown(manifest: DataManifest) -> str:
@@ -132,7 +175,8 @@ def manifest_to_markdown(manifest: DataManifest) -> str:
     lines = [
         "### Data Manifest",
         "",
-        f"*Sources active at assessment time, {ts}*",
+        f"*Sources active at assessment time, {ts}*"
+        + (f"; code at commit {manifest.code_commit}" if manifest.code_commit else ""),
         "",
         "| Source | SHA-256 (16 hex) |",
         "| ------ | ---------------- |",
@@ -158,4 +202,5 @@ def load_manifest(path: Path) -> DataManifest | None:
     return DataManifest(
         generated_at=datetime.fromisoformat(raw["generated_at"]),
         sources=raw["sources"],
+        code_commit=str(raw.get("code_commit", "")),
     )

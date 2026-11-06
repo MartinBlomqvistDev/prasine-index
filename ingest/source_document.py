@@ -209,9 +209,10 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                 "items": {"type": "string"},
                 "description": (
                     "Each interim target the document states, as 'YEAR: target', "
-                    "followed by the progress the document reports against it, if any, "
-                    "such as 'met', 'not met' or the latest figure. Empty if the "
-                    "document states none."
+                    "followed by the progress the document reports against it, if any: "
+                    "'met' or 'missed' only for a target whose year has passed, otherwise "
+                    "the latest figure. A target whose year has not come is neither met "
+                    "nor missed. Empty if the document states none."
                 ),
             },
             "relies_on_offset_credits": {
@@ -286,7 +287,7 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                 "type": "string",
                 "description": (
                     "Concise factual summary citing the document's figures and the elements "
-                    "it does not show, in plain words. Quote what the document says about "
+                    "the pages read do not show, in plain words. Quote what the document says about "
                     "the company's fossil fuel strategy if it says anything. Never name or "
                     "cite a law or a legal provision. Write plain sentences in the third "
                     "person, without field names or capitalised labels."
@@ -321,7 +322,14 @@ document states it. Name the target each interim figure belongs to, with the \
 boundary the document gives for it.
 
 Quote verbatim the conditions and qualifications of a target, the description of a \
-project, and any words that limit a commitment, such as a condition it depends on.
+project, and any words that limit a commitment, such as a condition it depends on. \
+Keep each condition or qualification with the objective or target it is stated for, \
+name that objective, and never apply it to another.
+
+If the text does not show which year or column an action or a figure belongs to, say \
+that its year is not shown; never state it as done or current. A target whose year \
+has not come is neither met nor missed: say when it falls due and give the progress \
+the document reports.
 
 Where the pages state progress since a base year, give it beside what remains to \
 be done.
@@ -338,10 +346,11 @@ clear, objective, publicly available and verifiable commitments; a detailed and 
 realistic implementation plan; measurable and time-bound targets; other elements \
 needed to implement it, such as allocation of resources; regular verification by \
 an independent third-party expert; and findings of that verification made \
-available to consumers. Record which of these the document does not show. In the \
-summary, describe them in plain words, such as "no implementation plan" or "no \
-independent verification": never name or cite the provision or any other law, and \
-never say whether a law is breached.
+available to consumers. Record which of these the pages read do not show. In the \
+summary, describe them in plain words, such as "the pages read show no \
+implementation plan" or "the pages read show no independent verification": never \
+name or cite the provision or any other law, and never say whether a law is \
+breached.
 
 If the document says anything about the company's own fossil fuel strategy, such \
 as coal, oil or gas production, a phase-down or an expansion, quote it in the \
@@ -353,9 +362,11 @@ information is independent verification of what it covers. When the pages includ
 one, name in the summary the practitioner, the level of assurance (limited or \
 reasonable) and what it covers, and say whether it covers the delivery of the plan \
 or only the reported information. If the assured statement includes a transition \
-plan, targets or the results against them, by reference or otherwise, say so. Never \
-write that a document has no independent assurance or verification when such a \
-report is in the pages.
+plan, targets or the results against them, by reference or otherwise, say so. Give \
+the pages the assured statements cover, as the assurance report states them, and \
+say whether the page that holds the claim, or the matter it describes, lies inside \
+them. Never write that a document has no independent assurance or verification \
+when such a report is in the pages.
 
 Never name a private person in the summary: refer to a document by its title, its \
 organisation and its date. Firms and organisations, such as the assurance \
@@ -434,6 +445,23 @@ async def fetch_source_document_data(
                     },
                 }
             )
+            # The model sees the pages of a document block without their numbers, so a
+            # map of each page's first words gives it the marker to cite.
+            page_map = "\n".join(
+                f"[PDF page {i + 1}] {' '.join(text.split())[:150]}"
+                for i, text in enumerate(await _pages_of(address, content_bytes))
+                if text
+            )
+            if page_map:
+                content_blocks.append(
+                    {
+                        "type": "text",
+                        "text": (
+                            "PAGE MAP: the first words of each page of the document above, "
+                            "with the PDF page number to cite for it.\n" + page_map
+                        ),
+                    }
+                )
             logger.info(
                 f"Source document is PDF ({len(content_bytes) // 1024} KB, {page_count} pages)",
                 extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
@@ -496,15 +524,19 @@ async def fetch_source_document_data(
             linked_text = await _read_linked_report(url, share, figures)
             if linked_text:
                 linked_read.append(url)
+                document = _resolved.get(url, url)
+                via = f" (through the page {url})" if document != url else ""
                 read_notes.append(
-                    pages_read_note(url, linked_text, len(_page_texts.get(url.split("#")[0], [])))
+                    pages_read_note(
+                        document, linked_text, len(_page_texts.get(document.split("#")[0], []))
+                    )
                 )
                 content_blocks.append(
                     {
                         "type": "text",
                         "text": (
-                            f"\nLINKED DOCUMENT: {url}, a company document linked from "
-                            f"{source}. The pages of it that concern climate, any assurance "
+                            f"\nLINKED DOCUMENT: {document}, a company document linked from "
+                            f"{source}{via}. The pages of it that concern climate, any assurance "
                             "report in it and any page with the claim's own figures follow, "
                             f"each marked with its PDF page number.\n{linked_text}"
                         ),
@@ -573,7 +605,7 @@ async def fetch_source_document_data(
 
     if tool_block is None:
         raise DataSourceError(
-            message="The source document analysis returned no summary.",
+            message="The source document could not be read: the analysis returned no summary.",
             source="SOURCE_DOCUMENT",
             retryable=False,
         )
@@ -658,15 +690,18 @@ def _report_links(html: str, page_url: str) -> list[tuple[str, str, int]]:
         page_url: The page's address, for resolving relative links.
 
     Returns:
-        One entry per PDF link whose address or text names a kind of company
+        One entry per link whose address or text names a kind of company
         document, in page order, without the address's fragment. The year is
-        the latest year the link names, or 0.
+        the latest year the link names, or 0. A link to a web page rather than a
+        PDF is kept as well: _read_linked_report follows it to the PDF it offers.
     """
     found: list[tuple[str, str, int]] = []
     for href, inner in _ANCHOR.findall(html):
-        if ".pdf" not in href.lower():
+        if href.lower().startswith(("mailto:", "javascript:", "#", "tel:")):
             continue
         url = urljoin(page_url, href.replace("&amp;", "&")).split("#")[0]
+        if url.rstrip("/") == page_url.split("#")[0].rstrip("/"):
+            continue
         words = f"{url} {_strip_html(inner)}".lower()
         kind = next(
             (name for name, marks in _DOCUMENT_KINDS if any(mark in words for mark in marks)),
@@ -710,12 +745,20 @@ def _choose_reports(candidates: list[tuple[str, str, int]]) -> list[str]:
     for name in _READING_ORDER:
         if name == "climate report" and len(chosen) > 1:
             break
-        of_kind = [(year, -index, url) for index, kind, url, year in current if kind == name]
+        # Of the same kind and year, a PDF comes before a web page about it.
+        of_kind = [
+            (year, _is_pdf(url), -index, url) for index, kind, url, year in current if kind == name
+        ]
         if of_kind:
-            url = max(of_kind)[2]
+            url = max(of_kind)[3]
             if url not in chosen:
                 chosen.append(url)
     return chosen[:_MAX_LINKED_DOCUMENTS]
+
+
+def _is_pdf(url: str) -> bool:
+    """Tell whether an address names a PDF."""
+    return ".pdf" in url.lower()
 
 
 def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
@@ -803,7 +846,16 @@ def _extract_pages(pdf_bytes: bytes) -> list[str]:
         import pypdf
 
         reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-        return [re.sub(r"\s+", " ", page.extract_text() or "").strip() for page in reader.pages]
+        # Line breaks are kept, so that a table's heading row, which gives the year of
+        # each column, stays a row of its own.
+        return [
+            "\n".join(
+                " ".join(line.split())
+                for line in (page.extract_text() or "").splitlines()
+                if line.strip()
+            )
+            for page in reader.pages
+        ]
     except Exception:
         return []
 
@@ -854,7 +906,8 @@ def select_pages(
     figures: tuple[str, ...] = (),
 ) -> str:
     """Choose from a PDF's page texts as climate_pages does. Args as for climate_pages."""
-    lowered = [text.lower() for text in pages]
+    # Phrases are matched across line breaks.
+    lowered = [" ".join(text.lower().split()) for text in pages]
     weights = [sum(text.count(word) for word in _PAGE_WORDS) for text in lowered]
     order = sorted((i for i in range(len(pages)) if weights[i]), key=lambda i: -weights[i])
     first: list[int] = []
@@ -940,6 +993,10 @@ async def _read_more_html(url: str) -> str:
     return content.decode("utf-8", errors="replace")
 
 
+# A linked web page about a report, and the PDF of the report it was followed to.
+_resolved: dict[str, str] = {}
+
+
 async def _read_linked_report(
     url: str, limit: int = _MAX_LINKED_CHARS, figures: tuple[str, ...] = ()
 ) -> str:
@@ -956,7 +1013,23 @@ async def _read_linked_report(
         )
         return ""
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
-        return ""
+        # A web page about a report: read the PDF of that report it links to, if any.
+        if "html" not in content_type.lower():
+            return ""
+        page = content.decode("utf-8", errors="replace")
+        pdfs = _choose_reports([c for c in _report_links(page, url) if _is_pdf(c[1])])
+        if not pdfs:
+            return ""
+        _resolved[url] = pdfs[0]
+        try:
+            content_type, content = await _fetch_content(pdfs[0])
+        except Exception as exc:
+            logger.warning(
+                f"Linked report could not be fetched: {pdfs[0]}: {exc}",
+                extra={"operation": "source_doc_linked_fetch_failed", "url": pdfs[0]},
+            )
+            return ""
+        url = pdfs[0]
     text = select_pages(await _pages_of(url.split("#")[0], content), limit, True, figures)
     if text:
         _linked_reads[key] = text

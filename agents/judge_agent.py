@@ -10,6 +10,7 @@ being asked to do and make prompt iteration harder to audit.
 
 from __future__ import annotations
 
+import math
 import time
 import uuid
 from datetime import UTC, datetime
@@ -746,7 +747,7 @@ class JudgeAgent:
                 cannot be parsed into a valid score.
         """
         try:
-            score_value = float(verdict["score"])
+            score_value = float(math.floor(float(verdict["score"]) + 0.5))
             evidence = input.verification.evidence
             cap, cap_reason = score_cap(verdict, evidence, input.claim)
             if score_value > cap:

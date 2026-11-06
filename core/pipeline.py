@@ -805,6 +805,7 @@ class Pipeline:
                 source_url=page_url,
                 source_type=source_type or source_type_for_url(page_url),
                 raw_content=page_content,
+                company_name=self._config.display_name,
             )
             extraction_result = await self._extraction_agent.run(extraction_input)
             await self._persist_trace(extraction_result.trace)
@@ -897,6 +898,7 @@ class Pipeline:
                 source_url=page_url,
                 source_type=source_type or source_type_for_url(page_url),
                 raw_content=page_content,
+                company_name=self._config.display_name,
             )
             extraction_result = await self._extraction_agent.run(extraction_input)
             all_claims.extend(extraction_result.claims)
@@ -985,6 +987,15 @@ class Pipeline:
             # Step 5: Report
             report_context = context_result.context
             shown = verification_result
+            shown_score = judge_result.score
+            if self._config.display_name and report_context.company.name:
+                shown_score = judge_result.score.model_copy(
+                    update={
+                        "reasoning": judge_result.score.reasoning.replace(
+                            report_context.company.name, self._config.display_name
+                        )
+                    }
+                )
             if self._config.display_name:
                 shown = verification_result.model_copy(
                     update={
@@ -1008,7 +1019,7 @@ class Pipeline:
                     context=report_context,
                     verification=shown,
                     lobbying=lobbying_result.record,
-                    score=judge_result.score,
+                    score=shown_score,
                 )
             )
             traces.append(report_result.trace)

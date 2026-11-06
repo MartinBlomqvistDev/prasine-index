@@ -140,7 +140,10 @@ supplier's targets, aspirations or validations, even when they appear on this \
 company's pages. Extract only what the company states about itself. For example, \
 on a steelmaker's page about a partnership, "Epiroc's reduction target to halve \
 absolute CO2e emissions ... is validated by the Science Based Targets initiative" \
-states Epiroc's target, not the steelmaker's: leave it out.
+states Epiroc's target, not the steelmaker's: leave it out. The same holds for a \
+sister group or a franchisee under the same brand: when the company assessed is \
+Inter IKEA, a target or result of Ingka Group, the largest IKEA franchisee, is \
+another company's.
 - A general view about a technology, a policy or the energy transition that \
 commits the company to nothing of its own, such as "carbon capture will play an \
 important role in reaching net zero".
@@ -159,8 +162,9 @@ sentences: never a clause cut from a longer sentence. A sentence that refers bac
 ("In this circumstance", "these emissions", "this target") is extracted together \
 with the sentence it refers to, or not at all. A figure's caption without its \
 figure is not a claim. The claim starts where its sentence starts.
-3. Leave out the attribution of a quotation to a person, such as "says the head \
-of the division", and any sentence in the passage that is not about climate.
+3. When a sentence quotes a person, extract the quoted words up to the closing \
+quotation mark and leave out a trailing attribution such as "says the head of the \
+division". Leave out any sentence of the passage that is not about climate.
 4. Assign the most specific ClaimCategory. A claim whose central statement is a \
 net zero aim or target with a year is NET_ZERO_TARGET, whatever emissions it \
 covers.
@@ -258,6 +262,13 @@ class ExtractionInput(BaseModel):
         description=(
             "Full extracted text content of the document. "
             "If None, the pipeline fetches and extracts text from source_url automatically."
+        ),
+    )
+    company_name: str | None = Field(
+        default=None,
+        description=(
+            "The company assessed, as the report names it, so that statements about "
+            "another company under the same brand are left out."
         ),
     )
     publication_date: datetime | None = Field(
@@ -391,7 +402,7 @@ class ExtractionAgent:
         error_message: str | None = None
 
         async with agent_error_boundary(agent=AgentName.EXTRACTION.value, operation="run"):
-            raw_claims, tokens_used = await self._call_llm(input.raw_content)
+            raw_claims, tokens_used = await self._call_llm(input.raw_content, input.company_name)
             claims = self._build_claims(raw_claims, input)
 
             verified: list[Claim] = []
@@ -456,7 +467,9 @@ class ExtractionAgent:
         return ExtractionResult(claims=claims, trace=trace)
 
     @retry_async(config=RetryConfig.DEFAULT_LLM, operation="extraction_llm_call")
-    async def _call_llm(self, document: str) -> tuple[list[dict[str, Any]], int]:
+    async def _call_llm(
+        self, document: str, company_name: str | None = None
+    ) -> tuple[list[dict[str, Any]], int]:
         """Call the Anthropic API with tool use to extract claims.
 
         The system prompt asks the model to call the ``extract_green_claims``
@@ -466,6 +479,7 @@ class ExtractionAgent:
 
         Args:
             document: Full text content of the document to analyse.
+            company_name: The company assessed, when the caller knows it.
 
         Returns:
             A tuple of:
@@ -499,8 +513,14 @@ class ExtractionAgent:
                         {
                             "role": "user",
                             "content": (
-                                "Please extract all green claims from the following document.\n\n"
-                                f"{document}"
+                                (
+                                    f"The company assessed is {company_name}. Extract only "
+                                    "what it states about itself.\n\n"
+                                    if company_name
+                                    else ""
+                                )
+                                + "Please extract all green claims from the following document.\n\n"
+                                + document
                             ),
                         }
                     ],

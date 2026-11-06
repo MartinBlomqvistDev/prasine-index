@@ -103,7 +103,15 @@ only where the judge used it for this claim.
 deceptive, misleading or greenwashing; where an authority's decision used such a \
 word, attribute it to the authority.
 - Keep every target, milestone and action with the year or period the record gives \
-for it, and never state a planned action as done.
+for it, and never state a planned action as done. A target whose year has not come \
+is neither met nor missed: say when it falls due and give the progress the records \
+show.
+- Keep a condition (if, unless, provided that, subject to) in the same sentence as \
+the statement it limits, and never present a conditional scenario as the company's \
+stated position.
+- When a record says that only some pages of a document were read, every statement \
+about what the document lacks, in any section including the Key Finding and the \
+Regulatory Context, says "in the pages read" and must be true of those pages.
 - Punctuation: do not use em dashes or en dashes in prose. Use a colon for an \
 introduction, a semicolon for a connective pause, or commas for an aside. An \
 en dash is allowed only inside a numeric range such as 41–60.
@@ -128,8 +136,9 @@ numbered as in EVIDENCE RECORDS. Cite them elsewhere by those numbers.]
 evidence records by number and source name. Lead with the evidence about this \
 specific claim. Only records marked "Judge: contradicts the claim" may be \
 described as conflicting with the claim or weighing against it. Facts in other \
-records that favour the claim are given as such, and what a record does not show \
-belongs in Data Gaps. When a record says that only some pages of a document were \
+records that favour the claim are given as such. Gaps in the company's own \
+disclosure that place the claim in 41-60 are stated here as qualifications; Data \
+Gaps is for what could not be queried or read. When a record says that only some pages of a document were \
 read, never write that the document lacks something: write that the pages read do \
 not show it.]
 
@@ -175,10 +184,11 @@ names those pages.]
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
 and what the score scale means. Name the sources in three groups: the company's \
-own documents, official records (such as EU ETS, E-PRTR, decisions by \
-authorities and EUR-Lex texts) and third-party assessments and datasets (such as \
-LobbyMap, TPI, Climate Action 100+ and the exit lists); never call them all \
-primary sources. The scale runs from 0, where the records support \
+own documents; official records (EU ETS verified emissions, E-PRTR releases and \
+the SBTi target register); and other public records and third-party assessments \
+(decisions by authorities, the EU Transparency Register, EUR-Lex texts, LobbyMap, \
+TPI, Climate Action 100+, the exit lists and the asset trackers). Never call them \
+all primary sources. The scale runs from 0, where the records support \
 the claim, to 100, where an official record shows it to be false: a higher score \
 means the records go further against the claim. The judge gives the score \
 directly and fixed rules in code decide which band it may reach: never say that \
@@ -592,6 +602,22 @@ _NATIONAL_SHARE = re.compile(
 )
 
 
+def _names_a_national_share(claim_text: str, evidence: list[Evidence]) -> bool:
+    """Tell whether a claim gives a percentage together with a country whose totals are in
+    the evidence, in either order, as in "Sweden's total CO2 emissions by 10%"."""
+    if not re.search(r"%|per ?cent", claim_text, flags=re.IGNORECASE):
+        return False
+    lowered = claim_text.lower()
+    for record in evidence:
+        if not _is_national(record):
+            continue
+        for key in ("country", "country_name"):
+            name = str(record.raw_data.get(key) or "").strip().lower()
+            if len(name) > 3 and name in lowered:
+                return True
+    return False
+
+
 def published_evidence(
     evidence: list[Evidence], score: GreenwashingScore, claim_text: str = ""
 ) -> list[Evidence]:
@@ -611,7 +637,7 @@ def published_evidence(
     Returns:
         The records to number and publish, in their original order.
     """
-    if _NATIONAL_SHARE.search(claim_text):
+    if _NATIONAL_SHARE.search(claim_text) or _names_a_national_share(claim_text, evidence):
         return list(evidence)
     cited = set(score.contradicting_evidence_ids) | set(score.supporting_evidence_ids)
     return [e for e in evidence if e.id in cited or not _is_national(e)]

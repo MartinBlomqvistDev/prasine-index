@@ -321,13 +321,16 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
             f"Discovered: {len(discovered)} {'field' if len(discovered) == 1 else 'fields'} "
             "with no final investment decision recorded: "
             + "; ".join(f.described() for f in discovered[:3])
+            + (f"; and {len(discovered) - 3} more" if len(discovered) > 3 else "")
             + "."
         )
     if stalled:
         lines.append(
-            f"Discovered more than {STALLED_YEARS} years before these data with no final "
-            "investment decision recorded, so not counted as new fossil fuel supply: "
+            f"{len(stalled)} {'field' if len(stalled) == 1 else 'fields'} discovered "
+            f"more than {STALLED_YEARS} years before these data with no final investment "
+            "decision recorded, so not counted as new fossil fuel supply: "
             + "; ".join(f.described() for f in stalled[:3])
+            + (f"; and {len(stalled) - 3} more" if len(stalled) > 3 else "")
             + "."
         )
 

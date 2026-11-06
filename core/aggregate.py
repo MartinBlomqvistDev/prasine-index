@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import re
 import uuid
+from datetime import UTC, datetime
 
 from core.pipeline import PipelineResult
 from models.company_score import ClaimSummary, CompanyScore
@@ -20,20 +21,31 @@ _SCORE_TOP_K = 3
 
 # Target years a pledge names, such as "net zero by 2040", "FY30" or "FY2030".
 _YEAR = re.compile(r"(?<!\d)(20[2-9]\d|2100)(?!\d)")
-_FISCAL_YEAR = re.compile(r"\bFY ?(\d{2})(?!\d)", re.IGNORECASE)
+_FISCAL_YEAR = re.compile(r"\bFY ?(\d{2}|20\d{2})(?!\d)", re.IGNORECASE)
 
-# Words that say which emissions a pledge covers. Two pledges for the same year that
-# cover different emissions, such as operations and products sold, are two pledges.
-_SCOPE_WORDS = (
-    ("scope 1", "scope 1"),
-    ("scope 2", "scope 2"),
-    ("scope 3", "scope 3"),
-    ("operation", "operations"),
-    ("product", "products"),
-    ("sold", "products"),
-    ("value chain", "value chain"),
-    ("supply chain", "supply chain"),
+# Which emissions a pledge covers. Two pledges for the same year that cover different
+# emissions, such as operations and products sold, are two pledges. Scope lists are read
+# as sets ("Scope 1, 2 and 3", "Scopes 1-3"), and words are matched whole.
+_SCOPES = re.compile(
+    r"\bscopes?\s*([123](?:\s*(?:,|and|&|\+|/|-|\u2013|to)\s*[123])*)", re.IGNORECASE
 )
+_SCOPE_WORDS = (
+    (re.compile(r"\boperations?\b|\boperational\b", re.IGNORECASE), "operations"),
+    (re.compile(r"\bproducts?\b|\bsold\b", re.IGNORECASE), "products"),
+    (re.compile(r"\bvalue chain\b", re.IGNORECASE), "value chain"),
+    (re.compile(r"\bsupply chain\b", re.IGNORECASE), "supply chain"),
+)
+
+
+def _scope_numbers(text: str) -> set[str]:
+    """Return the scopes a text names, as "scope 1" and so on, expanding "1-3" and "1 to 3"."""
+    found: set[str] = set()
+    for listed in _SCOPES.findall(text):
+        digits = [int(d) for d in re.findall(r"[123]", listed)]
+        if len(digits) == 2 and re.search(r"-|\u2013|to", listed):
+            digits = list(range(min(digits), max(digits) + 1))
+        found.update(f"scope {d}" for d in digits)
+    return found
 
 
 def _pledge_key(result: PipelineResult) -> tuple[frozenset[str], frozenset[str]] | None:
@@ -41,11 +53,15 @@ def _pledge_key(result: PipelineResult) -> tuple[frozenset[str], frozenset[str]]
     if not result.score.claim_is_pledge:
         return None
     text = result.claim.raw_text or ""
-    years = {*_YEAR.findall(text), *(f"20{yy}" for yy in _FISCAL_YEAR.findall(text))}
+    # Target years only: a base year or a year already past is not what a pledge names.
+    this_year = datetime.now(UTC).year
+    named = {*_YEAR.findall(text), *(f"20{y[-2:]}" for y in _FISCAL_YEAR.findall(text))}
+    years = {year for year in named if int(year) > this_year}
     if not years:
         return None
-    lowered = text.lower()
-    scope = frozenset(tag for word, tag in _SCOPE_WORDS if word in lowered)
+    scope = frozenset(
+        _scope_numbers(text) | {tag for pattern, tag in _SCOPE_WORDS if pattern.search(text)}
+    )
     return frozenset(years), scope
 
 
@@ -62,7 +78,10 @@ def _distinct_pledges(results: list[PipelineResult]) -> tuple[list[int], int]:
         key = _pledge_key(result)
         if key is None:
             keep.append(index)
-        elif key not in best or result.score.score > results[best[key]].score.score:
+        elif key not in best or (result.score.score, result.score.confidence) > (
+            results[best[key]].score.score,
+            results[best[key]].score.confidence,
+        ):
             best[key] = index
     keep += best.values()
     return sorted(keep), len(results) - len(keep)
@@ -70,7 +89,7 @@ def _distinct_pledges(results: list[PipelineResult]) -> tuple[list[int], int]:
 
 def _whole(value: float) -> float:
     """Round half up to a whole number, once, so that 46.52 is 47 and 55.49 is 55."""
-    return float(math.floor(value + 0.5))
+    return float(math.floor(round(value, 9) + 0.5))
 
 
 def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, float]:
@@ -168,7 +187,8 @@ def aggregate_claim_scores(
         score_low=_whole(agg_low),
         score_high=_whole(agg_high),
         verdict=verdict_for_score(_whole(agg_score)),
-        confidence=round(agg_conf, 3),
+        # A whole percent, rounded once, so that the published figure is this one.
+        confidence=math.floor(round(agg_conf * 100, 9) + 0.5) / 100,
         claim_count=len(summaries),
         claims=summaries,
         floor_applied=floor_applied,

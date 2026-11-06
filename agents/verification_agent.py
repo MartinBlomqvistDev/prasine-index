@@ -39,6 +39,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from core.logger import bind_trace_context, get_logger
 from core.retry import DataSourceError, agent_error_boundary
 from ingest.ca100 import fetch_ca100_data
+from ingest.cdp import data_available as cdp_data_available
 from ingest.cdp import fetch_cdp_data
 from ingest.climate_trace import fetch_climate_trace_data
 from ingest.coal_exit import fetch_coal_exit_data
@@ -267,7 +268,12 @@ async def _node_fetch_cdp(state: VerificationState) -> dict[str, Any]:
             claim=claim,
             company=context.company,
         )
-        return {"evidence": evidence, "data_gaps": []}
+        gaps = (
+            []
+            if cdp_data_available()
+            else [f"{EvidenceSource.CDP}: the CDP file was not available for this run"]
+        )
+        return {"evidence": evidence, "data_gaps": gaps}
 
     except DataSourceError as exc:
         logger.warning(

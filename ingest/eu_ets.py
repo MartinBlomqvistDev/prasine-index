@@ -299,6 +299,9 @@ def _operator_name(display_id: str) -> str:
                     except (KeyError, ValueError):
                         continue
                     name = (row.get("INSTALLATION_NAME") or "").strip()
+                    if "aircraft" in (row.get("ACTIVITY_TYPE") or "").lower():
+                        # An aircraft operator's name field holds its CRCO number.
+                        name = "aircraft operator"
                     holder = (row.get("ACCOUNT_HOLDER_NAME") or "").strip()
                     _operator_names[key] = "; ".join(
                         part
@@ -411,8 +414,9 @@ def _build_evidence(
 
     operator = _operator_name(display_id)
     named = f"{display_id} ({operator})" if operator else display_id
+    kind = "aircraft operator" if operator.startswith("aircraft operator") else "installation"
     summary = (
-        f"EU ETS verified emissions for installation {named}: "
+        f"EU ETS verified emissions for {kind} {named}: "
         f"{most_recent_emissions:,.0f} tCO2e in {most_recent_year} "
         f"(trend: {direction}). "
         f"Full history: {trend_summary}."
@@ -426,6 +430,7 @@ def _build_evidence(
         source_url="https://union-registry-data.ec.europa.eu/report/welcome",
         raw_data={
             "installation_id": display_id,
+            "aircraft_operator": kind == "aircraft operator",
             "verified_emissions": [{"year": yr, "verifiedEmissions": em} for yr, em in history],
             "data_source": "EU Union Registry daily snapshot",
             "most_recent_year": most_recent_year,

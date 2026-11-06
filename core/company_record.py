@@ -151,6 +151,8 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
     expanding: list[str] = []
     # New coal plants count through the expert group's recommendations for businesses.
     coal_power = False
+    # Set when a list or tracker records expansion that does not count as new supply.
+    not_counted = False
 
     for source, upstream_key, power_key, values, name in (
         (
@@ -174,6 +176,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         first = str(record.raw_data.get(upstream_key) or "").lower().strip()
         second = str(record.raw_data.get(power_key) or "").lower().strip()
         if record.raw_data.get("lng_counted") is False and first not in values:
+            not_counted = True
             lines.append(
                 f"{name}: listed for LNG capacity under development that matches a proposal "
                 f"more than ten years old, not counted as new supply{_cite(record)}."
@@ -195,6 +198,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             lines.append(f"{name}: {count} {plural}{_assets(record)}{_cite(record)}.")
         stalled = record.raw_data.get("stalled_assets") if record else None
         if record is not None and stalled:
+            not_counted = True
             listed = "; ".join(
                 f"{asset.get('name')} (proposed in {asset.get('proposal_year')})"
                 for asset in stalled[:3]
@@ -226,6 +230,11 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             else ""
         )
         return " ".join(lines), f"the {names} {verb} new fossil fuel supply{coal}"
+    if not_counted:
+        return " ".join(lines), (
+            "no record shows new fossil fuel supply that counts; the expansion listed "
+            "matches proposals more than ten years old"
+        )
     return " ".join(lines), "the exit lists record no expansion"
 
 
@@ -233,6 +242,11 @@ def _emissions(evidence: list[Evidence]) -> str:
     records = [e for e in evidence if e.source == EvidenceSource.EU_ETS]
     if not records:
         return "No EU ETS installations mapped for this assessment."
+    noun = (
+        "aircraft operator"
+        if all(e.raw_data.get("aircraft_operator") for e in records)
+        else "installation"
+    )
     histories: list[tuple[str, dict[int, float]]] = []
     for record in records:
         history: dict[int, float] = {}
@@ -243,20 +257,23 @@ def _emissions(evidence: list[Evidence]) -> str:
         if history:
             histories.append((str(record.raw_data.get("installation_id") or ""), history))
     if not histories:
-        return f"EU ETS: {_installations(len(records))}, no verified emissions read."
+        return f"EU ETS: {_installations(len(records), noun)}, no verified emissions read."
     # Only years in which every mapped installation reported, so that an
     # installation joining the scheme does not read as a change in emissions.
     every = sorted(set.intersection(*(set(h) for _, h in histories)))
     common = every[-3:]
     if not common:
-        return f"EU ETS: {_installations(len(histories))} with no year in common."
+        return (
+            f"EU ETS: {_installations(len(histories), noun)}, with no year in which all of them "
+            "report verified emissions."
+        )
 
     def total(year: int) -> str:
         return f"{_tonnes(sum(h[year] for _, h in histories))} CO2e in {year}"
 
     line = (
-        f"EU ETS verified emissions for {_installations(len(histories))}, those mapped to "
-        f"the company by name and not necessarily all of its installations: "
+        f"EU ETS verified emissions for {_installations(len(histories), noun)}, those mapped to "
+        f"the company by name and not necessarily all of its {noun}s: "
         f"{'; '.join(total(year) for year in reversed(common))}."
     )
     # A longer view, so that three years are not read alone.
@@ -280,9 +297,9 @@ def _emissions(evidence: list[Evidence]) -> str:
     return line
 
 
-def _installations(count: int) -> str:
+def _installations(count: int, noun: str = "installation") -> str:
     """Write a count of mapped installations, as in "1 mapped installation"."""
-    return f"{count} mapped installation{'' if count == 1 else 's'}"
+    return f"{count} mapped {noun}{'' if count == 1 else 's'}"
 
 
 def _targets(evidence: list[Evidence]) -> str:
