@@ -135,6 +135,21 @@ class TestReadMorePage:
             "https://www.ssab.com/zero/epd"
         )
 
+    def test_a_footer_link_is_not_followed(self) -> None:
+        html = (
+            "<main><p>Our bulbs use 85% less energy.</p></main>"
+            '<footer><a href="/ikea-family/">See more</a><a href="/family/">Read more</a></footer>'
+        )
+        claim = "Our bulbs use 85% less energy."
+        assert _read_more_page(html, "https://www.ikea.com/us/en/", claim) is None
+
+    def test_a_link_far_below_the_claim_is_not_followed(self) -> None:
+        html = (
+            "<p>Net zero by 2045.</p><p>" + "Another card about something else. " * 12 + "</p>"
+            '<a href="/other">Read more</a>'
+        )
+        assert _read_more_page(html, "https://example.com/", "Net zero by 2045.") is None
+
     def test_learn_all_about(self) -> None:
         html = '<p>Net zero by 2045.</p><a href="/zero">Learn all about SSAB Zero steel</a>'
         assert _read_more_page(html, "https://www.ssab.com/en/", "Net zero by 2045.") == (
@@ -205,9 +220,10 @@ class TestClimatePages:
 
     def test_no_assurance_pages_for_claim_extraction(self, monkeypatch) -> None:
         climate = "Net zero by 2050. " * 10
-        assurance = "limited assurance " * 20
+        assurance = "Limited assurance conclusion: nothing has come to our attention. " * 3
         self._patch_pages(monkeypatch, [climate, assurance])
-        assert "[page 2]" not in climate_pages(b"%PDF", assurance=False)
+        assert "[PDF page 2]" in climate_pages(b"%PDF")
+        assert "[PDF page 2]" not in climate_pages(b"%PDF", assurance=False)
 
     def test_assurance_alone_is_not_a_climate_page(self, monkeypatch) -> None:
         self._patch_pages(monkeypatch, ["Board report", "limited assurance on the statement"])

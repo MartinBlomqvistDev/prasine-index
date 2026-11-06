@@ -50,8 +50,9 @@ _MAX_LINKED_CHARS = 60_000
 _MAX_LINKED_DOCUMENTS = 2
 _LINKED_SHARES = (_MAX_LINKED_CHARS, _MAX_LINKED_CHARS)
 _MAX_MORE_CHARS = 30_000
-# How far after a claim, in characters of page text, its "Read more" link may sit.
-_MORE_DISTANCE = 1_200
+# How far after a claim, in characters of page text, its "Read more" link may sit: a
+# teaser's link follows it directly, and a link further down belongs to the next card.
+_MORE_DISTANCE = 300
 
 # Kinds of company document a claim page links to, in the order they are read, with
 # the words in a link's address or text that mark each. The company's newest annual or
@@ -114,9 +115,11 @@ _ANCHOR = re.compile(
     r"<a\b[^>]*?href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", flags=re.IGNORECASE | re.DOTALL
 )
 _MORE_LABEL = re.compile(
-    r"\b(?:read|learn|find out|discover|see)\b(?:\s+\w+){0,2}?\s+(?:more|about)\b",
+    r"\b(?:read|learn|find out|discover)\b(?:\s+\w+){0,2}?\s+(?:more|about)\b",
     flags=re.IGNORECASE,
 )
+# Navigation and footers hold "Read more" links that belong to no claim.
+_PAGE_CHROME = re.compile(r"<(nav|footer)\b.*?</\1\s*>", flags=re.IGNORECASE | re.DOTALL)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 # A long annual report can take minutes to download.
 _FETCH_TIMEOUT = 180.0
@@ -212,7 +215,8 @@ _EXTRACTION_TOOL: anthropic.types.ToolParam = {
                     "Only for a claim about future environmental performance: the "
                     "elements listed in Article 6(2)(d) of the Unfair Commercial "
                     "Practices Directive, as amended, that this document does not show. "
-                    "Include only elements that are genuinely absent from the document. "
+                    "Include only elements that the document, or for a long document the "
+                    "pages given, does not show. "
                     "Leave empty for a claim about past or present performance."
                 ),
             },
@@ -283,8 +287,9 @@ reasonable) and what it covers, and say whether it covers the delivery of the pl
 or only the reported information. Never write that a document has no independent \
 assurance or verification when such a report is in the pages.
 
-Never name a person in the summary: refer to a document by its title, its \
-organisation and its date.
+Never name a private person in the summary: refer to a document by its title, its \
+organisation and its date. Firms and organisations, such as the assurance \
+provider, are named.
 
 If the document states what share of Scope 1 emissions falls under an emission \
 trading scheme such as the EU ETS, give that share and its year in the summary.
@@ -339,9 +344,13 @@ async def fetch_source_document_data(
     more_url: str | None = None
     more_read = False
 
+    partial = False
     is_pdf = "pdf" in content_type.lower() or claim.source_url.lower().endswith(".pdf")
     if is_pdf:
-        page_count = _pdf_page_count(content_bytes)
+        address = claim.source_url.split("#")[0]
+        if address not in _page_counts:
+            _page_counts[address] = await asyncio.to_thread(_pdf_page_count, content_bytes)
+        page_count = _page_counts[address]
         if page_count <= _MAX_PDF_PAGES:
             b64 = base64.standard_b64encode(content_bytes).decode()
             content_blocks.append(
@@ -359,12 +368,25 @@ async def fetch_source_document_data(
                 extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
             )
         else:
-            # A long report: read the pages that concern climate, not its first pages.
+            # A long report: read the pages that concern climate, not its first pages,
+            # and say that only those pages were read.
+            pages = await _pages_of(address, content_bytes)
             text = (
-                climate_pages(content_bytes, _MAX_HTML_CHARS, figures=claim_figures(claim.raw_text))
-                or _extract_pdf_text(content_bytes)[:_MAX_HTML_CHARS]
+                select_pages(pages, _MAX_HTML_CHARS, True, claim_figures(claim.raw_text))
+                or " ".join(pages)[:_MAX_HTML_CHARS]
             )
-            content_blocks.append({"type": "text", "text": text})
+            partial = True
+            content_blocks.append(
+                {
+                    "type": "text",
+                    "text": (
+                        f"DOCUMENT: {claim.source_url}, a PDF of {page_count} pages. Only "
+                        "these pages were read: those that concern climate most, any "
+                        "assurance report in it and any page with the claim's own figures, "
+                        f"each marked with its PDF page number.\n{text}"
+                    ),
+                }
+            )
             logger.info(
                 f"PDF has {page_count} pages (>{_MAX_PDF_PAGES} limit) — falling back to text extraction "
                 f"({len(text)} chars)",
@@ -425,12 +447,16 @@ async def fetch_source_document_data(
                 + (
                     " The page and everything linked from it are the company's own. In "
                     "the summary, say which statements come from the page and which from "
-                    "each linked page or document, citing a document's pages as 'PDF page "
-                    "N' with the number of the marker. Only "
-                    "the pages given were read from each linked document: write 'in the "
-                    "pages read' for anything they do not show, and never say that a "
-                    "document does not contain something."
+                    "each linked page or document."
                     if linked_read or more_read
+                    else ""
+                )
+                + (
+                    " Cite a document's pages as 'PDF page N' with the number of the "
+                    "marker. Only the pages given were read from a long or linked "
+                    "document: write 'in the pages read' for anything they do not show, "
+                    "and never say that a document does not contain something."
+                    if linked_read or partial
                     else ""
                 )
             ),
@@ -639,7 +665,7 @@ def _read_more_page(html: str, page_url: str, claim_text: str) -> str | None:
         anchors.append((match.group(1), _strip_html(match.group(2))))
         return f" \x00{len(anchors) - 1}\x00 "
 
-    text = _comparable(_strip_html(_ANCHOR.sub(mark, html)))
+    text = _comparable(_strip_html(_ANCHOR.sub(mark, _PAGE_CHROME.sub(" ", html))))
     claim = _comparable(claim_text)
     if not claim:
         return None
@@ -686,6 +712,32 @@ def _comparable(text: str) -> str:
     return " ".join(text.replace("\u00a0", " ").split())
 
 
+def _extract_pages(pdf_bytes: bytes) -> list[str]:
+    """Return the text of each page of a PDF, whitespace normalised, or [] if unreadable."""
+    try:
+        import pypdf
+
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        return [re.sub(r"\s+", " ", page.extract_text() or "").strip() for page in reader.pages]
+    except Exception:
+        return []
+
+
+# Reading a 700-page report into text takes about 20 seconds, so each PDF is read once
+# per run, off the event loop, and every claim chooses its pages from that one reading.
+_page_texts: dict[str, list[str]] = {}
+_page_locks: dict[str, asyncio.Lock] = {}
+
+
+async def _pages_of(address: str, pdf_bytes: bytes) -> list[str]:
+    """Return the page texts of the PDF at an address, reading it the first time only."""
+    lock = _page_locks.setdefault(address, asyncio.Lock())
+    async with lock:
+        if address not in _page_texts:
+            _page_texts[address] = await asyncio.to_thread(_extract_pages, pdf_bytes)
+        return _page_texts[address]
+
+
 def climate_pages(
     pdf_bytes: bytes,
     limit: int = _MAX_LINKED_CHARS,
@@ -707,13 +759,16 @@ def climate_pages(
         The chosen pages, each marked with its PDF page number, or "" when the
         PDF cannot be read or no page concerns climate.
     """
-    try:
-        import pypdf
+    return select_pages(_extract_pages(pdf_bytes), limit, assurance, figures)
 
-        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-        pages = [re.sub(r"\s+", " ", page.extract_text() or "").strip() for page in reader.pages]
-    except Exception:
-        return ""
+
+def select_pages(
+    pages: list[str],
+    limit: int = _MAX_LINKED_CHARS,
+    assurance: bool = True,
+    figures: tuple[str, ...] = (),
+) -> str:
+    """Choose from a PDF's page texts as climate_pages does. Args as for climate_pages."""
     lowered = [text.lower() for text in pages]
     weights = [sum(text.count(word) for word in _PAGE_WORDS) for text in lowered]
     order = sorted((i for i in range(len(pages)) if weights[i]), key=lambda i: -weights[i])
@@ -729,10 +784,12 @@ def climate_pages(
         first = first[:_MAX_ASSURANCE_PAGES]
     if figures:
         compact = [_percent(text) for text in lowered]
+        # A figure counts only on its own: "92%" is not found inside "492%".
+        patterns = [re.compile(r"(?<![\d.,])" + re.escape(figure)) for figure in figures]
         with_figures = [
             i
             for i in sorted(range(len(pages)), key=lambda i: -weights[i])
-            if i not in first and any(figure in compact[i] for figure in figures)
+            if i not in first and any(pattern.search(compact[i]) for pattern in patterns)
         ]
         first += with_figures[:_MAX_FIGURE_PAGES]
     order = first + [i for i in order if i not in first]
@@ -806,7 +863,7 @@ async def _read_linked_report(
         return ""
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
         return ""
-    text = await asyncio.to_thread(climate_pages, content, limit, True, figures)
+    text = select_pages(await _pages_of(url.split("#")[0], content), limit, True, figures)
     if text:
         _linked_reads[key] = text
     logger.info(
@@ -814,6 +871,9 @@ async def _read_linked_report(
         extra={"operation": "source_doc_linked_read", "url": url, "chars": len(text)},
     )
     return text
+
+
+_page_counts: dict[str, int] = {}
 
 
 def _pdf_page_count(pdf_bytes: bytes) -> int:
@@ -825,20 +885,6 @@ def _pdf_page_count(pdf_bytes: bytes) -> int:
         return len(reader.pages)
     except Exception:
         return 0
-
-
-def _extract_pdf_text(pdf_bytes: bytes) -> str:
-    """Extract plain text from a PDF using pypdf."""
-    try:
-        import pypdf
-
-        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-        parts: list[str] = []
-        for page in reader.pages:
-            parts.append(page.extract_text() or "")
-        return re.sub(r"\s+", " ", " ".join(parts)).strip()
-    except Exception as exc:
-        return f"[PDF text extraction failed: {exc}]"
 
 
 # A run reads the same document for several claims, often at the same time. Each address
