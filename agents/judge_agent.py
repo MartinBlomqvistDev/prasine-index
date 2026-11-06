@@ -258,6 +258,9 @@ record, no list of expanding companies, no number of contradicting sources, and 
 decision by an authority.
 Each record comes with a confidence: a fixed value per source and reading, not a \
 measure of the record. Never cite it in the reasoning. \
+List the company's own source document as contradicting a claim only where it \
+states the opposite of the claim; a document that qualifies the claim or leaves \
+part of it unshown is context. \
 The band names are internal labels. Never use them in the reasoning, and never use \
 the words "greenwashing", "misleading", "violates" or "breach" there except when \
 quoting a regulator's own finding.

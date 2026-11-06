@@ -53,13 +53,15 @@ _REQUIRED_SECTIONS = (
 )
 
 
-def _validate_report_sections(markdown: str, trace_id: object) -> None:
+def _missing_sections(markdown: str, trace_id: object) -> list[str]:
+    """Return the required sections a report lacks, logging them if there are any."""
     missing = [s for s in _REQUIRED_SECTIONS if s not in markdown]
     if missing:
         logger.warning(
             f"Report missing required sections: {missing}",
             extra={"operation": "report_section_missing", "trace_id": str(trace_id)},
         )
+    return missing
 
 
 _SYSTEM_PROMPT = """\
@@ -79,6 +81,8 @@ REPORT STANDARDS
 records provided. Never add a fact, figure, ruling, date or name that is not \
 in the evidence.
 - Quote the claim verbatim and in full. Never paraphrase or shorten it.
+- Never name a person: refer to a document by its title, its organisation and its \
+date.
 - Describe an enforcement record only through the verbatim quotation and the \
 source URL given in its evidence record, with its reference and date exactly as \
 recorded. Do not characterise a ruling beyond what its quotation says.
@@ -108,7 +112,7 @@ Use exactly this Markdown structure:
 
 ### The Claim
 > "[verbatim claim text]"
-*Source: [source type], [URL], [date]*
+*Source: [source type], [URL], retrieved [DATE]*
 
 ### Evidence
 [Leave this section empty: the pipeline inserts the evidence records here, \
@@ -134,11 +138,16 @@ performance. Rules:
 - Directive (EU) 2024/825 applies from 27 September 2026 and only to commercial \
 practices aimed at consumers. Name the kind of page the claim was published on, \
 as given in CLAIM SOURCE. If it is an investor relations page or an annual \
-report, say that the material is addressed to investors and that the \
-directive's consumer provisions may not apply to it. For any other page, do not \
-conclude whether the directive applies: whether a page is a commercial practice \
-aimed at consumers is for national authorities and courts to decide.
-- Never conclude that the claim complies with or breaches a provision.
+report, say that the Commission services' Questions and Answers describe \
+sustainability reports as "often mandatory and addressed to investors" and \
+"typically not in scope", quoting them as the EUR-Lex record gives them. For any \
+page, do not conclude whether the directive applies: whether a page is a \
+commercial practice aimed at consumers is for national authorities and courts \
+to decide.
+- Never conclude that the claim complies with or breaches a provision, and do \
+not use the words "breach", "comply" or "violate" or "misleading" outside a \
+quotation of the law. Where a conclusion would go, write: "The evidence allows \
+no conclusion on any provision."
 - The Green Claims Directive proposal was never adopted. Do not mention it.
 - Do not name enforcement authorities or describe how to file complaints.]
 
@@ -148,7 +157,9 @@ this claim.]
 
 ### Data Gaps
 [Each source that could not be queried or returned insufficient data, and what \
-that means for confidence. Start each item with **Source name**:.]
+that means for confidence. Start each item with **Source name**:. A company that \
+is not on an exit list or tracker is a finding about it, stated in Company \
+Context, not a data gap.]
 
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
@@ -296,7 +307,18 @@ class ReportAgent:
 
         async with agent_error_boundary(agent=AgentName.REPORT.value, operation="run"):
             report_markdown, tokens_used = await self._call_llm(input)
-            _validate_report_sections(report_markdown, input.claim.trace_id)
+            if _missing_sections(report_markdown, input.claim.trace_id):
+                # Written once more; a report that still lacks a section is not published.
+                report_markdown, more_tokens = await self._call_llm(input)
+                tokens_used += more_tokens
+                missing = _missing_sections(report_markdown, input.claim.trace_id)
+                if missing:
+                    raise LLMError(
+                        message=f"Report still missing required sections: {missing}",
+                        agent=AgentName.REPORT.value,
+                        retryable=False,
+                        llm_model_id=self._model_id,
+                    )
 
             logger.info(
                 f"Report generated ({len(report_markdown)} chars)",
@@ -445,20 +467,7 @@ def _build_report_prompt(input: ReportInput) -> str:
         "JUDGE REASONING:",
         score.reasoning,
         "",
-        "THE JUDGE'S RATINGS OF FOUR ASPECTS OF THE EVIDENCE (they describe the evidence; "
-        "they are not added up and do not set the score):",
     ]
-
-    _dim_labels = {
-        "EMISSIONS_DISCREPANCY": "emissions discrepancy",
-        "SUBSTANTIATION_FAILURE": "missing substantiation",
-        "LOBBYING_CONTRADICTION": "lobbying context",
-        "PRIOR_VIOLATIONS": "earlier decisions on the same claim",
-        "TARGET_CREDIBILITY_GAP": "target credibility gap",
-    }
-    for dim, dim_score in score.score_breakdown.items():
-        label = _dim_labels.get(dim, dim.lower().replace("_", " "))
-        parts.append(f"  {label}: {dim_score:.1f}/100")
 
     parts += ["", "EVIDENCE RECORDS:"]
     for i, ev in enumerate(vr.evidence, 1):

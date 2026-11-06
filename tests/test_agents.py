@@ -108,18 +108,16 @@ class TestReportSectionValidation:
         return "\n".join(f"{s}\nContent here.\n" for s in sections)
 
     def test_valid_report_has_all_required_sections(self) -> None:
-        from agents.report_agent import _REQUIRED_SECTIONS, _validate_report_sections
+        from agents.report_agent import _REQUIRED_SECTIONS, _missing_sections
 
         report = self._make_report(list(_REQUIRED_SECTIONS))
-        # Should not raise or log warning: we just verify the function returns cleanly.
-        _validate_report_sections(report, _TRACE_ID)
+        assert _missing_sections(report, _TRACE_ID) == []
 
-    def test_missing_section_does_not_raise(self) -> None:
-        from agents.report_agent import _validate_report_sections
+    def test_missing_sections_are_named(self) -> None:
+        from agents.report_agent import _missing_sections
 
-        # Incomplete report: validator logs a warning but must not raise.
         report = "### The Claim\nContent.\n### Evidence\nContent.\n"
-        _validate_report_sections(report, _TRACE_ID)  # should not raise
+        assert "### Assessment" in _missing_sections(report, _TRACE_ID)
 
     def test_required_sections_constant_is_nonempty(self) -> None:
         from agents.report_agent import _REQUIRED_SECTIONS

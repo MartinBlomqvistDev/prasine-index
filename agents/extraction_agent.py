@@ -152,7 +152,10 @@ RULES
 1. Extract verbatim, preserving the exact wording, including vague or exaggerated \
 language. The assessment happens later.
 2. Include the full passage needed to understand the assertion, in whole \
-sentences: never a clause cut from a longer sentence.
+sentences: never a clause cut from a longer sentence. A sentence that refers back \
+("In this circumstance", "these emissions", "this target") is extracted together \
+with the sentence it refers to, or not at all. A figure's caption without its \
+figure is not a claim.
 3. Assign the most specific ClaimCategory.
 4. Record the page number or section heading if the text shows it.
 5. Return only real climate claims. Fewer claims are better than padding: if the \
