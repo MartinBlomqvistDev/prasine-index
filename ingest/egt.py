@@ -397,7 +397,10 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         )
         return []
 
-    expanding = [a for a in matched if a.is_expanding]
+    # New gas-fired power units burn gas; they do not supply it. They are listed apart
+    # and do not count as new fossil fuel supply.
+    expanding = [a for a in matched if a.is_expanding and a.asset_type != "gas_plant"]
+    expanding_power = [a for a in matched if a.is_expanding and a.asset_type == "gas_plant"]
     operating = [a for a in matched if a.is_operating]
     exiting = [a for a in matched if a.is_exiting]
 
@@ -407,7 +410,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     elif operating and not exiting:
         supports_claim = None
         confidence = 0.60
-    elif exiting and not expanding:
+    elif exiting and not expanding_power:
         supports_claim = True
         confidence = 0.55
     else:
@@ -428,8 +431,13 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
     ]
     if expanding:
         lines.append(
-            f"In development (proposed, announced, pre-construction or construction): "
-            f"{_listing(expanding, company_name, company_norm, 5)}."
+            f"Gas supply infrastructure in development (proposed, announced, pre-construction "
+            f"or construction): {_listing(expanding, company_name, company_norm, 5)}."
+        )
+    if expanding_power:
+        lines.append(
+            f"Gas-fired power units in development, which use gas rather than supply it: "
+            f"{_listing(expanding_power, company_name, company_norm, 5)}."
         )
     if operating:
         lines.append(f"Operating: {_listing(operating, company_name, company_norm, 5)}.")
@@ -442,7 +450,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
             + ", ".join(f"{n} {status}" for status, n in sorted(statuses.items()))
             + "."
         )
-    if not (expanding or operating or exiting):
+    if not (expanding or expanding_power or operating or exiting):
         other = sorted({a.status for a in matched if a.status})
         lines.append(f"Status in the tracker: {', '.join(other) or 'not given'}.")
 
@@ -458,6 +466,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         "company": company_name,
         "total_assets": len(matched),
         "expanding": len(expanding),
+        "expanding_power": len(expanding_power),
         "operating": len(operating),
         "exiting": len(exiting),
         "by_type": type_counts,

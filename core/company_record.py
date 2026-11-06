@@ -262,6 +262,8 @@ def _investors(evidence: list[Evidence]) -> str:
                 f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
                 f"{raw.get('cp_alignment_2050') or 'not assessed'} for 2050"
             )
+            if raw.get("regional"):
+                performance += f"; against TPI's regional benchmark ({raw['regional']})"
             if raw.get("subsectors"):
                 performance += f"; against subsector benchmarks: {raw['subsectors']}"
         else:

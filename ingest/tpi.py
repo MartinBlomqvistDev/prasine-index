@@ -82,6 +82,7 @@ class _TPIRecord:
         "mq_level",
         "mq_published",
         "notes",
+        "regional",
         "retrieved",
         "sector",
         "source_url",
@@ -104,6 +105,7 @@ class _TPIRecord:
         self.source_url = row.get("Source URL", "").strip()
         self.notes = row.get("TPI Centre Notes", "").strip()
         self.subsectors = row.get("Subsector Carbon Performance", "").strip()
+        self.regional = row.get("Regional Carbon Performance", "").strip()
 
     @property
     def short_term(self) -> tuple[str, str]:
@@ -272,6 +274,8 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
             f"{rec.cp_2030 or 'not assessed'} for 2030, {rec.cp_2035 or 'not assessed'} for "
             f"2035 and {rec.cp_2050 or 'not assessed'} for 2050."
         )
+        if rec.regional:
+            cp_summary += f" Against TPI's regional benchmark ({rec.regional})."
         if rec.subsectors:
             cp_summary += f" Against subsector benchmarks: {rec.subsectors}."
     else:
@@ -291,7 +295,11 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         f"{'; ' + dates if dates else ''}{retrieved}): "
         f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}"
         f"{', the highest of TPI levels' if rec.mq_level == '5' else ''}). {cp_summary}"
-        + (f" TPI Centre notes on the assessment: {rec.notes}" if rec.notes else "")
+        + (
+            f" TPI Centre notes on the assessment against the {rec.sector} benchmark: {rec.notes}"
+            if rec.notes
+            else ""
+        )
     )
 
     logger.info(
@@ -316,6 +324,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         "retrieved": rec.retrieved,
         "notes": rec.notes,
         "subsectors": rec.subsectors,
+        "regional": rec.regional,
     }
 
     return [

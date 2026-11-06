@@ -66,6 +66,9 @@ _OPERATING_STATUSES = {"operating"}
 # Unit statuses indicating exit from coal
 _EXITING_STATUSES = {"shelved", "cancelled", "retired"}
 
+# Deactivated but not retired, in GEM's terms.
+_MOTHBALLED_STATUSES = {"mothballed"}
+
 
 class _GCPTUnit:
     __slots__ = (
@@ -265,11 +268,19 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
 
     # Build summary
     countries = len({u.country for u in matched})
+    # The match reads the tracker's Owner column and accepts an owner named after the
+    # company, so the owners it found are named.
+    owners: list[str] = []
+    for unit in matched:
+        for owner in unit.owner_names():
+            if _owner_matches(company_norm, owner) and owner not in owners:
+                owners.append(owner)
+    named = "; ".join(owners[:5]) + (f"; and {len(owners) - 5} more" if len(owners) > 5 else "")
     lines: list[str] = [
-        f"Global Coal Plant Tracker (Global Energy Monitor, January 2026): {company_name} is "
-        f"named as an owner or parent of {len(matched)} coal "
+        f"Global Coal Plant Tracker (Global Energy Monitor, January 2026): {company_name} or a "
+        f"company named after it is listed as owner of {len(matched)} coal "
         f"{'unit' if len(matched) == 1 else 'units'} in {countries} "
-        f"{'country' if countries == 1 else 'countries'}."
+        f"{'country' if countries == 1 else 'countries'} (owners named: {named})."
     ]
 
     if expanding:
@@ -288,6 +299,15 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
             f"({total_operating_mw:.0f} MW in all)."
         )
 
+    mothballed = [u for u in matched if u.status in _MOTHBALLED_STATUSES]
+    if mothballed:
+        lines.append(
+            f"Mothballed (deactivated, not retired): {len(mothballed)} "
+            f"{'unit' if len(mothballed) == 1 else 'units'} "
+            f"({sum(u.capacity_mw for u in mothballed):.0f} MW in all): "
+            + "; ".join(_unit_name(u) for u in mothballed[:5])
+            + "."
+        )
     if exiting:
         statuses: dict[str, int] = {}
         for unit in exiting:
@@ -296,6 +316,15 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
             "No longer operating or not going ahead: "
             + ", ".join(f"{n} {status}" for status, n in sorted(statuses.items()))
             + "."
+        )
+    accounted = set(_EXPANDING_STATUSES | _OPERATING_STATUSES | _EXITING_STATUSES)
+    others: dict[str, int] = {}
+    for unit in matched:
+        if unit.status not in accounted | _MOTHBALLED_STATUSES:
+            others[unit.status or "not given"] = others.get(unit.status or "not given", 0) + 1
+    if others:
+        lines.append(
+            "Other statuses: " + ", ".join(f"{n} {s}" for s, n in sorted(others.items())) + "."
         )
 
     summary = " ".join(lines)

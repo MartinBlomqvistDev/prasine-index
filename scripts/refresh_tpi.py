@@ -45,6 +45,7 @@ _COLUMNS = [
     "Carbon Performance Alignment 2030",
     "Carbon Performance Alignment 2035",
     "Carbon Performance Alignment 2050",
+    "Regional Carbon Performance",
     "Subsector Carbon Performance",
     "TPI Centre Notes",
     "Retrieved",
@@ -74,6 +75,46 @@ def _alignments(html: str, start: int) -> dict[str, str]:
         item.group("year"): item.group("value") or ""
         for item in _ITEM.finditer(block.group("items"))
     }
+
+
+def _by_year(values: dict[str, str]) -> str:
+    """Write alignments as "1.5 Degrees for 2030, Below 2 Degrees for 2035, ..."."""
+    return ", ".join(
+        f"{values.get(year) or 'not assessed'} for {year}" for year in ("2030", "2035", "2050")
+    )
+
+
+def _regional(html: str, start: int) -> str:
+    """Return the regional benchmark result of the assessment whose record starts at start.
+
+    TPI writes "regionalAlignments" straight after the global "alignments", and names
+    the region in the record's "region" field. Returns "" when there is no regional
+    result or it is the global one.
+    """
+    block = _ALIGNMENTS.search(html, start)
+    if not block:
+        return ""
+    regional = re.compile(r',"regionalAlignments":\[(?P<items>[^\]]*)\]').match(html, block.end())
+    region = re.search(r'"region":\[([^\]]*)\]', html[start : block.start()])
+    name = (region.group(1).replace('"', "").strip() if region else "") or "regional"
+    if not regional or name.lower() == "global":
+        return ""
+    values = {
+        item.group("year"): item.group("value") or ""
+        for item in _ITEM.finditer(regional.group("items"))
+    }
+    if not any(values.get(year) for year in ("2030", "2035", "2050")):
+        return ""
+    return f"{name}: {_by_year(values)}"
+
+
+def _note(html: str, start: int) -> str:
+    """Return the first sentence of TPI's note on the assessment whose record starts at start."""
+    found = re.search(r'"assumptions":"((?:[^"\\]|\\.)*)"', html[start : start + 4000])
+    if not found:
+        return ""
+    text = found.group(1).replace("\\u0026", "&").replace('\\"', '"')
+    return text.split(". ")[0].rstrip(".") + "."
 
 
 def _field(html: str, pattern: str) -> str:
@@ -139,12 +180,10 @@ def read_company(slug: str) -> dict[str, str]:
             ):
                 continue
             values = _alignments(html, other.end())
+            note = _note(html, other.end())
             subsectors.append(
-                f"{name[len(sector) + 2 : -1]}: "
-                + ", ".join(
-                    f"{values.get(year) or 'not assessed'} for {year}"
-                    for year in ("2030", "2035", "2050")
-                )
+                f"{name[len(sector) + 2 : -1]}: {_by_year(values)}"
+                + (f" (TPI's note: {note})" if note else "")
             )
 
     level = ""
@@ -165,6 +204,7 @@ def read_company(slug: str) -> dict[str, str]:
         "Carbon Performance Alignment 2030": alignments.get("2030", ""),
         "Carbon Performance Alignment 2035": alignments.get("2035", ""),
         "Carbon Performance Alignment 2050": alignments.get("2050", ""),
+        "Regional Carbon Performance": _regional(html, cp.end()) if cp else "",
         "Subsector Carbon Performance": "; ".join(subsectors),
         "TPI Centre Notes": _notes(html),
         "Retrieved": dt.date.today().isoformat(),

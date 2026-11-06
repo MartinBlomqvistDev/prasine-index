@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import Any
 
 from core.logger import get_logger
-from ingest.name_matching import contains_name, names_overlap
+from ingest.name_matching import contains_name, fold_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
@@ -172,7 +172,8 @@ def _load() -> list[_GOGETField]:
 
 
 def _normalise(name: str) -> str:
-    return name.lower().strip()
+    # Folded, so "BP P.L.C." in the tracker and "BP plc" compare equal.
+    return fold_name(name)
 
 
 def _owner_matches(company_norm: str, owner_name: str) -> bool:
@@ -240,23 +241,46 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         confidence = 0.60
 
     countries = {f.country for f in matched if f.country}
-    fuel_types = {f.fuel_type for f in matched if f.fuel_type}
+    fuels: dict[str, int] = {}
+    for f in matched:
+        if f.fuel_type:
+            fuels[f.fuel_type] = fuels.get(f.fuel_type, 0) + 1
+    fuel_text = ", ".join(
+        f"{n} {fuel}" for fuel, n in sorted(fuels.items(), key=lambda item: -item[1])
+    )
 
     lines: list[str] = [
-        f"GOGET (March 2026): {company_name!r} has {len(matched)} O&G extraction field(s) "
-        f"across {len(countries)} country/countries "
-        f"({', '.join(sorted(fuel_types)[:3])})."
+        f"Global Oil and Gas Extraction Tracker (Global Energy Monitor, March 2026): "
+        f"{company_name} is named as a parent company, often with a minority share, of "
+        f"{len(matched)} oil and gas {'field' if len(matched) == 1 else 'fields'} in "
+        f"{len(countries)} {'country' if len(countries) == 1 else 'countries'}"
+        + (f" (by fuel: {fuel_text})." if fuel_text else ".")
     ]
 
     if developing:
-        dev_names = "; ".join(f"{f.name} ({f.country}, {f.fuel_type})" for f in developing[:5])
+        dev_names = "; ".join(
+            f"{f.name} ("
+            + ", ".join(
+                part
+                for part in (
+                    f.country if f.country.lower() not in f.name.lower() else "",
+                    f.fuel_type,
+                )
+                if part
+            )
+            + ")"
+            for f in developing[:5]
+        )
         lines.append(
             f"In development: {len(developing)} {'field' if len(developing) == 1 else 'fields'} "
             f"with a final investment decision: {dev_names}."
         )
 
     if discovered:
-        disc_names = "; ".join(f"{f.name} ({f.country})" for f in discovered[:3])
+        disc_names = "; ".join(
+            f.name + (f" ({f.country})" if f.country.lower() not in f.name.lower() else "")
+            for f in discovered[:3]
+        )
         lines.append(
             f"Discovered: {len(discovered)} {'field' if len(discovered) == 1 else 'fields'} "
             f"with no final investment decision recorded: {disc_names}."
@@ -271,6 +295,15 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         lines.append(
             f"Decommissioning or abandoned: {len(exiting)} "
             f"{'field' if len(exiting) == 1 else 'fields'}."
+        )
+    listed = set(developing) | set(discovered) | set(operating) | set(exiting)
+    others: dict[str, int] = {}
+    for f in matched:
+        if f not in listed:
+            others[f.status or "not given"] = others.get(f.status or "not given", 0) + 1
+    if others:
+        lines.append(
+            "Other statuses: " + ", ".join(f"{n} {s}" for s, n in sorted(others.items())) + "."
         )
 
     summary = " ".join(lines)
