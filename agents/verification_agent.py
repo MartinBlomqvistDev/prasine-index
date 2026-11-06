@@ -48,7 +48,7 @@ from ingest.egt import fetch_egt_data
 from ingest.enforcement import fetch_enforcement_data
 from ingest.eprtr import fetch_eprtr_data
 from ingest.eu_ets import fetch_eu_ets_data
-from ingest.eu_innovation_fund import fetch_eu_innovation_fund_data
+from ingest.eu_innovation_fund import data_available, fetch_eu_innovation_fund_data
 from ingest.eu_transparency_register import fetch_eu_transparency_register_data
 from ingest.eurlex import fetch_eurlex_data
 from ingest.eurostat import fetch_eurostat_data
@@ -646,7 +646,15 @@ async def _node_fetch_eu_innovation_fund(state: VerificationState) -> dict[str, 
             claim=claim,
             company=context.company,
         )
-        return {"evidence": evidence, "data_gaps": []}
+        gaps = (
+            []
+            if data_available()
+            else [
+                f"{EvidenceSource.EU_INNOVATION_FUND}: the projects file was not available "
+                "for this run, so no grants were checked"
+            ]
+        )
+        return {"evidence": evidence, "data_gaps": gaps}
 
     except Exception as exc:
         logger.error(

@@ -258,6 +258,11 @@ def _lookup(company_name: str, isin: str | None = None) -> list[_EIFProject]:
     return results
 
 
+def data_available() -> bool:
+    """Tell whether the projects file is in place, so that its absence is reported."""
+    return _EIF_CSV.exists()
+
+
 async def fetch_eu_innovation_fund_data(claim: Claim, company: object) -> list[Evidence]:
     """Return EU Innovation Fund grant evidence for a company.
 
