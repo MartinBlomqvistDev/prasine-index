@@ -15,6 +15,7 @@ gives no score.
 from __future__ import annotations
 
 from collections.abc import Iterable
+from itertools import pairwise
 
 from core.evidence_scope import (
     HLEG_FOSSIL_SUPPLY,
@@ -232,7 +233,7 @@ def _emissions(evidence: list[Evidence]) -> str:
     records = [e for e in evidence if e.source == EvidenceSource.EU_ETS]
     if not records:
         return "No EU ETS installations mapped for this assessment."
-    histories: list[dict[int, float]] = []
+    histories: list[tuple[str, dict[int, float]]] = []
     for record in records:
         history: dict[int, float] = {}
         for row in record.raw_data.get("verified_emissions") or []:
@@ -240,18 +241,43 @@ def _emissions(evidence: list[Evidence]) -> str:
             if isinstance(year, int) and isinstance(value, int | float):
                 history[year] = float(value)
         if history:
-            histories.append(history)
+            histories.append((str(record.raw_data.get("installation_id") or ""), history))
     if not histories:
         return f"EU ETS: {_installations(len(records))}, no verified emissions read."
     # Only years in which every mapped installation reported, so that an
     # installation joining the scheme does not read as a change in emissions.
-    common = sorted(set.intersection(*(set(h) for h in histories)))[-3:]
+    every = sorted(set.intersection(*(set(h) for _, h in histories)))
+    common = every[-3:]
     if not common:
         return f"EU ETS: {_installations(len(histories))} with no year in common."
-    totals = [
-        f"{_tonnes(sum(h[year] for h in histories))} CO2e in {year}" for year in reversed(common)
+
+    def total(year: int) -> str:
+        return f"{_tonnes(sum(h[year] for _, h in histories))} CO2e in {year}"
+
+    line = (
+        f"EU ETS verified emissions for {_installations(len(histories))}, those mapped to "
+        f"the company by name and not necessarily all of its installations: "
+        f"{'; '.join(total(year) for year in reversed(common))}."
+    )
+    # A longer view, so that three years are not read alone.
+    earlier = [year for year in every if common[-1] - 10 <= year < common[0]]
+    if earlier:
+        line += f" For comparison, {total(earlier[0])}."
+    # A step of more than half in one installation's series can mean a change in what
+    # it covers rather than in its emissions.
+    breaks = [
+        f"{installation} between {first} and {second}"
+        for installation, h in histories
+        for first, second in pairwise(common)
+        if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5)
     ]
-    return f"EU ETS verified emissions for {_installations(len(histories))}: {'; '.join(totals)}."
+    if breaks:
+        line += (
+            " The series change by more than half for "
+            + "; ".join(breaks)
+            + ", which can reflect a change in what an installation covers."
+        )
+    return line
 
 
 def _installations(count: int) -> str:

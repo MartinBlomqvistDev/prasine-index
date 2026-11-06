@@ -63,3 +63,39 @@ class TestMethodNotePages:
         text = select_pages(pages, 100_000, True, ("23%",))
         assert "[PDF page 3]" in text
         assert "[PDF page 4]" not in text
+
+
+class TestEmissionsLine:
+    def test_gives_a_longer_view_and_flags_a_break(self) -> None:
+        import uuid
+
+        from core.company_record import _emissions
+        from models.evidence import Evidence, EvidenceSource, EvidenceType
+
+        def record(installation: str, series: dict[int, float]) -> Evidence:
+            return Evidence(
+                claim_id=uuid.uuid4(),
+                trace_id=uuid.uuid4(),
+                source=EvidenceSource.EU_ETS,
+                evidence_type=EvidenceType.VERIFIED_EMISSIONS,
+                source_url="https://union-registry-data.ec.europa.eu/",
+                raw_data={
+                    "installation_id": installation,
+                    "verified_emissions": [
+                        {"year": y, "verifiedEmissions": v} for y, v in series.items()
+                    ],
+                },
+                summary="EU ETS.",
+                supports_claim=None,
+                confidence=0.9,
+            )
+
+        line = _emissions(
+            [
+                record("SE_1", {2015: 100.0, 2023: 50.0, 2024: 50.0, 2025: 50.0}),
+                record("DE_2", {2015: 10.0, 2023: 10.0, 2024: 30.0, 2025: 30.0}),
+            ]
+        )
+        assert "2 mapped installations" in line
+        assert "For comparison" in line and "in 2015" in line
+        assert "DE_2 between 2023 and 2024" in line
