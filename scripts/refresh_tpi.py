@@ -45,6 +45,7 @@ _COLUMNS = [
     "Carbon Performance Alignment 2030",
     "Carbon Performance Alignment 2035",
     "Carbon Performance Alignment 2050",
+    "Subsector Carbon Performance",
     "TPI Centre Notes",
     "Retrieved",
     "Source URL",
@@ -62,6 +63,17 @@ _CP = re.compile(
 )
 _ALIGNMENTS = re.compile(r'"alignments":\[(?P<items>[^\]]*)\]')
 _ITEM = re.compile(r'\{"value":(?:"(?P<value>[^"]*)"|null),"year":(?P<year>\d{4})\}')
+
+
+def _alignments(html: str, start: int) -> dict[str, str]:
+    """Return the alignment by year of the assessment whose record starts at start."""
+    block = _ALIGNMENTS.search(html, start)
+    if not block:
+        return {}
+    return {
+        item.group("year"): item.group("value") or ""
+        for item in _ITEM.finditer(block.group("items"))
+    }
 
 
 def _field(html: str, pattern: str) -> str:
@@ -115,11 +127,25 @@ def read_company(slug: str) -> dict[str, str]:
         raise SystemExit(f"{url}: no assessment found on the page")
 
     alignments: dict[str, str] = {}
+    subsectors: list[str] = []
     if cp is not None:
-        block = _ALIGNMENTS.search(html, cp.end())
-        if block:
-            for item in _ITEM.finditer(block.group("items")):
-                alignments[item.group("year")] = item.group("value") or ""
+        alignments = _alignments(html, cp.end())
+        # Assessments of the same date against a subsector benchmark, such as
+        # "Steel (Primary Steel)", are read beside the sector one.
+        for other in cps:
+            name = other.group("sector")
+            if other.group("date") != cp.group("date") or not (
+                name.startswith(f"{sector} (") and name.endswith(")")
+            ):
+                continue
+            values = _alignments(html, other.end())
+            subsectors.append(
+                f"{name[len(sector) + 2 : -1]}: "
+                + ", ".join(
+                    f"{values.get(year) or 'not assessed'} for {year}"
+                    for year in ("2030", "2035", "2050")
+                )
+            )
 
     level = ""
     if mq is not None:
@@ -139,6 +165,7 @@ def read_company(slug: str) -> dict[str, str]:
         "Carbon Performance Alignment 2030": alignments.get("2030", ""),
         "Carbon Performance Alignment 2035": alignments.get("2035", ""),
         "Carbon Performance Alignment 2050": alignments.get("2050", ""),
+        "Subsector Carbon Performance": "; ".join(subsectors),
         "TPI Centre Notes": _notes(html),
         "Retrieved": dt.date.today().isoformat(),
         "Source URL": url,

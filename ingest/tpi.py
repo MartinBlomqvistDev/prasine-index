@@ -85,6 +85,7 @@ class _TPIRecord:
         "retrieved",
         "sector",
         "source_url",
+        "subsectors",
     )
 
     def __init__(self, row: dict[str, str]) -> None:
@@ -102,11 +103,12 @@ class _TPIRecord:
         self.retrieved = row.get("Retrieved", "").strip()
         self.source_url = row.get("Source URL", "").strip()
         self.notes = row.get("TPI Centre Notes", "").strip()
+        self.subsectors = row.get("Subsector Carbon Performance", "").strip()
 
     @property
     def short_term(self) -> tuple[str, str]:
-        """Return the short-term year and alignment: 2030 in current data, 2025 before."""
-        return ("2030", self.cp_2030) if self.cp_2030 else ("2025", self.cp_2025)
+        """Return the short-term year and alignment. TPI's current data starts at 2030."""
+        return ("2030", self.cp_2030)
 
     @property
     def assessed_year(self) -> int | None:
@@ -264,12 +266,16 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         confidence = 0.60
 
     # Build summary
-    short_year, short_value = rec.short_term
-    cp_summary = (
-        f"CP {short_year}: {short_value or 'N/A'}; "
-        f"CP 2035: {rec.cp_2035 or 'N/A'}; "
-        f"CP 2050: {rec.cp_2050 or 'N/A'}"
-    )
+    if rec.cp_2030 or rec.cp_2035 or rec.cp_2050:
+        cp_summary = (
+            f"Carbon performance against the {rec.sector} benchmark: "
+            f"{rec.cp_2030 or 'not assessed'} for 2030, {rec.cp_2035 or 'not assessed'} for "
+            f"2035 and {rec.cp_2050 or 'not assessed'} for 2050."
+        )
+        if rec.subsectors:
+            cp_summary += f" Against subsector benchmarks: {rec.subsectors}."
+    else:
+        cp_summary = "TPI has not assessed the company's carbon performance."
 
     dates = "; ".join(
         f"{label} assessed {date}"
@@ -283,8 +289,8 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
     summary = (
         f"TPI assessment of {rec.company_name} ({rec.sector}, {rec.geography}"
         f"{'; ' + dates if dates else ''}{retrieved}): "
-        f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}). "
-        f"Carbon Performance alignment: {cp_summary}."
+        f"Management Quality Level {rec.mq_level.replace('STAR', '*')} ({rec.mq_label}"
+        f"{', the highest of TPI levels' if rec.mq_level == '5' else ''}). {cp_summary}"
         + (f" TPI Centre notes on the assessment: {rec.notes}" if rec.notes else "")
     )
 
@@ -309,6 +315,7 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
         "mq_published": rec.mq_published,
         "retrieved": rec.retrieved,
         "notes": rec.notes,
+        "subsectors": rec.subsectors,
     }
 
     return [

@@ -26,15 +26,20 @@ from ingest.ca100 import describe_indicators
 from ingest.coal_exit import _EXPANDING_VALUES as _GCEL_EXPANDING
 from ingest.gogel import _EXPANDING_VALUES as _GOGEL_EXPANDING
 from ingest.lobby_map import _OBSTRUCTIVE_BANDS, engagement_text
+from ingest.sbti import describe_targets
 from models.evidence import Evidence, EvidenceSource
 
 __all__ = ["render_company_record"]
+
+# LobbyMap's bands from A+ to B, a score above 75%, which it describes as "broad support
+# for science-aligned policy for delivering the Paris Agreement's goal".
+_SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
 
 _OUTCOMES = {
     "BANNED": "complaint upheld",
     "CONFIRMED_MISLEADING": "decision against the marketing",
     "FINED": "fine imposed",
-    "COMMITMENTS": "commitments to change practices; no decision against the company",
+    "COMMITMENTS": "commitments to change practices; no finding of a breach and no fine",
     "WARNING": "guidance or warning",
     "INVESTIGATION": "case opened, no outcome recorded",
     "NOT_UPHELD": "not upheld",
@@ -116,6 +121,17 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
             line,
             f"LobbyMap rates the company's climate policy engagement {band}, within the range it "
             "defines as obstructive",
+        )
+    if band.lower() in _SUPPORTIVE_BANDS:
+        # LobbyMap's own reading of its top bands (README_LobbyMap.txt, Performance Band).
+        line = (
+            f"LobbyMap band {band}{when}, within the range it describes as broad support for "
+            f"science-aligned policy (A+ to B, a score above 75%).{intensity}{_cite(record)}."
+        )
+        return (
+            line,
+            f"LobbyMap rates the company's climate policy engagement {band}, within the range "
+            "it describes as broad support for science-aligned policy",
         )
     line = (
         f"LobbyMap band {band}{when}, outside the range it defines as obstructive "
@@ -217,10 +233,7 @@ def _targets(evidence: list[Evidence]) -> str:
     record = _first(evidence, EvidenceSource.SBTI)
     if record is None:
         return "No SBTi record for this company."
-    status = record.raw_data.get("status") or "unknown"
-    temperature = record.raw_data.get("temp_classification") or "not classified"
-    net_zero = record.raw_data.get("net_zero_status") or "none"
-    return f"SBTi: status {status}, temperature classification {temperature}, net-zero target {net_zero}."
+    return describe_targets(record.raw_data)
 
 
 def _investors(evidence: list[Evidence]) -> str:
@@ -240,15 +253,24 @@ def _investors(evidence: list[Evidence]) -> str:
             if part
         )
         cp_date = f" (assessed {raw['cp_assessed']})" if raw.get("cp_assessed") else ""
+        level = str(raw.get("mq_level") or "")
+        highest = ", the highest of TPI levels" if level == "5" else ""
+        if any(raw.get(f"cp_alignment_{year}") for year in ("2030", "2035", "2050")):
+            performance = (
+                f"carbon performance against the {raw.get('sector')} benchmark{cp_date} "
+                f"{raw.get('cp_alignment_2030') or 'not assessed'} for 2030, "
+                f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
+                f"{raw.get('cp_alignment_2050') or 'not assessed'} for 2050"
+            )
+            if raw.get("subsectors"):
+                performance += f"; against subsector benchmarks: {raw['subsectors']}"
+        else:
+            performance = "carbon performance not assessed by TPI"
         lines.append(
             f"TPI ({raw.get('sector')}): Management Quality Level "
-            f"{str(raw.get('mq_level') or '').replace('STAR', '*')} "
-            f"({raw.get('mq_label')}{'; ' + mq_dates if mq_dates else ''}); "
-            f"carbon performance{cp_date} "
-            f"{raw.get('cp_alignment_2030') or raw.get('cp_alignment_2025') or 'not assessed'} "
-            f"for {'2030' if raw.get('cp_alignment_2030') else '2025'}, "
-            f"{raw.get('cp_alignment_2035') or 'not assessed'} for 2035 and "
-            f"{raw.get('cp_alignment_2050') or 'not assessed'} for 2050."
+            f"{level.replace('STAR', '*')} "
+            f"({raw.get('mq_label')}{highest}{'; ' + mq_dates if mq_dates else ''}); "
+            f"{performance}."
         )
     return " ".join(lines) or "No Climate Action 100+ or TPI assessment."
 
@@ -267,8 +289,9 @@ def _track_record(evidence: list[Evidence]) -> str:
 
     The rating counts findings against the company's environmental marketing,
     meaning upheld complaints, findings of a breach and fines, and how recent
-    they are. Commitments, warnings, open cases, complaints that were not
-    upheld and annulled decisions are listed but are not findings.
+    they are, and then the records of commitments to change it. Warnings, open
+    or closed cases without an outcome, complaints that were not upheld and
+    annulled decisions are listed but are not findings.
     """
     records = [e for e in evidence if e.source == EvidenceSource.ENFORCEMENT]
     if not records:
@@ -279,6 +302,7 @@ def _track_record(evidence: list[Evidence]) -> str:
         )
 
     findings = [e for e in records if e.raw_data.get("ruling_type") in _FINDINGS]
+    commitments = [e for e in records if e.raw_data.get("ruling_type") == "COMMITMENTS"]
     recent = [e for e in findings if is_recent_finding(e)]
     counted = f"{_number(len(findings))} {'finding' if len(findings) == 1 else 'findings'}"
     if not findings:
@@ -292,14 +316,22 @@ def _track_record(evidence: list[Evidence]) -> str:
         )
     else:
         rating = f"{counted} against its environmental marketing, more than five years old"
+    if commitments:
+        rating += (
+            f", and {_number(len(commitments))} "
+            f"{'record' if len(commitments) == 1 else 'records'} of commitments to change it"
+        )
 
     entries = []
     for record in sorted(
         records, key=lambda e: str(e.raw_data.get("decision_date", "")), reverse=True
     ):
-        outcome = _OUTCOMES.get(str(record.raw_data.get("ruling_type")), "outcome not recorded")
+        outcome = record.raw_data.get("outcome") or _OUTCOMES.get(
+            str(record.raw_data.get("ruling_type")), "outcome not recorded"
+        )
+        body = f" ({record.raw_data['body']})" if record.raw_data.get("body") else ""
         entries.append(
-            f"{record.raw_data.get('authority')} {record.raw_data.get('case_reference')} "
+            f"{record.raw_data.get('authority')}{body} {record.raw_data.get('case_reference')} "
             f"({record.raw_data.get('decision_date')}), {record.raw_data.get('party_as_named')}: "
             f"{outcome}{_cite(record)}"
         )

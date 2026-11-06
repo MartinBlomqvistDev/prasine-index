@@ -32,6 +32,10 @@ class Ruling:
         quote: Verbatim quotation from the official page.
         source_url: The official page.
         archive_url: A Wayback Machine capture of the page, if one exists.
+        outcome: The outcome in the authority's own terms, where the general
+            wording for ruling_type would say less than the authority does.
+        body: What kind of body the authority is, where its name does not say,
+            such as an advertising self-regulator.
     """
 
     companies: tuple[str, ...]
@@ -46,6 +50,8 @@ class Ruling:
     quote: str
     source_url: str
     archive_url: str | None
+    outcome: str = ""
+    body: str = ""
 
 
 RULINGS: tuple[Ruling, ...] = (
@@ -150,6 +156,7 @@ RULINGS: tuple[Ruling, ...] = (
         ruling_type="INVESTIGATION",
         claim_type="SUSTAINABLE_PRODUCT",
         description="The Norwegian Consumer Authority's 2019 annual report records a case with H&M over sustainability claims in the marketing of clothing collections. The authority's public journal lists case 2019/1144, which includes a letter to H&M dated 3 June 2019 and a letter closing the case dated 19 August 2019; neither record states the outcome.",
+        outcome="case opened with a letter to H&M on 3 June 2019 and closed on 19 August 2019; the authority's records do not state the outcome",
         quote="Tilsynet har også hatt saker med kleskjedene Hennes & Mauritz og Kappahl om bruk av bærekraftpåstander i markedsføring av kleskolleksjoner.",
         source_url="https://www.regjeringen.no/contentassets/929682b98fba4c788b1d65402677560d/arsrapport-2019-fra-forbrukertilsynet-130320.pdf",
         archive_url="http://web.archive.org/web/20250612183749/https://www.regjeringen.no/contentassets/929682b98fba4c788b1d65402677560d/arsrapport-2019-fra-forbrukertilsynet-130320.pdf",
@@ -193,7 +200,8 @@ RULINGS: tuple[Ruling, ...] = (
         ruling_type="COMMITMENTS",
         claim_type="SUSTAINABLE_PRODUCT",
         description="ACM declared binding H&M's commitments to remove the 'Conscious' and 'Conscious Choice' labels from its website, revise product sustainability information and donate EUR 500,000 to a sustainability cause. The commitments followed an investigation into unclear and insufficiently substantiated sustainability claims; ACM imposed no sanction.",
-        quote="ACM declares the commitment of H&M Hennes & Mauritz Netherlands B.V. binding. H&M commits to adjusting or stopping using sustainability claims on its clothing and/or websites.",
+        quote="ACM declares the commitment of H&M Hennes & Mauritz Netherlands B.V. binding. H&M commits to adjusting or stopping using sustainability claims on its clothing and/or websites. It promises to inform consumers more clearly in order to avoid the risk of misleading consumers about sustainability. In addition, it donates 500,000 euros to a cause that is committed to sustainability in the clothing industry to compensate for its unclear and insufficiently substantiated sustainability claims.",
+        outcome="commitment decision: ACM declared H&M's commitments binding, including a donation of EUR 500,000 to compensate for what ACM calls unclear and insufficiently substantiated sustainability claims; no fine",
         source_url="https://www.acm.nl/en/publications/commitment-decision-handm-regarding-sustainability-claims",
         archive_url="http://web.archive.org/web/20261012055204/https://www.acm.nl/en/publications/commitment-decision-handm-regarding-sustainability-claims",
     ),
@@ -221,6 +229,7 @@ RULINGS: tuple[Ruling, ...] = (
         ),
         party_as_named="IKEA Svenska Försäljnings AB",
         authority="Reklamombudsmannen",
+        body="Sweden's advertising self-regulator",
         country="SE",
         decision_date="2022-06-15",
         case_reference="2201-14",
@@ -240,6 +249,7 @@ RULINGS: tuple[Ruling, ...] = (
         ),
         party_as_named="KLM",
         authority="Reclame Code Commissie",
+        body="the Dutch advertising self-regulator",
         country="NL",
         decision_date="2022-04-08",
         case_reference="2021/00553",
@@ -390,6 +400,7 @@ RULINGS: tuple[Ruling, ...] = (
         companies=("Shell", "Shell plc", "Shell Netherlands", "Shell Nederland"),
         party_as_named="Shell",
         authority="Reclame Code Commissie",
+        body="the Dutch advertising self-regulator",
         country="NL",
         decision_date="2021-08-26",
         case_reference="2021/00190",

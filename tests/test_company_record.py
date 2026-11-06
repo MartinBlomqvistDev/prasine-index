@@ -63,6 +63,10 @@ class TestPractices:
         lobbying = [_evidence(EvidenceSource.LOBBY_MAP, performance_band="B") for _ in range(3)]
         record = render_company_record(lobbying)
         assert record.count("LobbyMap band B") == 1
+        assert "within the range it describes as broad support" in record
+
+    def test_a_middle_band_is_outside_both_ranges(self) -> None:
+        record = render_company_record([_evidence(EvidenceSource.LOBBY_MAP, performance_band="C")])
         assert "outside the range it defines as obstructive" in record
 
 
@@ -90,9 +94,42 @@ class TestTrackRecord:
         )
         assert (
             "**Track record in Prasine's list: one finding against its environmental "
-            "marketing, more than five years old.**" in record
+            "marketing, more than five years old, and one record of commitments to change "
+            "it.**" in record
         )
+        assert "no finding of a breach and no fine" in record
         assert record.index("IP/25/2608") < record.index("G19-1035778")
+
+    def test_an_authoritys_own_outcome_and_kind_of_body(self) -> None:
+        record = render_company_record(
+            [
+                _evidence(
+                    EvidenceSource.ENFORCEMENT,
+                    "RO",
+                    authority="Reklamombudsmannen",
+                    body="Sweden's advertising self-regulator",
+                    case_reference="2201-14",
+                    decision_date="2022-06-15",
+                    ruling_type="CONFIRMED_MISLEADING",
+                    outcome="",
+                ),
+                _evidence(
+                    EvidenceSource.ENFORCEMENT,
+                    "NCA",
+                    authority="Forbrukertilsynet",
+                    party_as_named="Hennes & Mauritz",
+                    case_reference="2019/1144",
+                    decision_date="2019-06-03",
+                    ruling_type="INVESTIGATION",
+                    outcome="case opened on 3 June 2019 and closed on 19 August 2019",
+                ),
+            ]
+        )
+        assert "Reklamombudsmannen (Sweden's advertising self-regulator) 2201-14" in record
+        assert (
+            "2019/1144 (2019-06-03), Hennes & Mauritz: case opened on 3 June 2019 and closed"
+            in record
+        )
 
     def test_a_complaint_that_was_not_upheld_is_no_finding(self) -> None:
         record = render_company_record(

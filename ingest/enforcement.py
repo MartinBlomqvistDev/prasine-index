@@ -41,7 +41,7 @@ _OUTCOME_TEXT: dict[str, str] = {
     "BANNED": "complaint upheld; the advertising must not appear again in that form",
     "CONFIRMED_MISLEADING": "decision against the marketing",
     "FINED": "fine imposed",
-    "COMMITMENTS": "commitments to change practices; no decision against the company",
+    "COMMITMENTS": "commitments to change practices; no finding of a breach and no fine",
     "WARNING": "guidance or warning, without a finding on the company's own marketing",
     "INVESTIGATION": "case opened; no outcome is recorded",
     "NOT_UPHELD": "not upheld",
@@ -111,9 +111,10 @@ for _ruling in RULINGS:
 
 def _summary(ruling: Ruling) -> str:
     """Describe a record in the authority's own terms."""
+    body = f" ({ruling.body})" if ruling.body else ""
     return (
-        f"{ruling.authority} {ruling.case_reference} ({ruling.decision_date}), "
-        f"{ruling.party_as_named}: {_OUTCOME_TEXT[ruling.ruling_type]}. "
+        f"{ruling.authority}{body} {ruling.case_reference} ({ruling.decision_date}), "
+        f"{ruling.party_as_named}: {ruling.outcome or _OUTCOME_TEXT[ruling.ruling_type]}. "
         f'Quote from the official source: "{ruling.quote}"'
     )
 
@@ -171,6 +172,8 @@ async def fetch_enforcement_data(claim: Claim, company: object) -> list[Evidence
                 "description": ruling.description,
                 "archive_url": ruling.archive_url,
                 "companies_covered": list(ruling.companies),
+                "outcome": ruling.outcome,
+                "body": ruling.body,
             },
             summary=_summary(ruling),
             data_year=int(ruling.decision_date[:4]),
