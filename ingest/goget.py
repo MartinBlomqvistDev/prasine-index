@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import Any
 
 from core.logger import get_logger
+from ingest.egt import STALLED_YEARS
 from ingest.name_matching import contains_name, fold_name, names_overlap
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
@@ -58,16 +59,29 @@ _DEVELOPING_STATUSES = {"in-development"}
 _DISCOVERED_STATUSES = {"discovered"}
 _OPERATING_STATUSES = {"operating"}
 _EXITING_STATUSES = {"decommissioning", "abandoned"}
+# The year of the tracker's data, from its file name.
+_DATA_YEAR = int(re.findall(r"20\d\d", _XLSX_PATH.name)[-1])
+
+
+def _year(value: Any) -> int | None:
+    """Return a year from a spreadsheet cell, or None when the cell gives none."""
+    try:
+        return int(float(value))
+    except (TypeError, ValueError):
+        return None
 
 
 class _GOGETField:
     __slots__ = (
         "country",
+        "discovery_year",
+        "fid_year",
         "fuel_type",
         "name",
         "owner_raw",
         "parent_raw",
         "status",
+        "status_year",
     )
 
     def __init__(self, row: dict[str, Any]) -> None:
@@ -77,6 +91,29 @@ class _GOGETField:
         self.status = str(row.get("Status", "") or "").strip().lower()
         self.owner_raw = str(row.get("Owner(s)", "") or "").strip()
         self.parent_raw = str(row.get("Parent(s)", "") or "").strip()
+        self.discovery_year = _year(row.get("Discovery year"))
+        self.status_year = _year(row.get("Status year"))
+        self.fid_year = _year(row.get("FID Year"))
+
+    @property
+    def is_stalled_discovery(self) -> bool:
+        """Discovered more than STALLED_YEARS before the data with no investment decision."""
+        found = self.discovery_year or self.status_year
+        return (
+            self.is_discovered
+            and self.fid_year is None
+            and found is not None
+            and _DATA_YEAR - found > STALLED_YEARS
+        )
+
+    def described(self) -> str:
+        """Name the field with its country, the year it was found and its parents' shares."""
+        details = [
+            self.country if self.country.lower() not in self.name.lower() else "",
+            f"discovered {self.discovery_year}" if self.discovery_year else "",
+            f"parents: {self.parent_raw}" if self.parent_raw else "",
+        ]
+        return f"{self.name} ({'; '.join(d for d in details if d)})"
 
     @property
     def is_developing(self) -> bool:
@@ -223,7 +260,10 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         return []
 
     developing = [f for f in matched if f.is_developing]
-    discovered = [f for f in matched if f.is_discovered]
+    # A discovery left without an investment decision for more than STALLED_YEARS is
+    # context, as a proposal stalled that long is: it is not counted as new supply.
+    stalled = [f for f in matched if f.is_stalled_discovery]
+    discovered = [f for f in matched if f.is_discovered and not f.is_stalled_discovery]
     operating = [f for f in matched if f.is_operating]
     exiting = [f for f in matched if f.is_exiting]
 
@@ -251,7 +291,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
 
     lines: list[str] = [
         f"Global Oil and Gas Extraction Tracker (Global Energy Monitor, March 2026): "
-        f"{company_name} is named as a parent company, often with a minority share, of "
+        f"{company_name} is named as a parent company of "
         f"{len(matched)} oil and gas {'field' if len(matched) == 1 else 'fields'} in "
         f"{len(countries)} {'country' if len(countries) == 1 else 'countries'}"
         + (f" (by fuel: {fuel_text})." if fuel_text else ".")
@@ -277,13 +317,18 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         )
 
     if discovered:
-        disc_names = "; ".join(
-            f.name + (f" ({f.country})" if f.country.lower() not in f.name.lower() else "")
-            for f in discovered[:3]
-        )
         lines.append(
             f"Discovered: {len(discovered)} {'field' if len(discovered) == 1 else 'fields'} "
-            f"with no final investment decision recorded: {disc_names}."
+            "with no final investment decision recorded: "
+            + "; ".join(f.described() for f in discovered[:3])
+            + "."
+        )
+    if stalled:
+        lines.append(
+            f"Discovered more than {STALLED_YEARS} years before these data with no final "
+            "investment decision recorded, so not counted as new fossil fuel supply: "
+            + "; ".join(f.described() for f in stalled[:3])
+            + "."
         )
 
     if operating:
@@ -296,7 +341,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
             f"Decommissioning or abandoned: {len(exiting)} "
             f"{'field' if len(exiting) == 1 else 'fields'}."
         )
-    listed = set(developing) | set(discovered) | set(operating) | set(exiting)
+    listed = set(developing) | set(discovered) | set(stalled) | set(operating) | set(exiting)
     others: dict[str, int] = {}
     for f in matched:
         if f not in listed:
@@ -319,6 +364,7 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
         "total_fields": len(matched),
         "developing": len(developing),
         "discovered": len(discovered),
+        "stalled_discoveries": len(stalled),
         "operating": len(operating),
         "exiting": len(exiting),
         "developing_fields": [
