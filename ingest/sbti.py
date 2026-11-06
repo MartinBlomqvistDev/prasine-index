@@ -443,7 +443,8 @@ async def fetch_sbti_data(claim: Claim, company: object) -> list[Evidence]:
                 **record.details,
             },
             summary=summary,
-            data_year=None,
+            # The register's own date for the entry, where it gives one.
+            data_year=int(record.date[:4]) if record.date[:4].isdigit() else None,
             supports_claim=supports,
             confidence=confidence,
         )

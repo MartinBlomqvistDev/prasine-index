@@ -337,7 +337,10 @@ be done.
 Page numbers printed in the text, in footers or in a table of contents are not the \
 markers. Cite only the [PDF page N] marker of the page where the text appears.
 
-Before writing that the pages do not give something, check every page supplied.
+Before writing that the pages do not give something, check every page supplied. \
+Keep the scope (Scope 1, 2 or 3) and the kind (absolute or intensity) of every target, \
+and of every statement that a target is missing: "no 2030 absolute Scope 1 target" is \
+a narrower statement than "no absolute target".
 
 For a claim about future environmental performance, such as a net-zero target, \
 check the document against the elements that Article 6(2)(d) of the Unfair \
@@ -362,11 +365,11 @@ information is independent verification of what it covers. When the pages includ
 one, name in the summary the practitioner, the level of assurance (limited or \
 reasonable) and what it covers, and say whether it covers the delivery of the plan \
 or only the reported information. If the assured statement includes a transition \
-plan, targets or the results against them, by reference or otherwise, say so. Give \
-the pages the assured statements cover, as the assurance report states them, and \
-say whether the page that holds the claim, or the matter it describes, lies inside \
-them. Never write that a document has no independent assurance or verification \
-when such a report is in the pages.
+plan, targets or the results against them, by reference or otherwise, say so. If \
+the assurance report gives a page range, quote it as stated and never compare it with \
+the [PDF page N] markers: the range may follow another document's numbering, such as \
+the annual report's. Never write that a document has no independent assurance or \
+verification when such a report is in the pages.
 
 Never name a private person in the summary: refer to a document by its title, its \
 organisation and its date. Firms and organisations, such as the assurance \

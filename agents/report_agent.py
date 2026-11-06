@@ -683,10 +683,11 @@ def render_evidence_section(
     paragraphs = []
     for i, ev in enumerate(evidence, 1):
         summary = " ".join(ev.summary.split())
-        year = ev.data_year if ev.data_year is not None else "year not specified"
+        # A register gives its state on the day it was read, not a year of its own.
+        year = ev.data_year if ev.data_year is not None else ""
         url = f" {ev.source_url}" if ev.source_url else ""
         paragraphs.append(
-            f"**[{i}] {_source_label(ev)}** {summary} ({year}). "
+            f"**[{i}] {_source_label(ev)}** {summary}{f' ({year})' if year else ''}. "
             f"Supports claim: {_SUPPORT_LABELS[_relation(ev, score)]}. "
             f"(confidence {ev.confidence:.2f}){url}"
         )
