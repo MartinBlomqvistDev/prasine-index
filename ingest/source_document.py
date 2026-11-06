@@ -618,7 +618,7 @@ async def fetch_source_document_data(
     if summary.count('"') % 2 and summary.endswith('"'):
         summary = summary[:-1].rstrip()
     missing_plan_elements: list[str] = extraction.get("missing_plan_elements", [])
-    unread = [url for url in linked_urls if url not in linked_read]
+    unread = [url for url in linked_urls if url not in linked_read and url not in _no_document]
     if more_url and not more_read:
         unread.insert(0, more_url)
     if unread:
@@ -995,6 +995,8 @@ async def _read_more_html(url: str) -> str:
 
 # A linked web page about a report, and the PDF of the report it was followed to.
 _resolved: dict[str, str] = {}
+# Linked web pages that offer no report: pages, not documents left unread.
+_no_document: set[str] = set()
 
 
 async def _read_linked_report(
@@ -1015,10 +1017,12 @@ async def _read_linked_report(
     if "pdf" not in content_type.lower() and not url.lower().split("?")[0].endswith(".pdf"):
         # A web page about a report: read the PDF of that report it links to, if any.
         if "html" not in content_type.lower():
+            _no_document.add(url)
             return ""
         page = content.decode("utf-8", errors="replace")
         pdfs = _choose_reports([c for c in _report_links(page, url) if _is_pdf(c[1])])
         if not pdfs:
+            _no_document.add(url)
             return ""
         _resolved[url] = pdfs[0]
         try:

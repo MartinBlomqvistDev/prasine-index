@@ -27,14 +27,28 @@ _FISCAL_YEAR = re.compile(r"\bFY ?(\d{2}|20\d{2})(?!\d)", re.IGNORECASE)
 # emissions, such as operations and products sold, are two pledges. Scope lists are read
 # as sets ("Scope 1, 2 and 3", "Scopes 1-3"), and words are matched whole.
 _SCOPES = re.compile(
-    r"\bscopes?\s*([123](?:\s*(?:,|and|&|\+|/|-|\u2013|to)\s*[123])*)", re.IGNORECASE
+    r"\bscopes?\s*([123](?:\s*(?:,\s*and|,|and|&|\+|/|-|\u2013|to)\s*[123])*)",
+    re.IGNORECASE,
 )
 _SCOPE_WORDS = (
-    (re.compile(r"\boperations?\b|\boperational\b", re.IGNORECASE), "operations"),
+    (
+        re.compile(
+            r"\boperations?\b|\boperational\b|\bproduction\b|\bmanufactur\w*", re.IGNORECASE
+        ),
+        "operations",
+    ),
     (re.compile(r"\bproducts?\b|\bsold\b", re.IGNORECASE), "products"),
     (re.compile(r"\bvalue chain\b", re.IGNORECASE), "value chain"),
     (re.compile(r"\bsupply chain\b", re.IGNORECASE), "supply chain"),
 )
+
+
+_SENTENCE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _named_years(text: str) -> set[str]:
+    """Return the years a text names, reading "FY30" and "FY2030" as "2030"."""
+    return {*_YEAR.findall(text), *(f"20{y[-2:]}" for y in _FISCAL_YEAR.findall(text))}
 
 
 def _scope_numbers(text: str) -> set[str]:
@@ -55,12 +69,14 @@ def _pledge_key(result: PipelineResult) -> tuple[frozenset[str], frozenset[str]]
     text = result.claim.raw_text or ""
     # Target years only: a base year or a year already past is not what a pledge names.
     this_year = datetime.now(UTC).year
-    named = {*_YEAR.findall(text), *(f"20{y[-2:]}" for y in _FISCAL_YEAR.findall(text))}
-    years = {year for year in named if int(year) > this_year}
+    years = {year for year in _named_years(text) if int(year) > this_year}
     if not years:
         return None
+    # The emissions are read from the sentences that state the target, so that a sentence
+    # about something else, such as removals, does not change the key.
+    stating = " ".join(s for s in _SENTENCE.split(text) if _named_years(s) & years) or text
     scope = frozenset(
-        _scope_numbers(text) | {tag for pattern, tag in _SCOPE_WORDS if pattern.search(text)}
+        _scope_numbers(stating) | {tag for pattern, tag in _SCOPE_WORDS if pattern.search(stating)}
     )
     return frozenset(years), scope
 
@@ -72,10 +88,18 @@ def _distinct_pledges(results: list[PipelineResult]) -> tuple[list[int], int]:
     same emissions state the same pledge, which counts once, through the
     highest-scoring of those claims. Every other claim enters as it is.
     """
+    keys = [_pledge_key(result) for result in results]
+    # A pledge that names no emissions joins the group with the same years that does,
+    # when there is exactly one such group.
+    for i, key in enumerate(keys):
+        if key is not None and not key[1]:
+            scoped = {k for k in keys if k is not None and k[0] == key[0] and k[1]}
+            if len(scoped) == 1:
+                keys[i] = next(iter(scoped))
     best: dict[tuple[frozenset[str], frozenset[str]], int] = {}
     keep: list[int] = []
     for index, result in enumerate(results):
-        key = _pledge_key(result)
+        key = keys[index]
         if key is None:
             keep.append(index)
         elif key not in best or (result.score.score, result.score.confidence) > (

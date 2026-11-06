@@ -101,3 +101,40 @@ class TestRounding:
     def test_confidence_is_a_whole_percent(self) -> None:
         results = [_result(50.0, 0.55), _result(45.0, 0.60), _result(40.0, 0.68)]
         assert aggregate_claim_scores("X", _COMPANY_ID, results).confidence == 0.61
+
+
+class TestPledgeGroups:
+    IKEA_1 = (
+        "We are committed to the Paris Agreement and to contribute to limiting the global "
+        "temperature rise to 1.5\u00b0C above pre-industrial levels. This includes a commitment "
+        "to reducing absolute greenhouse gas (GHG) emissions from the value chain by at least "
+        "50% by FY30, compared to a FY16 baseline, and to reach net-zero emissions by FY50, "
+        "without using carbon offsets to meet this absolute reduction target. In addition, we "
+        "will remove and store carbon through forestry, agriculture and products in our value "
+        "chain, along with contributing to additional reductions in society by going beyond "
+        "our value chain."
+    )
+    IKEA_2 = (
+        "We are dedicated to reduce our greenhouse gas emissions by 50% by 2030 and to reach "
+        "net zero emissions by 2050."
+    )
+
+    def test_ikea_states_one_pledge_twice(self) -> None:
+        results = [_stated(40.0, self.IKEA_1), _stated(38.0, self.IKEA_2), _result(30.0)]
+        assert aggregate_claim_scores("IKEA", _COMPANY_ID, results).pledges_counted_once == 1
+
+    def test_the_oxford_comma_keeps_scope_3(self) -> None:
+        results = [
+            _stated(50.0, "Net zero across Scope 1, 2, and 3 emissions by 2040."),
+            _stated(45.0, "Net zero for our Scope 1 and 2 emissions by 2040."),
+            _result(30.0),
+        ]
+        assert aggregate_claim_scores("X", _COMPANY_ID, results).pledges_counted_once == 0
+
+    def test_an_unscoped_pledge_stays_apart_from_two_scoped_ones(self) -> None:
+        results = [
+            _stated(66.0, "Net zero across our operations by 2050."),
+            _stated(64.0, "Net zero for the products we sell by 2050."),
+            _stated(60.0, "We aim to be a net zero company by 2050."),
+        ]
+        assert aggregate_claim_scores("BP", _COMPANY_ID, results).pledges_counted_once == 0

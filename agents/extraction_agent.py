@@ -164,7 +164,9 @@ with the sentence it refers to, or not at all. A figure's caption without its \
 figure is not a claim. The claim starts where its sentence starts.
 3. When a sentence quotes a person, extract the quoted words up to the closing \
 quotation mark and leave out a trailing attribution such as "says the head of the \
-division". Leave out any sentence of the passage that is not about climate.
+division". A claim is one unbroken stretch of the page's text: never join sentences \
+that are not next to each other on the page. A sentence that is not about climate may \
+be left out only at the start or the end of the passage.
 4. Assign the most specific ClaimCategory. A claim whose central statement is a \
 net zero aim or target with a year is NET_ZERO_TARGET, whatever emissions it \
 covers.
