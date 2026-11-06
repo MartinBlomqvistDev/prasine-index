@@ -11,6 +11,7 @@ Prasine Index brand.
 
 from __future__ import annotations
 
+import re
 import time
 from datetime import UTC, datetime
 
@@ -582,28 +583,43 @@ def _is_national(evidence: Evidence) -> bool:
     )
 
 
-def published_evidence(evidence: list[Evidence], score: GreenwashingScore) -> list[Evidence]:
-    """Return the records a report publishes: national totals only when cited.
+# A claim that states a share of a country's emissions, as in "around 10 percent of
+# Sweden's carbon dioxide emissions".
+_NATIONAL_SHARE = re.compile(
+    r"(%|per ?cent)[^.]{0,60}\b(of|in)\b[^.]{0,30}(national|country|\w+['’]s)"
+    r"[^.]{0,30}(emission|co2|carbon|greenhouse)",
+    re.IGNORECASE,
+)
+
+
+def published_evidence(
+    evidence: list[Evidence], score: GreenwashingScore, claim_text: str = ""
+) -> list[Evidence]:
+    """Return the records a report publishes: national totals only when they bear on it.
 
     National inventories and country aggregates describe a country, not the
-    company. They stay in a report only when the judge cited them for or
-    against the claim, so the evidence list holds what the finding rests on
-    and the records about the company.
+    company. They stay in a report when the judge cited them for or against the
+    claim, or when the claim states a share of a country's emissions, so the
+    evidence list holds what the finding rests on and the records about the
+    company.
 
     Args:
         evidence: Every record the verification step gathered for the claim.
         score: The judge's score, with the records it cited.
+        claim_text: The claim, to tell whether it states a national share.
 
     Returns:
         The records to number and publish, in their original order.
     """
+    if _NATIONAL_SHARE.search(claim_text):
+        return list(evidence)
     cited = set(score.contradicting_evidence_ids) | set(score.supporting_evidence_ids)
     return [e for e in evidence if e.id in cited or not _is_national(e)]
 
 
 def _with_published_evidence(input: ReportInput) -> ReportInput:
     """Return the report input with the evidence a report publishes."""
-    kept = published_evidence(input.verification.evidence, input.score)
+    kept = published_evidence(input.verification.evidence, input.score, input.claim.raw_text)
     if len(kept) == len(input.verification.evidence):
         return input
     verification = input.verification.model_copy(update={"evidence": kept})

@@ -114,3 +114,8 @@ class TestPublishedEvidence:
         eea = _national(EvidenceSource.EEA_NATIONAL)
         kept = published_evidence([eea], _score([eea], []))
         assert kept == [eea]
+
+    def test_a_claim_about_a_national_share_keeps_the_national_totals(self) -> None:
+        edgar = _national(EvidenceSource.EDGAR)
+        claim = "SSAB accounts for around 10 percent of Sweden's carbon dioxide emissions."
+        assert published_evidence([edgar], _score([], []), claim) == [edgar]
