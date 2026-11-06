@@ -22,7 +22,7 @@ from core.logger import get_logger
 from models.claim import Claim
 from models.evidence import Evidence, EvidenceSource, EvidenceType
 
-__all__ = ["fetch_sbti_data", "refresh_cache"]
+__all__ = ["describe_targets", "fetch_sbti_data", "refresh_cache"]
 
 logger = get_logger(__name__)
 
@@ -76,8 +76,20 @@ _COL_DATE = ("date_updated", "Date", "Commitment Date", "date_committed", "Targe
 _COL_NET_ZERO_YEAR = ("net_zero_year", "Net-Zero Year")
 _COL_TARGET_TEXT = ("full_target_language", "Target Language", "Target Wording")
 
-# The register's own wording of the targets is quoted up to this many characters.
-_TARGET_TEXT_LIMIT = 1500
+# The register's own wording of the targets is quoted whole up to this many characters;
+# a longer text is cut at a sentence and marked as shortened.
+_TARGET_TEXT_LIMIT = 4000
+
+# Register fields stated beside the status, by the name the record gives them.
+_DETAIL_COLUMNS = {
+    "near_term_year": ("near_term_target_year",),
+    "classification_text": ("target_classification_long",),
+    "long_term_status": ("long_term_status",),
+    "long_term_classification": ("long_term_target_classification",),
+    "long_term_year": ("long_term_target_year",),
+    "ba15_status": ("ba15_status",),
+    "ba15_date": ("ba15_date",),
+}
 
 # Status values that indicate a withdrawn/removed target.
 _REMOVED_STATUSES = frozenset(
@@ -111,6 +123,7 @@ class _SBTiRecord:
 
     __slots__ = (
         "date",
+        "details",
         "isin",
         "name",
         "net_zero_status",
@@ -132,9 +145,11 @@ class _SBTiRecord:
         date: str,
         net_zero_year: str = "",
         target_text: str = "",
+        details: dict[str, str] | None = None,
     ) -> None:
         self.net_zero_year = net_zero_year
         self.target_text = target_text
+        self.details = details or {}
         self.name = name
         self.isin = isin
         self.status = status
@@ -210,6 +225,17 @@ def _normalise_name(name: str) -> str:
     return name
 
 
+def _details(row: dict[str, str]) -> dict[str, str]:
+    """Return the register fields stated beside the status, without empty ones."""
+    found = {key: _pick(row, columns) for key, columns in _DETAIL_COLUMNS.items()}
+    return {key: value for key, value in found.items() if value and value.lower() != "none"}
+
+
+def _year(value: str) -> str:
+    """Write a register year as the register means it: "2030.0" as "2030", "FY2030" as is."""
+    return value[:-2] if value.endswith(".0") else value
+
+
 def _load_from_csv(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTiRecord]]:
     """Parse the SBTi CSV into lookup caches."""
     by_isin: dict[str, _SBTiRecord] = {}
@@ -229,6 +255,9 @@ def _load_from_csv(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTiR
                 net_zero_status=_pick(row, _COL_NET_ZERO),
                 sector=_pick(row, _COL_SECTOR),
                 date=_pick(row, _COL_DATE),
+                net_zero_year=_pick(row, _COL_NET_ZERO_YEAR),
+                target_text=_pick(row, _COL_TARGET_TEXT),
+                details=_details(row),
             )
             if record.isin:
                 by_isin[record.isin.upper()] = record
@@ -279,6 +308,7 @@ def _load_from_xlsx(path: Path) -> tuple[dict[str, _SBTiRecord], dict[str, _SBTi
             date=_pick(row, _COL_DATE),
             net_zero_year=_pick(row, _COL_NET_ZERO_YEAR),
             target_text=_pick(row, _COL_TARGET_TEXT),
+            details=_details(row),
         )
         if record.isin:
             by_isin[record.isin.upper()] = record
@@ -408,8 +438,10 @@ async def fetch_sbti_data(claim: Claim, company: object) -> list[Evidence]:
                 "status": record.status,
                 "temp_classification": record.temp_classification,
                 "net_zero_status": record.net_zero_status,
+                "net_zero_year": _year(record.net_zero_year),
                 "sector": record.sector,
                 "date": record.date,
+                **record.details,
             },
             summary=summary,
             data_year=None,
@@ -463,13 +495,18 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     status_display = record.status or "unknown"
     temp_display = record.temp_classification or "not classified"
     net_zero_display = record.net_zero_status or "none"
-    year = record.net_zero_year.split(".")[0] if record.net_zero_year else ""
+    year = _year(record.net_zero_year)
     net_zero_display += f" (net-zero year {year})" if year else ""
     date_display = f"; register entry updated {record.date[:10]}" if record.date else ""
+    # The register's own name for the entity, which can differ from the company's.
+    entry = f"SBTi register entry {record.name!r}" + (
+        f" (matched to {company_name})" if record.name != company_name else ""
+    )
+    details = record.details
 
     if record.is_removed:
         return (
-            f"SBTi target for {company_name}: status = {status_display}. "
+            f"{entry}: status {status_display}. "
             f"The SBTi register records an earlier target as removed or no longer "
             f"valid{date_display}."
         )
@@ -481,15 +518,64 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     else:
         standing = f"The register lists the status as {status_display}."
 
-    summary = (
-        f"SBTi target for {company_name}: status {status_display}, temperature "
-        f"classification {temp_display}, net-zero target {net_zero_display}{date_display}. "
-        f"{standing}"
-    )
+    near = f"near-term targets {status_display}"
+    if details.get("near_term_year"):
+        near += f" for {_year(details['near_term_year'])}"
+    near += f", temperature classification {temp_display}"
+    parts = [near]
+    if details.get("classification_text"):
+        parts.append(f'the register\'s classification reads "{details["classification_text"]}"')
+    if details.get("long_term_status"):
+        long_term = f"long-term targets {details['long_term_status']}"
+        if details.get("long_term_year"):
+            long_term += f" for {_year(details['long_term_year'])}"
+        if details.get("long_term_classification"):
+            long_term += f", classification {details['long_term_classification']}"
+        parts.append(long_term)
+    parts.append(f"net-zero target {net_zero_display}")
+    if details.get("ba15_status"):
+        since = f" since {details['ba15_date'][:10]}" if details.get("ba15_date") else ""
+        parts.append(f"Business Ambition for 1.5°C: {details['ba15_status']}{since}")
+    summary = f"{entry}: {'; '.join(parts)}{date_display}. {standing}"
     text = " ".join(record.target_text.split())
     if text:
-        if len(text) > _TARGET_TEXT_LIMIT:
+        shortened = len(text) > _TARGET_TEXT_LIMIT
+        if shortened:
             cut = text[:_TARGET_TEXT_LIMIT]
-            text = cut[: cut.rfind(". ") + 1] if ". " in cut else cut
-        summary += f' Target wording in the register: "{text}"'
+            text = (cut[: cut.rfind(". ") + 1] if ". " in cut else cut) + " ..."
+        label = "Target wording in the register" + (", shortened" if shortened else "")
+        summary += f' {label}: "{text}"'
     return summary
+
+
+def describe_targets(raw_data: dict[str, object]) -> str:
+    """State an SBTi record for the company record: statuses, classification and years.
+
+    Args:
+        raw_data: The raw_data of an SBTi Evidence record.
+
+    Returns:
+        For example 'SBTi (Enel SpA): near-term targets Validated Targets for 2030,
+        classification 1.5°C ("The targets covering ... (scopes 1 and 2) ..."); ...'
+    """
+
+    def field(key: str) -> str:
+        return str(raw_data.get(key) or "")
+
+    near = f"near-term targets {field('status') or 'unknown'}"
+    if field("near_term_year"):
+        near += f" for {_year(field('near_term_year'))}"
+    near += f", classification {field('temp_classification') or 'none'}"
+    if field("classification_text"):
+        near += f' ("{field("classification_text")}")'
+    parts = [near]
+    if field("long_term_status"):
+        long_term = f"long-term targets {field('long_term_status')}"
+        if field("long_term_year"):
+            long_term += f" for {_year(field('long_term_year'))}"
+        parts.append(long_term)
+    net_zero = f"net-zero target {field('net_zero_status') or 'none'}"
+    if field("net_zero_year"):
+        net_zero += f" for {field('net_zero_year')}"
+    parts.append(net_zero)
+    return f"SBTi ({field('company')}): {'; '.join(parts)}."

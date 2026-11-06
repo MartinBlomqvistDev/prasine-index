@@ -70,6 +70,7 @@ class _EGTAsset:
         "asset_type",
         "capacity",
         "country",
+        "detail",
         "name",
         "owner_raw",
         "parent_raw",
@@ -85,7 +86,9 @@ class _EGTAsset:
         parent_raw: str,
         capacity: str,
         asset_type: str,
+        detail: str = "",
     ) -> None:
+        self.detail = detail.strip()
         self.name = name.strip()
         self.country = country.strip()
         self.status = status.strip().lower()
@@ -212,6 +215,13 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("TerminalName", "") or "").strip()
                 if not name:
                     continue
+                unit = _unit(r.get("UnitName"))
+                if unit and unit.lower() not in name.lower():
+                    name = f"{name}, {unit}"
+                facility = str(r.get("FacilityType", "") or "").strip().lower()
+                capacity = _number(r.get("Capacity"))
+                units = str(r.get("CapacityUnits", "") or "").strip()
+                proposed = _number(r.get("ProposalYear"))
                 assets.append(
                     _EGTAsset(
                         name=name,
@@ -219,8 +229,17 @@ def _load() -> list[_EGTAsset]:
                         status=str(r.get("Status", "") or ""),
                         owner_raw=str(r.get("Owner", "") or ""),
                         parent_raw=str(r.get("Parent", "") or ""),
-                        capacity=str(r.get("Capacity", "") or ""),
+                        capacity=f"{capacity} {units}".strip() if capacity else "",
                         asset_type="lng_terminal",
+                        detail=", ".join(
+                            part
+                            for part in (
+                                f"{facility} terminal" if facility else "",
+                                f"{capacity} {units}".strip() if capacity else "",
+                                f"proposed in {proposed}" if proposed else "",
+                            )
+                            if part
+                        ),
                     )
                 )
 
@@ -236,17 +255,26 @@ def _load() -> list[_EGTAsset]:
                 name = str(r.get("Plant name", "") or "").strip()
                 if not name:
                     continue
-                # Owner column may vary: try common names
-                owner = str(r.get("Owner", "") or r.get("Parent", "") or "")
+                unit = _unit(r.get("Unit name"))
+                if unit and unit.lower() not in name.lower():
+                    name = f"{name} {unit}"
+                # The sheet names its owner columns "Owner(s)" and "Parent(s)".
+                owner = str(r.get("Owner(s)", "") or r.get("Owner", "") or "")
+                parent = str(r.get("Parent(s)", "") or r.get("Parent", "") or "")
+                capacity = _number(r.get("Capacity (MW)"))
+                fuel = str(r.get("Fuel", "") or "").strip()
                 assets.append(
                     _EGTAsset(
                         name=name,
                         country=str(r.get("Country/Area", "") or ""),
                         status=str(r.get("Status", "") or ""),
                         owner_raw=owner,
-                        parent_raw=str(r.get("Parent", "") or ""),
-                        capacity=str(r.get("Capacity (MW)", "") or ""),
+                        parent_raw=parent,
+                        capacity=f"{capacity} MW" if capacity else "",
                         asset_type="gas_plant",
+                        detail=", ".join(
+                            part for part in (f"{capacity} MW" if capacity else "", fuel) if part
+                        ),
                     )
                 )
 
@@ -275,6 +303,37 @@ def _normalise(name: str) -> str:
     return name.lower().strip()
 
 
+def _number(value: object) -> str:
+    """Write a cell's number without a trailing ".0", or "" for an empty or text cell."""
+    try:
+        number = float(str(value).replace(",", ""))
+    except (TypeError, ValueError):
+        return ""
+    return f"{number:g}" if number else ""
+
+
+def _unit(value: object) -> str:
+    """Name a unit: a bare number as "unit 1", any other name as the tracker writes it."""
+    number = _number(value)
+    return f"unit {number}" if number else str(value or "").strip()
+
+
+_KINDS = {
+    "gas_pipeline": ("gas pipeline segment", "gas pipeline segments"),
+    "lng_terminal": ("LNG terminal unit", "LNG terminal units"),
+    "gas_plant": ("gas-fired power unit", "gas-fired power units"),
+}
+
+
+def _count(n: int, kind: str) -> str:
+    singular, plural = _KINDS.get(kind, (kind, f"{kind}s"))
+    return f"{n} {singular if n == 1 else plural}"
+
+
+def _assets_word(n: int) -> str:
+    return f"{n} {'asset' if n == 1 else 'assets'}"
+
+
 def _owner_matches(company_norm: str, owner_name: str) -> bool:
     own_norm = _normalise(owner_name)
     if names_overlap(company_norm, own_norm):
@@ -284,12 +343,21 @@ def _owner_matches(company_norm: str, owner_name: str) -> bool:
 
 
 def _describe(asset: _EGTAsset, company_name: str, company_norm: str) -> str:
-    """Name an asset with its type, country, status and the company's share."""
+    """Name an asset with its kind, details, country, status and the company's share."""
     share = asset.share_of(company_norm)
-    detail = [asset.asset_type.replace("_", " "), asset.country, asset.status]
-    if share:
-        detail.append(f"{company_name}'s share {share}")
-    return f"{asset.name} ({', '.join(detail)})"
+    kind = _KINDS.get(asset.asset_type, (asset.asset_type,))[0]
+    parts = [f"{kind}, {asset.detail}" if asset.detail else kind, asset.country, asset.status]
+    parts.append(
+        f"{company_name}'s share {share}" if share else "the tracker gives no share for the company"
+    )
+    return f"{asset.name} ({', '.join(part for part in parts if part)})"
+
+
+def _listing(assets: list[_EGTAsset], company_name: str, company_norm: str, limit: int) -> str:
+    """Describe up to limit assets and say how many more there are."""
+    shown = "; ".join(_describe(a, company_name, company_norm) for a in assets[:limit])
+    more = len(assets) - limit
+    return shown + (f"; and {more} more" if more > 0 else "")
 
 
 async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
@@ -353,30 +421,30 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         "gas_plant": sum(1 for a in matched if a.asset_type == "gas_plant"),
     }
 
+    kinds = ", ".join(_count(n, kind) for kind, n in type_counts.items() if n)
     lines: list[str] = [
-        f"EGT (March 2026): {company_name!r} has {len(matched)} European gas asset(s), "
-        f"{type_counts['gas_pipeline']} pipeline(s), "
-        f"{type_counts['lng_terminal']} LNG terminal(s), "
-        f"{type_counts['gas_plant']} gas plant(s)."
+        f"Europe Gas Tracker (Global Energy Monitor, file of 2 March 2026): {company_name} is "
+        f"named as an owner or parent of {_assets_word(len(matched))} ({kinds})."
     ]
-
     if expanding:
-        exp_names = "; ".join(_describe(a, company_name, company_norm) for a in expanding[:5])
         lines.append(
-            f"{len(expanding)} asset(s) listed as proposed, announced, in pre-construction or "
-            f"under construction. Examples: {exp_names}."
+            f"In development (proposed, announced, pre-construction or construction): "
+            f"{_listing(expanding, company_name, company_norm, 5)}."
         )
-
     if operating:
-        op_types = ", ".join(
-            f"{v} {k.replace('_', ' ')}(s)"
-            for k, v in type_counts.items()
-            if v and any(a.is_operating and a.asset_type == k for a in matched)
-        )
-        lines.append(f"OPERATING: {len(operating)} asset(s) ({op_types}).")
-
+        lines.append(f"Operating: {_listing(operating, company_name, company_norm, 5)}.")
     if exiting:
-        lines.append(f"RETIRING/CANCELLED: {len(exiting)} asset(s).")
+        statuses: dict[str, int] = {}
+        for asset in exiting:
+            statuses[asset.status] = statuses.get(asset.status, 0) + 1
+        lines.append(
+            "No longer operating or not going ahead: "
+            + ", ".join(f"{n} {status}" for status, n in sorted(statuses.items()))
+            + "."
+        )
+    if not (expanding or operating or exiting):
+        other = sorted({a.status for a in matched if a.status})
+        lines.append(f"Status in the tracker: {', '.join(other) or 'not given'}.")
 
     summary = " ".join(lines)
 
@@ -402,6 +470,15 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
                 "share": a.share_of(company_norm),
             }
             for a in expanding[:10]
+        ],
+        "operating_assets": [
+            {
+                "name": a.name,
+                "type": a.asset_type,
+                "country": a.country,
+                "share": a.share_of(company_norm),
+            }
+            for a in operating[:10]
         ],
     }
 
