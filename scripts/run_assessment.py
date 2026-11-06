@@ -319,6 +319,13 @@ async def run(
         _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         slug = _slug(company_name)
 
+        # Files from an earlier run with more claims would sit beside this run's under
+        # the same names, so they are removed first.
+        for old in _REPORTS_DIR.glob(f"{slug}-*.md"):
+            number = old.stem.removeprefix(f"{slug}-")
+            if number.isdigit() and int(number) > len(results):
+                old.unlink()
+
         # Print per-claim verdicts; write each to its own numbered file.
         for i, r in enumerate(results, start=1):
             out_path = _REPORTS_DIR / f"{slug}-{i}.md"

@@ -45,8 +45,27 @@ _PATTERNS: list[tuple[str, Path, str]] = [
     ("edgar_jrc", _DATA_DIR, "JRC/EDGAR_2025_GHG_booklet_2025.xlsx"),
     # eutl: daily snapshot lives outside data/ in EUTL24/ at project root.
     ("eutl", _PROJECT_ROOT, "EUTL24/operators_yearly_activity_daily.csv"),
-    ("influencemap", _DATA_DIR, "influencemap_companies.csv"),
 ]
+
+# The name each source has in the reports, by manifest key.
+_PUBLIC_NAMES = {
+    "sbti": "SBTi target register",
+    "lobbymap": "LobbyMap",
+    "ca100": "Climate Action 100+",
+    "eprtr": "E-PRTR",
+    "fossil_finance": "Banking on Climate Chaos",
+    "gcel": "Global Coal Exit List",
+    "gogel": "Global Oil and Gas Exit List",
+    "tpi": "Transition Pathway Initiative",
+    "eea_national": "EEA national greenhouse gas inventories",
+    "eu_innovation_fund": "EU Innovation Fund",
+    "eu_transparency_register": "EU Transparency Register",
+    "gcpt": "Global Coal Plant Tracker",
+    "egt": "Europe Gas Tracker",
+    "goget_tracker": "Global Oil and Gas Extraction Tracker",
+    "edgar_jrc": "EDGAR (JRC)",
+    "eutl": "EU ETS (EU Transaction Log)",
+}
 
 
 @dataclass
@@ -120,7 +139,7 @@ def manifest_to_markdown(manifest: DataManifest) -> str:
     ]
     for key, sha in manifest.sources.items():
         status = f"`{sha}`" if sha != "not_present" else "*not present*"
-        lines.append(f"| {key} | {status} |")
+        lines.append(f"| {_PUBLIC_NAMES.get(key, key)} | {status} |")
     return "\n".join(lines)
 
 
