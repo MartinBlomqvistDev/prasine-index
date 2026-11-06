@@ -148,6 +148,8 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
     """Return the record line and the finding on new fossil fuel supply."""
     lines: list[str] = []
     expanding: list[str] = []
+    # New coal plants count through the expert group's recommendations for businesses.
+    coal_power = False
 
     for source, upstream_key, power_key, values, name in (
         (
@@ -177,6 +179,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             )
         elif first in values or second in values:
             expanding.append(name)
+            coal_power = coal_power or (source == EvidenceSource.COAL_EXIT and second in values)
             lines.append(f"{name}: listed as expanding{_cite(record)}.")
         else:
             lines.append(f"{name}: listed, with no expansion recorded{_cite(record)}.")
@@ -186,6 +189,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         count = record.raw_data.get(field) if record else None
         if record is not None and isinstance(count, int) and count > 0:
             expanding.append(name)
+            coal_power = coal_power or source == EvidenceSource.GCPT
             plural = noun.replace("(s)", "" if count == 1 else "s")
             lines.append(f"{name}: {count} {plural}{_assets(record)}{_cite(record)}.")
         stalled = record.raw_data.get("stalled_assets") if record else None
@@ -214,7 +218,13 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             else f"{', '.join(expanding[:-1])} and {expanding[-1]}"
         )
         verb = "records" if len(expanding) == 1 else "record"
-        return " ".join(lines), f"the {names} {verb} new fossil fuel supply"
+        coal = (
+            ", counting new coal plants, which the expert group's recommendations for "
+            "businesses include ending (Integrity Matters, p. 24)"
+            if coal_power
+            else ""
+        )
+        return " ".join(lines), f"the {names} {verb} new fossil fuel supply{coal}"
     return " ".join(lines), "the exit lists record no expansion"
 
 

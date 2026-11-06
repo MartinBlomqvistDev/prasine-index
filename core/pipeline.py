@@ -338,6 +338,35 @@ async def _fetch_pages_playwright(
 logger = get_logger(__name__)
 
 
+def as_displayed(evidence: list[Evidence], company: str, display: str) -> list[Evidence]:
+    """Name the company in the records' match labels as the report names it.
+
+    The sources are queried with the run's company name, which can name another
+    entity in a register: "IKEA Group" is Ingka's entry in the SBTi register, while
+    an IKEA assessment covers Inter IKEA. The labels that say which entity a record
+    was matched to therefore use the name the report gives the company.
+
+    Args:
+        evidence: The records the judge saw.
+        company: The company name the sources were queried with.
+        display: The name the report gives the company.
+
+    Returns:
+        The records, with the match labels naming the company as the report does.
+    """
+    if not display or display == company:
+        return evidence
+    shown: list[Evidence] = []
+    for record in evidence:
+        summary = record.summary
+        for label in ("matched to ", "whose name matches ", "band for "):
+            summary = summary.replace(f"{label}{company}", f"{label}{display}")
+        shown.append(
+            record if summary == record.summary else record.model_copy(update={"summary": summary})
+        )
+    return shown
+
+
 def _save_judge_input(judge_input: JudgeInput) -> None:
     """Write the judge's input to the folder PRASINE_JUDGE_INPUTS names, when it is set.
 
@@ -955,7 +984,17 @@ class Pipeline:
 
             # Step 5: Report
             report_context = context_result.context
+            shown = verification_result
             if self._config.display_name:
+                shown = verification_result.model_copy(
+                    update={
+                        "evidence": as_displayed(
+                            verification_result.evidence,
+                            report_context.company.name,
+                            self._config.display_name,
+                        )
+                    }
+                )
                 report_context = report_context.model_copy(
                     update={
                         "company": report_context.company.model_copy(
@@ -967,7 +1006,7 @@ class Pipeline:
                 ReportInput(
                     claim=claim,
                     context=report_context,
-                    verification=verification_result,
+                    verification=shown,
                     lobbying=lobbying_result.record,
                     score=judge_result.score,
                 )
@@ -996,7 +1035,7 @@ class Pipeline:
                 score=judge_result.score,
                 report_markdown=report_result.report_markdown,
                 traces=traces,
-                evidence=verification_result.evidence,
+                evidence=shown.evidence,
             )
 
         except Exception as exc:

@@ -83,6 +83,7 @@ def convert_gcel(path: Path) -> int:
         "production": _column(names, "Coal Production (Annual)"),
         "power_prorated": _column(names, "Coal Power Expansion (Prorated)"),
         "power_total": _column(names, "Coal Power Expansion (Total)"),
+        "power_countries": _column(names, "Coal Power Expansion Countries"),
         "mining_countries": _column(names, "Coal Mining Expansion Countries"),
     }
     edition = _edition(path, r"GCEL \d{4}")
@@ -120,7 +121,11 @@ def convert_gcel(path: Path) -> int:
                 details.append(f"installed coal power capacity {installed:,.0f} MW")
             if power == "yes":
                 prorated = f"{power_prorated:,.0f} MW prorated, " if power_prorated else ""
-                details.append(f"coal power expansion {prorated}{power_total:,.0f} MW in total")
+                power_countries = _cell(row[col["power_countries"]])
+                where = f", in {power_countries}" if power_countries.lower() not in _EMPTY else ""
+                details.append(
+                    f"coal power expansion {prorated}{power_total:,.0f} MW in total{where}"
+                )
             if mining == "yes":
                 details.append(f"coal mining expansion in {mining_countries}")
             writer.writerow(
