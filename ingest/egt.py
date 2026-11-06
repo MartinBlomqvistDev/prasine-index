@@ -495,7 +495,7 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
         )
     if expanding_power:
         lines.append(
-            f"Gas-fired power units in development, which use gas rather than supply it: "
+            f"Gas-fired power units in development, not counted as fossil fuel supply: "
             f"{_listing(expanding_power, company_name, company_norm, 5)}."
         )
     if operating:

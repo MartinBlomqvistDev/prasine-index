@@ -298,8 +298,10 @@ out in \
   "{HLEG_LOBBYING}"
 For a pledge, a record showing that the company is expanding fossil fuel supply \
 (the Global Oil and Gas Exit List, the Global Coal Exit List, asset trackers; \
-gas-fired power units in development use gas rather than supply it and are \
-context; a project still at the proposal stage more than ten years after it was \
+gas-fired power units in development do not supply fossil fuel and are context, \
+while new coal plants count because the expert group's recommendations for \
+businesses include ending coal plants; a project still at the proposal stage more \
+than ten years after it was \
 proposed is not counted as new supply, and the records say so where that applies) or \
 that its lobbying is obstructive (LobbyMap band D or lower, which LobbyMap defines \
 as a score below 50%; D+ is not in that range) contradicts the pledge, \

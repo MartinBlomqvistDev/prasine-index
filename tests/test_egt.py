@@ -124,9 +124,7 @@ class TestPlants:
         evidence = _evidence("Enel SpA")
         summary = evidence[0].summary
         assert evidence[0].raw_data["expanding_power"] == 1
-        assert (
-            "Gas-fired power units in development, which use gas rather than supply it" in summary
-        )
+        assert "Gas-fired power units in development, not counted as fossil fuel supply" in summary
 
     def test_a_proposal_more_than_ten_years_old_is_not_counted(self, tracker) -> None:
         evidence = _evidence("Enel SpA")
