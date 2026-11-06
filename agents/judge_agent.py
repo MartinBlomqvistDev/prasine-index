@@ -256,6 +256,8 @@ scope and period as the claim shows the claim to be false under every reasonable
 reading of it. Nothing else places a claim in this band: no rating, no lobbying \
 record, no list of expanding companies, no number of contradicting sources, and no \
 decision by an authority.
+Each record comes with a confidence: a fixed value per source and reading, not a \
+measure of the record. Never cite it in the reasoning. \
 The band names are internal labels. Never use them in the reasoning, and never use \
 the words "greenwashing", "misleading", "violates" or "breach" there except when \
 quoting a regulator's own finding.

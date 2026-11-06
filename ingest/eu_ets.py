@@ -341,7 +341,7 @@ def _build_evidence(
             else 0
         )
         direction = (
-            f"{'DOWN' if pct_change < 0 else 'UP'} {abs(pct_change):.0f}% "
+            f"{'down' if pct_change < 0 else 'up'} {abs(pct_change):.0f}% "
             f"from {base_year} to {most_recent_year}"
         )
         if break_note:

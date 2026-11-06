@@ -20,6 +20,7 @@ import contextlib
 import csv
 import re
 import shutil
+import sys
 import tempfile
 import time
 import unicodedata
@@ -137,11 +138,13 @@ def add_pages(companies: list[dict[str, str]], client: httpx.Client) -> int:
     return found
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    """Refresh the CSV. Called without arguments, as run_assessment.py's data refresh
+    does, it downloads the data sheet and writes the default file."""
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--sheet-file", type=Path, help="a data sheet already downloaded")
     parser.add_argument("--out", type=Path, default=_DATA / "ca100_companies.csv")
-    args = parser.parse_args()
+    args = parser.parse_args([] if argv is None else argv)
 
     with httpx.Client(
         headers={"User-Agent": _USER_AGENT}, follow_redirects=True, timeout=60
@@ -174,4 +177,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

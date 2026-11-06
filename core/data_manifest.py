@@ -26,8 +26,8 @@ _DATA_DIR = _PROJECT_ROOT / "data"
 _PATTERNS: list[tuple[str, Path, str]] = [
     ("sbti", _DATA_DIR, "sbti_companies*"),
     ("lobbymap", _DATA_DIR, "lobbymap_companies.csv"),
-    # ca100: ingest reads .csv or .xlsx; glob catches both, newest wins.
-    ("ca100", _DATA_DIR, "ca100_companies*"),
+    # ca100: the CSV that scripts/refresh_ca100.py writes and ingest/ca100.py reads.
+    ("ca100", _DATA_DIR, "ca100_companies.csv"),
     ("eprtr", _DATA_DIR, "eprtr_releases.csv"),
     # fossil_finance: ingest reads fossil_finance_banks.csv (banking data).
     # Expansion_Company_List_BOCC_*.xlsx is a different dataset (expansion cos).

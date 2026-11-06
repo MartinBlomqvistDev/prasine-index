@@ -456,7 +456,10 @@ async def fetch_source_document_data(
     extraction: dict[str, Any] = tool_block.input
     supports_claim: bool | None = extraction.get("supports_claim")
     confidence: float = float(extraction.get("confidence", 0.70))
-    summary: str = extraction.get("summary", "Source document analysis completed.")
+    summary: str = str(extraction.get("summary", "Source document analysis completed.")).strip()
+    # A summary that ends on a quotation mark it never opened is cut, not quoting.
+    if summary.count('"') % 2 and summary.endswith('"'):
+        summary = summary[:-1].rstrip()
     missing_plan_elements: list[str] = extraction.get("missing_plan_elements", [])
     unread = [url for url in linked_urls if url not in linked_read]
     if more_url and not more_read:

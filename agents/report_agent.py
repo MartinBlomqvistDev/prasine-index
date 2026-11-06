@@ -104,7 +104,7 @@ Use exactly this Markdown structure:
 
 ## [Company Name]: Claim Assessment
 **Finding: [FINDING]** | Score: [X]/100 (range: [LOW]–[HIGH]) | Confidence: [X]%
-*Published: [DATE] | Prasine Index | Trace ID: [TRACE_ID]*
+*Assessed: [DATE] | Prasine Index | Trace ID: [TRACE_ID]*
 
 ### The Claim
 > "[verbatim claim text]"
@@ -152,7 +152,11 @@ that means for confidence. Start each item with **Source name**:.]
 
 ### Methodology Note
 [One paragraph on how Prasine Index scored this claim: which sources were used \
-and what the score scale means. The scale runs from 0, where the records support \
+and what the score scale means. Name the sources in three groups: the company's \
+own documents, official records (such as EU ETS, E-PRTR, decisions by \
+authorities and EUR-Lex texts) and third-party assessments and datasets (such as \
+LobbyMap, TPI, Climate Action 100+ and the exit lists); never call them all \
+primary sources. The scale runs from 0, where the records support \
 the claim, to 100, where an official record shows it to be false: a higher score \
 means the records go further against the claim. The judge gives the score \
 directly and fixed rules in code decide which band it may reach: never say that \
