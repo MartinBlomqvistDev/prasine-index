@@ -48,3 +48,18 @@ class TestDisplayedName:
         )
         (shown,) = as_displayed([record], "IKEA Group", "IKEA (Inter IKEA Group)")
         assert "(matched to IKEA (Inter IKEA Group))" in shown.summary
+
+
+class TestMethodNotePages:
+    def test_the_note_after_a_figure_page_is_read(self) -> None:
+        from ingest.source_document import select_pages
+
+        pages = [
+            "climate emissions target net zero " * 20,
+            "Scope 3 emissions fell 23% against the baseline.",
+            "Methodology: the reductions are calculated from supplier data.",
+            "Unrelated page about stores.",
+        ]
+        text = select_pages(pages, 100_000, True, ("23%",))
+        assert "[PDF page 3]" in text
+        assert "[PDF page 4]" not in text

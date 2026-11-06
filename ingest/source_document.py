@@ -115,6 +115,9 @@ _ASSURANCE_CONCLUSIONS = (
 _MAX_ASSURANCE_PAGES = 3
 # Pages that hold one of the claim's own figures, such as "41%", are read next.
 _MAX_FIGURE_PAGES = 3
+# Then the page after a figure page when it explains how figures were calculated.
+_MAX_NOTE_PAGES = 2
+_METHOD_WORDS = ("methodolog", "calculat", "accounting principle", "basis of preparation")
 
 _ANCHOR = re.compile(
     r"<a\b[^>]*?href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", flags=re.IGNORECASE | re.DOTALL
@@ -874,6 +877,15 @@ def select_pages(
             if i not in first and any(pattern.search(compact[i]) for pattern in patterns)
         ]
         first += with_figures[:_MAX_FIGURE_PAGES]
+        # The note that explains how a figure was calculated often follows it.
+        notes = [
+            i + 1
+            for i in with_figures[:_MAX_FIGURE_PAGES]
+            if i + 1 < len(pages)
+            and i + 1 not in first
+            and any(word in lowered[i + 1] for word in _METHOD_WORDS)
+        ]
+        first += list(dict.fromkeys(notes))[:_MAX_NOTE_PAGES]
     order = first + [i for i in order if i not in first]
     chosen: list[int] = []
     total = 0
