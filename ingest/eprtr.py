@@ -331,7 +331,11 @@ def _lookup(name: str) -> dict[int, list[_EprtrRecord]]:
     for key, records_by_year in by_parent.items():
         if key == norm:
             continue  # already handled above
-        if len(norm) >= 4 and contains_name(key, norm):
+        # A short name such as "bp" matches only where a key starts with it, so that
+        # "BP Europa SE" is found and "Aker BP" is not.
+        if (len(norm) >= 4 and contains_name(key, norm)) or (
+            2 <= len(norm) < 4 and key.startswith(f"{norm} ")
+        ):
             for year, records in records_by_year.items():
                 merged[year].extend(records)
 

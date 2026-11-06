@@ -38,6 +38,7 @@ Coverage: ~490 major listed companies, last updated 2022
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 from typing import Any
 
@@ -67,6 +68,19 @@ _CP_PARIS_ALIGNED = {
 _CP_WEAK_ALIGNED = {"National Pledges", "International Pledges", "Paris Pledges"}
 _CP_NOT_ALIGNED = {"Not Aligned"}
 _CP_NO_DISCLOSURE = {"No or unsuitable disclosure", "Not Assessed"}
+
+
+def _clean_notes(text: str) -> str:
+    """Repair TPI's notes for print: an apostrophe shown as "?" and a sentence given twice.
+
+    Args:
+        text: The notes as TPI's page gives them.
+
+    Returns:
+        The notes with "company?s" written "company's" and each sentence once.
+    """
+    text = re.sub(r"(?<=[A-Za-z])\?(?=[A-Za-z])", "'", text)
+    return " ".join(dict.fromkeys(re.split(r"(?<=[.!])\s+", text)))
 
 
 class _TPIRecord:
@@ -103,7 +117,7 @@ class _TPIRecord:
         self.mq_published = row.get("MQ Publication Date", "").strip()
         self.retrieved = row.get("Retrieved", "").strip()
         self.source_url = row.get("Source URL", "").strip()
-        self.notes = row.get("TPI Centre Notes", "").strip()
+        self.notes = _clean_notes(row.get("TPI Centre Notes", "").strip())
         self.subsectors = row.get("Subsector Carbon Performance", "").strip()
         self.regional = row.get("Regional Carbon Performance", "").strip()
 

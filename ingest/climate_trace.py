@@ -254,8 +254,9 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
         summary = (
             f"Climate TRACE independent estimate: {len(matched)} "
             f"{'installation' if len(matched) == 1 else 'installations'} in {gadm_id} whose "
-            f"name matches {company_name}; other installations of the company are not found "
-            f"by name. Total for these installations: "
+            f"name matches {company_name}; the search covered {gadm_id} only, and other "
+            f"installations of the company there are not found by name. Total for these "
+            f"installations: "
             f"{total_emissions_mt:.3f} Mt CO2e (2023, 100yr GWP). "
             f"Installations: {installations_str}. "
             f"The estimates come from satellite imagery, remote sensing and machine "

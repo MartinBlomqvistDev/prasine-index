@@ -356,7 +356,10 @@ async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]
                 "retrieved": record.retrieved,
             },
             summary=summary,
-            data_year=record.year,
+            # The scores carry no year of their own: they are as published on the day
+            # they were retrieved.
+            data_year=record.year
+            or (int(record.retrieved[:4]) if record.retrieved[:4].isdigit() else None),
             supports_claim=supports,
             confidence=confidence,
         )
