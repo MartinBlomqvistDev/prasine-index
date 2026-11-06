@@ -493,7 +493,7 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     """
     status_display = record.status or "unknown"
     temp_display = record.temp_classification or "not classified"
-    net_zero_display = record.net_zero_status or "none on the register"
+    net_zero_display = _status_words(record.net_zero_status) or "none on the register"
     year = _year(record.net_zero_year)
     net_zero_display += f" (net-zero year {year})" if year else ""
     date_display = f"; register entry updated {record.date[:10]}" if record.date else ""
@@ -528,7 +528,7 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     if details.get("classification_text"):
         parts.append(f'the register\'s classification reads "{details["classification_text"]}"')
     if details.get("long_term_status"):
-        long_term = f"long-term targets {details['long_term_status']}"
+        long_term = f"long-term targets {_status_words(str(details['long_term_status']))}"
         if details.get("long_term_year"):
             long_term += f" for {_year(details['long_term_year'])}"
         if details.get("long_term_classification"):
@@ -550,12 +550,18 @@ def _build_summary(company_name: str, record: _SBTiRecord, is_sbti_claim: bool) 
     return summary
 
 
+_STATUS_WORDS = {
+    "validated targets": "validated",
+    "commitment to set targets": "committed, not yet set",
+    "commitment removed": "commitment removed",
+    "targets set": "set",
+}
+
+
 def _status_words(status: str) -> str:
     """Write a register status in running text: "Validated Targets" as "validated"."""
     words = status.strip().lower()
-    for tail in (" targets", " target"):
-        words = words.removesuffix(tail)
-    return words
+    return _STATUS_WORDS.get(words, words)
 
 
 def describe_targets(raw_data: dict[str, object]) -> str:

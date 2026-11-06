@@ -605,15 +605,23 @@ _NATIONAL_SHARE = re.compile(
 def _names_a_national_share(claim_text: str, evidence: list[Evidence]) -> bool:
     """Tell whether a claim gives a percentage together with a country whose totals are in
     the evidence, in either order, as in "Sweden's total CO2 emissions by 10%"."""
-    if not re.search(r"%|per ?cent", claim_text, flags=re.IGNORECASE):
-        return False
-    lowered = claim_text.lower()
-    for record in evidence:
-        if not _is_national(record):
+    names = {
+        str(record.raw_data.get(key) or "").strip()
+        for record in evidence
+        if _is_national(record)
+        for key in ("country", "country_name")
+    }
+    for sentence in re.split(r"(?<=[.!?])\s+", claim_text):
+        if not re.search(r"%|per ?cent", sentence, flags=re.IGNORECASE):
             continue
-        for key in ("country", "country_name"):
-            name = str(record.raw_data.get(key) or "").strip().lower()
-            if len(name) > 3 and name in lowered:
+        for name in (n for n in names if len(n) > 3):
+            country = re.escape(name)
+            if re.search(
+                rf"(\b{country}['\u2019]s\b|\b(?:of|in)\s+{country}\b)[^.]{{0,40}}"
+                r"(emission|co2|carbon|greenhouse)",
+                sentence,
+                flags=re.IGNORECASE,
+            ):
                 return True
     return False
 

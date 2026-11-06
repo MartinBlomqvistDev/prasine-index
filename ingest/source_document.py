@@ -517,14 +517,23 @@ async def fetch_source_document_data(
                     }
                 )
                 candidates += _report_links(more_html, more_url)
+        own = {claim.source_url.split("#")[0].rstrip("/"), (more_url or "").rstrip("/")}
+        candidates = [c for c in candidates if c[1].rstrip("/") not in own]
+        kinds = {url: kind for kind, url, _year in candidates}
         linked_urls = _choose_reports(candidates)
         source = "the page or the linked page" if more_read else "the page"
         figures = claim_figures(claim.raw_text)
+        seen_documents: set[str] = {u for u in linked_urls if _is_pdf(u)}
         for url, share in zip(linked_urls, _LINKED_SHARES, strict=False):
-            linked_text = await _read_linked_report(url, share, figures)
+            linked_text = await _read_linked_report(url, share, figures, kinds.get(url, ""))
+            document = _resolved.get(url, url)
+            if linked_text and document != url and document in seen_documents:
+                # A web page that leads to a document already read adds nothing.
+                _no_document.add(url)
+                continue
             if linked_text:
+                seen_documents.add(document)
                 linked_read.append(url)
-                document = _resolved.get(url, url)
                 via = f" (through the page {url})" if document != url else ""
                 read_notes.append(
                     pages_read_note(
@@ -702,6 +711,10 @@ def _report_links(html: str, page_url: str) -> list[tuple[str, str, int]]:
         url = urljoin(page_url, href.replace("&amp;", "&")).split("#")[0]
         if url.rstrip("/") == page_url.split("#")[0].rstrip("/"):
             continue
+        if not _is_pdf(url) and (
+            _host(url) != _host(page_url) or "http" in urlparse(url).query.lower()
+        ):
+            continue
         words = f"{url} {_strip_html(inner)}".lower()
         kind = next(
             (name for name, marks in _DOCUMENT_KINDS if any(mark in words for mark in marks)),
@@ -735,22 +748,35 @@ def _choose_reports(candidates: list[tuple[str, str, int]]) -> list[str]:
     Returns:
         Up to _MAX_LINKED_DOCUMENTS addresses.
     """
-    latest = max((year for _kind, _url, year in candidates), default=0)
+    pdfs = [c for c in candidates if _is_pdf(c[1])]
+    latest = max((year for _kind, _url, year in pdfs), default=0)
     current = [
         (index, kind, url, year)
         for index, (kind, url, year) in enumerate(candidates)
-        if year == 0 or year >= latest - 2
+        if not _is_pdf(url) or year == 0 or year >= latest - 2
     ]
     chosen: list[str] = []
     for name in _READING_ORDER:
         if name == "climate report" and len(chosen) > 1:
             break
-        # Of the same kind and year, a PDF comes before a web page about it.
         of_kind = [
-            (year, _is_pdf(url), -index, url) for index, kind, url, year in current if kind == name
+            (year, -index, url)
+            for index, kind, url, year in current
+            if kind == name and _is_pdf(url)
         ]
         if of_kind:
-            url = max(of_kind)[3]
+            url = max(of_kind)[2]
+            if url not in chosen:
+                chosen.append(url)
+    # A web page about a report fills a slot that is still free, for a kind with no PDF.
+    for name in _READING_ORDER:
+        if len(chosen) >= _MAX_LINKED_DOCUMENTS:
+            break
+        if any(kind == name and _is_pdf(url) for _i, kind, url, _y in current):
+            continue
+        pages = [(year, -index, url) for index, kind, url, year in current if kind == name]
+        if pages:
+            url = max(pages)[2]
             if url not in chosen:
                 chosen.append(url)
     return chosen[:_MAX_LINKED_DOCUMENTS]
@@ -1000,7 +1026,7 @@ _no_document: set[str] = set()
 
 
 async def _read_linked_report(
-    url: str, limit: int = _MAX_LINKED_CHARS, figures: tuple[str, ...] = ()
+    url: str, limit: int = _MAX_LINKED_CHARS, figures: tuple[str, ...] = (), kind: str = ""
 ) -> str:
     """Fetch a linked report and return its climate and assurance pages, or "" if unreadable."""
     key = (url, limit, figures)
@@ -1020,7 +1046,9 @@ async def _read_linked_report(
             _no_document.add(url)
             return ""
         page = content.decode("utf-8", errors="replace")
-        pdfs = _choose_reports([c for c in _report_links(page, url) if _is_pdf(c[1])])
+        offered = [c for c in _report_links(page, url) if _is_pdf(c[1])]
+        # The PDF of the kind the page was chosen for, when the page offers one.
+        pdfs = _choose_reports([c for c in offered if c[0] == kind] or offered)
         if not pdfs:
             _no_document.add(url)
             return ""

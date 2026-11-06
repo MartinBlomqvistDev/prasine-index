@@ -27,16 +27,16 @@ _FISCAL_YEAR = re.compile(r"\bFY ?(\d{2}|20\d{2})(?!\d)", re.IGNORECASE)
 # emissions, such as operations and products sold, are two pledges. Scope lists are read
 # as sets ("Scope 1, 2 and 3", "Scopes 1-3"), and words are matched whole.
 _SCOPES = re.compile(
-    r"\bscopes?\s*([123](?:\s*(?:,\s*and|,|and|&|\+|/|-|\u2013|to)\s*[123])*)",
+    r"\bscopes?\s*([123](?!\d)(?:\s*(?:,\s*(?:and|&)|,|and|&|\+|/|-|\u2013|to)\s*[123](?!\d))*)",
     re.IGNORECASE,
 )
 _SCOPE_WORDS = (
     (
-        re.compile(
-            r"\boperations?\b|\boperational\b|\bproduction\b|\bmanufactur\w*", re.IGNORECASE
-        ),
+        re.compile(r"\boperations?\b|\boperational\b|\bmanufactur\w*", re.IGNORECASE),
         "operations",
     ),
+    # An oil and gas producer's production is neither its operations nor its products.
+    (re.compile(r"\bproduction\b", re.IGNORECASE), "production"),
     (re.compile(r"\bproducts?\b|\bsold\b", re.IGNORECASE), "products"),
     (re.compile(r"\bvalue chain\b", re.IGNORECASE), "value chain"),
     (re.compile(r"\bsupply chain\b", re.IGNORECASE), "supply chain"),

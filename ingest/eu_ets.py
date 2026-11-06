@@ -273,6 +273,18 @@ def _breaks(previous: float, current: float) -> bool:
 
 
 _operator_names: dict[tuple[str, int], str] | None = None
+# Registry keys of aircraft operators, whose accounts the registry lists as installations.
+_aircraft: set[tuple[str, int]] = set()
+
+
+def _is_aircraft(display_id: str) -> bool:
+    """Tell whether a registry account is an aircraft operator's."""
+    _operator_name(display_id)
+    registry, _, number = display_id.rpartition("_")
+    try:
+        return (registry.upper(), int(number)) in _aircraft
+    except ValueError:
+        return False
 
 
 def _operator_name(display_id: str) -> str:
@@ -301,7 +313,8 @@ def _operator_name(display_id: str) -> str:
                     name = (row.get("INSTALLATION_NAME") or "").strip()
                     if "aircraft" in (row.get("ACTIVITY_TYPE") or "").lower():
                         # An aircraft operator's name field holds its CRCO number.
-                        name = "aircraft operator"
+                        _aircraft.add(key)
+                        name = ""
                     holder = (row.get("ACCOUNT_HOLDER_NAME") or "").strip()
                     _operator_names[key] = "; ".join(
                         part
@@ -414,7 +427,7 @@ def _build_evidence(
 
     operator = _operator_name(display_id)
     named = f"{display_id} ({operator})" if operator else display_id
-    kind = "aircraft operator" if operator.startswith("aircraft operator") else "installation"
+    kind = "aircraft operator" if _is_aircraft(display_id) else "installation"
     summary = (
         f"EU ETS verified emissions for {kind} {named}: "
         f"{most_recent_emissions:,.0f} tCO2e in {most_recent_year} "

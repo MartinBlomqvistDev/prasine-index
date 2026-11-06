@@ -138,3 +138,54 @@ class TestPledgeGroups:
             _stated(60.0, "We aim to be a net zero company by 2050."),
         ]
         assert aggregate_claim_scores("BP", _COMPANY_ID, results).pledges_counted_once == 0
+
+
+class TestSecondCheck:
+    def test_a_country_named_elsewhere_is_no_national_share(self) -> None:
+        record = _national_for("Denmark")
+        claim = (
+            "We have cut the carbon intensity of our energy generation by 99% since 2006, and "
+            "our last coal-fired plant in Denmark closes in 2027."
+        )
+        assert published_evidence([record], _score([], []), claim) == []
+
+    def test_a_year_is_not_a_scope(self) -> None:
+        results = [
+            _stated(50.0, "Net zero for Scope 1 and 3 by 2040."),
+            _stated(45.0, "Net zero for Scope 1, 2 and 3 by 2040."),
+            _result(30.0),
+        ]
+        assert aggregate_claim_scores("X", _COMPANY_ID, results).pledges_counted_once == 0
+
+    def test_production_and_operations_are_two_pledges(self) -> None:
+        results = [
+            _stated(60.0, "We aim to be net zero across our operations by 2050 or sooner."),
+            _stated(
+                66.0,
+                "We aim to be net zero across the carbon in our upstream oil and gas "
+                "production by 2050 or sooner.",
+            ),
+            _result(30.0),
+        ]
+        assert aggregate_claim_scores("BP", _COMPANY_ID, results).pledges_counted_once == 0
+
+
+class TestLinkedChoice:
+    def test_pdfs_come_before_web_pages(self) -> None:
+        from ingest.source_document import _choose_reports, _report_links
+
+        html = (
+            '<a href="/sustainability/">Sustainability</a>'
+            '<a href="/sustainability/climate/transition-plan/">Our transition plan</a>'
+            '<a href="/files/tcfd-climate-report-2025.pdf">Climate report 2025</a>'
+            '<a href="/investors/agm-2026/">Annual report and AGM 2026</a>'
+            '<a href="/files/annual-report-2024.pdf">Annual report 2024</a>'
+            '<a href="https://www.cdp.net/en">CDP climate report</a>'
+            '<a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fwww'
+            '.example.com%2Fclimate">Share this climate report</a>'
+        )
+        candidates = _report_links(html, "https://www.example.com/sustainability/climate")
+        assert all("cdp.net" not in url and "linkedin" not in url for _k, url, _y in candidates)
+        chosen = _choose_reports(candidates)
+        assert "https://www.example.com/files/annual-report-2024.pdf" in chosen
+        assert all(".pdf" in url for url in chosen)

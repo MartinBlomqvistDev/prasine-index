@@ -338,6 +338,25 @@ async def _fetch_pages_playwright(
 logger = get_logger(__name__)
 
 
+def relabel(text: str, company: str, display: str) -> str:
+    """Name the company as the report does where a label says which entity was matched.
+
+    Args:
+        text: A record summary or the judge's reasoning.
+        company: The company name the sources were queried with.
+        display: The name the report gives the company.
+
+    Returns:
+        The text with "matched to", "whose name matches" and "band for" followed by the
+        report's name; every other mention is left as it is.
+    """
+    if not display or display == company:
+        return text
+    for label in ("matched to ", "whose name matches ", "band for "):
+        text = text.replace(f"{label}{company}", f"{label}{display}")
+    return text
+
+
 def as_displayed(evidence: list[Evidence], company: str, display: str) -> list[Evidence]:
     """Name the company in the records' match labels as the report names it.
 
@@ -358,9 +377,7 @@ def as_displayed(evidence: list[Evidence], company: str, display: str) -> list[E
         return evidence
     shown: list[Evidence] = []
     for record in evidence:
-        summary = record.summary
-        for label in ("matched to ", "whose name matches ", "band for "):
-            summary = summary.replace(f"{label}{company}", f"{label}{display}")
+        summary = relabel(record.summary, company, display)
         shown.append(
             record if summary == record.summary else record.model_copy(update={"summary": summary})
         )
@@ -991,8 +1008,10 @@ class Pipeline:
             if self._config.display_name and report_context.company.name:
                 shown_score = judge_result.score.model_copy(
                     update={
-                        "reasoning": judge_result.score.reasoning.replace(
-                            report_context.company.name, self._config.display_name
+                        "reasoning": relabel(
+                            judge_result.score.reasoning,
+                            report_context.company.name,
+                            self._config.display_name,
                         )
                     }
                 )
