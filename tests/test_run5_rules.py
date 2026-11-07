@@ -189,3 +189,38 @@ class TestLinkedChoice:
         chosen = _choose_reports(candidates)
         assert "https://www.example.com/files/annual-report-2024.pdf" in chosen
         assert all(".pdf" in url for url in chosen)
+
+
+class TestComparisonYear:
+    def test_a_broken_series_is_left_out_of_the_comparison(self) -> None:
+        from core.company_record import _emissions
+
+        def record(installation: str, series: dict[int, float]) -> Evidence:
+            return Evidence(
+                claim_id=uuid.uuid4(),
+                trace_id=uuid.uuid4(),
+                source=EvidenceSource.EU_ETS,
+                evidence_type=EvidenceType.VERIFIED_EMISSIONS,
+                source_url="https://union-registry-data.ec.europa.eu/",
+                raw_data={
+                    "installation_id": installation,
+                    "verified_emissions": [
+                        {"year": y, "verifiedEmissions": v} for y, v in series.items()
+                    ],
+                },
+                summary="EU ETS.",
+                supports_claim=None,
+                confidence=0.9,
+            )
+
+        years = range(2015, 2026)
+        steady = {y: 100.0 - (y - 2015) for y in years}
+        broken = {y: (10.0 if y < 2020 else 30.0) for y in years}
+        line = _emissions([record("SE_1", steady), record("SE_495", broken)])
+        assert "SE_495 between 2019 and 2020" in line
+        assert "the 1 installation whose series has no step of more than half" in line
+
+    def test_potential_impact_is_forward_looking(self) -> None:
+        assert _forward_looking(
+            "The potential impact? A significant reduction in Sweden's total CO2 emissions."
+        )

@@ -362,7 +362,8 @@ its fossil fuel supply.
 
 An assurance report by an independent practitioner on the company's sustainability \
 information is independent verification of what it covers. When the pages include \
-one, name in the summary the practitioner, the level of assurance (limited or \
+one, name in the summary the assurance firm, never the partner or another person \
+who signed it, the level of assurance (limited or \
 reasonable) and what it covers, and say whether it covers the delivery of the plan \
 or only the reported information. If the assured statement includes a transition \
 plan, targets or the results against them, by reference or otherwise, say so. If \

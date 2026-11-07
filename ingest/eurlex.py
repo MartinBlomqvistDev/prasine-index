@@ -170,7 +170,19 @@ _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {
 }
 
 
-_FUTURE_WORDS = ("we will", "commit", "aim to", "ambition", "pledge", "plan to")
+_FUTURE_WORDS = (
+    "we will",
+    "commit",
+    "aim to",
+    "ambition",
+    "pledge",
+    "plan to",
+    "potential impact",
+    "potential to",
+    "will reduce",
+    "would reduce",
+    "could reduce",
+)
 
 
 def _forward_looking(text: str) -> bool:

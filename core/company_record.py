@@ -278,20 +278,31 @@ def _emissions(evidence: list[Evidence]) -> str:
     )
     # A longer view, so that three years are not read alone.
     earlier = [year for year in every if common[-1] - 10 <= year < common[0]]
-    if earlier:
-        line += f" For comparison, {total(earlier[0])}."
+    span = [year for year in every if year >= (earlier[0] if earlier else common[0])]
     # A step of more than half in one installation's series can mean a change in what
-    # it covers rather than in its emissions.
-    breaks = [
-        f"{installation} between {first} and {second}"
-        for installation, h in histories
-        for first, second in pairwise(common)
-        if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5)
-    ]
+    # it covers rather than in its emissions, so such a series is named, and it is left
+    # out of the comparison across the years.
+    breaks: dict[str, list[str]] = {}
+    for installation, h in histories:
+        for first, second in pairwise(span):
+            if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5):
+                breaks.setdefault(installation, []).append(f"between {first} and {second}")
+    steady = [(installation, h) for installation, h in histories if installation not in breaks]
+    if earlier and steady and len(steady) == len(histories):
+        line += f" For comparison, {total(earlier[0])}."
+    elif earlier and steady:
+        start, end = earlier[0], common[-1]
+        some = noun if len(steady) == 1 else f"{noun}s"
+        line += (
+            f" For comparison, the {len(steady)} {some} whose series "
+            f"{'has' if len(steady) == 1 else 'have'} no step of more than half: "
+            f"{_tonnes(sum(h[start] for _, h in steady))} CO2e in {start} and "
+            f"{_tonnes(sum(h[end] for _, h in steady))} CO2e in {end}."
+        )
     if breaks:
         line += (
             " The series change by more than half for "
-            + "; ".join(breaks)
+            + "; ".join(f"{i} {' and '.join(steps)}" for i, steps in breaks.items())
             + ", which can reflect a change in what an installation covers."
         )
     return line
