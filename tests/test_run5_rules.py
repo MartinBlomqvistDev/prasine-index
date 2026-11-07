@@ -192,7 +192,7 @@ class TestLinkedChoice:
 
 
 class TestComparisonYear:
-    def test_a_broken_series_is_left_out_of_the_comparison(self) -> None:
+    def test_a_broken_series_is_named_and_the_pandemic_skipped(self) -> None:
         from core.company_record import _emissions
 
         def record(installation: str, series: dict[int, float]) -> Evidence:
@@ -217,8 +217,8 @@ class TestComparisonYear:
         steady = {y: 100.0 - (y - 2015) for y in years}
         broken = {y: (10.0 if y < 2020 else 30.0) for y in years}
         line = _emissions([record("SE_1", steady), record("SE_495", broken)])
-        assert "SE_495 between 2019 and 2020" in line
-        assert "the 1 installation whose series has no step of more than half" in line
+        assert "SE_495 between 2019 and 2022" in line
+        assert "For comparison" in line and "in 2015" in line
 
     def test_potential_impact_is_forward_looking(self) -> None:
         assert _forward_looking(

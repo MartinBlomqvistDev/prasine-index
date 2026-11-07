@@ -238,6 +238,9 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
     return " ".join(lines), "the exit lists record no expansion"
 
 
+_PANDEMIC_YEARS = frozenset({2020, 2021})
+
+
 def _emissions(evidence: list[Evidence]) -> str:
     records = [e for e in evidence if e.source == EvidenceSource.EU_ETS]
     if not records:
@@ -276,34 +279,40 @@ def _emissions(evidence: list[Evidence]) -> str:
         f"the company by name and not necessarily all of its {noun}s: "
         f"{'; '.join(total(year) for year in reversed(common))}."
     )
-    # A longer view, so that three years are not read alone.
-    earlier = [year for year in every if common[-1] - 10 <= year < common[0]]
-    span = [year for year in every if year >= (earlier[0] if earlier else common[0])]
-    # A step of more than half in one installation's series can mean a change in what
-    # it covers rather than in its emissions, so such a series is named, and it is left
-    # out of the comparison across the years.
-    breaks: dict[str, list[str]] = {}
-    for installation, h in histories:
-        for first, second in pairwise(span):
-            if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5):
-                breaks.setdefault(installation, []).append(f"between {first} and {second}")
-    steady = [(installation, h) for installation, h in histories if installation not in breaks]
-    if earlier and steady and len(steady) == len(histories):
+    # A longer view, so that three years are not read alone. The pandemic years are no
+    # base: flights and output fell for a year, which says nothing about the trend.
+    earlier = [
+        year
+        for year in every
+        if common[-1] - 10 <= year < common[0] and year not in _PANDEMIC_YEARS
+    ]
+    if earlier:
         line += f" For comparison, {total(earlier[0])}."
-    elif earlier and steady:
-        start, end = earlier[0], common[-1]
-        some = noun if len(steady) == 1 else f"{noun}s"
-        line += (
-            f" For comparison, the {len(steady)} {some} whose series "
-            f"{'has' if len(steady) == 1 else 'have'} no step of more than half: "
-            f"{_tonnes(sum(h[start] for _, h in steady))} CO2e in {start} and "
-            f"{_tonnes(sum(h[end] for _, h in steady))} CO2e in {end}."
-        )
+    # A step of more than half in one installation's series can mean a change in what
+    # it covers rather than in its emissions; steps into and out of the pandemic years
+    # are left aside.
+    tested = [
+        year
+        for year in every
+        if year >= (earlier[0] if earlier else common[0]) and year not in _PANDEMIC_YEARS
+    ]
+    breaks: list[str] = []
+    for installation, h in histories:
+        steps = [
+            f"between {first} and {second}"
+            for first, second in pairwise(tested)
+            if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5)
+        ]
+        if steps:
+            breaks.append(f"{installation} {' and '.join(steps)}")
     if breaks:
+        more = f"; and {len(breaks) - 3} more" if len(breaks) > 3 else ""
         line += (
             " The series change by more than half for "
-            + "; ".join(f"{i} {' and '.join(steps)}" for i, steps in breaks.items())
-            + ", which can reflect a change in what an installation covers."
+            + "; ".join(breaks[:3])
+            + more
+            + ": such a step can come from a closure, a change of fuel or a change in what "
+            "an installation reports."
         )
     return line
 
