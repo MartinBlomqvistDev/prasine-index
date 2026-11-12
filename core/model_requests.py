@@ -12,14 +12,27 @@ from __future__ import annotations
 
 import anthropic
 
+from core.logger import get_logger
 from core.retry import LLMError
 
 __all__ = [
+    "CACHE_1H",
     "TOOL_CALL_ATTEMPTS",
     "fallback_body",
     "fallback_headers",
+    "log_usage",
     "raise_if_refused",
 ]
+
+logger = get_logger(__name__)
+
+CACHE_1H: anthropic.types.CacheControlEphemeralParam = {"type": "ephemeral", "ttl": "1h"}
+"""Cache marker for a prompt prefix that every company's run sends unchanged.
+
+Companies are assessed one after another, about ten minutes each, so an entry
+with the default five-minute lifetime has expired before the next company's
+first call. A read refreshes the entry, so one hour carries it through a run.
+"""
 
 TOOL_CALL_ATTEMPTS = 2
 """How many times a tool-calling site sends the request before giving up.
@@ -66,6 +79,34 @@ def fallback_body(model_id: str) -> dict[str, object] | None:
     if model_id not in _FALLBACK_MODELS:
         return None
     return {"fallbacks": "default"}
+
+
+def log_usage(response: anthropic.types.Message, *, agent: str) -> None:
+    """Log what one call billed, so that a run shows how much was read from cache.
+
+    The prompt's full size is the sum of the three input fields: ``input_tokens``
+    counts only what came after the last cache read or write.
+
+    Args:
+        response: The API response.
+        agent: Name of the agent or ingest step that made the call.
+    """
+    usage = response.usage
+    written = usage.cache_creation_input_tokens or 0
+    read = usage.cache_read_input_tokens or 0
+    prompt = usage.input_tokens + written + read
+    logger.info(
+        f"{agent} call: {read} of {prompt} prompt tokens read from cache, {written} written",
+        extra={
+            "operation": "llm_usage",
+            "agent": agent,
+            "llm_model_id": response.model,
+            "input_tokens": usage.input_tokens,
+            "output_tokens": usage.output_tokens,
+            "cache_creation_input_tokens": written,
+            "cache_read_input_tokens": read,
+        },
+    )
 
 
 def raise_if_refused(response: anthropic.types.Message, *, agent: str, model_id: str) -> None:

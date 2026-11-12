@@ -31,9 +31,11 @@ from core.evidence_scope import (
 )
 from core.logger import bind_trace_context, get_logger
 from core.model_requests import (
+    CACHE_1H,
     TOOL_CALL_ATTEMPTS,
     fallback_body,
     fallback_headers,
+    log_usage,
     raise_if_refused,
 )
 from core.retry import (
@@ -68,13 +70,15 @@ _TOP_BAND_CAP = 80.0
 
 _TOP_BAND_BASES = ("OFFICIAL_RECORD", "NONE")
 
+# The tool carries no cache marker of its own: tools come first in the prompt, so the
+# one-hour marker on the system prompt caches the tool with it, and a five-minute
+# marker ahead of a one-hour one is rejected by the API.
 _JUDGE_TOOL: anthropic.types.ToolParam = {
     "name": _JUDGE_TOOL_NAME,
     "description": (
         "Record the assessment of the claim. Call this tool exactly once, after "
         "reading every evidence record."
     ),
-    "cache_control": {"type": "ephemeral"},
     "input_schema": {
         "type": "object",
         "properties": {
@@ -676,7 +680,7 @@ class JudgeAgent:
                         {
                             "type": "text",
                             "text": _SYSTEM_PROMPT,
-                            "cache_control": {"type": "ephemeral"},
+                            "cache_control": CACHE_1H,
                         }
                     ],
                     tools=[_JUDGE_TOOL],
@@ -692,6 +696,7 @@ class JudgeAgent:
                     llm_model_id=self._model_id,
                 ) from exc
 
+            log_usage(response, agent=AgentName.JUDGE.value)
             raise_if_refused(response, agent=AgentName.JUDGE.value, model_id=self._model_id)
             tokens_used += response.usage.input_tokens + response.usage.output_tokens
 

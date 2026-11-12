@@ -32,7 +32,7 @@ import httpx
 
 from core.local_copies import read_copy
 from core.logger import get_logger
-from core.model_requests import TOOL_CALL_ATTEMPTS
+from core.model_requests import TOOL_CALL_ATTEMPTS, log_usage
 from core.retry import DataSourceError
 from core.textutil import final_counters
 from models.claim import Claim
@@ -130,6 +130,11 @@ _MORE_LABEL = re.compile(
 _PAGE_CHROME = re.compile(r"<(nav|footer)\b.*?</\1\s*>", flags=re.IGNORECASE | re.DOTALL)
 _MAX_PDF_PAGES = 100  # Anthropic document API hard limit
 _MARKER = re.compile(r"\[PDF page (\d+)\]")
+# The claim's own page or PDF is sent first and is the same for every claim taken from
+# it, so the prompt up to there is cached. Claims are assessed one after another, a
+# minute or two apart, which the default five-minute lifetime covers. Pages chosen by a
+# claim's figures differ from claim to claim and are sent after the cached part.
+_CACHE_DOCUMENT: anthropic.types.CacheControlEphemeralParam = {"type": "ephemeral"}
 
 
 def _page_ranges(numbers: list[int]) -> str:
@@ -466,13 +471,16 @@ async def fetch_source_document_data(
                         ),
                     }
                 )
+            # The page map is drawn from the PDF alone, so it is cached with it.
+            content_blocks[-1]["cache_control"] = _CACHE_DOCUMENT
             logger.info(
                 f"Source document is PDF ({len(content_bytes) // 1024} KB, {page_count} pages)",
                 extra={"operation": "source_doc_pdf", "size_kb": len(content_bytes) // 1024},
             )
         else:
             # A long report: read the pages that concern climate, not its first pages,
-            # and say that only those pages were read.
+            # and say that only those pages were read. The pages depend on the claim's
+            # figures, so this block is not cached.
             pages = await _pages_of(address, content_bytes)
             text = (
                 select_pages(pages, _MAX_HTML_CHARS, True, claim_figures(claim.raw_text))
@@ -499,7 +507,7 @@ async def fetch_source_document_data(
     else:
         html = content_bytes.decode("utf-8", errors="replace")
         text = _strip_html(html)[:_MAX_HTML_CHARS]
-        content_blocks.append({"type": "text", "text": text})
+        content_blocks.append({"type": "text", "text": text, "cache_control": _CACHE_DOCUMENT})
         logger.info(
             f"Source document is HTML ({len(text)} chars after stripping)",
             extra={"operation": "source_doc_html", "chars": len(text)},
@@ -603,6 +611,7 @@ async def fetch_source_document_data(
                 status_code=exc.status_code,
             ) from exc
 
+        log_usage(response, agent="source_document")
         if response.stop_reason == "refusal":
             raise DataSourceError(
                 message="The model declined to analyse the source document.",

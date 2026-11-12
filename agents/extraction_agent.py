@@ -20,7 +20,7 @@ import anthropic
 from pydantic import BaseModel, ConfigDict, Field
 
 from core.logger import bind_trace_context, get_logger
-from core.model_requests import TOOL_CALL_ATTEMPTS, raise_if_refused
+from core.model_requests import TOOL_CALL_ATTEMPTS, log_usage, raise_if_refused
 from core.retry import (
     LLMError,
     RetryConfig,
@@ -534,6 +534,7 @@ class ExtractionAgent:
                     llm_model_id=self._model_id,
                 ) from exc
 
+            log_usage(response, agent=AgentName.EXTRACTION.value)
             raise_if_refused(response, agent=AgentName.EXTRACTION.value, model_id=self._model_id)
             tokens_used += response.usage.input_tokens + response.usage.output_tokens
 

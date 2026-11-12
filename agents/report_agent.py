@@ -20,7 +20,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from core.evidence_scope import record_scope
 from core.logger import bind_trace_context, get_logger
-from core.model_requests import fallback_body, fallback_headers, raise_if_refused
+from core.model_requests import (
+    CACHE_1H,
+    fallback_body,
+    fallback_headers,
+    log_usage,
+    raise_if_refused,
+)
 from core.retry import (
     LLMError,
     RetryConfig,
@@ -401,7 +407,7 @@ class ReportAgent:
                     {
                         "type": "text",
                         "text": _SYSTEM_PROMPT,
-                        "cache_control": {"type": "ephemeral"},
+                        "cache_control": CACHE_1H,
                     }
                 ],
                 output_config={"effort": "medium"},
@@ -416,6 +422,7 @@ class ReportAgent:
                 llm_model_id=self._model_id,
             ) from exc
 
+        log_usage(response, agent=AgentName.REPORT.value)
         raise_if_refused(response, agent=AgentName.REPORT.value, model_id=self._model_id)
         tokens_used = response.usage.input_tokens + response.usage.output_tokens
 

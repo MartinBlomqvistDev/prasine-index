@@ -86,6 +86,10 @@ class _JSONFormatter(logging.Formatter):
         "agent",  # overrides agent_name_var when set explicitly
         "outcome",  # AgentOutcome value
         "tokens_used",  # LLM token count for the step
+        "input_tokens",  # uncached prompt tokens of one LLM call
+        "output_tokens",  # generated tokens of one LLM call, thinking included
+        "cache_creation_input_tokens",  # prompt tokens written to the cache
+        "cache_read_input_tokens",  # prompt tokens read from the cache
         "llm_model_id",  # model identifier, e.g. "claude-opus-4-6"
         "retry_count",  # number of retries attempted
         "source",  # EvidenceSource value for Verification Agent logs
