@@ -17,9 +17,9 @@ Two queries per run:
   2. /v7/sources/emissions: country-level aggregate for context
      (cross-checks Eurostat and EEA national data).
 
-A discrepancy between Climate TRACE estimates and a company's self-reported
-figures is a strong greenwashing signal, one of the few sources that can
-contradict a company's own disclosure with independent evidence.
+Climate TRACE facility estimates are claim-level records (CLAIM_LEVEL_SOURCES in
+core/evidence_scope.py) that do not rest on the company's own disclosure. Being
+estimates, they are not among the official records (OFFICIAL_RECORD_SOURCES).
 
 API reference: https://api.climatetrace.org/v7/swagger/index.html
 Data coverage: 2015 to present (country aggregates); 2021 to present (sources)
@@ -48,7 +48,7 @@ _BASE = "https://api.climatetrace.org/v7"
 
 _HEADERS = {
     "Accept": "application/json",
-    "User-Agent": "PrasineIndex/1.0 (EU greenwashing monitor)",
+    "User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)",
 }
 
 # ISO alpha-3 codes Climate TRACE uses for gadmId (country level)
@@ -206,8 +206,9 @@ async def fetch_climate_trace_data(claim: Claim, company: object) -> list[Eviden
 
     Queries two endpoints:
     1. Installation-level search: finds specific facilities attributed to
-       the company by name matching. These are independently estimated, not
-       self-reported. A mismatch with company-claimed figures is a strong signal.
+       the company by name matching. These are independent estimates that do
+       not rest on the company's own reporting, and are claim-level records
+       (CLAIM_LEVEL_SOURCES in core/evidence_scope.py).
     2. Country aggregate: provides the national total context for the
        company's country (cross-checks Eurostat and EEA national data).
 

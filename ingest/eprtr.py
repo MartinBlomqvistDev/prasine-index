@@ -7,8 +7,9 @@ releases per company, complementing EU ETS verified CO2 data.
 E-PRTR covers all industrial facilities reporting under E-PRTR Regulation
 (EC) No 166/2006 and the successor Industrial Emissions Directive. It captures
 pollutants that EU ETS does not: methane (CH4), nitrous oxide (N2O), HFCs,
-and non-GHG pollutants. A company claiming environmental leadership while
-reporting high or rising non-CO2 GHG releases to E-PRTR is a greenwashing signal.
+and non-GHG pollutants. E-PRTR is one of the official records that can show a
+claim to be false (OFFICIAL_RECORD_SOURCES in core/evidence_scope.py), where its
+releases cover the same quantity, scope and period as the claim.
 
 Data source: European Environment Agency (EEA)
 Refresh: python scripts/refresh_eprtr.py
@@ -425,8 +426,8 @@ async def fetch_eprtr_data(claim: Claim, company: object) -> list[Evidence]:
     Looks up the company's industrial facility releases from the E-PRTR dataset,
     aggregating across all subsidiary facilities. Tracked pollutants include GHGs
     (CH4, N2O, F-gases), CO2 from non-EU-ETS facilities, NOX, and NMVOC, all
-    reported to air. Rising industrial emissions while claiming environmental
-    leadership is a greenwashing signal.
+    reported to air. The releases are an official record for a claim about the
+    same releases (OFFICIAL_RECORD_SOURCES in core/evidence_scope.py).
 
     Args:
         claim: The claim under assessment.

@@ -16,8 +16,8 @@ What is checked, and what is not:
 * Model-facing prompt text in agents/ is not. Its punctuation belongs to the
   generated report, not to the repo's own voice, and editing it would shift
   the eval baseline for no reader-facing gain.
-* Report format templates are not, because core/pdf_export.py and
-  web/lib/parse-report.ts match the punctuation in the generated report header.
+* Report format templates are not, because web/lib/parse-report.ts matches the
+  punctuation in the generated report header.
 * Verbatim quotations are not. Rewriting a quotation to house style falsifies
   it.
 

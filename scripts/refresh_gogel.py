@@ -9,10 +9,6 @@ responsible for the majority of global oil and gas production and development.
 It covers upstream oil and gas production, LNG expansion, new licensing rounds,
 and reserves development. Published by Urgewald and a coalition of NGOs.
 
-GOGEL is the standard oil and gas screen used by 400+ financial institutions
-under the GFANZ (Glasgow Financial Alliance for Net Zero) and PAII (Paris
-Aligned Investment Initiative) frameworks.
-
 Saves to data/gogel_companies.csv. Run refresh_cache() from ingest.gogel to
 reload without restarting.
 
@@ -65,10 +61,7 @@ def download_gogel_csv() -> None:
     try:
         req = urllib.request.Request(
             _GOGEL_CSV_URL,
-            headers={
-                "User-Agent": "PrasineIndex/1.0 (EU greenwashing monitor; "
-                "contact: info@prasine.index)"
-            },
+            headers={"User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)"},
         )
         with urllib.request.urlopen(req, timeout=30) as response:
             data = response.read()

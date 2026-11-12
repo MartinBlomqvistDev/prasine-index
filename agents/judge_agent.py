@@ -516,30 +516,30 @@ class JudgeResult(BaseModel):
     """Output contract of the Judge Agent.
 
     Attributes:
-        score: The calibrated greenwashing verdict.
+        score: The Judge Agent's score for the claim.
         trace: Structured execution record for this agent step.
     """
 
     model_config = ConfigDict(from_attributes=True)
 
-    score: GreenwashingScore = Field(..., description="The calibrated greenwashing verdict.")
+    score: GreenwashingScore = Field(..., description="The Judge Agent's score for the claim.")
     trace: AgentTrace = Field(..., description="Structured execution record for this agent step.")
 
 
 class JudgeAgent:
-    """Produces a calibrated greenwashing verdict using LLM-as-judge.
+    """Scores a claim against the records using LLM-as-judge.
 
     Receives the full evidence package and uses the Anthropic SDK with tool use
     to produce a :py:class:`~models.score.GreenwashingScore`. The LLM scores
-    each dimension explicitly and writes an explanation of the verdict, which
-    is preserved in the output for audit and citation.
+    each dimension explicitly and writes an explanation of the score, which is
+    preserved in the output for audit.
 
     Raw Anthropic SDK is used here, not LangGraph, because the judging logic
-    is the most legally sensitive step in the pipeline. The published output is
-    the written explanation (the ``reasoning`` field) and the structured
-    verdict; the model's own thinking is not published. Framework abstraction
-    at this step would make it harder to audit, iterate on, and explain to a
-    legal audience what exactly the model was asked to do.
+    is the most sensitive step in the pipeline. The published output is the
+    written explanation (the ``reasoning`` field) and the structured score; the
+    model's own thinking is not published. Framework abstraction at this step
+    would make it harder to audit, iterate on, and explain to a reader what
+    exactly the model was asked to do.
 
     Attributes:
         _client: Async Anthropic client.
@@ -559,8 +559,8 @@ class JudgeAgent:
             client: Configured async Anthropic client.
             model_id: Model identifier. Defaults to ``claude-haiku-5-5`` for
                 cost-efficient development. The pipeline runs ``claude-opus-5-5``
-                in production: the judge produces legally citable output and
-                Opus quality matters for calibration.
+                (the PipelineConfig default), because the judge's output is
+                published and Opus quality matters for calibration.
             max_tokens: Maximum tokens. Thinking counts toward the limit, so it
                 leaves room for thinking as well as a long explanation.
         """
@@ -569,7 +569,7 @@ class JudgeAgent:
         self._max_tokens = max_tokens
 
     async def run(self, input: JudgeInput) -> JudgeResult:
-        """Produce a greenwashing verdict for the given claim.
+        """Score the given claim against the records.
 
         Args:
             input: The complete evidence package for the claim.

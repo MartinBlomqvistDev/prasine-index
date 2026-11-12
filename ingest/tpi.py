@@ -4,18 +4,15 @@ Loads the TPI Company Latest Assessments CSV: Management Quality (MQ) levels
 0-4 and Carbon Performance (CP) pathway alignment labels, for 490+ listed
 companies across 12+ high-emission sectors.
 
-TPI assessments are produced by the TPI Centre at LSE and used by 150+
-investors representing $80+ trillion AUM. A company claiming Paris alignment
-or net-zero ambition while rated "Not Aligned" by TPI is contradicted by the
-consensus of major institutional investors.
+TPI assessments are produced by the TPI Centre at LSE. For a climate pledge, the
+assessment is one of the integrity records that bear on it, in both directions
+(INTEGRITY_SOURCES in core/evidence_scope.py); for other claims it is context.
 
-Two primary greenwashing signals:
-  1. CP Alignment 2050 = "Not Aligned" while claiming net-zero/Paris alignment.
-     This is the strongest single indicator; it means the company's projected
+Two readings count against a pledge:
+  1. CP Alignment 2050 = "Not Aligned". It means the company's projected
      emissions trajectory does not reach net-zero by 2050 under TPI's methodology.
-  2. MQ Level 0 or 1 (Unaware/Cognizant) while claiming climate leadership.
-     Poor governance score indicates the company has not put in place even basic
-     climate management structures to back up its public claims.
+  2. MQ Level 0 or 1 (Unaware/Cognizant) where TPI has no carbon performance
+     disclosure to assess.
 
 MQ level labels:
   0: Unaware    : does not acknowledge climate change as a significant issue
@@ -53,7 +50,7 @@ logger = get_logger(__name__)
 
 _CSV_PATH = Path(__file__).parent.parent / "data" / "tpi_companies.csv"
 
-# MQ level score thresholds for greenwashing signal
+# MQ levels read as weak or strong climate management
 _MQ_WEAK = {"0", "1"}
 _MQ_STRONG = {"4", "4STAR", "5"}
 
@@ -223,9 +220,9 @@ async def fetch_tpi_data(claim: Claim, company: object) -> list[Evidence]:
     """Return TPI Management Quality and Carbon Performance assessment for a company.
 
     Looks up the company in the TPI dataset and returns its MQ level and
-    CP pathway alignment. A "Not Aligned" 2050 trajectory contradicts any
-    net-zero or Paris-alignment claim. A Level 0/1 MQ score contradicts
-    climate-leadership claims.
+    CP pathway alignment. For a climate pledge, a "Not Aligned" 2050 trajectory
+    counts against it, as does a Level 0/1 MQ score where TPI has no carbon
+    performance disclosure to assess; for other claims the assessment is context.
 
     Args:
         claim: The claim under assessment.

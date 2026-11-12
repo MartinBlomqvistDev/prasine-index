@@ -515,7 +515,7 @@ def _assess_record(record: _CA100Record) -> tuple[bool | None, float]:
     capex = record.capex_class
 
     if nz == "NOT_ALIGNED" and capex == "NOT_ALIGNED":
-        # Both core metrics misaligned: strong contradiction of any net-zero claim.
+        # Both core metrics not aligned: the highest confidence of the readings.
         return False, 0.85
 
     if nz == "NOT_ALIGNED":

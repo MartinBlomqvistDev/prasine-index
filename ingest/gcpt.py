@@ -4,15 +4,17 @@ Loads the GEM Global Coal Plant Tracker Excel file: facility-level data on
 14,500+ coal-fired generating units worldwide, including owner attribution,
 unit status, and capacity.
 
-The key greenwashing signal: a company that claims to be transitioning away
-from coal or pursuing a clean-energy strategy while simultaneously owning
-coal units with status "Announced", "Pre-permit", "Permitted", or "Construction"
-is contradicted by its own infrastructure pipeline.
+Coal units with status "Announced", "Pre-permit", "Permitted", or "Construction"
+are records of new coal capacity. For a climate pledge they count against the
+pledge under the judge's band rules (agents/judge_agent.py), since the UN
+High-Level Expert Group's recommendations for businesses include ending coal
+plants (Integrity Matters, p. 24); for a claim about the same units they are
+claim-level records.
 
 This source is complementary to the Urgewald Global Coal Exit List (GCEL):
 GCEL tracks company-level coal exposure for financial screening; GCPT provides
 facility-level evidence with named plants and specific statuses, making it
-a stronger citation for claim-by-claim greenwashing reports.
+a more specific record for a claim-by-claim assessment.
 
 Status values in the GCPT:
   Operating: currently generating power
@@ -24,10 +26,10 @@ Status values in the GCPT:
   Cancelled: development cancelled
   Retired: no longer operating
 
-Greenwashing signal logic:
+Record logic:
   Expanding (Announced/Pre-permit/Permitted/Construction):
     → supports_claim=False, confidence=0.88
-    → Company is actively building new coal while claiming transition
+    → The company has coal units in development
   Operating only (no pipeline):
     → supports_claim=None, confidence=0.65
     → Has coal assets; no expansion signal, but not exiting either
@@ -212,9 +214,10 @@ async def fetch_gcpt_data(claim: Claim, company: object) -> list[Evidence]:
     """Return GCPT coal unit evidence for a company.
 
     Finds all coal units owned by the company and reports expansion pipeline,
-    operating capacity, and retirement activity. A company owning units in
-    active development stages (Announced through Construction) while claiming
-    coal phase-out or clean-energy transition is directly contradicted.
+    operating capacity, and retirement activity. For a climate pledge, units in
+    development (Announced through Construction) count against the pledge under
+    the judge's band rules; for a claim about the same units they are
+    claim-level records.
 
     Args:
         claim: The claim under assessment.

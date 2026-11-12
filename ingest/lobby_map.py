@@ -2,14 +2,14 @@
 
 Loads the LobbyMap Company Climate Policy Engagement database from
 data/lobbymap_companies.csv, downloaded via scripts/refresh_lobbymap.py.
-Provides lobbying-alignment evidence for claims from companies that simultaneously
-advocate for climate action while opposing climate legislation in Brussels or
-Washington.
+Provides lobbying-alignment evidence: LobbyMap's assessment of how a company
+engages with climate policy.
 
 LobbyMap independently assesses corporate climate policy engagement, scoring
-companies A+ (strongly supportive) to F (obstructive). A company scoring D or F
-while making green claims is a direct greenwashing signal; the company lobbies
-against the legislation it publicly claims to support.
+companies A+ (strongly supportive) to F (obstructive). For a climate pledge, a
+band of D or lower, the range LobbyMap defines as obstructive, counts against the
+pledge under the UN High-Level Expert Group's lobbying criterion (HLEG_LOBBYING in
+core/evidence_scope.py); for other claims the band is context.
 
 Data source: LobbyMap (lobbymap.org)
 Refresh: python scripts/refresh_lobbymap.py
@@ -75,13 +75,13 @@ _COL_RETRIEVED = ("Retrieved", "retrieved")
 # Score classification
 # ---------------------------------------------------------------------------
 
-# Bands that indicate obstructive lobbying: contradict green claims.
+# Bands that indicate obstructive lobbying.
 # LobbyMap's own definition: "grades from D to F (i.e., below 50%) indicating
 # increasingly obstructive climate policy engagement". D+ is 50-55%, so it is not
 # in that range.
 _OBSTRUCTIVE_BANDS = frozenset({"d", "d-", "e+", "e", "e-", "f+", "f", "f-"})
 
-# Bands that indicate supportive engagement: support green claims.
+# Bands that indicate supportive engagement.
 _SUPPORTIVE_BANDS = frozenset({"a+", "a", "a-", "b+", "b"})
 
 # Bands that are neutral / inconclusive.
@@ -300,9 +300,10 @@ def _lookup(name: str, ticker: str | None) -> _LobbyMapRecord | None:
 async def fetch_lobby_map_data(claim: Claim, company: Company) -> list[Evidence]:
     """Return LobbyMap lobbying alignment evidence for a company.
 
-    Looks up the company's climate policy engagement score. Obstructive
-    lobbying (D/E/F band) while making green claims is a direct greenwashing
-    signal: the company works against the policies it publicly supports.
+    Looks up the company's climate policy engagement score. For a climate
+    pledge, a band of D or lower, the range LobbyMap defines as obstructive,
+    counts against the pledge under the UN High-Level Expert Group's lobbying
+    criterion; for other claims the band is context.
 
     Args:
         claim: The claim under assessment.
@@ -376,11 +377,12 @@ def _assess_record(record: _LobbyMapRecord) -> tuple[bool | None, float]:
         Tuple of (supports_claim, confidence).
     """
     if record.is_obstructive:
-        # Company lobbies against climate policy: directly contradicts green claims.
+        # Obstructive band: marked as not supporting the claim. Whether it bears on
+        # the claim is decided by core/evidence_scope.py and the judge.
         return False, 0.85
 
     if record.is_supportive:
-        # Company actively supports climate policy: consistent with green claims.
+        # Supportive band: marked as supporting the claim.
         return True, 0.75
 
     # Neutral band: inconclusive, include with low confidence.
@@ -390,13 +392,19 @@ def _assess_record(record: _LobbyMapRecord) -> tuple[bool | None, float]:
 def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
     """Build a human-readable summary for the Judge Agent.
 
+    The band is given under LobbyMap's own name for the profile, such as "IKEA", so
+    that the record claims no more precision than the rating has: LobbyMap's IKEA
+    profile, for one, does not separate Inter IKEA Group from Ingka Group.
+
     Args:
-        company_name: Display name of the company.
+        company_name: The company name the sources were queried with, used when the
+            record carries no name of its own.
         record: The LobbyMap record.
 
     Returns:
         A plain-text summary string.
     """
+    profile = (record.company or "").strip() or company_name
     band = record.band_normalised.upper() or "not scored"
     year_str = (
         f" (assessment year: {record.year})"
@@ -409,7 +417,7 @@ def _build_summary(company_name: str, record: _LobbyMapRecord) -> str:
         filter(
             None,
             (
-                f"LobbyMap performance band for {company_name}: {band}{year_str}.",
+                f"LobbyMap performance band for {profile}: {band}{year_str}.",
                 engagement_text(record.active_engagement),
             ),
         )

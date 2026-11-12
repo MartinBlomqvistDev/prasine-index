@@ -1128,7 +1128,7 @@ async def _fetch_content(url: str) -> tuple[str, bytes]:
 async def _download(url: str) -> tuple[str, bytes]:
     """Download a URL with the index's user agent and return (content_type, raw_bytes)."""
     headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://prasineindex.com)",
+        "User-Agent": "Mozilla/5.0 (compatible; PrasineIndex/2.0; +https://www.prasineindex.com)",
         "Accept": "text/html,application/xhtml+xml,application/pdf,*/*",
     }
     async with httpx.AsyncClient(

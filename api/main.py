@@ -76,12 +76,10 @@ async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title="Prasine Index API",
     description=(
-        "Automated EU corporate greenwashing monitoring and scoring. "
-        "Every green claim by an EU-listed company, verified against real "
-        "emissions data and lobbying records, with a full evidence chain "
-        "citable in journalism and litigation."
+        "Checks the climate claims of large European companies against public records. "
+        "Local API for running the pipeline and reading traces; prasineindex.com serves no API."
     ),
-    version="1.0.0",
+    version="2.0.0",
     lifespan=_lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
@@ -135,7 +133,7 @@ class HealthResponse(BaseModel):
 
     status: str
     database: str
-    version: str = "1.0.0"
+    version: str = "2.0.0"
 
 
 class ClaimResponse(BaseModel):
@@ -151,7 +149,7 @@ class ClaimResponse(BaseModel):
 
 
 class ScoreResponse(BaseModel):
-    """Summary of a greenwashing score for API responses."""
+    """Summary of a claim score for API responses."""
 
     claim_id: str
     company_id: str
@@ -194,23 +192,22 @@ async def assess_document(
     request: AssessDocumentRequest,
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
 ) -> AssessDocumentResponse:
-    """Submit a document for greenwashing assessment.
+    """Submit a document for assessment.
 
     Accepts a company document (press release, CSRD report, IR page) as
     plain text and runs the full Prasine Index pipeline: extraction,
-    context retrieval, parallel verification against EU open data, lobbying
-    check, LLM-as-judge scoring, and report generation.
+    context retrieval, parallel verification against open data sources,
+    lobbying check, LLM-as-judge scoring, and report generation.
 
     Multiple claims may be found in a single document; each is assessed
-    independently and receives its own verdict and report.
+    independently and receives its own score and report.
 
-    The pipeline runs synchronously for documents with a small number of
-    claims. For large CSRD reports, consider using the background task
-    variant at POST /assess/async.
+    The request waits for the pipeline, which assesses the claims one after
+    another.
 
     Args:
         request: The document submission request.
-        background_tasks: FastAPI background task manager.
+        x_api_key: The X-API-Key header, checked against PRASINE_API_KEY.
 
     Returns:
         :py:class:`AssessDocumentResponse` with verdict summaries for each
@@ -377,11 +374,9 @@ async def get_report(claim_id: uuid.UUID) -> JSONResponse:
     tags=["results"],
 )
 async def get_company_scores(company_id: uuid.UUID) -> list[ScoreResponse]:
-    """Retrieve all greenwashing scores for a company.
+    """Retrieve all claim scores for a company.
 
     Returns scores in reverse chronological order (most recent first).
-    Used by the public dashboard and by downstream consumers building
-    company-level accountability timelines.
 
     Args:
         company_id: UUID of the company.

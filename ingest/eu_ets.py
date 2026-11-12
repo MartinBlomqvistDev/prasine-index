@@ -7,8 +7,9 @@ CSV snapshot (eutl_2024_202410/compliance.csv) if the daily file is absent.
 
 EU ETS data is the highest-quality evidence in the pipeline: verified by
 accredited third parties, mandated by EU Regulation 601/2012, and published
-annually. Rising verified emissions while a company claims reductions is the
-most direct greenwashing signal available.
+annually. It is one of the official records that can show a claim to be false
+(OFFICIAL_RECORD_SOURCES in core/evidence_scope.py), where the verified emissions
+cover the same installations and period as the claim.
 
 Installation IDs stored in the database use the euets.info convention
 (e.g. "IE_201078"). The official registry CSV uses numeric-only IDs (201078).

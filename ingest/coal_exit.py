@@ -4,16 +4,9 @@ Loads the Urgewald Global Coal Exit List from data/gcel_companies.csv, downloade
 via scripts/refresh_gcel.py. The GCEL tracks approximately 1,000 companies that
 develop, mine, or burn coal, covering the full coal value chain.
 
-A company on the GCEL with an "expanding" classification while claiming a clean
-energy transition or climate leadership is a primary greenwashing signal: the
-company is simultaneously claiming to leave coal while actively expanding its
-coal capacity. This pattern is documented for Glencore, TotalEnergies, Uniper,
-RWE, and others.
-
-GCEL data is used by institutional investors under the GFANZ Net Zero Investment
-Framework and the Paris Aligned Investment Initiative to screen coal exposure.
-A company claiming alignment with 1.5°C while actively listed as a coal expander
-contradicts the most widely used coal screen in ESG investing.
+For a climate pledge, an "expanding" classification is one of the integrity
+records that bear on it (INTEGRITY_SOURCES in core/evidence_scope.py); for other
+claims the listing is context.
 
 Data source: Urgewald (urgewald.org), published annually at COP
 Refresh: python scripts/refresh_gcel.py
@@ -335,9 +328,8 @@ def _lookup(name: str, isin: str | None, ticker: str | None) -> _GCELRecord | No
 async def fetch_coal_exit_data(claim: Claim, company: object) -> list[Evidence]:
     """Return Global Coal Exit List evidence for a company.
 
-    A company listed on the GCEL as actively expanding coal capacity while making
-    clean-energy transition claims is engaging in documented greenwashing. The GCEL
-    is used by 400+ financial institutions under GFANZ and PAII investment frameworks.
+    For a climate pledge, a listing as actively expanding coal capacity is one of
+    the integrity records that bear on it; for other claims it is context.
 
     Args:
         claim: The claim under assessment.
@@ -399,7 +391,7 @@ async def fetch_coal_exit_data(claim: Claim, company: object) -> list[Evidence]:
 
 
 def _assess_record(record: _GCELRecord) -> tuple[bool | None, float]:
-    """Assess whether GCEL status supports or contradicts green claims."""
+    """Derive supports_claim and confidence from the GCEL record."""
     if record.is_expanding:
         return False, 0.90
 
@@ -407,7 +399,8 @@ def _assess_record(record: _GCELRecord) -> tuple[bool | None, float]:
         # On GCEL but with a documented phase-out plan: nuanced
         return None, 0.55
 
-    # Listed on GCEL but expansion status unclear: still a negative signal
+    # Listed on GCEL but expansion status unclear: marked as not supporting the
+    # claim, with lower confidence
     return False, 0.65
 
 

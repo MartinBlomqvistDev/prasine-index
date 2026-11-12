@@ -4,9 +4,10 @@ Loads the SBTi Companies Taking Action dataset from a local Excel or CSV file
 downloaded via scripts/refresh_sbti.py. Provides target validation evidence for
 any claim containing science-based target language.
 
-SBTi data is a high-quality signal: targets are externally validated by SBTi,
-and withdrawn/removed status is a direct CONFIRMED_GREENWASHING indicator:
-the company no longer has a valid commitment despite continuing to claim one.
+The SBTi target register is one of the official records that can show a claim
+to be false (OFFICIAL_RECORD_SOURCES in core/evidence_scope.py): targets are
+externally validated by SBTi, and a withdrawn or removed status bears directly
+on a claim that the company has a valid target or commitment.
 
 Data source: sciencebasedtargets.org/companies-taking-action
 Refresh: python scripts/refresh_sbti.py
@@ -366,8 +367,9 @@ async def fetch_sbti_data(claim: Claim, company: object) -> list[Evidence]:
     assessing whether the company has a current, validated SBTi target,
     an expired/removed one, or no record at all.
 
-    A removed target while the company continues to claim science-based
-    targets is a direct CONFIRMED_GREENWASHING indicator.
+    A removed target is an official record against a claim that the company
+    has a science-based target (OFFICIAL_RECORD_SOURCES in
+    core/evidence_scope.py).
 
     Args:
         claim: The claim under assessment.

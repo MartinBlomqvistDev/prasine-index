@@ -73,10 +73,7 @@ def download_eea_national() -> None:
         try:
             req = urllib.request.Request(
                 url,
-                headers={
-                    "User-Agent": "PrasineIndex/1.0 (EU greenwashing monitor; "
-                    "contact: info@prasine.index)"
-                },
+                headers={"User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)"},
             )
             with urllib.request.urlopen(req, timeout=60) as response:
                 data = response.read()

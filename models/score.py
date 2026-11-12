@@ -1,9 +1,9 @@
-"""Pydantic v2 model representing the Judge Agent's greenwashing verdict for a single claim.
+"""Pydantic v2 model of the Judge Agent's score for a single claim.
 
-The score is a calibrated 0–100 index where higher values indicate stronger
-greenwashing evidence; the breakdown exposes per-dimension scores so that
-published reports and investigative readers can interrogate the reasoning at a
-granular level.
+The score is a 0–100 index of how far the records go against a claim, from 0
+(the records support it) to 100 (an official record shows it to be false); the
+breakdown gives a score per dimension so that the reasoning can be read in
+detail.
 """
 
 from __future__ import annotations
@@ -24,11 +24,11 @@ __all__ = [
 
 
 class ScoreCategory(StrEnum):
-    """Dimensions used to decompose the overall greenwashing score.
+    """Dimensions used to decompose the overall score.
 
-    The Judge Agent produces a score for each applicable category; the overall
-    score is a weighted aggregate. Categories that cannot be assessed due to data
-    gaps are excluded from the aggregate and listed as absent in the breakdown.
+    The Judge Agent scores each dimension it can assess, alongside the overall
+    score. A dimension that cannot be assessed, or that the band rules do not let
+    bear on the claim, is left out of the breakdown.
     """
 
     EMISSIONS_DISCREPANCY = "EMISSIONS_DISCREPANCY"
@@ -39,17 +39,16 @@ class ScoreCategory(StrEnum):
 
 
 class ScoreVerdict(StrEnum):
-    """Human-readable verdict category derived from the overall score.
+    """The band of a score.
 
-    These bands map score ranges to actionable labels used in published reports
-    and the public-facing API. The top three verdicts describe the *claim*;
-    the bottom two describe the *company*. Bands are equal-width (20 points each).
+    The names date from version 1 and are internal; FINDING_LABELS holds the
+    published name of each band.
 
-    0–20   SUBSTANTIATED_CLAIM   : verified data supports the claim.
-    21–40  UNVERIFIABLE_CLAIM    : data gaps prevent assessment either way.
-    41–60  MISLEADING_CLAIM      : claim misleads even if technically defensible.
-    61–80  LIKELY_GREENWASHING   : material contradictions found; no binding ruling.
-    81–100 CONFIRMED_GREENWASHING: binding ruling or multiple hard triggers.
+    0–20   SUBSTANTIATED_CLAIM   : Supported by records.
+    21–40  UNVERIFIABLE_CLAIM    : Not covered by public records.
+    41–60  MISLEADING_CLAIM      : Not fully supported.
+    61–80  LIKELY_GREENWASHING   : Conflicts with records.
+    81–100 CONFIRMED_GREENWASHING: Contradicted by records.
     """
 
     SUBSTANTIATED_CLAIM = "SUBSTANTIATED_CLAIM"
@@ -63,7 +62,7 @@ class ScoreVerdict(StrEnum):
 # shown to readers.
 FINDING_LABELS: dict[ScoreVerdict, str] = {
     ScoreVerdict.SUBSTANTIATED_CLAIM: "Supported by records",
-    ScoreVerdict.UNVERIFIABLE_CLAIM: "Not checked against public records",
+    ScoreVerdict.UNVERIFIABLE_CLAIM: "Not covered by public records",
     ScoreVerdict.MISLEADING_CLAIM: "Not fully supported",
     ScoreVerdict.LIKELY_GREENWASHING: "Conflicts with records",
     ScoreVerdict.CONFIRMED_GREENWASHING: "Contradicted by records",
@@ -84,7 +83,7 @@ def verdict_for_score(score: float) -> ScoreVerdict:
     61–80 LIKELY_GREENWASHING, 81–100 CONFIRMED_GREENWASHING.
 
     Args:
-        score: Greenwashing score in [0.0, 100.0].
+        score: Score in [0.0, 100.0].
 
     Returns:
         The :py:class:`ScoreVerdict` band for the score.
@@ -108,7 +107,7 @@ def band_floor(score: float) -> float:
     bottom of the worst claim's band. Floors: 0, 21, 41, 61, 81.
 
     Args:
-        score: Greenwashing score in [0.0, 100.0].
+        score: Score in [0.0, 100.0].
 
     Returns:
         The band floor as a float.
@@ -134,32 +133,34 @@ def _utc_now() -> datetime:
 
 
 class GreenwashingScore(BaseModel):
-    """The Judge Agent's calibrated greenwashing verdict for a single Claim.
+    """The Judge Agent's score for a single Claim.
 
-    A score of 0 indicates a fully substantiated claim backed by verified data.
-    A score of 100 indicates confirmed, well-evidenced greenwashing. Intermediate
-    values reflect the weight and quality of contradicting evidence.
+    A score of 0 means the records support the claim; a score of 100 means an
+    official record shows it to be false. Intermediate values reflect the weight
+    and quality of the records against the claim.
 
     The ``score_breakdown`` maps each assessed ScoreCategory to its individual
-    score, enabling journalists and legal analysts to understand which dimension
-    drove the overall verdict. Categories absent from the breakdown were not
-    assessed due to data gaps.
+    score, so that a reader can see which dimension drove the overall score.
+    Categories absent from the breakdown were not assessed, or do not bear on the
+    claim under the band rules.
 
-    This model is frozen: judicial verdicts are immutable records. A revised
-    assessment requires a new GreenwashingScore with a new ``id``.
+    This model is frozen: a score is an immutable record. A revised assessment
+    requires a new GreenwashingScore with a new ``id``.
 
     Attributes:
         id: Unique identifier for this score record.
         claim_id: The Claim that was judged.
         company_id: Denormalised company reference for efficient portfolio queries.
         trace_id: Pipeline-wide trace identifier, inherited from the Claim.
-        score: Overall greenwashing index in [0.0, 100.0]. Higher = stronger
-            greenwashing evidence.
+        score: Score in [0.0, 100.0]; higher means the records go further
+            against the claim.
         score_breakdown: Per-dimension scores keyed by ScoreCategory value.
-            Only assessed categories are present.
-        verdict: Human-readable verdict band derived from the overall score.
-        reasoning: Judge Agent's full chain-of-thought reasoning, preserved
-            verbatim for transparency and legal citation.
+            Only dimensions the judge assessed, and that the band rules let
+            bear on the claim, are present.
+        verdict: Band derived from the overall score; FINDING_LABELS holds its
+            published name.
+        reasoning: The Judge Agent's written explanation of the score, preserved
+            verbatim.
         confidence: Judge's confidence in the verdict, in [0.0, 1.0]. Reduced
             when key data sources were unavailable or returned conflicting signals.
         scored_at: UTC timestamp of when the Judge Agent produced this verdict.
@@ -184,27 +185,24 @@ class GreenwashingScore(BaseModel):
         ge=0.0,
         le=100.0,
         description=(
-            "Overall greenwashing index in [0.0, 100.0]. "
-            "0 = fully substantiated claim; 100 = confirmed greenwashing."
+            "Score in [0.0, 100.0]. "
+            "0 = the records support the claim; 100 = an official record shows it to be false."
         ),
     )
     score_breakdown: dict[str, float] = Field(
         default_factory=dict,
         description=(
-            "Per-dimension scores keyed by ScoreCategory value. "
-            "Only assessed categories are present; absent keys indicate data gaps."
+            "Per-dimension scores keyed by ScoreCategory value. Only dimensions the "
+            "judge assessed, and that the band rules let bear on the claim, are present."
         ),
     )
     verdict: ScoreVerdict = Field(
         ...,
-        description="Human-readable verdict band derived from the overall score.",
+        description="Band derived from the overall score; FINDING_LABELS holds its published name.",
     )
     reasoning: str = Field(
         ...,
-        description=(
-            "Judge Agent's full chain-of-thought reasoning, preserved verbatim "
-            "for transparency and legal citation."
-        ),
+        description="The Judge Agent's written explanation of the score, preserved verbatim.",
     )
     confidence: float = Field(
         ...,

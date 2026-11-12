@@ -344,7 +344,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             transitioned_by  TEXT NOT NULL
         )
         """,
-        # Greenwashing scores: Judge Agent verdicts
+        # Judge Agent scores for claims; the table name dates from version 1
         """
         CREATE TABLE IF NOT EXISTS greenwashing_scores (
             id              UUID PRIMARY KEY,
@@ -374,8 +374,8 @@ async def _create_schema(conn: AsyncConnection) -> None:
         """,
         # Evidence: one row per data point gathered by the Verification Agent.
         # raw_data preserves the parsed upstream response verbatim so any
-        # published verdict can be reconstructed from what the pipeline
-        # actually saw at run time (reproducibility / legal citability).
+        # published score can be reconstructed from what the pipeline
+        # actually saw at run time (reproducibility).
         """
         CREATE TABLE IF NOT EXISTS evidence (
             id             UUID PRIMARY KEY,
@@ -413,7 +413,7 @@ async def _create_schema(conn: AsyncConnection) -> None:
             metadata      JSONB NOT NULL DEFAULT '{}'
         )
         """,
-        # Discovery state: content hash per monitored URL for change detection
+        # Discovery state: content hash per checked URL for change detection
         """
         CREATE TABLE IF NOT EXISTS discovery_state (
             source_url      TEXT PRIMARY KEY,

@@ -5,14 +5,9 @@ downloaded via scripts/refresh_gogel.py. The GOGEL tracks approximately 1,000
 companies responsible for the majority of global oil and gas production,
 development, and expansion.
 
-A company on the GOGEL actively developing new upstream oil and gas while claiming
-a clean energy transition or Paris alignment is a primary greenwashing signal:
-the same pattern documented for BP, Shell, Equinor, TotalEnergies, and others.
-
-GOGEL is used by the GFANZ Net Zero Investment Framework, the Paris Aligned
-Investment Initiative, and major institutional investors to screen fossil fuel
-expansion exposure. A company claiming 1.5°C alignment while listed as a
-GOGEL expander contradicts the most widely used oil and gas screen in ESG investing.
+For a climate pledge, a listing as an expander of upstream oil and gas is one of
+the integrity records that bear on it (INTEGRITY_SOURCES in core/evidence_scope.py);
+for other claims it is context.
 
 Data source: Urgewald (urgewald.org), published annually
 Refresh: python scripts/refresh_gogel.py
@@ -326,10 +321,9 @@ def _lookup(name: str, isin: str | None, ticker: str | None) -> _GOGELRecord | N
 async def fetch_gogel_data(claim: Claim, company: object) -> list[Evidence]:
     """Return Global Oil and Gas Exit List evidence for a company.
 
-    A company listed on the GOGEL as actively expanding upstream oil and gas
-    production while making clean-energy transition or Paris-alignment claims
-    is engaging in documented greenwashing. GOGEL is used by 400+ financial
-    institutions under the GFANZ and PAII frameworks.
+    For a climate pledge, a listing as actively expanding upstream oil and gas
+    production is one of the integrity records that bear on it; for other claims
+    it is context.
 
     Args:
         claim: The claim under assessment.
@@ -431,12 +425,13 @@ def _stalled_lng_note(company_name: str, record: _GOGELRecord) -> str:
 
 
 def _assess_record(record: _GOGELRecord) -> tuple[bool | None, float]:
-    """Assess whether GOGEL status supports or contradicts clean-energy claims."""
+    """Derive supports_claim and confidence from the GOGEL record."""
     if record.is_expanding:
         return False, 0.90
     if record.is_phasing_out:
         return None, 0.55
-    # On GOGEL but status unclear: still a negative signal for clean claims
+    # On GOGEL but status unclear: marked as not supporting the claim, with lower
+    # confidence
     return False, 0.65
 
 

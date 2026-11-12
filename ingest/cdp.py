@@ -10,9 +10,9 @@ source for:
   - Climate governance and board oversight claims
   - Emissions reduction target disclosures
 
-A discrepancy between CDP self-reported data and EU ETS verified data is itself
-a greenwashing signal: the company told CDP one thing and the regulator records
-another.
+CDP data describes the company as a whole and is context for any one claim
+(core/evidence_scope.py). Where it differs from EU ETS verified data, the
+verified figure is the official record.
 
 NOTE: Web scraping cdp.net is not viable. The site is a fully client-side Next.js
 app with no __NEXT_DATA__, no accessible JSON API endpoints, and no plain-HTML

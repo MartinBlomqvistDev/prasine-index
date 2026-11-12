@@ -27,10 +27,7 @@ import httpx
 _DATA = Path(__file__).parent.parent / "data"
 _BASE = "https://www.transitionpathwayinitiative.org/corporates/"
 _HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-        "+https://github.com/MartinBlomqvistDev/prasine-index)"
-    ),
+    "User-Agent": "Mozilla/5.0 (compatible; PrasineIndex/2.0; +https://www.prasineindex.com)",
 }
 _COLUMNS = [
     "Company Name",

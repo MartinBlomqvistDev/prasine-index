@@ -8,11 +8,10 @@ Sierra Club, BankTrack, Indigenous Environmental Network, Oil Change Internation
 Rainforest Action Network) tracking fossil fuel financing by the world's 60 largest
 private-sector banks from 2016 onwards.
 
-A bank that claims climate leadership or net-zero commitments while financing
-hundreds of billions in fossil fuel expansion is a textbook financial sector
-greenwashing case. HSBC (ASA banned 2022), BNP Paribas, Barclays, Deutsche Bank,
-and others have made green claims while ranking among the largest fossil fuel
-financiers in the world.
+Banking on Climate Chaos records the fossil fuel financing of the largest
+private-sector banks. For a bank's climate pledge the financing is one of the
+integrity records that bear on it (INTEGRITY_SOURCES in core/evidence_scope.py);
+for other claims it is context.
 
 This source is specifically relevant for financial sector companies (banks, asset
 managers, insurers) making net-zero or climate-finance claims.
@@ -225,10 +224,9 @@ def _lookup(name: str) -> _FossilFinanceRecord | None:
 async def fetch_fossil_finance_data(claim: Claim, company: object) -> list[Evidence]:
     """Return fossil fuel financing evidence for a financial institution.
 
-    Looks up the company in the Banking on Climate Chaos database. Banks and
-    financial institutions making net-zero or climate-positive claims while
-    financing hundreds of billions in fossil fuel expansion are engaging in the
-    most direct form of financial sector greenwashing.
+    Looks up the company in the Banking on Climate Chaos database. For a bank's
+    climate pledge the financing is one of the integrity records that bear on
+    it; for other claims it is context.
 
     Only returns evidence for companies found in the database: typically banks,
     asset managers, and insurance companies. Manufacturing and energy companies
@@ -294,7 +292,7 @@ _MODERATE_FINANCING_THRESHOLD = 30.0  # >$30bn total = moderate
 
 
 def _assess_record(record: _FossilFinanceRecord) -> tuple[bool | None, float]:
-    """Assess whether fossil financing contradicts green claims."""
+    """Derive supports_claim and confidence from the financing record."""
     total = record.total_bn
 
     if total is None:
@@ -303,7 +301,7 @@ def _assess_record(record: _FossilFinanceRecord) -> tuple[bool | None, float]:
 
     if total >= _HIGH_FINANCING_THRESHOLD:
         if record.has_nz_pledge:
-            # High financing + net-zero pledge = hypocrisy signal
+            # High financing and a net-zero pledge on record: higher confidence
             return False, 0.88
         return False, 0.80
 
@@ -312,7 +310,7 @@ def _assess_record(record: _FossilFinanceRecord) -> tuple[bool | None, float]:
             return False, 0.75
         return False, 0.65
 
-    # Lower-end financing: still notable but less directly contradicting
+    # Lower-end financing: inconclusive
     return None, 0.50
 
 

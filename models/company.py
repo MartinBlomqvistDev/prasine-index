@@ -1,9 +1,9 @@
-"""Pydantic v2 models representing an EU-listed company and its aggregated context.
+"""Pydantic v2 models representing a company and its aggregated context.
 
 Company stores the stable registry data used to route queries to EU ETS, the
 Transparency Register, and EUR-Lex. CompanyContext carries the company's claim
-history and scoring trends, allowing the Judge Agent to treat repeat offenders
-differently from first-time filers.
+history and score trend. The judge leaves the history out, so that a re-run is
+judged on the records alone (``_build_judge_prompt`` in agents/judge_agent.py).
 """
 
 from __future__ import annotations
@@ -22,11 +22,10 @@ __all__ = [
 
 
 class ScoreTrend(StrEnum):
-    """Direction of a company's greenwashing score over assessed periods.
+    """Direction of a company's claim scores over assessed periods.
 
     Derived by the Context Agent from the sequence of historical GreenwashingScore
-    records. Surfaces in the Judge Agent prompt and the published report to provide
-    a longitudinal accountability signal.
+    records. Neither the Judge Agent nor the report uses it.
     """
 
     IMPROVING = "IMPROVING"
@@ -45,7 +44,7 @@ def _utc_now() -> datetime:
 
 
 class Company(BaseModel):
-    """An EU-listed company that is subject to Prasine Index monitoring.
+    """A company that Prasine Index assesses.
 
     Contains the stable registry data required to route verification queries to
     the correct upstream sources. The ``eu_ets_installation_ids`` list is critical
@@ -54,8 +53,7 @@ class Company(BaseModel):
 
     The ``csrd_reporting`` flag indicates whether the company falls under the
     Corporate Sustainability Reporting Directive, which mandates disclosure of
-    climate-related data and materially strengthens the evidence base for
-    greenwashing assessments.
+    climate-related data. Scoring does not use the flag.
 
     Attributes:
         id: Unique identifier for this company record.
@@ -73,11 +71,10 @@ class Company(BaseModel):
             verified annual emissions data.
         transparency_register_id: EU Transparency Register identifier, used by
             the Lobbying Agent to retrieve lobbying activity records.
-        ir_page_url: URL of the company's investor relations page, monitored
-            continuously by the Discovery Agent.
+        ir_page_url: URL of the company's investor relations page, checked by
+            the Discovery Agent when it runs.
         csrd_reporting: True if the company is subject to CSRD disclosure
-            obligations, which strengthens the evidentiary standard applied
-            during scoring.
+            obligations. Scoring does not use it.
         created_at: UTC timestamp of when this record was first inserted.
         updated_at: UTC timestamp of the most recent update to this record.
     """
@@ -129,13 +126,13 @@ class Company(BaseModel):
     )
     ir_page_url: str | None = Field(
         default=None,
-        description="URL of the company's investor relations page, monitored by the Discovery Agent.",
+        description="URL of the company's investor relations page, checked by the Discovery Agent.",
     )
     csrd_reporting: bool = Field(
         default=False,
         description=(
             "True if the company is subject to CSRD disclosure obligations. "
-            "Strengthens the evidentiary standard applied during scoring."
+            "Scoring does not use it."
         ),
     )
     created_at: datetime = Field(
@@ -216,9 +213,8 @@ class CompanyContext(BaseModel):
     """Aggregated historical context for a Company, assembled by the Context Agent.
 
     This model is produced immediately before the Verification Agent runs and is
-    passed through to the Judge Agent. It provides longitudinal accountability
-    signals: a company that has made the same undelivered promise three times is
-    treated differently from one making a first-time claim.
+    passed through to the Judge Agent, which reads the company record from it.
+    The judge leaves the history fields out.
 
     The ``similar_historical_claim_ids`` field contains IDs of semantically similar
     claims retrieved via pgvector cosine similarity on normalised claim text.
@@ -229,14 +225,14 @@ class CompanyContext(BaseModel):
             have been assessed by the pipeline to date.
         repeat_claim_count: Number of those claims that were flagged as repeats
             of a previously scored claim.
-        average_greenwashing_score: Mean greenwashing score across all assessed
-            claims, or None if no claims have been scored yet.
-        worst_greenwashing_score: Highest (worst) greenwashing score on record
-            for this company, or None if no claims have been scored.
-        score_trend: Direction of the company's greenwashing scores over time.
+        average_greenwashing_score: Mean score across all assessed claims, or
+            None if no claims have been scored yet.
+        worst_greenwashing_score: Highest score on record for this company, or
+            None if no claims have been scored.
+        score_trend: Direction of the company's claim scores over time.
         similar_historical_claim_ids: IDs of historical claims with high cosine
             similarity to the current claim under assessment, retrieved via
-            pgvector. Passed to the Judge Agent as precedent context.
+            pgvector. The judge leaves them out.
         last_assessed_at: UTC timestamp of the most recent completed assessment
             for this company, or None if this is the first.
         context_retrieved_at: UTC timestamp of when this context object was
@@ -260,23 +256,23 @@ class CompanyContext(BaseModel):
         default=None,
         ge=0.0,
         le=100.0,
-        description="Mean greenwashing score across all assessed claims; None if no claims scored.",
+        description="Mean score across all assessed claims; None if no claims scored.",
     )
     worst_greenwashing_score: float | None = Field(
         default=None,
         ge=0.0,
         le=100.0,
-        description="Highest (worst) greenwashing score on record; None if no claims scored.",
+        description="Highest score on record; None if no claims scored.",
     )
     score_trend: ScoreTrend = Field(
         default=ScoreTrend.INSUFFICIENT_DATA,
-        description="Direction of the company's greenwashing scores over assessed periods.",
+        description="Direction of the company's claim scores over assessed periods.",
     )
     similar_historical_claim_ids: list[uuid.UUID] = Field(
         default_factory=list,
         description=(
             "IDs of historical claims with high cosine similarity to the current claim, "
-            "retrieved via pgvector. Provided as precedent context to the Judge Agent."
+            "retrieved via pgvector. The judge leaves them out."
         ),
     )
     last_assessed_at: datetime | None = Field(

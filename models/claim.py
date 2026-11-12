@@ -25,8 +25,8 @@ __all__ = [
 class ClaimStatus(StrEnum):
     """Ordered lifecycle states of a green claim as it moves through the pipeline.
 
-    Values progress forward with the exception of MONITORING, which is re-entered
-    after PUBLISHED when the claim is placed under ongoing surveillance.
+    Values progress forward. MONITORING is defined for a claim that is checked
+    again after PUBLISHED; the pipeline does not set it.
     """
 
     DETECTED = "DETECTED"
@@ -119,11 +119,10 @@ class Claim(BaseModel):
     Claim by its ``id``. The ``trace_id`` follows the claim through all seven
     agents and links every AgentTrace row for full audit replay.
 
-    Two accountability signals are tracked explicitly: whether the claim is a
-    repeat of a previously scored claim (``is_repeat``), and whether the company
-    modified the claim text after Prasine Index published a verdict
-    (``modified_after_scoring``). Both are strong greenwashing indicators and
-    are surfaced prominently in the Report Agent output.
+    The model carries two flags: whether the claim is a repeat of a previously
+    scored claim (``is_repeat``), and whether the company modified the claim
+    text after Prasine Index published a score for it
+    (``modified_after_scoring``). The pipeline does not set either.
 
     Attributes:
         id: Unique identifier for this claim instance.
@@ -142,13 +141,12 @@ class Claim(BaseModel):
         detected_at: UTC timestamp of when the Discovery Agent first found
             this claim.
         status: Current lifecycle status.
-        is_repeat: True if the company has made an equivalent claim previously,
-            as determined by pgvector similarity search.
+        is_repeat: True if the company has made an equivalent claim previously.
+            The pipeline does not set it.
         previous_claim_id: ID of the most recent prior equivalent claim if
             ``is_repeat`` is True.
         modified_after_scoring: True if the company altered the claim text after
-            Prasine Index published a greenwashing score, a strong accountability
-            signal that is flagged in the published report.
+            Prasine Index published a score for it. The pipeline does not set it.
         original_scored_text: Verbatim claim text at the time of scoring,
             preserved for comparison when ``modified_after_scoring`` becomes True.
     """
@@ -191,7 +189,7 @@ class Claim(BaseModel):
         default=False,
         description=(
             "True if the company has made an equivalent claim previously. "
-            "Determined by pgvector cosine similarity against historical normalised_text values."
+            "The pipeline does not set it."
         ),
     )
     previous_claim_id: uuid.UUID | None = Field(
@@ -202,7 +200,7 @@ class Claim(BaseModel):
         default=False,
         description=(
             "True if the company modified this claim after Prasine Index published "
-            "a greenwashing score. Surfaced as a primary accountability signal in reports."
+            "a score for it. The pipeline does not set it."
         ),
     )
     original_scored_text: str | None = Field(

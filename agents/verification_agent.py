@@ -167,7 +167,7 @@ class VerificationInput(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    claim: Claim = Field(..., description="The claim to verify against EU open data sources.")
+    claim: Claim = Field(..., description="The claim to verify against open data sources.")
     context: CompanyContext = Field(
         ..., description="Company context assembled by the Context Agent."
     )
@@ -353,9 +353,10 @@ async def _node_fetch_sbti(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch SBTi target validation data from the local bulk dataset.
 
     Queries the Science Based Targets initiative Companies Taking Action dataset
-    for validated, committed, or removed near-term and net-zero targets. A removed
-    target while the company continues to claim science-based alignment is a direct
-    CONFIRMED_GREENWASHING indicator and is given high confidence.
+    for validated, committed, or removed near-term and net-zero targets. The SBTi
+    target register is one of the official records (OFFICIAL_RECORD_SOURCES in
+    core/evidence_scope.py); a removed target is a record against a claim that the
+    company has a science-based target and is given high confidence.
 
     Args:
         state: Current verification graph state.
@@ -404,8 +405,9 @@ async def _node_fetch_eprtr(state: VerificationState) -> dict[str, Any]:
     Queries the EEA European Pollutant Release and Transfer Register for the
     company's non-CO2 GHG releases to air (CH4, N2O, HFCs, etc.). This data
     complements EU ETS verified CO2 figures and catches industrial emissions
-    not covered by the EU carbon market. Rising non-CO2 GHGs while claiming
-    environmental leadership directly contradicts that claim.
+    not covered by the EU carbon market. E-PRTR is one of the official records
+    (OFFICIAL_RECORD_SOURCES in core/evidence_scope.py) where its releases cover
+    the same quantity, scope and period as the claim.
 
     Args:
         state: Current verification graph state.
@@ -451,10 +453,11 @@ async def _node_fetch_eprtr(state: VerificationState) -> dict[str, Any]:
 async def _node_fetch_ca100(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch CA100+ net-zero benchmark assessment.
 
-    Queries the Climate Action 100+ company benchmark, the world's largest
-    investor-led assessment of the 170 highest-emitting listed companies.
-    A company claiming net-zero ambition while rated "Not Aligned" by CA100+
-    is contradicted by the consensus of 700+ investors representing $68tn AUM.
+    Queries the Climate Action 100+ Net Zero Company Benchmark, an investor-led
+    assessment of the highest-emitting listed companies (ingest/ca100.py). For a
+    climate pledge, the assessment is one of the integrity records that bear on
+    it, in both directions (INTEGRITY_SOURCES in core/evidence_scope.py); for
+    other claims it is context.
 
     Args:
         state: Current verification graph state.
@@ -483,9 +486,9 @@ async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]
     """LangGraph node: fetch Banking on Climate Chaos fossil financing record.
 
     Queries the fossil fuel financing database for banks and financial institutions.
-    A bank providing hundreds of billions in fossil fuel financing while making
-    net-zero or climate-positive claims is the canonical financial sector greenwashing
-    pattern: exemplified by the landmark ASA 2022 HSBC ruling.
+    For a bank's climate pledge the financing is one of the integrity records that
+    bear on it (INTEGRITY_SOURCES in core/evidence_scope.py); for other claims it
+    is context.
 
     Args:
         state: Current verification graph state.
@@ -515,10 +518,10 @@ async def _node_fetch_fossil_finance(state: VerificationState) -> dict[str, Any]
 async def _node_fetch_coal_exit(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: check the Urgewald Global Coal Exit List (GCEL).
 
-    Queries the GCEL for companies actively expanding coal capacity.
-    A company listed as a coal expander while claiming a clean-energy
-    transition or Paris-aligned strategy is a documented greenwashing case.
-    The GCEL is the standard coal screen used by 400+ financial institutions.
+    Queries the GCEL for companies actively expanding coal capacity. For a
+    climate pledge, a listing as a coal expander is one of the integrity records
+    that bear on it (INTEGRITY_SOURCES in core/evidence_scope.py); for other
+    claims it is context.
 
     Args:
         state: Current verification graph state.
@@ -585,10 +588,11 @@ async def _node_fetch_lobby_map(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch LobbyMap climate lobbying scores from the local dataset.
 
     Queries the LobbyMap Company Climate Policy Engagement database for the
-    company's lobbying alignment score (A+ to F). A company scoring in the
-    obstructive range (D/E/F) while making green claims is a primary greenwashing
-    indicator: its lobbying activity actively undermines the climate policies it
-    publicly claims to support.
+    company's lobbying alignment score (A+ to F). For a climate pledge, a band of
+    D or lower, the range LobbyMap defines as obstructive, counts against the
+    pledge under the UN High-Level Expert Group's lobbying criterion
+    (HLEG_LOBBYING in core/evidence_scope.py); for other claims the band is
+    context.
 
     Args:
         state: Current verification graph state.
@@ -682,9 +686,10 @@ async def _node_fetch_eu_innovation_fund(state: VerificationState) -> dict[str, 
 async def _node_fetch_gogel(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch Global Oil and Gas Exit List data.
 
-    Queries the local GOGEL CSV for oil and gas expansion data. A company
-    actively expanding upstream oil and gas while claiming clean-energy
-    transition or Paris alignment is a documented greenwashing signal.
+    Queries the local GOGEL CSV for oil and gas expansion data. For a climate
+    pledge, a listing as an expander of upstream oil and gas is one of the
+    integrity records that bear on it (INTEGRITY_SOURCES in
+    core/evidence_scope.py); for other claims it is context.
 
     Args:
         state: Current verification graph state.
@@ -752,9 +757,10 @@ async def _node_fetch_eurostat(state: VerificationState) -> dict[str, Any]:
 async def _node_fetch_eu_transparency_register(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch EU Transparency Register lobbying registration.
 
-    Checks whether the company is registered as an EU lobbyist. Combined with
-    LobbyMap positions, this allows the Judge Agent to detect companies that
-    lobby against climate policy while making green claims publicly.
+    Checks whether the company is registered as an EU lobbyist. A registration
+    shows that the company engages EU institutions; the direction of that
+    engagement comes from LobbyMap, and the judge treats the registration as
+    context.
 
     Args:
         state: Current verification graph state.
@@ -857,8 +863,11 @@ async def _node_fetch_egt(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch Europe Gas Tracker infrastructure data.
 
     Checks whether the company owns European gas pipelines, LNG terminals, or
-    gas plants in active development. Expanding European gas infrastructure
-    contradicts fossil gas phase-out or net-zero transition claims.
+    gas plants in active development. For a climate pledge, pipelines and LNG
+    terminals in development count against the pledge under the UN High-Level
+    Expert Group's criterion on new fossil fuel supply (HLEG_FOSSIL_SUPPLY in
+    core/evidence_scope.py); gas-fired power units do not supply fossil fuel and
+    are context.
 
     Args:
         state: Current verification graph state.
@@ -889,8 +898,10 @@ async def _node_fetch_goget(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch Global Oil and Gas Extraction Tracker data.
 
     Checks whether the company owns O&G extraction fields in active development.
-    FID on a new field means capital committed to decades of upstream fossil
-    fuel production; directly contradicts net-zero or phase-out claims.
+    For a climate pledge, a field in development counts against the pledge under
+    the UN High-Level Expert Group's criterion on new fossil fuel supply
+    (HLEG_FOSSIL_SUPPLY in core/evidence_scope.py); for a claim about the same
+    fields it is a claim-level record.
 
     Args:
         state: Current verification graph state.
@@ -921,8 +932,11 @@ async def _node_fetch_gcpt(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch Global Coal Plant Tracker facility data.
 
     Checks whether the company owns coal units in active development
-    (Announced through Construction). A company expanding coal capacity
-    while claiming clean-energy transition is directly contradicted.
+    (Announced through Construction). For a climate pledge, such units count
+    against the pledge under the judge's band rules, since the UN High-Level
+    Expert Group's recommendations for businesses include ending coal plants
+    (Integrity Matters, p. 24); for a claim about the same units they are
+    claim-level records.
 
     Args:
         state: Current verification graph state.
@@ -953,8 +967,9 @@ async def _node_fetch_tpi(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch TPI Management Quality and Carbon Performance assessment.
 
     Queries the TPI dataset for the company's MQ level and CP pathway alignment.
-    A "Not Aligned" 2050 trajectory while claiming net-zero contradicts the claim
-    based on the consensus assessment of 150+ investors ($80tn AUM).
+    For a climate pledge, the assessment is one of the integrity records that
+    bear on it, in both directions (INTEGRITY_SOURCES in core/evidence_scope.py);
+    for other claims it is context.
 
     Args:
         state: Current verification graph state.
@@ -985,10 +1000,9 @@ async def _node_fetch_climate_trace(state: VerificationState) -> dict[str, Any]:
     """LangGraph node: fetch Climate TRACE independent emissions estimates.
 
     Queries the Climate TRACE v7 API for satellite/ML-derived emissions
-    estimates independent of company self-reporting. A significant discrepancy
-    between Climate TRACE facility estimates and company-disclosed figures is a
-    primary greenwashing signal, one of the few sources that can contradict a
-    company's own disclosure with independent evidence.
+    estimates independent of company self-reporting. The facility estimates are
+    claim-level records (CLAIM_LEVEL_SOURCES in core/evidence_scope.py). Being
+    estimates, they are not among the official records (OFFICIAL_RECORD_SOURCES).
 
     Args:
         state: Current verification graph state.
@@ -1215,10 +1229,10 @@ def _build_verification_graph(
 
 
 class VerificationAgent:
-    """Verifies green claims against EU open data sources using a LangGraph graph.
+    """Verifies green claims against open data sources using a LangGraph graph.
 
-    Orchestrates parallel queries to EU ETS, CDP, and EUR-Lex via a
-    LangGraph StateGraph where each data source is a dedicated node. The
+    Orchestrates parallel queries to the sources listed in the module docstring
+    via a LangGraph StateGraph where each data source is a dedicated node. The
     fan-out topology ensures all sources are queried concurrently; the
     ``operator.add`` reducer on the ``evidence`` list merges partial results
     as each node completes.

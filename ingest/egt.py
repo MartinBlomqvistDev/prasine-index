@@ -3,19 +3,19 @@
 Loads the GEM Europe Gas Tracker Excel file: facility-level data on gas
 pipelines, LNG import/export terminals, and oil & gas plants in Europe.
 
-The key greenwashing signal: a European energy company that claims to be
-transitioning away from fossil gas or pursuing a net-zero strategy while
-owning gas pipelines or LNG terminals in active development (proposed or
-under construction) is directly contradicted by its infrastructure pipeline.
+Gas pipelines and LNG terminals in development (proposed or under construction,
+and not long stalled) are records of new fossil fuel supply. For a climate pledge
+they count against the pledge under the UN High-Level Expert Group's criterion on
+new fossil fuel supply (HLEG_FOSSIL_SUPPLY in core/evidence_scope.py); for a claim
+about the same assets they are claim-level records.
 
 Coverage (three sheets used):
   Gas Pipelines: proposed, under-construction, and operating gas pipelines
     across Europe. Owner and Parent fields identify corporate operators.
-  LNG Terminals: liquefied natural gas import/export terminals. A company
-    claiming gas phase-out while building new LNG import capacity contradicts
-    that claim; LNG infrastructure has a 40-50 year economic lifetime.
-  Oil & Gas Plants: gas-fired power plants in Europe. Expanding gas generation
-    capacity contradicts renewable energy transition claims.
+  LNG Terminals: liquefied natural gas import/export terminals.
+  Oil & Gas Plants: gas-fired power plants in Europe. New units burn gas and do
+    not supply it, so they are listed apart and do not count as new fossil fuel
+    supply.
 
 Status values:
   Gas Pipelines: operating, proposed, construction, shelved, cancelled, retired
@@ -23,8 +23,10 @@ Status values:
   O&G Plants:    operating, announced, pre-construction, construction,
                  shelved, cancelled, retired, mothballed
 
-Greenwashing signal logic:
-  Expanding (proposed/announced/pre-construction/construction):
+Record logic:
+  Supply infrastructure in development (proposed/announced/pre-construction/
+  construction), leaving out gas-fired power units and proposals still at the
+  proposal stage more than STALLED_YEARS after they were proposed:
     → supports_claim=False, confidence=0.85
   Operating only (no expansion):
     → supports_claim=None, confidence=0.60
@@ -415,8 +417,9 @@ async def fetch_egt_data(claim: Claim, company: object) -> list[Evidence]:
 
     Finds all European gas pipelines, LNG terminals, and gas plants owned
     by the company and reports expansion pipeline, operating assets, and
-    retirement activity. A company owning assets in active development while
-    claiming fossil gas phase-out is directly contradicted.
+    retirement activity. For a climate pledge, pipelines and LNG terminals in
+    development count against the pledge as new fossil fuel supply; gas-fired
+    power units in development are listed apart and do not count as new supply.
 
     Args:
         claim: The claim under assessment.

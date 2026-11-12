@@ -13,7 +13,7 @@ It does not contain current corporate (company) climate scores.
 
 The only company datasets on data.cdp.net are the "Global 500 Emissions and
 Response Status" series from 2011–2013, roughly 480 companies, 12-year-old
-data. Not useful for current greenwashing assessment.
+data. Not useful for a current assessment.
 
 Current CDP corporate A/B/C/D/F scores for thousands of companies require
 one of the following:

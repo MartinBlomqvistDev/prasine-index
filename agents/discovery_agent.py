@@ -1,11 +1,7 @@
 """Discovery Agent for the Prasine Index pipeline.
 
-Continuously monitors EU company investor relations pages, press release feeds,
-and CSRD report repositories for new content. When new content is detected that
-may contain green claims, it fetches the full text and dispatches an
-ExtractionInput to the pipeline. This agent transforms Prasine Index from a
-manual tool into a live accountability system: no new greenwashing claim by an
-EU company goes undetected for long.
+Compares a page's SHA-256 hash with the stored one to find new or changed pages.
+No scheduled job runs it yet; each published assessment was run by hand.
 """
 
 from __future__ import annotations
@@ -319,18 +315,17 @@ class DiscoveryResult(BaseModel):
 
 
 class DiscoveryAgent:
-    """Monitors EU company sources for new green claims.
+    """Checks a company's registered investor relations page for new or changed content.
 
-    Checks a company's registered IR page URL and any additional monitored
-    sources for new or changed content. Change detection is based on SHA-256
-    hashing of fetched content compared against the last known hash stored in
-    PostgreSQL. Only changed or new pages trigger downstream extraction.
+    The page is ``Company.ir_page_url``. When it is new or has changed, the
+    sustainability-relevant pages it links to on the same site are checked as
+    well, one level deep. Change detection is based on SHA-256 hashing of
+    fetched content compared against the last known hash stored in PostgreSQL.
+    Only changed or new pages trigger downstream extraction.
 
-    The Discovery Agent is the entry point of the pipeline. It is typically
-    called on a schedule (e.g. every 6 hours per company) by a background task
-    or a cron job via the FastAPI scheduler. The pipeline orchestrator receives
-    :py:class:`DiscoveredDocument` instances and dispatches each to the
-    Extraction Agent.
+    ``Pipeline.run_discovery`` calls this agent and dispatches each
+    :py:class:`DiscoveredDocument` to the Extraction Agent. No scheduled job
+    calls it yet.
 
     Attributes:
         _http_client: Async httpx client for page fetches.
@@ -349,7 +344,7 @@ class DiscoveryAgent:
             timeout=httpx.Timeout(_FETCH_TIMEOUT_SECONDS),
             headers={
                 "User-Agent": (
-                    "Mozilla/5.0 (compatible; PrasineIndex/1.0; +https://martinblomqvistdev.github.io/prasine-index/)"
+                    "Mozilla/5.0 (compatible; PrasineIndex/2.0; +https://www.prasineindex.com)"
                 ),
                 "Accept": "text/html,application/xhtml+xml,application/pdf",
             },
@@ -364,9 +359,11 @@ class DiscoveryAgent:
     async def run(self, company: Company) -> DiscoveryResult:
         """Check all registered sources for a company and return new documents.
 
-        Iterates over all monitored URLs for the company, fetches each, and
-        compares the content hash against the last known value in the database.
-        Returns a :py:class:`DiscoveryResult` with any new or changed documents.
+        Fetches each URL registered for the company and compares its content
+        hash with the last known value in the database. When a registered page
+        is new or has changed, the relevant pages it links to are checked the
+        same way. Returns a :py:class:`DiscoveryResult` with any new or changed
+        documents.
 
         Args:
             company: The company whose sources are to be checked.
@@ -616,7 +613,7 @@ class DiscoveryAgent:
 
 
 def _collect_urls(company: Company) -> list[tuple[str, SourceType]]:
-    """Collect all monitored URLs for a company with their source type.
+    """Collect the URLs registered for a company, with their source type.
 
     Args:
         company: The company to collect URLs for.

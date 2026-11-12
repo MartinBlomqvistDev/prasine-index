@@ -108,7 +108,7 @@ def download_eprtr() -> None:
     req = urllib.request.Request(
         _EPRTR_ZIP_URL,
         headers={
-            "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)",
+            "User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)",
             "Accept": "application/zip,*/*",
         },
     )

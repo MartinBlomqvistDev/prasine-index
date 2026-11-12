@@ -10,11 +10,11 @@ under the UNFCCC. It is the authoritative reference for:
   - Checking whether a claimed sector reduction is credible against the national trend
   - Providing context on Sweden's / any EU country's total emissions trajectory
 
-For greenwashing assessment:
+In an assessment:
   - If a company claims its project covers "X% of Sweden's emissions," the EEA
     national total allows arithmetic verification of that proportion.
-  - Declining national trends do not excuse individual company inaction.
-  - Rising national trends (e.g. energy sector rebound post-COVID) provide context.
+  - National trends, rising or falling (e.g. energy sector rebound post-COVID),
+    are context: they do not show what one company's emissions did.
 
 Data source: EEA, national emissions reported to UNFCCC
   Dataset: eea_t_national-emissions-reported (UNFCCC reporting)

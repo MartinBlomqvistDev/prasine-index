@@ -15,8 +15,8 @@ __all__ = ["aggregate_claim_scores"]
 
 # Score is computed from the top K claims by severity. The remaining claims
 # appear in the report for context but don't drive the headline number.
-# Rationale: a verified freshwater reduction shouldn't dilute the score for
-# a confirmed net-zero greenwashing claim: they're different signal types.
+# Rationale: a supported claim about something else should not dilute the score
+# of a pledge the records conflict with.
 _SCORE_TOP_K = 3
 
 # Target years a pledge names, such as "net zero by 2040", "FY30" or "FY2030".
@@ -121,8 +121,8 @@ def _weighted_agg(subset: list[ClaimSummary]) -> tuple[float, float, float, floa
 
     Weights are the judge's per-claim confidences only. Using score as its own
     weight (the previous confidence × score scheme) double-counted severity:
-    the formula must be describable in one sentence for legal defensibility:
-    "the confidence-weighted mean of the three highest-scoring claims".
+    the formula must be describable in one sentence, so that a reader can check
+    it: "the confidence-weighted mean of the three highest-scoring claims".
     Severity protection comes from the band floor in the caller, not from
     weight gymnastics here.
     """

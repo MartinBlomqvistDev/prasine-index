@@ -145,12 +145,44 @@ def _lobbying(evidence: list[Evidence]) -> tuple[str, str]:
     )
 
 
+def _joined(names: list[str]) -> str:
+    """Join names as in "A, B and C"."""
+    return names[0] if len(names) == 1 else f"{', '.join(names[:-1])} and {names[-1]}"
+
+
+def _record_verb(names: list[str]) -> str:
+    return "records" if len(names) == 1 else "record"
+
+
+# A coal plant burns fuel and supplies none. It bears on a pledge because the expert
+# group's recommendations for businesses include ending coal plants by 2030 in OECD
+# countries and by 2040 elsewhere (Integrity Matters, p. 24).
+_COAL_POWER = (
+    "coal power expansion, which the expert group's recommendations for businesses include "
+    "ending (Integrity Matters, p. 24)"
+)
+
+_GCEL = "Global Coal Exit List"
+
+
+def _coal_listing(mining: bool, power: bool) -> str:
+    """Name the kinds of expansion the Global Coal Exit List records for a company."""
+    kinds = [kind for kind, listed in (("mining", mining), ("power", power)) if listed]
+    return " and ".join(f"coal {kind} expansion" for kind in kinds)
+
+
 def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
-    """Return the record line and the finding on new fossil fuel supply."""
+    """Return the record line and the finding on new fossil fuel supply.
+
+    Upstream and mining expansion, and the LNG terminals and gas pipelines that the
+    lists and trackers record, are new fossil fuel supply. Coal power expansion is
+    named apart from it, as what the expert group's recommendations for businesses
+    include ending.
+    """
     lines: list[str] = []
-    expanding: list[str] = []
-    # New coal plants count through the expert group's recommendations for businesses.
-    coal_power = False
+    # The lists and trackers that record new fossil fuel supply, and coal power expansion.
+    supply: list[str] = []
+    coal_power: list[str] = []
     # Set when a list or tracker records expansion that does not count as new supply.
     not_counted = False
 
@@ -167,7 +199,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             "mining_expansion",
             "power_expansion",
             _GCEL_EXPANDING,
-            "Global Coal Exit List",
+            _GCEL,
         ),
     ):
         record = _first(evidence, source)
@@ -179,11 +211,19 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             not_counted = True
             lines.append(
                 f"{name}: listed for LNG capacity under development that matches a proposal "
-                f"more than ten years old, not counted as new supply{_cite(record)}."
+                f"more than ten years old, so it is not counted as new supply{_cite(record)}."
             )
+        elif source == EvidenceSource.COAL_EXIT and (first in values or second in values):
+            # The coal list's mining expansion is new supply; its power expansion is coal
+            # power, named apart.
+            if first in values:
+                supply.append(name)
+            if second in values:
+                coal_power.append(name)
+            listing = _coal_listing(first in values, second in values)
+            lines.append(f"{name}: listed for {listing}{_cite(record)}.")
         elif first in values or second in values:
-            expanding.append(name)
-            coal_power = coal_power or (source == EvidenceSource.COAL_EXIT and second in values)
+            supply.append(name)
             lines.append(f"{name}: listed as expanding{_cite(record)}.")
         else:
             lines.append(f"{name}: listed, with no expansion recorded{_cite(record)}.")
@@ -192,8 +232,7 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
         record = _first(evidence, source)
         count = record.raw_data.get(field) if record else None
         if record is not None and isinstance(count, int) and count > 0:
-            expanding.append(name)
-            coal_power = coal_power or source == EvidenceSource.GCPT
+            (coal_power if source == EvidenceSource.GCPT else supply).append(name)
             plural = noun.replace("(s)", "" if count == 1 else "s")
             lines.append(f"{name}: {count} {plural}{_assets(record)}{_cite(record)}.")
         stalled = record.raw_data.get("stalled_assets") if record else None
@@ -203,11 +242,11 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
                 f"{asset.get('name')} (proposed in {asset.get('proposal_year')})"
                 for asset in stalled[:3]
             )
+            one = len(stalled) == 1
             lines.append(
-                f"{name}: {len(stalled)} "
-                f"{'proposal' if len(stalled) == 1 else 'proposals'} still at the proposal "
-                f"stage more than ten years later, not counted as new supply: {listed}"
-                f"{_cite(record)}."
+                f"{name}: {len(stalled)} {'proposal' if one else 'proposals'} still at the "
+                f"proposal stage more than ten years later, which {'is' if one else 'are'} "
+                f"not counted as new supply: {listed}{_cite(record)}."
             )
 
     if not lines:
@@ -216,32 +255,75 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
             line,
             "neither the fossil fuel exit lists nor the asset trackers record it as expanding supply",
         )
-    if expanding:
-        names = (
-            expanding[0]
-            if len(expanding) == 1
-            else f"{', '.join(expanding[:-1])} and {expanding[-1]}"
+    record_line = " ".join(lines)
+    if supply == coal_power == [_GCEL]:
+        # One list records both kinds of expansion, so the finding says which is which.
+        power = _COAL_POWER
+    elif coal_power:
+        power = f"the {_joined(coal_power)} {_record_verb(coal_power)} {_COAL_POWER}"
+    else:
+        power = ""
+    if supply:
+        # The coal list records power expansion too, so its supply is named as mining.
+        finding = (
+            f"the {_GCEL} records coal mining expansion, which is new fossil fuel supply"
+            if supply == [_GCEL]
+            else f"the {_joined(supply)} {_record_verb(supply)} new fossil fuel supply"
         )
-        verb = "records" if len(expanding) == 1 else "record"
-        coal = (
-            ", counting new coal plants, which the expert group's recommendations for "
-            "businesses include ending (Integrity Matters, p. 24)"
-            if coal_power
-            else ""
+        return record_line, f"{finding}, and {power}" if power else finding
+    if not_counted and coal_power:
+        return record_line, (
+            "no record shows new fossil fuel supply that counts, as the supply expansion "
+            f"listed matches proposals more than ten years old; {power}"
         )
-        return " ".join(lines), f"the {names} {verb} new fossil fuel supply{coal}"
     if not_counted:
-        return " ".join(lines), (
+        return record_line, (
             "no record shows new fossil fuel supply that counts; the expansion listed "
             "matches proposals more than ten years old"
         )
-    return " ".join(lines), "the exit lists record no expansion"
+    if coal_power:
+        return record_line, f"no record shows new fossil fuel supply; {power}"
+    return record_line, "the exit lists record no expansion"
 
 
 _PANDEMIC_YEARS = frozenset({2020, 2021})
 
+# An installation and the years between which its series changes by more than half.
+_Break = tuple[str, list[tuple[int, int]]]
+
+
+def _named(installations: list[str]) -> str:
+    """Name up to three installations and count the rest, as the break note does."""
+    if len(installations) <= 3:
+        return _joined(installations)
+    return f"{', '.join(installations[:3])} and {len(installations) - 3} more"
+
+
+def _not_like_for_like(before: list[_Break], common: list[int]) -> str:
+    """Return the clause on a comparison sum taken before steps in some series.
+
+    Args:
+        before: The installations with a step between the comparison year and the
+            last three years, each with all of its steps.
+        common: The last three years in which every installation reported. A
+            comparison year exists only when there are more than three such years.
+
+    Returns:
+        The clause that follows the comparison sum, or an empty string.
+    """
+    if not before:
+        return ""
+    steps = sum(len(pairs) for _installation, pairs in before)
+    return (
+        f"; that sum includes {_named([installation for installation, _pairs in before])} "
+        f"before the {'step' if steps == 1 else 'steps'} of more than half in "
+        f"{'its' if len(before) == 1 else 'their'} series described below, so it is not a "
+        f"like-for-like comparison with {common[0]} to {common[-1]}"
+    )
+
 
 def _emissions(evidence: list[Evidence]) -> str:
+    """Return the verified emissions line, with a longer view and any breaks in a series."""
     records = [e for e in evidence if e.source == EvidenceSource.EU_ETS]
     if not records:
         return "No EU ETS installations mapped for this assessment."
@@ -274,9 +356,10 @@ def _emissions(evidence: list[Evidence]) -> str:
     def total(year: int) -> str:
         return f"{_tonnes(sum(h[year] for _, h in histories))} CO2e in {year}"
 
+    count = len(histories)
     line = (
-        f"EU ETS verified emissions for {_installations(len(histories), noun)}, those mapped to "
-        f"the company by name and not necessarily all of its {noun}s: "
+        f"EU ETS verified emissions for {count} {noun}{'' if count == 1 else 's'} mapped to the "
+        f"company by name, which may not be all of its {noun}s: "
         f"{'; '.join(total(year) for year in reversed(common))}."
     )
     # A longer view, so that three years are not read alone. The pandemic years are no
@@ -286,30 +369,39 @@ def _emissions(evidence: list[Evidence]) -> str:
         for year in every
         if common[-1] - 10 <= year < common[0] and year not in _PANDEMIC_YEARS
     ]
-    if earlier:
-        line += f" For comparison, {total(earlier[0])}."
-    # A step of more than half in one installation's series can mean a change in what
-    # it covers rather than in its emissions; steps into and out of the pandemic years
-    # are left aside.
+    # A step of more than half in one installation's series can come from a change in
+    # what it covers as well as from a change in its emissions; steps into and out of
+    # the pandemic years are left aside.
     tested = [
         year
         for year in every
         if year >= (earlier[0] if earlier else common[0]) and year not in _PANDEMIC_YEARS
     ]
-    breaks: list[str] = []
+    breaks: list[_Break] = []
     for installation, h in histories:
         steps = [
-            f"between {first} and {second}"
+            (first, second)
             for first, second in pairwise(tested)
             if h[first] and (h[second] > h[first] * 1.5 or h[second] < h[first] * 0.5)
         ]
         if steps:
-            breaks.append(f"{installation} {' and '.join(steps)}")
+            breaks.append((installation, steps))
+    # The comparison sum holds an installation as it was before a step that falls between
+    # the comparison year and the last three years. Those installations are listed first,
+    # so that the note below describes the ones the comparison names.
+    before = [b for b in breaks if earlier and any(second <= common[0] for _, second in b[1])]
+    breaks.sort(key=lambda b: b not in before)
+    if earlier:
+        line += f" For comparison, {total(earlier[0])}{_not_like_for_like(before, common)}."
     if breaks:
         more = f"; and {len(breaks) - 3} more" if len(breaks) > 3 else ""
         line += (
             " The series change by more than half for "
-            + "; ".join(breaks[:3])
+            + "; ".join(
+                f"{installation} "
+                + " and ".join(f"between {first} and {second}" for first, second in pairs)
+                for installation, pairs in breaks[:3]
+            )
             + more
             + ": such a step can come from a closure, a change of fuel or a change in what "
             "an installation reports."

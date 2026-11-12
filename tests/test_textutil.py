@@ -96,6 +96,6 @@ class TestEmissionsLine:
                 record("DE_2", {2015: 10.0, 2023: 10.0, 2024: 30.0, 2025: 30.0}),
             ]
         )
-        assert "2 mapped installations" in line
+        assert "2 installations mapped to the company by name" in line
         assert "For comparison" in line and "in 2015" in line
         assert "DE_2 between 2023 and 2024" in line

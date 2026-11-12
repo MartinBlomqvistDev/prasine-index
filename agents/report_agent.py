@@ -149,24 +149,25 @@ whether the judge used each one for this claim. Write "None in the evidence." \
 if there are none.]
 
 ### Regulatory Context
-[Use only the EUR-Lex records in the evidence. Name the provision relevant to \
-this kind of claim and quote it as given, then state which facts in the \
-evidence bear on it, for example whether the source document shows regular \
-verification by an independent third-party expert for a claim about future \
-performance. Rules:
+[Use only the EUR-Lex records in the evidence. Name each provision they give and \
+its scope as the record states it. Quote a provision only where the record quotes \
+it, and as the record gives it. Do not set facts from the evidence against a \
+provision or its elements, and do not list which facts bear on it. Rules:
 - Directive (EU) 2024/825 applies from 27 September 2026 and only to commercial \
 practices aimed at consumers. Name the kind of page the claim was published on, \
 as given in CLAIM SOURCE. If it is an investor relations page or an annual \
 report, say that the Commission services' Questions and Answers describe \
 sustainability reports as "often mandatory and addressed to investors" and \
 "typically not in scope", quoting them as the EUR-Lex record gives them. For any \
-page, do not conclude whether the directive applies: whether a page is a \
-commercial practice aimed at consumers is for national authorities and courts \
-to decide.
+page, say that whether this publication is a commercial practice aimed at \
+consumers is for national authorities and courts to decide, and do not conclude \
+whether the directive applies.
+- Then write: "The disclosure facts behind the score are set out in the \
+Assessment above."
 - Never conclude that the claim complies with or breaches a provision, and do \
 not use the words "breach", "comply" or "violate" or "misleading" outside a \
-quotation of the law. Where a conclusion would go, write: "The evidence allows \
-no conclusion on any provision."
+quotation of the law.
+- End the section with: "The evidence allows no conclusion on any provision."
 - The Green Claims Directive proposal was never adopted. Do not mention it.
 - Do not name enforcement authorities or describe how to file complaints.]
 
@@ -197,9 +198,9 @@ with: "Full Prasine Index methodology: https://www.prasineindex.com/methodology"
 
 ### Disclaimer
 *This report was produced by an automated evidence aggregation pipeline. The \
-Prasine Index score is an assessment of how the evidence relates to the claim, \
-not a legal determination, and it does not constitute legal advice. Corrections \
-and replies: cm.blomqvist@gmail.com*
+Prasine Index score describes how the evidence relates to the claim. It is not a \
+legal finding and does not constitute legal advice. Corrections and replies: \
+cm.blomqvist@gmail.com*
 
 CITATION FORMAT
 When citing evidence: [Source Name], [data year], [URL if available].
@@ -218,7 +219,7 @@ class ReportInput(BaseModel):
         context: Company historical context.
         verification: Verification evidence.
         lobbying: Lobbying record, or None if unavailable.
-        score: The Judge Agent's greenwashing verdict.
+        score: The Judge Agent's score and verdict.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -227,7 +228,7 @@ class ReportInput(BaseModel):
     context: CompanyContext = Field(..., description="Company historical context.")
     verification: VerificationResult = Field(..., description="Aggregated verification evidence.")
     lobbying: LobbyingRecord | None = Field(default=None, description="Lobbying record or None.")
-    score: GreenwashingScore = Field(..., description="The Judge Agent's greenwashing verdict.")
+    score: GreenwashingScore = Field(..., description="The Judge Agent's score and verdict.")
 
 
 class ReportResult(BaseModel):
@@ -254,7 +255,7 @@ class ReportResult(BaseModel):
 
 
 class ReportAgent:
-    """Generates a publication-ready greenwashing assessment report.
+    """Generates a publication-ready claim assessment report.
 
     Receives the complete evidence package and the Judge Agent's verdict and
     uses the Anthropic SDK to produce a structured Markdown report. The report
@@ -562,6 +563,9 @@ _JUDGE_RELATION = {
     "context": "context",
 }
 
+# Closing quotation marks and brackets that can follow the full stop ending a summary.
+_CLOSERS = "\"'”’)]"
+
 
 def _relation(evidence: Evidence, score: GreenwashingScore | None) -> str:
     """Return how the judge read a record: contradicts, supports or context.
@@ -683,11 +687,17 @@ def render_evidence_section(
     paragraphs = []
     for i, ev in enumerate(evidence, 1):
         summary = " ".join(ev.summary.split())
-        # A register gives its state on the day it was read, not a year of its own.
+        # A register gives its state on the day it was read and has no year of its own.
         year = ev.data_year if ev.data_year is not None else ""
+        # One full stop closes the record text: after the year, or after a summary that
+        # does not already end a sentence, inside closing quotes or brackets or outside them.
+        if year:
+            ending = f" ({year})."
+        else:
+            ending = "" if summary.rstrip(_CLOSERS).endswith((".", "!", "?")) else "."
         url = f" {ev.source_url}" if ev.source_url else ""
         paragraphs.append(
-            f"**[{i}] {_source_label(ev)}** {summary}{f' ({year})' if year else ''}. "
+            f"**[{i}] {_source_label(ev)}** {summary}{ending} "
             f"Supports claim: {_SUPPORT_LABELS[_relation(ev, score)]}. "
             f"(confidence {ev.confidence:.2f}){url}"
         )

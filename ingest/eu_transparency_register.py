@@ -9,13 +9,10 @@ EU institutions (Commission, Parliament, Council) on policy matters.
 Registration is mandatory for organisations that meet certain lobbying
 thresholds. As of 2026, the register contains ~17,000 entries.
 
-For greenwashing assessment, TR registration is contextual evidence:
-  - A fossil fuel company registered as an active EU lobbyist while claiming
-    climate leadership is worth flagging, especially when combined with
-    LobbyMap data showing their lobbying positions.
-  - Registration alone does not indicate the direction of lobbying;
-    the Judge Agent combines this with LobbyMap to assess whether
-    the company is lobbying against the climate policies it publicly endorses.
+In an assessment, TR registration is context:
+  - A registration shows that a company engages EU institutions.
+  - Registration alone does not indicate the direction of lobbying; that comes
+    from LobbyMap.
   - Suspended registrations are noted but carry less weight.
 
 Data source: EU Transparency Register public export

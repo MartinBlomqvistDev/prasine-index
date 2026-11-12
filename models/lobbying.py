@@ -1,9 +1,7 @@
 """Pydantic v2 model representing a company's lobbying activity as retrieved from the EU Transparency Register.
 
-A company that simultaneously claims climate leadership while lobbying against
-climate legislation in Brussels represents the strongest and most legally
-actionable form of greenwashing. This contradiction is surfaced explicitly as a
-primary signal in the Judge Agent's scoring and the published report.
+A registration shows that a company engages EU institutions; the direction of
+that engagement comes from LobbyMap. The judge treats the registration as context.
 """
 
 from __future__ import annotations
@@ -23,10 +21,9 @@ __all__ = [
 class LobbyingStance(StrEnum):
     """Assessment of whether the company's lobbying activities align with its green claims.
 
-    Determined by the Lobbying Agent by cross-referencing the company's declared
-    fields of interest and lobbying activities against the substance of its claims.
-    A PRO_CLIMATE stance does not exonerate a claim, but an ANTI_CLIMATE stance
-    is weighted heavily by the Judge Agent as a corroborating greenwashing signal.
+    The register export carries no declared fields of interest or activities, so
+    the Lobbying Agent sets UNKNOWN. The direction of lobbying comes from LobbyMap;
+    the judge treats the registration as context.
     """
 
     PRO_CLIMATE = "PRO_CLIMATE"
@@ -47,14 +44,14 @@ def _utc_now() -> datetime:
 class LobbyingRecord(BaseModel):
     """A company's lobbying activity record as retrieved from the EU Transparency Register.
 
-    The Lobbying Agent retrieves this data for every company under assessment and
-    uses it to answer the most important accountability question in the greenwashing
-    space: is the company lobbying against the very legislation its public claims
-    purport to support?
+    The Lobbying Agent retrieves this record for every company under assessment.
+    A registration shows that the company engages EU institutions; the direction
+    of that engagement comes from LobbyMap, and the judge treats the registration
+    as context.
 
-    When ``contradicts_claim`` is True, the ``contradiction_explanation`` field
-    provides a specific natural-language description of the contradiction, which
-    is reproduced verbatim in the published report.
+    The register export carries registration metadata only, so the Lobbying Agent
+    sets ``contradicts_claim`` to False and leaves ``contradiction_explanation``
+    empty.
 
     This model is frozen: lobbying records are immutable audit artifacts. A new
     retrieval produces a new record with a new ``retrieved_at`` timestamp, allowing
@@ -84,9 +81,9 @@ class LobbyingRecord(BaseModel):
         stance_reasoning: Agent's reasoning for the ``stance`` classification,
             preserved for transparency.
         contradicts_claim: True if the lobbying activity materially contradicts
-            the assessed claim. This is the primary output of the Lobbying Agent.
+            the assessed claim. The Lobbying Agent leaves it False.
         contradiction_explanation: Specific description of the contradiction,
-            reproduced in the published report. Required when
+            passed to the judge as a note on the claim. Required when
             ``contradicts_claim`` is True.
         retrieved_at: UTC timestamp of when this record was fetched from the
             Transparency Register.
@@ -147,14 +144,14 @@ class LobbyingRecord(BaseModel):
         default=False,
         description=(
             "True if the lobbying activity materially contradicts the assessed claim. "
-            "Weighted heavily by the Judge Agent as a primary greenwashing signal."
+            "The Lobbying Agent leaves it False; the judge treats the registration as context."
         ),
     )
     contradiction_explanation: str | None = Field(
         default=None,
         description=(
             "Specific description of the contradiction between lobbying activity and the claim. "
-            "Required when contradicts_claim is True; reproduced verbatim in the published report."
+            "Required when contradicts_claim is True; passed to the judge as a note on the claim."
         ),
     )
     retrieved_at: datetime = Field(

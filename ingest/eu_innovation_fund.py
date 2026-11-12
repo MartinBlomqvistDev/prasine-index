@@ -10,11 +10,12 @@ the European Commission after independent expert evaluation; a grant award
 constitutes validated external interest in a project, though it does not constitute
 verified emissions reduction or project completion.
 
-For greenwashing assessment, an Innovation Fund grant is:
+In an assessment, an Innovation Fund grant is a company-level record and context
+(core/evidence_scope.py):
   - Partially supporting: the EC experts evaluated the project as technically viable
     and worth funding. This mitigates pure-speculation claims.
-  - Not fully exonerating: the grant was for early-stage/demonstration technology,
-    not for verified delivered emissions reductions.
+  - Not proof of delivery: the grant funds the demonstration of a technology and
+    does not verify that emissions reductions were delivered.
   - Material context: a known grant amount (e.g. EUR 54M) makes a claim more
     specific and verifiable than a purely aspirational statement.
 

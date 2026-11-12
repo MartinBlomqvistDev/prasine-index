@@ -39,7 +39,7 @@ _BASE_URL = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data
 
 _HEADERS = {
     "Accept": "application/json",
-    "User-Agent": "PrasineIndex/1.0 (EU greenwashing monitor)",
+    "User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)",
 }
 
 # Sectors to query: covers the full national inventory breakdown

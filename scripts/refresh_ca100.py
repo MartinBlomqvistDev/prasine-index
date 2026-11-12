@@ -40,10 +40,7 @@ _BENCHMARK = "October 2026"
 _YEAR = 2026
 _PAGE = "https://www.climateaction100.org/company-assessments/{slug}/"
 _BENCHMARK_PAGE = "https://www.climateaction100.org/net-zero-company-benchmark/"
-_USER_AGENT = (
-    "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-    "+https://github.com/MartinBlomqvistDev/prasine-index)"
-)
+_USER_AGENT = "Mozilla/5.0 (compatible; PrasineIndex/2.0; +https://www.prasineindex.com)"
 
 # The CSV column for each benchmark indicator, by its number in the framework.
 _COLUMNS = {

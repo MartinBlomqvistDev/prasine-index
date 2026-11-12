@@ -7,12 +7,13 @@ attribution and development status.
 Complementary to the Urgewald GOGEL (company-level O&G expansion screening):
 GOGEL provides the company-level screen used by financial institutions; GOGET
 provides facility-level evidence with named fields and specific statuses,
-making it a stronger citation for claim-by-claim greenwashing reports.
+making it a more specific record for a claim-by-claim assessment.
 
-The key greenwashing signal: a company claiming fossil fuel phase-out or
-Paris-aligned transition while actively developing new oil or gas extraction
-fields (status "in-development" or "discovered") is directly contradicted.
-Each new field approved for development locks in decades of upstream emissions.
+Oil and gas fields in development (status "in-development", or "discovered"
+without being long stalled) are records of new fossil fuel supply. For a climate
+pledge they count against the pledge under the UN High-Level Expert Group's
+criterion on new fossil fuel supply (HLEG_FOSSIL_SUPPLY in core/evidence_scope.py);
+for a claim about the same fields they are claim-level records.
 
 Status values:
   operating: currently producing
@@ -22,11 +23,12 @@ Status values:
   decommissioning: actively being wound down
   abandoned: development abandoned
 
-Greenwashing signal logic:
+Record logic:
   in-development → supports_claim=False, confidence=0.87
     (FID taken, capital committed to new fossil fuel extraction)
   discovered (pre-FID) → supports_claim=False, confidence=0.72
-    (active development likely; still contradicts net-zero trajectory)
+    (a discovery with no investment decision for more than STALLED_YEARS is
+    listed as stalled and not counted as new supply)
   decommissioning only → supports_claim=True, confidence=0.55
   operating only → supports_claim=None, confidence=0.60
 
@@ -226,9 +228,9 @@ async def fetch_goget_data(claim: Claim, company: object) -> list[Evidence]:
 
     Finds all extraction fields operated or owned by the company and reports
     development pipeline, operating fields, and decommissioning activity.
-    A company with fields in active development while claiming Paris alignment
-    or fossil fuel phase-out is directly contradicted: FID on a new field
-    means capital committed to decades of upstream fossil fuel production.
+    For a climate pledge, a field in development counts against the pledge as
+    new fossil fuel supply; for a claim about the same fields it is a
+    claim-level record.
 
     Args:
         claim: The claim under assessment.

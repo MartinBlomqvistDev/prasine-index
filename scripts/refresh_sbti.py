@@ -38,7 +38,7 @@ def download_sbti() -> None:
 
     req = urllib.request.Request(
         _SBTI_XLSX_URL,
-        headers={"User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)"},
+        headers={"User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)"},
     )
 
     try:

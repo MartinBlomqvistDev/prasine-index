@@ -1,9 +1,9 @@
 """Regulatory context module for the Prasine Index Verification Agent.
 
 Provides the EU legal provisions that bear on a green claim, as structured
-Evidence, so the Judge Agent always has the regulatory baseline. EUR-Lex holds
-the legislation itself, not company reports, and the legislation does not change
-between runs, so the provisions are embedded rather than fetched.
+Evidence, so the Judge Agent always has the regulatory baseline. The provisions
+come from EUR-Lex and do not change between runs, so they are embedded here and
+no request is made.
 
 Sources embedded here:
 - Directive (EU) 2024/825, which amends the Unfair Commercial Practices
@@ -12,9 +12,13 @@ Sources embedded here:
 - The CSRD, Directive (EU) 2022/2464: corporate sustainability reporting.
 - The EU ETS Directive 2003/87/EC: verified emissions of covered installations.
 
-Provisions are quoted from the Official Journal text. Each record states what a
-provision requires and never concludes that a claim breaches it: whether a
-practice is unfair is decided case by case by national authorities and courts.
+Each UCPD record quotes the provision it names from the Official Journal text,
+and quotes the Commission services' Questions and Answers on the directive's
+scope. The CSRD and EU ETS records, and the sentences that follow the quotation
+in the records on generic claims and main characteristics, are short summaries.
+Each record states what a provision requires and never concludes that a claim
+breaches it: whether a practice is unfair is decided case by case by national
+authorities and courts.
 
 The Green Claims Directive proposal, COM(2023) 166, was never adopted and is not
 cited.
@@ -81,9 +85,9 @@ _OFFSETTING = (
     '"Claiming, based on the offsetting of greenhouse gas emissions, that a product '
     "has a neutral, reduced or positive impact on the environment in terms of "
     "greenhouse gas emissions.\" The Commission services' Questions and Answers "
-    "(September 2026) state that point 4c "
-    "does not apply to claims based on offsetting at company level, which remain "
-    "subject to the directive's other provisions." + _CONSUMER_SCOPE,
+    '(September 2026) say: "The prohibition in Annex I point 4c does not apply to '
+    "claims based on offsetting at company level, however such claims remain subject "
+    'to other relevant provisions of the UCPD."' + _CONSUMER_SCOPE,
 )
 
 _GENERIC_CLAIM = (
@@ -150,11 +154,11 @@ _EU_ETS = (
     2003,
     "Operators in the EU ETS report annual emissions that accredited verifiers check "
     "under Implementing Regulation (EU) 2018/2067, and the verified figures are "
-    "published in the Union Registry. They cover the installations and aviation "
-    "activities an operator has in the scheme, not a company's whole value chain. "
-    "Emissions from biomass that meets the sustainability criteria count as zero in "
-    "the EU ETS, so a fall in verified emissions can reflect a switch to biomass "
-    "rather than an equal fall in the CO2 actually released.",
+    "published in the Union Registry. They cover only the installations and aviation "
+    "activities an operator has in the scheme. Emissions from biomass that meets the "
+    "sustainability criteria count as zero in the EU ETS, so a fall in verified "
+    "emissions can come from a switch to biomass, and the CO2 actually released need "
+    "not fall by as much.",
 )
 
 _REGULATORY_CONTEXT: dict[ClaimCategory, list[tuple[str, str, int, str]]] = {

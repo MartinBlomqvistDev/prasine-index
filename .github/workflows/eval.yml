@@ -1,8 +1,9 @@
 # Prasine Index: Golden Dataset Eval
 #
-# Runs the golden eval against the full pipeline as a regression check: a
-# failure means verdicts have moved since the last run. It does not measure
-# accuracy, because the expected verdicts were adjusted during development.
+# Runs the golden eval against the full pipeline as a regression check. It
+# compares each case with a fixed expected finding and score range, set during
+# development under version 1 of the method, several of them to match the
+# pipeline's output at the time. It does not measure accuracy.
 #
 # Requires:
 #   - ANTHROPIC_API_KEY secret set in the repository
@@ -10,10 +11,10 @@
 #
 # Triggers:
 #   - Manually via workflow_dispatch, with the 5-case quick subset or all 20 cases
-#   - When a release is published (all 20 cases)
 #
 # A full run costs a few dollars of API usage, so the eval does not run on every
-# push. The job fails if the API key is missing or the pass rate drops below 80%
+# push or when a release is published. The job fails if the API key is missing
+# or fewer than 80% of the cases match their expected finding and score range
 # (exit code 1 from golden_dataset.py).
 
 name: Eval
@@ -26,8 +27,6 @@ on:
         type: choice
         options: [quick, full]
         default: quick
-  release:
-    types: [published]
 
 jobs:
 

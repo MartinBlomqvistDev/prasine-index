@@ -2,7 +2,8 @@
 
 The evidence list in a report is rendered from the verification records rather
 than written by the model, so the published list always matches what the judge
-saw, and each record is labelled by how the judge read it for this claim.
+saw, and each record is labelled by how the judge read it for this claim. The
+last tests pin the fixed text the report model is told to write.
 Pure-Python: no LLM, no network, no database.
 """
 
@@ -11,6 +12,7 @@ from __future__ import annotations
 import uuid
 
 from agents.report_agent import (
+    _SYSTEM_PROMPT,
     _insert_evidence_section,
     published_evidence,
     render_evidence_section,
@@ -67,6 +69,56 @@ class TestRenderEvidenceSection:
 
     def test_empty_evidence_says_so(self) -> None:
         assert render_evidence_section([]) == "No evidence records were returned."
+
+    def test_a_summary_that_ends_a_sentence_gets_no_second_full_stop(self) -> None:
+        register = _evidence(
+            "The register lists the company; it does not show the direction of that engagement."
+        ).model_copy(update={"data_year": None})
+        rendered = render_evidence_section([register])
+        assert "direction of that engagement. Supports claim: Context." in rendered
+        assert ".." not in rendered
+
+    def test_a_summary_without_a_full_stop_gets_one(self) -> None:
+        listing = _evidence("Installation list").model_copy(update={"data_year": None})
+        assert "Installation list. Supports claim: Context." in render_evidence_section([listing])
+
+    def test_a_quotation_that_ends_a_sentence_gets_no_second_full_stop(self) -> None:
+        ruling = _evidence('The ruling reads: "The ad must not appear again."').model_copy(
+            update={"data_year": None}
+        )
+        rendered = render_evidence_section([ruling])
+        assert 'must not appear again." Supports claim: Context.' in rendered
+
+    def test_a_bracket_without_a_full_stop_gets_one(self) -> None:
+        band = _evidence("Band B (as published on 2026-11-05)").model_copy(
+            update={"data_year": None}
+        )
+        assert "(as published on 2026-11-05). Supports claim:" in render_evidence_section([band])
+
+
+class TestReportPrompt:
+    """The fixed text the report model is told to write."""
+
+    def test_disclaimer(self) -> None:
+        assert (
+            "*This report was produced by an automated evidence aggregation pipeline. The "
+            "Prasine Index score describes how the evidence relates to the claim. It is not a "
+            "legal finding and does not constitute legal advice. Corrections and replies: "
+            "cm.blomqvist@gmail.com*" in _SYSTEM_PROMPT
+        )
+
+    def test_regulatory_context_refers_to_the_assessment_for_the_facts(self) -> None:
+        section = _SYSTEM_PROMPT.split("### Regulatory Context", 1)[1].split("### Key Finding")[0]
+        assert "which facts in the evidence bear on it" not in section
+        assert "Do not set facts from the evidence against a provision or its elements" in section
+        assert "is for national authorities and courts to decide" in section
+        assert (
+            'Then write: "The disclosure facts behind the score are set out in the Assessment '
+            'above."' in section
+        )
+        assert 'End the section with: "The evidence allows no conclusion on any provision."' in (
+            section
+        )
 
 
 class TestInsertEvidenceSection:

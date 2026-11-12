@@ -7,8 +7,7 @@
 #   4. Prose style (typography and whitespace conventions)
 #
 # The golden dataset eval (eval/golden_dataset.py) requires ANTHROPIC_API_KEY
-# and a live database. It runs as a separate workflow (eval.yml) triggered
-# manually or on pushes to main, not on every PR.
+# and a live database. It runs as a separate workflow (eval.yml), started by hand.
 
 name: CI
 

@@ -141,7 +141,7 @@ class LLMError(PrasineError):
 
 
 class DataSourceError(PrasineError):
-    """Failure when querying an external EU open data source.
+    """Failure when querying an external data source.
 
     Raised by ingest modules when an upstream API call fails. HTTP 5xx and
     network timeouts are retryable; HTTP 4xx responses are not, as they

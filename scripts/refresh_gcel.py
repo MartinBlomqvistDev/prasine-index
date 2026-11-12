@@ -8,10 +8,6 @@ The Global Coal Exit List tracks approximately 1,000 companies across the full
 coal value chain: mining, trading, transportation, and power. It is maintained
 by Urgewald and a coalition of 50+ NGOs. Published free of charge, no account required.
 
-The GCEL is the standard coal screen used by 400+ financial institutions under
-the GFANZ (Glasgow Financial Alliance for Net Zero) and PAII (Paris Aligned
-Investment Initiative) frameworks.
-
 Saves to data/gcel_companies.csv. Run refresh_cache() from ingest.coal_exit to
 reload without restarting.
 
@@ -62,7 +58,7 @@ def download_gcel_csv() -> None:
     req = urllib.request.Request(
         _GCEL_CSV_URL,
         headers={
-            "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)",
+            "User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)",
             "Accept": "text/csv,application/csv,*/*",
         },
     )

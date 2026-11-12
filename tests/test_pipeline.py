@@ -301,3 +301,20 @@ class TestEntryPageVersion:
             [elsewhere, entry], preferred_url="https://example.com/net-zero"
         )
         assert [c.source_url for c in result] == ["https://example.com/net-zero/"]
+
+
+class TestRelabel:
+    """Match labels name the company as the report does; a LobbyMap band keeps its name."""
+
+    def test_a_match_label_takes_the_report_name(self) -> None:
+        from core.pipeline import relabel
+
+        text = "SBTi register entry 'IKEA' (matched to IKEA Group): near-term targets."
+        shown = relabel(text, "IKEA Group", "IKEA (Inter IKEA Group)")
+        assert "(matched to IKEA (Inter IKEA Group))" in shown
+
+    def test_a_lobbymap_band_keeps_its_profile_name(self) -> None:
+        from core.pipeline import relabel
+
+        text = "LobbyMap performance band for IKEA: B."
+        assert relabel(text, "IKEA Group", "IKEA (Inter IKEA Group)") == text

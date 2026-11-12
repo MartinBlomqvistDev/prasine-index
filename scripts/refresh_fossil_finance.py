@@ -69,7 +69,7 @@ def download_bocc_csv() -> None:
     req = urllib.request.Request(
         _BOCC_CSV_URL,
         headers={
-            "User-Agent": "prasine-index/1.0 (greenwashing research; contact via GitHub)",
+            "User-Agent": "PrasineIndex/2.0 (+https://www.prasineindex.com)",
             "Accept": "text/csv,application/csv,*/*",
         },
     )

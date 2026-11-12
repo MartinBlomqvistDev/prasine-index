@@ -1,11 +1,12 @@
 """Context Agent for the Prasine Index pipeline.
 
 Runs after claim extraction and before verification. Queries PostgreSQL to
-retrieve the company's full claim history, aggregate greenwashing scores, and
-score trend, then uses pgvector cosine similarity to find prior claims
-semantically equivalent to the current one. This longitudinal context is passed
-to both the Verification Agent and the Judge Agent, enabling the pipeline to
-treat repeat offenders differently from first-time filers.
+retrieve the company's full claim history, aggregate claim scores, and score
+trend, then uses pgvector cosine similarity to find prior claims semantically
+equivalent to the current one. The context is passed to both the Verification
+Agent and the Judge Agent, which read the company record from it. The judge
+leaves the history out, so that a re-run is judged on the records alone
+(``_build_judge_prompt`` in agents/judge_agent.py).
 """
 
 from __future__ import annotations
@@ -96,19 +97,17 @@ class ContextAgent:
     """Assembles historical company context before verification begins.
 
     Queries PostgreSQL to retrieve the company's claim history, aggregate
-    greenwashing scores, score trend, and semantically similar historical
-    claims via pgvector cosine similarity on normalised claim text.
+    claim scores, score trend, and semantically similar historical claims via
+    pgvector cosine similarity on normalised claim text.
 
     This agent has no LLM dependency. It is a pure data retrieval step whose
-    output is a fully populated :py:class:`~models.company.CompanyContext`
-    that gives downstream agents the longitudinal view required to distinguish
-    a company making a claim for the first time from one repeating an
-    undelivered commitment.
+    output is a fully populated :py:class:`~models.company.CompanyContext`.
+    Downstream agents read the company record from it; the judge leaves the
+    history fields out.
 
-    The agent does not itself set ``Claim.is_repeat`` or
-    ``Claim.previous_claim_id``; those mutations are applied by the pipeline
-    orchestrator using the ``similar_historical_claim_ids`` returned here,
-    keeping the agent's responsibility narrowly scoped to data retrieval.
+    The agent does not set ``Claim.is_repeat`` or ``Claim.previous_claim_id``,
+    and nothing else in the pipeline sets them; the agent only returns
+    ``similar_historical_claim_ids``.
     """
 
     async def run(self, input: ContextInput) -> ContextResult:
@@ -337,7 +336,7 @@ class ContextAgent:
         company_id: uuid.UUID,
         current_trace_id: uuid.UUID,
     ) -> dict[str, Any]:
-        """Aggregate greenwashing score statistics and history for the company.
+        """Aggregate claim score statistics and history for the company.
 
         Retrieves the average score, the worst (highest) score, and the
         chronological sequence of scores used to compute the trend. The
@@ -485,19 +484,20 @@ class ContextAgent:
 
 
 def _compute_score_trend(score_history: list[float]) -> ScoreTrend:
-    """Derive a ScoreTrend from the chronological sequence of greenwashing scores.
+    """Derive a ScoreTrend from the chronological sequence of claim scores.
 
     Requires at least ``_MIN_PERIODS_FOR_TREND`` data points. With fewer
     points returns INSUFFICIENT_DATA. With sufficient data, computes the
     linear regression slope over the score sequence: a positive slope (scores
-    increasing over time, meaning worsening greenwashing) returns DETERIORATING;
-    a negative slope returns IMPROVING; a near-zero slope returns STABLE.
+    increasing over time, meaning the records go further against the claims)
+    returns DETERIORATING; a negative slope returns IMPROVING; a near-zero slope
+    returns STABLE.
 
     The slope threshold of ±2.0 per period prevents noisy oscillation from
     being misclassified as a meaningful trend.
 
     Args:
-        score_history: Chronologically ordered list of greenwashing scores.
+        score_history: Chronologically ordered list of claim scores.
 
     Returns:
         The :py:class:`~models.company.ScoreTrend` value for this history.

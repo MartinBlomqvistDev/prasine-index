@@ -1,6 +1,6 @@
 """Pydantic v2 models representing the external evidence gathered by the Verification Agent.
 
-Each Evidence record captures a single data point from one EU open data source,
+Each Evidence record captures a single data point from one source,
 together with the agent's assessment of whether that data supports or contradicts
 the claim. VerificationResult aggregates all evidence for a claim into a single
 structured output passed to the Judge Agent.
@@ -85,7 +85,7 @@ def _utc_now() -> datetime:
 
 
 class Evidence(BaseModel):
-    """A single data point retrieved from one EU open data source.
+    """A single data point retrieved from one source.
 
     Evidence is always attached to a specific Claim and carries the full raw
     response from the upstream data source alongside the Verification Agent's
@@ -99,7 +99,7 @@ class Evidence(BaseModel):
         id: Unique identifier for this evidence record.
         claim_id: The Claim this evidence was gathered against.
         trace_id: Pipeline-wide trace identifier, inherited from the Claim.
-        source: The EU open data source that provided this evidence.
+        source: The source that provided this evidence.
         evidence_type: Semantic classification of the evidence type.
         source_url: Direct URL to the specific data point or document, if
             resolvable. Some API responses do not map to a stable URL.
@@ -127,9 +127,7 @@ class Evidence(BaseModel):
     trace_id: uuid.UUID = Field(
         ..., description="Pipeline trace identifier, inherited from the Claim."
     )
-    source: EvidenceSource = Field(
-        ..., description="EU open data source that provided this evidence."
-    )
+    source: EvidenceSource = Field(..., description="The source that provided this evidence.")
     evidence_type: EvidenceType = Field(
         ..., description="Semantic classification of the evidence type."
     )

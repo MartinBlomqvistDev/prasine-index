@@ -113,10 +113,7 @@ def _is_pdf(response: httpx.Response) -> bool:
 _SPA_THRESHOLD = 500
 
 _FETCH_HEADERS: dict[str, str] = {
-    "User-Agent": (
-        "Mozilla/5.0 (compatible; PrasineIndex/1.0; "
-        "+https://github.com/MartinBlomqvistDev/prasine-index)"
-    ),
+    "User-Agent": ("Mozilla/5.0 (compatible; PrasineIndex/2.0; +https://www.prasineindex.com)"),
     "Accept": "text/html,application/xhtml+xml,*/*;q=0.9",
     "Accept-Language": "sv,en-GB;q=0.9,en;q=0.8",
 }
@@ -341,18 +338,22 @@ logger = get_logger(__name__)
 def relabel(text: str, company: str, display: str) -> str:
     """Name the company as the report does where a label says which entity was matched.
 
+    A LobbyMap band keeps the name of LobbyMap's own profile. LobbyMap's IKEA profile
+    does not separate Inter IKEA Group from Ingka Group, so the report's name for the
+    company would claim a precision the rating does not have.
+
     Args:
         text: A record summary or the judge's reasoning.
         company: The company name the sources were queried with.
         display: The name the report gives the company.
 
     Returns:
-        The text with "matched to", "whose name matches" and "band for" followed by the
-        report's name; every other mention is left as it is.
+        The text with "matched to" and "whose name matches" followed by the report's
+        name; every other mention is left as it is.
     """
     if not display or display == company:
         return text
-    for label in ("matched to ", "whose name matches ", "band for "):
+    for label in ("matched to ", "whose name matches "):
         text = text.replace(f"{label}{company}", f"{label}{display}")
     return text
 
@@ -407,7 +408,7 @@ def _save_judge_input(judge_input: JudgeInput) -> None:
 # Claim priority scoring (used by run_from_url to pick the best N claims)
 # ---------------------------------------------------------------------------
 
-# Category priority: higher = more verifiable / higher greenwashing risk.
+# Category priority: a higher weight raises the priority of claims in that category.
 _CATEGORY_WEIGHT: dict[str, int] = {
     "NET_ZERO_TARGET": 10,
     "CARBON_NEUTRAL": 9,
@@ -572,7 +573,7 @@ class PipelineResult(BaseModel):
 
     Attributes:
         claim: The extracted and assessed claim.
-        score: The Judge Agent's greenwashing verdict.
+        score: The Judge Agent's score and verdict.
         report_markdown: The publication-ready report.
         traces: All AgentTrace records from each pipeline step.
         evidence: The verification evidence the judge saw.
@@ -581,7 +582,7 @@ class PipelineResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     claim: Claim = Field(..., description="The extracted and assessed claim.")
-    score: GreenwashingScore = Field(..., description="The greenwashing verdict.")
+    score: GreenwashingScore = Field(..., description="The Judge Agent's score and verdict.")
     report_markdown: str = Field(..., description="Publication-ready report in Markdown.")
     traces: list[AgentTrace] = Field(
         default_factory=list,

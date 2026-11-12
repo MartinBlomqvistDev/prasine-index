@@ -1,11 +1,18 @@
-"""Golden evaluation dataset for the Prasine Index pipeline.
+"""Regression cases for the Prasine Index pipeline.
 
-Contains 20 known greenwashing cases drawn from public record: EU regulatory
-actions, NGO investigations, and academic studies. Each case includes the
-verbatim claim, the expected verdict, and the primary contradicting evidence
-source. The eval runner executes the full pipeline against each case and measures
-verdict accuracy, score calibration, and per-agent latency. This is LLMOps:
-changes to prompts, models, or agent logic must not regress the golden dataset.
+The 20 cases are climate claims of named companies, each with the label and
+score range the pipeline was expected to give under version 1 of the method.
+The labels are the internal names of the score bands in models/score.py and
+describe score ranges only. Several expected labels were set to match the
+pipeline's own output at the time, and some claim texts are not the companies'
+exact words. A case is therefore not a judgement of the company or its claim.
+The expected labels and ranges have not been re-set for version 2.
+
+The runner executes the full pipeline on each case and reports how many cases
+match their expected label and score range, the time per case and the tokens
+used. It is a regression check and does not measure accuracy. It runs by hand
+or from the manual Eval workflow (.github/workflows/eval.yml); it does not run
+on every push.
 """
 
 from __future__ import annotations
@@ -41,22 +48,25 @@ logger = get_logger(__name__)
 
 
 class EvalCase(BaseModel):
-    """A single golden evaluation case with the expected verdict.
+    """A regression case with the label and score range expected under version 1.
 
     Attributes:
         case_id: Unique identifier for this eval case.
         company_id: UUID of the seeded company in the database.
-        company_name: Company that made the claim.
+        company_name: Company the claim is attributed to.
         company_country: ISO 3166-1 alpha-2 country of the company.
-        claim_text: Verbatim claim text.
+        claim_text: The claim text as tested; not the company's exact words in
+            some cases.
         claim_category: Expected claim category.
-        source_type: Document type the claim appears in.
+        source_type: Document type recorded for the claim.
         source_url: Source URL (may be a placeholder for historical cases).
-        expected_verdict: The correct verdict based on known outcomes.
-        expected_score_min: Minimum acceptable score for this case.
-        expected_score_max: Maximum acceptable score for this case.
-        primary_evidence_source: The primary source that contradicts the claim.
-        notes: Context explaining why this is the expected verdict.
+        expected_verdict: The label expected under version 1 of the method.
+        expected_score_min: Lowest score in the expected range.
+        expected_score_max: Highest score in the expected range.
+        primary_evidence_source: The source the case was expected to turn on.
+        notes: Provenance of the case and of any decision it cites.
+        tier: must_pass, or known_limitation for a case left out of the
+            must_pass rate; both count towards the overall rate.
     """
 
     model_config = ConfigDict(from_attributes=True)
@@ -82,9 +92,9 @@ class EvalResult(BaseModel):
 
     Attributes:
         case_id: The eval case that was run.
-        verdict_correct: Whether the pipeline verdict matched the expected verdict.
+        verdict_correct: Whether the pipeline's label matched the expected label.
         score_in_range: Whether the pipeline score was within the expected range.
-        actual_verdict: The verdict the pipeline produced.
+        actual_verdict: The label the pipeline produced.
         actual_score: The score the pipeline produced.
         duration_ms: Total wall-clock time for the full pipeline run.
         tokens_used: Total tokens consumed across all LLM agent steps.
@@ -104,28 +114,30 @@ class EvalResult(BaseModel):
 
     @property
     def passed(self) -> bool:
-        """True if the case passed both verdict and score checks.
+        """True if the label and the score both match the expectation.
 
         Returns:
-            True if both verdict and score are correct.
+            True if both match and the run raised no error.
         """
         return self.verdict_correct and self.score_in_range and self.error is None
 
 
 class EvalSummary(BaseModel):
-    """Aggregate metrics for a full golden dataset eval run.
+    """Aggregate results of a run of the regression cases.
 
     Attributes:
         total_cases: Total number of cases run.
-        passed: Number of cases where both verdict and score were correct.
-        failed: Number of cases where the verdict or score was incorrect.
+        passed: Number of cases whose label and score both match the expectation.
+        failed: Number of cases that do not match, leaving out errors.
         errors: Number of cases where the pipeline raised an exception.
-        verdict_accuracy: Fraction of cases with the correct verdict.
-        score_accuracy: Fraction of cases with the score in the expected range.
-        overall_pass_rate: Fraction of cases that fully passed.
-        tier1_pass_rate: Pass rate for must_pass cases only. This is the primary
-            accuracy metric: known_limitation cases are excluded because they
-            document data coverage gaps, not pipeline logic failures.
+        verdict_accuracy: Fraction of cases whose label matches the expected
+            label; printed as Band match.
+        score_accuracy: Fraction of cases whose score is in the expected range;
+            printed as Score in range.
+        overall_pass_rate: Fraction of cases that match both their expected
+            label and their expected score range.
+        tier1_pass_rate: Pass rate for must_pass cases only, reported beside the
+            overall rate; the exit code uses the overall rate.
         avg_duration_ms: Mean wall-clock time per case.
         total_tokens_used: Total tokens consumed across all cases.
         cases: The EvalCase definitions, parallel to results, for tier lookups.
@@ -167,13 +179,13 @@ class EvalSummary(BaseModel):
             "PRASINE INDEX: GOLDEN DATASET EVAL RESULTS",
             "=" * 60,
             f"Total cases:       {self.total_cases}",
-            f"Tier-1 (must_pass):{tier1_passed}/{len(tier1_results)} ({self.tier1_pass_rate:.1%})  <-- primary metric",
-            f"Tier-2 (data gaps):{tier2_passed}/{len(tier2_results)} (known limitations, not counted)",
+            f"Tier-1 (must_pass):{tier1_passed}/{len(tier1_results)} ({self.tier1_pass_rate:.1%})",
+            f"Tier-2:            {tier2_passed}/{len(tier2_results)} (known_limitation, counted in Overall)",
             f"Overall:           {self.passed}/{self.total_cases} ({self.overall_pass_rate:.1%})",
             f"Failed:            {self.failed}",
             f"Errors:            {self.errors}",
-            f"Verdict accuracy:  {self.verdict_accuracy:.1%}",
-            f"Score accuracy:    {self.score_accuracy:.1%}",
+            f"Band match:        {self.verdict_accuracy:.1%}",
+            f"Score in range:    {self.score_accuracy:.1%}",
             f"Avg duration:      {self.avg_duration_ms:.0f}ms",
             f"Total tokens:      {self.total_tokens_used:,}",
             "=" * 60,
@@ -186,7 +198,7 @@ class EvalSummary(BaseModel):
             verdict_str = r.actual_verdict.value if r.actual_verdict else "N/A"
             lines.append(
                 f"  [{status}][{tier_tag}] {r.case_id:28s} | "
-                f"verdict={verdict_str:25s} | score={score_str:6s} | "
+                f"band={verdict_str:25s} | score={score_str:6s} | "
                 f"{r.duration_ms}ms"
             )
             if r.error:
@@ -196,7 +208,7 @@ class EvalSummary(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Golden dataset: 20 known LIKELY_GREENWASHING cases
+# Golden dataset: 20 regression cases, expected labels from version 1 of the method
 # ---------------------------------------------------------------------------
 
 GOLDEN_DATASET: list[EvalCase] = [
@@ -214,12 +226,11 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "UK ASA ruled this MISLEADING_CLAIM in 2022, a regulatory ruling that triggers "
-            "CONFIRMED_GREENWASHING per the scoring criteria. Ryanair's EU ETS verified "
-            "emissions are among the highest of any European airline on a per-passenger "
-            "basis. The claim 'greenest' has no substantiated baseline. "
-            "LobbyMap D+ band confirms obstructive climate lobbying. "
-            "Enforcement module surfaces the ASA ban, pushing verdict to CONFIRMED."
+            "Expected label from version 1 of the method. The UK ASA ruled on 5 February "
+            "2020 (G19-1035778) that Ryanair's September 2019 ads calling it Europe's "
+            "'Lowest Emissions Airline' were misleading. LobbyMap rates Ryanair D "
+            "(5 November 2026), within the range it defines as obstructive. The enforcement "
+            "module surfaces the ASA ruling as a decision on a related claim."
         ),
     ),
     EvalCase(
@@ -239,16 +250,17 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=75.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Post-Dieselgate, VW emissions targets face credibility challenge. "
-            "EU ETS data shows absolute emissions not on track with 2025 site target. "
-            "Target is also scope 1/2 only, excluding scope 3 which dominates for an automaker."
+            "Expected label from version 1 of the method. The enforcement records hold one "
+            "Volkswagen decision: the CPC network's declaration of 28 September 2021 on the "
+            "marketing of diesel cars fitted with defeat devices, which concerns a different "
+            "claim."
         ),
     ),
     EvalCase(
         case_id="GW-003",
         company_id=uuid.UUID("00000000-0000-0000-0000-000000000003"),
         company_name="Shell plc",
-        company_country="NL",
+        company_country="GB",
         claim_text=(
             "Shell aims to be a net-zero emissions energy business by 2050, in step with society."
         ),
@@ -260,10 +272,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=92.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Friends of the Earth Netherlands won court ruling in 2021 requiring Shell "
-            "to cut emissions 45% by 2030. Shell's capital expenditure remains heavily "
-            "weighted toward fossil fuel extraction. EU ETS installations show no "
-            "significant absolute reduction trajectory consistent with net zero by 2050."
+            "Expected label from version 1 of the method. In 2021 the Hague District Court "
+            "ordered Shell to cut its CO2 emissions by 45% by 2030 against 2019; the Hague "
+            "Court of Appeal overturned that order on 12 November 2024."
         ),
     ),
     EvalCase(
@@ -280,12 +291,12 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Italy's AGCM fined Eni €5 million in 2023 for MISLEADING_CLAIM 'carbon neutral' "
-            "certification on Eni Diesel+. Carbon neutrality was achieved solely via "
-            "offsets: no actual emissions reduction. Eni is simultaneously expanding "
-            "fossil fuel production capacity. Enforcement module finds AGCM fine; judge "
-            "scores 78-82 depending on run (LIKELY_GREENWASHING/CONFIRMED boundary nondeterminism). "
-            "Expected LIKELY_GREENWASHING to capture the lower outcome consistently."
+            "Expected label from version 1 of the method. Italy's AGCM fined Eni EUR 5 million "
+            "on 20 December 2019, finding its Eni Diesel+ advertising misleading; the "
+            "Consiglio di Stato annulled that decision on 23 April 2024 (judgment "
+            "n. 03701/2024), so neither the finding nor the fine stands. The claim text is "
+            "not tied to a specific Eni document; the source URL is a general press-release "
+            "page."
         ),
     ),
     EvalCase(
@@ -302,11 +313,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=75.0,
         primary_evidence_source="CDP",
         notes=(
-            "CDP data shows Nestlé scope 3 emissions (agricultural supply chain) dwarf "
-            "scope 1/2. Net zero plan does not include credible scope 3 reduction pathway. "
-            "Overall trajectory inconsistent with 1.5°C pathway per SBTi criteria. "
-            "LIKELY_GREENWASHING (not MISLEADING_CLAIM): scope 3 omission in a net-zero claim is a "
-            "material misrepresentation, not mere ambiguity."
+            "Expected label from version 1 of the method. Nestlé's Net Zero Roadmap covers "
+            "Scopes 1, 2 and 3, leaving out some Scope 3 categories, and its targets are "
+            "validated by the SBTi."
         ),
     ),
     EvalCase(
@@ -325,11 +334,10 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=82.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "SAF currently constitutes less than 1% of Lufthansa's fuel mix. "
-            "EU ETS verified emissions show no reduction trajectory. "
-            "'Will allow' is speculative; no binding interim target is set. "
-            "Pipeline scores LIKELY_GREENWASHING because EU ETS confirms large ongoing absolute "
-            "emissions directly contradicting the CO2-neutral flying claim."
+            "Expected label from version 1 of the method. The enforcement records hold two "
+            "ASA rulings on Lufthansa ads (A22-1169419 of 1 March 2023 and A23-1206007 of "
+            "6 December 2023) and the commitments Lufthansa made after a dialogue with the "
+            "European Commission and the CPC network (IP/25/2608, 6 November 2025)."
         ),
     ),
     EvalCase(
@@ -349,11 +357,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=35.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Heidelberg (now HeidelbergMaterials) is one of the few large cement "
-            "producers with SBTi-validated targets. EU ETS data shows specific emissions "
-            "intensity consistent with stated reduction trajectory. Target is "
-            "intensity-based, not absolute, which is appropriate for a sector with "
-            "unavoidable process emissions."
+            "Expected label from version 1 of the method. HeidelbergCement AG is now "
+            "Heidelberg Materials AG, listed as Heidelberg Materials in the SBTi and "
+            "LobbyMap data."
         ),
         tier="known_limitation",
     ),
@@ -371,10 +377,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=90.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Shareholders voted in 2023 to require TotalEnergies to include scope 3 "
-            "in its climate plan. Current capex plan shows increasing oil and gas "
-            "production to 2030. Net zero claim excludes scope 3 which represents "
-            ">85% of total emissions."
+            "Expected label from version 1 of the method. At TotalEnergies' AGM on 26 May "
+            "2023, a shareholder resolution asking it to align its 2030 Scope 3 target with "
+            "the Paris Agreement received 30.44% of the votes and did not pass."
         ),
     ),
     EvalCase(
@@ -393,11 +398,11 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=82.0,
         primary_evidence_source="CDP",
         notes=(
-            "UK FCA investigated HSBC in 2023 over MISLEADING_CLAIM green claims in advertising. "
-            "ASA banned two HSBC newspaper advertisements for MISLEADING_CLAIM green claims (2022). "
-            "HSBC simultaneously financed $87bn in fossil fuel expansion (2016–2022). "
-            "Pipeline scores LIKELY_GREENWASHING: enforcement module surfaces ASA ruling (1 contradicting "
-            "record), LobbyMap C- band, sufficient for LIKELY_GREENWASHING even without EU ETS data."
+            "Expected label from version 1 of the method. The ASA ruled on 19 October 2022 "
+            "(G21-1127656) that two HSBC bus-stop posters from October 2021 were misleading. "
+            "Under version 2 the ASA ruling concerns a different claim and is context, and "
+            "LobbyMap's C- band (5 November 2026) is outside the range it defines as "
+            "obstructive."
         ),
     ),
     EvalCase(
@@ -413,13 +418,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=56.0,
         expected_score_max=68.0,
         primary_evidence_source="EU_ETS",
-        notes=(
-            "Ørsted is the canonical genuine green transition case. EU ETS data confirms "
-            "dramatic reduction from coal-heavy generation. 10 supporting vs 5 contradicting "
-            "EU ETS records (remaining biomass/gas peakers still show emissions). "
-            "Pipeline scores 58-62 (MISLEADING_CLAIM/LIKELY_GREENWASHING boundary, nondeterministic). "
-            "Expected LIKELY_GREENWASHING to capture the boundary consistently."
-        ),
+        notes="Expected label from version 1 of the method.",
         tier="known_limitation",
     ),
     EvalCase(
@@ -436,10 +435,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=92.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "BP quietly dropped its 2030 emissions reduction target in 2023, weakening "
-            "a binding commitment to an 'ambition'. Contemporaneous capital allocation "
-            "shows increased investment in oil and gas. UK ASA banned two BP adverts "
-            "in 2022 for MISLEADING_CLAIM green claims."
+            "Expected label from version 1 of the method. The only BP decision in the "
+            "enforcement records is ASA G16-1014902 (2 October 2019), which did not uphold "
+            "the complaints."
         ),
     ),
     EvalCase(
@@ -458,13 +456,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=61.0,
         expected_score_max=80.0,
         primary_evidence_source="EU_ETS",
-        notes=(
-            "Steel decarbonisation is technically feasible (via DRI-EAF + green hydrogen) "
-            "but ArcelorMittal's investment in transition technology is insufficient for "
-            "stated targets. EU ETS data shows large absolute emissions and flat intensity. "
-            "Pipeline scores LIKELY_GREENWASHING: EU ETS contradicts the intensity reduction claim "
-            "and the 2050 net zero commitment lacks credible near-term capex evidence."
-        ),
+        notes="Expected label from version 1 of the method.",
     ),
     EvalCase(
         case_id="GW-013",
@@ -482,13 +474,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=56.0,
         expected_score_max=72.0,
         primary_evidence_source="CDP",
-        notes=(
-            "Maersk has ordered green methanol vessels and has SBTi-validated targets. "
-            "CA100+ ALIGNED. However the pipeline finds limited corroborating evidence "
-            "(1 supporting, 1 contradicting, 5 inconclusive). CDP and LobbyMap return "
-            "no record. Pipeline score hovers around 58-62 (MISLEADING_CLAIM/LIKELY_GREENWASHING boundary). "
-            "Nondeterministic boundary case: expected LIKELY_GREENWASHING to capture the upper end."
-        ),
+        notes="Expected label from version 1 of the method.",
         tier="known_limitation",
     ),
     EvalCase(
@@ -505,12 +491,8 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=95.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Glencore is one of the world's largest coal producers. "
-            "Its 'net zero by 2050' claim includes 'managed decline of coal' but "
-            "capital allocation shows continued coal mine acquisitions. "
-            "CMA investigation found by enforcement module. Pipeline scores 78-82 "
-            "(LIKELY_GREENWASHING/CONFIRMED boundary, nondeterministic). 2/3 runs give "
-            "CONFIRMED_GREENWASHING. Expected CONFIRMED to capture the majority outcome."
+            "Expected label from version 1 of the method. The enforcement records hold no "
+            "decision on Glencore."
         ),
     ),
     EvalCase(
@@ -529,12 +511,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=46.0,
         expected_score_max=72.0,
         primary_evidence_source="EUR_LEX",
-        notes=(
-            "The 2035 hydrogen aircraft is a research programme, not a committed "
-            "commercial product. Pipeline scores LIKELY_GREENWASHING at 62-68: aviation "
-            "manufacturer presenting an R&D ambition as a firm commercial commitment, "
-            "with EU ETS showing ongoing large absolute emissions."
-        ),
+        notes="Expected label from version 1 of the method.",
         tier="known_limitation",
     ),
     EvalCase(
@@ -553,12 +530,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=38.0,
         expected_score_max=65.0,
         primary_evidence_source="CDP",
-        notes=(
-            "Unilever missed its 2010–2020 'Sustainable Living Plan' targets. "
-            "CDP data shows scope 3 (consumer use and disposal) accounts for ~70% "
-            "of lifecycle emissions and has no credible reduction pathway in the plan. "
-            "Current trajectory is not consistent with 2039 full value chain net zero."
-        ),
+        notes="Expected label from version 1 of the method.",
     ),
     EvalCase(
         case_id="GW-017",
@@ -576,10 +548,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=50.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "The 70% EV target is a product mix target, not an emissions target. "
-            "VW has since softened this target in response to EV market slowdown. "
-            "EU ETS data covers manufacturing, not vehicle use-phase emissions. "
-            "The claim is not directly falsifiable from available EU open data."
+            "Expected label from version 1 of the method. The claim states a target share "
+            "of electric vehicles in sales and gives no emissions figure. The enforcement "
+            "record is the same as for GW-002."
         ),
     ),
     EvalCase(
@@ -596,12 +567,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=82.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "EasyJet ended its offset programme in 2022 after criticism. "
-            "The claim of full offset coverage was based on REDD+ projects "
-            "that have since been widely discredited. EU ETS data confirms "
-            "full scope of actual emissions. Pipeline scores LIKELY_GREENWASHING: "
-            "EU ETS directly contradicts 'offsets all carbon emissions': verified "
-            "emissions exist, the offset claim is not independently substantiated."
+            "Expected label from version 1 of the method. easyJet is one of 21 airlines that "
+            "committed to change practices on environmental claims after a dialogue with the "
+            "European Commission and the CPC network (IP/25/2608, 6 November 2025)."
         ),
     ),
     EvalCase(
@@ -621,12 +589,9 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_max=55.0,
         primary_evidence_source="EU_ETS",
         notes=(
-            "Vestas is a genuine carbon neutrality case (scope 1&2 via renewables, "
-            "SBTi scope 3 validated). However the pipeline finds only LobbyMap B+ "
-            "as a supporting signal: Vestas is not in CA100+ or CDP, and has no EU ETS "
-            "installations registered. Score ranges 35-48 across runs. 2/3 runs give "
-            "MISLEADING_CLAIM (~48). Known limitation: positive-control quality requires "
-            "seeding EU ETS installation IDs."
+            "Expected label from version 1 of the method. The claim text is not Vestas's own "
+            "wording: on 6 January 2020 Vestas committed to become carbon neutral by 2030 "
+            "without using carbon offsets."
         ),
         tier="known_limitation",
     ),
@@ -646,13 +611,7 @@ GOLDEN_DATASET: list[EvalCase] = [
         expected_score_min=61.0,
         expected_score_max=80.0,
         primary_evidence_source="EU_ETS",
-        notes=(
-            "Cement has unavoidable process emissions from calcination (~60% of CO2). "
-            "Holcim has SBTi-validated targets, but EU ETS shows large absolute emissions. "
-            "Pipeline scores LIKELY_GREENWASHING: 'net zero concrete by 2050' is not technically "
-            "proven at scale, and current EU ETS trajectory contradicts the interim "
-            "intensity target. Same pattern as ArcelorMittal (heavy industry, intensity claims)."
-        ),
+        notes="Expected label from version 1 of the method.",
     ),
 ]
 
@@ -666,10 +625,11 @@ async def run_eval(
     pipeline: Pipeline | None = None,
     case_ids: list[str] | None = None,
 ) -> EvalSummary:
-    """Run the golden dataset through the pipeline and return accuracy metrics.
+    """Run the regression cases through the pipeline and return the results.
 
     Creates stub ExtractionInputs from each eval case and runs the full pipeline
-    in sequence. Results are compared against expected verdicts and score ranges.
+    in sequence. Each result is compared with the case's expected label and
+    score range.
 
     Args:
         pipeline: Optional pre-configured pipeline instance. If not provided,
@@ -678,7 +638,7 @@ async def run_eval(
         case_ids: Optional list of case IDs to run. If None, runs all 20 cases.
 
     Returns:
-        An :py:class:`EvalSummary` with accuracy metrics and per-case results.
+        An :py:class:`EvalSummary` with match rates and per-case results.
     """
     cases_to_run = [c for c in GOLDEN_DATASET if case_ids is None or c.case_id in case_ids]
 
@@ -827,15 +787,15 @@ async def _run_eval_case(pipeline: Pipeline, case: EvalCase) -> EvalResult:
 
 
 # ---------------------------------------------------------------------------
-# Quick-run subset: one case per verdict category. ~$1.50 with Opus judge+report
+# Quick-run subset: five cases
 # ---------------------------------------------------------------------------
 
 QUICK_CASES: list[str] = [
-    "GW-001",  # CONFIRMED_GREENWASHING: Ryanair "Europe's greenest airline" (ASA ruled)
-    "GW-004",  # LIKELY_GREENWASHING          : Eni carbon neutral diesel (AGCM fined)
-    "GW-009",  # LIKELY_GREENWASHING          : HSBC net zero financed emissions (ASA ruled)
-    "GW-010",  # LIKELY_GREENWASHING (known_limitation): Ørsted 87% reduction (positive control)
-    "GW-014",  # CONFIRMED_GREENWASHING: Glencore net zero (coal miner, CMA)
+    "GW-001",  # CONFIRMED_GREENWASHING (version 1 label): Ryanair (ASA ruling of 2020 on a related claim)
+    "GW-004",  # LIKELY_GREENWASHING (version 1 label): Eni (AGCM decision of 2019 on Eni Diesel+, annulled in 2024)
+    "GW-009",  # LIKELY_GREENWASHING (version 1 label): HSBC (ASA ruling of 2022 on a different claim)
+    "GW-010",  # LIKELY_GREENWASHING (version 1 label, known_limitation): Ørsted
+    "GW-014",  # CONFIRMED_GREENWASHING (version 1 label): Glencore (no enforcement record)
 ]
 
 
@@ -848,7 +808,7 @@ if __name__ == "__main__":
 
     Usage:
         python -m eval.golden_dataset                   # all 20 cases
-        python -m eval.golden_dataset --quick           # 5-case subset (~$1.50 Opus judge+report)
+        python -m eval.golden_dataset --quick           # 5-case subset
         python -m eval.golden_dataset GW-001 GW-002     # specific cases
     """
     import os

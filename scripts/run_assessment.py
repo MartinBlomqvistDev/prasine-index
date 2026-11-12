@@ -430,7 +430,7 @@ if __name__ == "__main__":
         "--judge-model",
         default="claude-opus-5-5",
         help="Anthropic model ID for the Judge Agent. Default: claude-opus-5-5. "
-        "Do not downgrade without running eval; judge output is legally citable.",
+        "Do not downgrade without running eval; the judge's output is published.",
     )
     parser.add_argument(
         "--report-model",
