@@ -22,6 +22,8 @@ __all__ = [
     "fallback_headers",
     "log_usage",
     "raise_if_refused",
+    "usage_summary",
+    "usage_totals",
 ]
 
 logger = get_logger(__name__)
@@ -95,18 +97,43 @@ def log_usage(response: anthropic.types.Message, *, agent: str) -> None:
     written = usage.cache_creation_input_tokens or 0
     read = usage.cache_read_input_tokens or 0
     prompt = usage.input_tokens + written + read
+    fields = {
+        "input_tokens": usage.input_tokens,
+        "output_tokens": usage.output_tokens,
+        "cache_creation_input_tokens": written,
+        "cache_read_input_tokens": read,
+    }
+    totals = usage_totals.setdefault(agent, dict.fromkeys(("calls", *fields), 0))
+    totals["calls"] += 1
+    for key, value in fields.items():
+        totals[key] += value
     logger.info(
         f"{agent} call: {read} of {prompt} prompt tokens read from cache, {written} written",
-        extra={
-            "operation": "llm_usage",
-            "agent": agent,
-            "llm_model_id": response.model,
-            "input_tokens": usage.input_tokens,
-            "output_tokens": usage.output_tokens,
-            "cache_creation_input_tokens": written,
-            "cache_read_input_tokens": read,
-        },
+        extra={"operation": "llm_usage", "agent": agent, "llm_model_id": response.model, **fields},
     )
+
+
+usage_totals: dict[str, dict[str, int]] = {}
+"""Calls and token counts per agent since the process started, for a run's summary."""
+
+
+def usage_summary() -> str:
+    """Describe what every call so far read from and wrote to the cache, one line per agent.
+
+    Returns:
+        One indented line per agent, or "" before the first call.
+    """
+    lines = []
+    for agent, totals in sorted(usage_totals.items()):
+        read = totals["cache_read_input_tokens"]
+        written = totals["cache_creation_input_tokens"]
+        prompt = totals["input_tokens"] + written + read
+        share = read / prompt if prompt else 0.0
+        lines.append(
+            f"  {agent}: {totals['calls']} calls, {read:,} of {prompt:,} prompt tokens "
+            f"read from cache ({share:.0%}), {written:,} written"
+        )
+    return "\n".join(lines)
 
 
 def raise_if_refused(response: anthropic.types.Message, *, agent: str, model_id: str) -> None:

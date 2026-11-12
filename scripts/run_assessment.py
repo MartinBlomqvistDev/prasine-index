@@ -51,6 +51,7 @@ from core.aggregate import aggregate_claim_scores  # noqa: E402
 from core.company_record import render_company_record  # noqa: E402
 from core.data_manifest import build_manifest, manifest_to_markdown  # noqa: E402
 from core.database import get_session, init_db, teardown_db  # noqa: E402
+from core.model_requests import usage_summary  # noqa: E402
 from core.pipeline import Pipeline, PipelineConfig, PipelineResult  # noqa: E402
 from models.claim import source_type_for_url  # noqa: E402
 from models.company_score import CompanyScore  # noqa: E402
@@ -393,6 +394,9 @@ async def run(
         print(f"Data manifest: {manifest_path}")
 
     finally:
+        summary = usage_summary()
+        if summary:
+            print(f"\nPrompt cache, by agent:\n{summary}")
         await pipeline.aclose()
         await teardown_db()
 

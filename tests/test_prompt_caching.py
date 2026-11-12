@@ -260,6 +260,16 @@ class TestUsageLogging:
         assert extra["cache_creation_input_tokens"] == 0
         assert extra["cache_read_input_tokens"] == 0
 
+    def test_summary_adds_up_each_agents_calls(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(model_requests, "logger", MagicMock())
+        monkeypatch.setattr(model_requests, "usage_totals", {})
+        assert model_requests.usage_summary() == ""
+        model_requests.log_usage(_response([]), agent="judge")
+        model_requests.log_usage(_response([]), agent="judge")
+        assert model_requests.usage_summary() == (
+            "  judge: 2 calls, 8,000 of 8,240 prompt tokens read from cache (97%), 0 written"
+        )
+
     def test_json_log_line_keeps_the_cache_fields(self) -> None:
         record = logging.LogRecord("core.model_requests", logging.INFO, "", 0, "usage", (), None)
         record.__dict__.update(
