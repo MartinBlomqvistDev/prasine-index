@@ -1,6 +1,8 @@
 import ApplyForm from './apply-form'
-import { findingFromString, loadReportSummaries } from '../lib/parse-report'
-import { PUBLISHED_SLUGS, WITHDRAWN_ON } from '../lib/site'
+import ExampleAssessment from './example-assessment'
+import ScoreComparison from './score-comparison'
+import { assessedDates, findingFromString, loadPublishedReports, loadReportSummaries } from '../lib/parse-report'
+import { AWAITING_REASSESSMENT, PUBLISHED_SLUGS } from '../lib/site'
 
 export const metadata = {
   alternates: { canonical: '/' },
@@ -8,8 +10,23 @@ export const metadata = {
 
 const NUMBER_WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
 
+function capitalised(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1)
+}
+
 export default function HomePage() {
-  const summaries = loadReportSummaries(PUBLISHED_SLUGS).sort((a, b) => b.score - a.score)
+  // Alphabetical: small differences between scores are not a ranking.
+  const summaries = loadReportSummaries(PUBLISHED_SLUGS).sort((a, b) =>
+    a.company.localeCompare(b.company, 'en'),
+  )
+  // A missing report would drop a company silently and move both ends of the comparison.
+  const published = loadPublishedReports(PUBLISHED_SLUGS, AWAITING_REASSESSMENT)
+  if (summaries.length !== PUBLISHED_SLUGS.length) {
+    throw new Error(`${summaries.length} report summaries for ${PUBLISHED_SLUGS.length} published companies`)
+  }
+  // The date the page states is read from the reports, so a run that crosses midnight
+  // cannot leave a hand-written date behind.
+  const assessedText = assessedDates(published)
 
   return (
     <>
@@ -20,57 +37,74 @@ export default function HomePage() {
           <div className="nav-links">
             <a href="/methodology" className="nav-link">Methodology</a>
             <a href="/about" className="nav-link">About</a>
-            <a href="#apply" className="nav-btn">Get in touch</a>
+            <a href="#apply" className="nav-btn">Request an assessment</a>
           </div>
         </div>
       </nav>
 
+      <main>
       {/* ── Intro ── */}
       <section className="intro">
         <div className="doc-container">
+          <h1 className="visually-hidden">Prasine Index</h1>
           <p className="intro-text">
             Prasine Index checks the climate claims of large European companies against
             public records: verified emissions in the EU Emissions Trading System,
-            enforcement records on environmental marketing, climate target registries,
+            enforcement records on environmental marketing, the SBTi target register,
             lobbying assessments and open climate datasets. Each assessment is published
             with its evidence and sources, and the code is open source.
           </p>
         </div>
       </section>
 
-      {/* ── Status ── */}
-      <section id="status" className="report-section">
+      {/* ── How it works ── */}
+      <section id="how" className="report-section">
         <div className="doc-container">
-          <div className="report-meta">
-            <span className="report-label">Status</span>
-            <span className="report-date">{WITHDRAWN_ON}</span>
-          </div>
-          <h2 className="index-heading">Version 2 in progress</h2>
+          <h2 className="index-heading">How an assessment works</h2>
           <div className="report-body">
+            <ul>
+              <li>
+                Up to seven climate claims are collected from the company&apos;s own pages or
+                reports, each with its source.
+              </li>
+              <li>
+                Every claim is checked against 21 open data sources and against its own source
+                document. Two of those sources, CDP and the EU Innovation Fund, hold no data in
+                this version. A model reads the records
+                and scores the claim. Fixed rules in code then set how far a score can go: above
+                60 requires a record about the claim itself, and above 80 an official record that
+                shows it to be false.
+              </li>
+              <li>
+                Each assessment also sets out the company&apos;s record: lobbying, new fossil
+                fuel supply, verified emissions, targets, investor assessments and earlier
+                decisions on its environmental marketing. For a climate pledge, records of new
+                fossil fuel supply and of lobbying count as records about the pledge, following
+                two of the integrity criteria of the UN High-Level Expert Group on net-zero
+                commitments. Investors&apos; assessments of the pledge count as records about it
+                too.
+              </li>
+            </ul>
             <p>
-              In November 2026 every published assessment was reviewed against its
-              sources. Since then, each enforcement record in the pipeline has been checked
-              twice against its official source and now carries a verbatim quotation. The
-              scoring is being redesigned so that a score can be traced to the records
-              behind it.
-            </p>
-            <p>
-              Three assessments were withdrawn after the review, and the{' '}
-              <a href="/corrections">corrections page</a> explains why. The five below are
-              under revision.
+              The <a href="/methodology">methodology</a> sets out the rules in full, and the{' '}
+              <a href="/corrections">corrections log</a> lists the corrections made to
+              published assessments.
             </p>
           </div>
         </div>
       </section>
 
+      {/* ── Example (dynamic) ── */}
+      <ExampleAssessment reports={published} />
+
       {/* ── Index (dynamic) ── */}
       <section id="index" className="index-section">
         <div className="doc-container">
-          <h2 className="index-heading">Version 1 assessments</h2>
+          <h2 className="index-heading">Assessments</h2>
           <p className="index-sub">
-            These {NUMBER_WORDS[summaries.length] ?? summaries.length} assessments were made
-            with the version 1 method. Each report sets out the claims, the evidence and its
-            sources.
+            {capitalised(NUMBER_WORDS[summaries.length] ?? String(summaries.length))} European{' '}
+            {summaries.length === 1 ? 'company' : 'companies'}, assessed on {assessedText}. Each report sets out the claims, the evidence
+            and the company record.
           </p>
           <table className="assessments-table">
             <thead>
@@ -105,32 +139,36 @@ export default function HomePage() {
             </tbody>
           </table>
           <p className="index-note">
-            Each report is under revision and will be reassessed with version 2.
+            Scores from a model can vary between runs. Some of the claims that decide a company&apos;s band
+            were scored more than once to test the judge&apos;s consistency; where the runs fall in
+            two bands, the index publishes the lower band. The{' '}
+            <a href="/methodology">methodology</a> gives the runs and names the companies whose
+            claims were not tested. Small differences between
+            companies should not be read as a ranking.
           </p>
+          <ScoreComparison reports={published} assessedOn={assessedText} />
         </div>
       </section>
 
       {/* ── Apply ── */}
       <section id="apply" className="apply-section">
         <div className="doc-container">
-          <h2>Suggest a company</h2>
+          <h2>Request an assessment</h2>
           <p className="apply-sub">
-            Investigating a company&apos;s green claims? Send a company, a claim, or
-            just describe what you&apos;re looking into. If it fits the index,
-            I&apos;ll run it through the pipeline and publish the evidence chain.
+            Name a company or a claim you want assessed, or ask a question, and I will reply
+            by email.
           </p>
           <ApplyForm />
         </div>
       </section>
+
+      </main>
 
       {/* ── Footer ── */}
       <footer>
         <div className="footer-inner">
           <div>
             <span>Prasine Index · Martin Blomqvist, 2026</span>
-            <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>
-              EU greenwashing analyst · Prasine Index
-            </p>
           </div>
           <div style={{ display: 'flex', gap: 24 }}>
             <a href="https://github.com/MartinBlomqvistDev/prasine-index" target="_blank" rel="noopener">GitHub</a>

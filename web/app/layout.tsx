@@ -26,12 +26,12 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Prasine Index | EU Greenwashing Intelligence',
+  title: 'Prasine Index | Climate claims checked against public records',
   description:
-    'Open-data checks of EU corporate sustainability claims.',
+    'Climate claims of large European companies, checked against public records.',
   openGraph: {
     title: 'Prasine Index',
-    description: 'EU corporate greenwashing monitoring.',
+    description: 'Climate claims of large European companies, checked against public records.',
     siteName: 'Prasine Index',
     url: SITE_URL,
     type: 'website',

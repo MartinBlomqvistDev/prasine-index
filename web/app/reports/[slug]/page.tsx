@@ -1,8 +1,9 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 import { notFound } from 'next/navigation'
-import { type ParsedReport, type EvidenceItem, type ClaimRow, findingFromString, parseReport, verdictFromScore } from '../../../lib/parse-report'
-import { PUBLISHED_SLUGS, WITHDRAWN, WITHDRAWN_ON } from '../../../lib/site'
+import { type ParsedReport, type EvidenceItem, type ClaimRow, detailClaimIndex, findingFromString, formatLongDate, parseReport, rangeNumbers, verdictFromScore } from '../../../lib/parse-report'
+import { PUBLISHED_SLUGS, WITHDRAWN, WITHDRAWN_ON, openGraphFor } from '../../../lib/site'
+import { Blocks, aggregateNote, claimCountText, renderInline, renderLinked } from '../../../lib/render'
 
 
 function evidenceWeight(supports: string): string {
@@ -11,37 +12,14 @@ function evidenceWeight(supports: string): string {
   return 'legislative'
 }
 
-function evidenceWeightLabel(supports: string, confidence: number): string {
-  const pct = Math.round(confidence * 100)
-  const confStr = pct > 0 ? ` · ${pct}%` : ''
-  if (supports === 'No') return `Contradicts${confStr}`
-  if (supports === 'Yes') return `Supports${confStr}`
-  return `Context${confStr}`
+// How the judge read a record. A record's confidence is a fixed value per source and
+// reading, not a measure of the data, so it is not shown.
+function evidenceWeightLabel(supports: string): string {
+  if (supports === 'No') return 'Contradicts'
+  if (supports === 'Yes') return 'Supports'
+  return 'Context'
 }
 
-function renderInline(text: string): React.ReactNode[] {
-  const parts = text.split(/\*\*([^*]+)\*\*/g)
-  return parts.map((part, i) =>
-    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-  )
-}
-
-// Bold text as in renderInline, with each URL shown as a link named by its site.
-function siteName(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return url
-  }
-}
-
-function renderLinked(text: string): React.ReactNode[] {
-  return text.split(/(https?:\/\/[^\s)]+)/g).flatMap((part, i) =>
-    /^https?:\/\//.test(part)
-      ? [<a key={`u${i}`} href={part} target="_blank" rel="noopener">{siteName(part)}</a>]
-      : renderInline(part).map((node, j) => <span key={`t${i}-${j}`}>{node}</span>),
-  )
-}
 
 // ── Static params ─────────────────────────────────────────────────────────────
 
@@ -59,16 +37,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const withdrawn = WITHDRAWN[slug]
   if (withdrawn) {
     const title = `${withdrawn.company}: assessment withdrawn | Prasine Index`
-    const description = `Withdrawn on ${WITHDRAWN_ON}: the assessment cited enforcement records that were wrong or could not be found.`
-    return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical } }
+    const description = `${withdrawn.reason.split('. ')[0].replace(/\.$/, '')}.`
+    return { title, description, alternates: { canonical }, openGraph: openGraphFor(title, description, canonical) }
   }
   const path = reportPathFor(slug)
   if (!existsSync(path)) return {}
   const r = parseReport(readFileSync(path, 'utf-8'))
-  const title = `${r.company}: claim assessment | Prasine Index`
+  const title = `${r.company}: company assessment | Prasine Index`
   const finding = r.keyFinding.replace(/\*\*/g, '')
   const description = finding.length > 155 ? `${finding.slice(0, 152).trimEnd()}...` : finding
-  return { title, description, alternates: { canonical }, openGraph: { title, description, url: canonical } }
+  return { title, description, alternates: { canonical }, openGraph: openGraphFor(title, description, canonical) }
 }
 
 // ── Shared chrome ────────────────────────────────────────────────────────────
@@ -82,6 +60,7 @@ function ReportNav() {
         </div>
         <div className="nav-links">
           <a href="/#index" className="nav-link">All companies</a>
+          <a href="/methodology" className="nav-link">Methodology</a>
           <a href="/about" className="nav-link">About</a>
           <a href="/#apply" className="nav-btn">Request an assessment</a>
         </div>
@@ -115,14 +94,10 @@ function WithdrawnPage({ company, reason }: { company: string; reason: string })
         </div>
         <h1 className="report-company">{company}: assessment withdrawn</h1>
         <div className="report-body">
-          <p>
-            This assessment was withdrawn on {WITHDRAWN_ON}. It cited enforcement records
-            that were wrong or could not be found.
-          </p>
           <p>{reason}</p>
           <p>
-            Any corrected assessment will be published with a log of what changed.{' '}
-            <a href="/corrections">Read the full notice</a>.
+            The <a href="/corrections">corrections log</a> lists the corrections made to published
+            assessments.
           </p>
           <p>
             Questions and corrections:{' '}
@@ -149,13 +124,15 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
   const r = parseReport(md)
   const agg    = findingFromString(r.verdict)
   const detail = findingFromString(r.detailVerdict)
-  // The table previews each claim; mark the one the detailed section covers,
-  // matching on text first because several claims can share a score.
-  const textIndex = r.claims.findIndex(c => {
-    const preview = c.text.replace(/(\.{3}|…)$/, '').trim()
-    return preview.length > 0 && r.claim.startsWith(preview.slice(0, 60))
-  })
-  const detailIndex = textIndex > -1 ? textIndex : r.claims.findIndex(c => c.score === r.detailScore)
+  // The table previews each claim; mark the one the detailed section covers.
+  const detailIndex = detailClaimIndex(r)
+  const range = rangeNumbers(r.scoreRange)
+  // Every distinct URL of every record, each once, in the order the records give them: a
+  // record's own page and any document its text cites, such as the PDF a page reference
+  // points into.
+  const sources = r.evidence
+    .flatMap(ev => ev.urls.map(url => ({ source: ev.source, url })))
+    .filter((s, i, all) => all.findIndex(o => o.url === s.url) === i)
 
   return (
     <>
@@ -163,25 +140,15 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
       <main className="doc-container" style={{ padding: '48px 24px 96px' }}>
 
-        {/* ── Revision notice ── */}
-        <div className="key-finding" style={{ marginBottom: '2rem' }}>
-          <p className="key-finding-label">Under revision</p>
-          <p style={{ fontSize: 14, lineHeight: 1.7 }}>
-            A review on 3 November 2026 found errors in this report, including statements
-            about EU law. A corrected version will replace it, with a log of what
-            changed. <a href="/corrections">Read the notice</a>.
-          </p>
-        </div>
-
         {/* ── Report meta ── */}
         <div className="report-meta">
           <span className="report-label">Assessment</span>
-          {r.publishDate && <span className="report-date">{r.publishDate}</span>}
+          {r.publishDate && <span className="report-date">{formatLongDate(r.publishDate)}</span>}
         </div>
 
         <h1 className="report-company">{r.company}</h1>
         <p className="report-details">
-          {r.claimCount} claim{r.claimCount !== 1 ? 's' : ''} assessed · Prasine Index
+          {claimCountText(r)} · Prasine Index
           {r.traceId && <> · <span style={{ fontFamily: "var(--font-mono), ui-monospace, monospace", fontSize: 11 }}>trace {r.traceId.slice(0, 8)}</span></>}
         </p>
 
@@ -191,12 +158,12 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           <span className="verdict-score">{r.overallScore} / 100</span>
         </div>
         <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4, marginBottom: '1.5rem' }}>
-          Aggregate across {r.claimCount} claim{r.claimCount !== 1 ? 's' : ''} · range {r.scoreRange}
+          {aggregateNote({ ...r, range })}
         </p>
 
         {/* ── Claim overview table ── */}
         {r.claims.length > 0 && (
-          <table className="dimension-table" style={{ marginBottom: '1.5rem' }}>
+          <table className="dimension-table text-table" style={{ marginBottom: '1.5rem' }}>
             <thead>
               <tr><th>Score</th><th>Finding</th><th>Claim assessed</th></tr>
             </thead>
@@ -225,6 +192,13 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
             </tbody>
           </table>
         )}
+        {r.claimsNotes.length > 0 && (
+          <div className="claims-notes">
+            {r.claimsNotes.map((note, i) => (
+              <p key={i}>{renderLinked(note)}</p>
+            ))}
+          </div>
+        )}
 
         {/* ── Company record ── */}
         {r.companyRecord.items.length > 0 && (
@@ -243,13 +217,13 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
 
         {/* ── Divider ── */}
         <p style={{ fontSize: 12, color: 'var(--muted)', borderTop: '1px solid var(--border)', paddingTop: '1rem', marginBottom: '1.25rem' }}>
-          Detailed assessment of highest-scoring claim ({r.detailScore} / 100) follows.
+          Detailed assessment of the highest-scoring{r.uncounted ? ' counted' : ''} claim ({r.detailScore} / 100) follows.
         </p>
 
         {/* ── Featured claim ── */}
         {r.claim && (
           <div className="report-claim">
-            {r.claimSource && <div className="claim-attr">{r.claimSource}</div>}
+            {r.claimSource && <div className="claim-attr">{renderLinked(r.claimSource)}</div>}
             <blockquote>&ldquo;{r.claim}&rdquo;</blockquote>
           </div>
         )}
@@ -260,7 +234,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           <span className="verdict-score">{r.detailScore} / 100</span>
         </div>
         <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
-          Range {r.detailRange} · Confidence {r.detailConfidence}%
+          The model&apos;s range {r.detailRange} · Confidence {r.detailConfidence}%
         </p>
 
         <div className="report-body">
@@ -280,9 +254,9 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
                           : ev.source
                         }
                       </p>
-                      <p className="ev-finding">{renderInline(ev.body)}</p>
+                      <p className="ev-finding">{renderLinked(ev.body)}</p>
                       <p className={`ev-weight ${evidenceWeight(ev.supports)}`}>
-                        {evidenceWeightLabel(ev.supports, ev.confidence)}
+                        {evidenceWeightLabel(ev.supports)}
                       </p>
                     </div>
                   </div>
@@ -296,9 +270,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
             <>
               <h2>Assessment</h2>
               <div className="report-reasoning">
-                {r.assessmentParas.map((para, i) => (
-                  <p key={i}>{renderInline(para)}</p>
-                ))}
+                <Blocks blocks={r.assessmentParas} />
               </div>
             </>
           )}
@@ -308,9 +280,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
             <>
               <h2>Company context</h2>
               <div className="report-reasoning">
-                {r.companyContext.map((para, i) => (
-                  <p key={i}>{renderInline(para)}</p>
-                ))}
+                <Blocks blocks={r.companyContext} />
               </div>
             </>
           )}
@@ -320,9 +290,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
             <>
               <h2>Regulatory context</h2>
               <div className="report-reasoning">
-                {r.regulatoryContext.map((para, i) => (
-                  <p key={i}>{renderInline(para)}</p>
-                ))}
+                <Blocks blocks={r.regulatoryContext} />
               </div>
             </>
           )}
@@ -342,7 +310,7 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
               <div style={{ overflowX: 'auto' }}>
                 <table className="data-gaps-table">
                   <thead>
-                    <tr><th>Source</th><th>Detail</th></tr>
+                    <tr><th>Gap</th><th>Detail</th></tr>
                   </thead>
                   <tbody>
                     {r.dataGaps.map((gap, i) => {
@@ -363,13 +331,13 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           )}
 
           {/* ── Sources ── */}
-          {r.evidence.filter(e => e.url).length > 0 && (
+          {sources.length > 0 && (
             <>
               <h2>Sources</h2>
               <ol className="sources-list">
-                {r.evidence.filter(e => e.url).map(ev => (
-                  <li key={ev.num}>
-                    {ev.source}: <a href={ev.url} target="_blank" rel="noopener">{ev.url}</a>
+                {sources.map(({ source, url }) => (
+                  <li key={url}>
+                    {source}: <a href={url} target="_blank" rel="noopener">{url}</a>
                   </li>
                 ))}
               </ol>
@@ -379,11 +347,12 @@ export default async function ReportPage({ params }: { params: Promise<{ slug: s
           {/* ── Disclaimer ── */}
           <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: '2.5rem', lineHeight: 1.6 }}>
             This assessment was produced by an automated pipeline from the sources listed
-            above. The score describes how the evidence relates to the claim and is not a
-            legal finding. Corrections and replies:{' '}
+            above and reviewed before publication; errors found in the review were corrected.
+            The score describes how the evidence relates to the claim. It is not a legal
+            finding. To report an error, write to{' '}
             <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>. The{' '}
-            <a href="/about">about page</a> sets out the corrections policy and the right of
-            reply.
+            <a href="/corrections">corrections log</a> lists the corrections made to published
+            assessments.
           </p>
 
         </div>

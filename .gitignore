@@ -84,6 +84,9 @@ CLAUDE.md
 # ---------------------------------------------------------------------------
 docs/reports/*-[0-9].md
 
+# Prototype runs of May and June 2026, removed from the repository on 13 November 2026; see the corrections log
+docs/reports/_dev/
+
 # ---------------------------------------------------------------------------
 # Logs and local data
 # ---------------------------------------------------------------------------

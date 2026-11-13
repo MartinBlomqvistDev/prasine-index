@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = 'Prasine Index · EU corporate greenwashing monitor'
+export const alt = 'Prasine Index · Climate claims, checked against public records'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -33,7 +33,7 @@ export default function Image() {
           }}
         >
           <div style={{ width: 36, height: 3, background: '#1a4024', display: 'flex' }} />
-          PRASINE INDEX · EU GREENWASHING MONITOR
+          PRASINE INDEX
         </div>
 
         <div

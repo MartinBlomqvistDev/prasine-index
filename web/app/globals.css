@@ -7,7 +7,7 @@
   --border-2:    #bbb7ab;
   --text:        #1a160d;
   --muted:       #5e5b53;
-  --faint:       #7d796f;
+  --faint:       #6b675e;
   --red:         #8b1c1c;
   --red-dim:     #fdf0f0;
   --red-text:    #7a1818;
@@ -147,11 +147,11 @@ h1, h2 {
   font-family: var(--font-serif), Georgia, serif;
   font-size: 1.5rem; font-weight: 700;
 }
-.verdict-word.greenwashing   { color: var(--red); }
-.verdict-word.confirmed      { color: #6b1010; }
-.verdict-word.misleading     { color: #7a4a10; }
-.verdict-word.substantiated  { color: var(--green); }
-.verdict-word.insufficient   { color: var(--blue-text); }
+.verdict-word.conflicts     { color: var(--orange-text); }
+.verdict-word.contradicted  { color: var(--red-text); }
+.verdict-word.partial       { color: var(--amber-text); }
+.verdict-word.supported     { color: var(--green-text); }
+.verdict-word.unverified    { color: var(--blue-text); }
 .verdict-score {
   font-size: 1.0625rem; color: var(--muted);
   font-family: var(--font-mono), ui-monospace, monospace;
@@ -260,6 +260,13 @@ h1, h2 {
   font-family: var(--font-mono), ui-monospace, monospace; font-weight: 700;
   color: var(--text); text-align: right;
 }
+/* Tables whose last column is prose, not a score. */
+.dimension-table.text-table td:last-child {
+  font-family: inherit; font-weight: 400;
+  color: var(--muted); text-align: left;
+}
+.dimension-table.text-table td { padding-right: 16px; vertical-align: top; }
+.dimension-table.text-table td:first-child { white-space: nowrap; }
 
 /* ── Data gaps table ── */
 .data-gaps-table {
@@ -286,11 +293,21 @@ h1, h2 {
 
 /* ── Reasoning ── */
 .report-reasoning { display: flex; flex-direction: column; gap: 14px; }
-.report-reasoning p {
+.report-reasoning p,
+.report-reasoning ul {
   font-size: 0.9375rem;
   color: var(--muted);
   line-height: 1.7;
 }
+.report-reasoning ul ul { margin-top: 6px; }
+
+/* ── Notes under a claims table ── */
+.claims-notes {
+  display: flex; flex-direction: column; gap: 10px;
+  font-size: 13px; color: var(--muted); line-height: 1.6;
+  margin-top: -8px; margin-bottom: 1.5rem;
+}
+.claims-notes a { text-decoration: underline; }
 
 /* ── Sources ── */
 .sources-list {
@@ -387,6 +404,11 @@ h1, h2 {
 .form-submit:hover { opacity: 0.82; }
 .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .apply-thanks { font-size: 1rem; color: var(--text); padding: 24px 0; }
+.form-note {
+  max-width: 480px; margin-top: 20px;
+  font-size: 12.5px; color: var(--muted); line-height: 1.6;
+}
+.form-note a { text-decoration: underline; }
 
 /* ── Report markdown (rendered from .md pipeline output) ── */
 .report-markdown h1 {
@@ -486,11 +508,11 @@ footer {
   padding: 3px 9px;
   font-size: 12.5px; font-weight: 700; font-family: var(--font-sans), system-ui, sans-serif;
 }
-.badge-greenwashing { background: var(--orange-dim); color: var(--orange-text); }
-.badge-confirmed    { background: var(--red-dim);    color: var(--red-text); }
-.badge-misleading   { background: var(--amber-dim);  color: var(--amber-text); }
-.badge-insufficient { background: var(--blue-dim);   color: var(--blue-text); }
-.badge-substantiated{ background: var(--green-dim);  color: var(--green-text); }
+.badge-conflicts    { background: var(--orange-dim); color: var(--orange-text); }
+.badge-contradicted { background: var(--red-dim);    color: var(--red-text); }
+.badge-partial      { background: var(--amber-dim);  color: var(--amber-text); }
+.badge-unverified   { background: var(--blue-dim);   color: var(--blue-text); }
+.badge-supported    { background: var(--green-dim);  color: var(--green-text); }
 
 /* ── Sign in/up pages ── */
 .auth-page {
@@ -502,52 +524,142 @@ footer {
 @media (max-width: 600px) {
   .nav-btn { display: none; }
   .nav-btn:last-child { display: flex; }
+  .nav-inner { height: auto; min-height: 52px; padding-top: 6px; padding-bottom: 6px; gap: 12px; }
+  .nav-links { gap: 0; }
+  .nav-link { padding: 6px; }
+  .nav-btn { line-height: 1.3; padding: 7px 10px; text-align: center; }
+}
+@media (max-width: 380px) {
+  .nav-links:has(> :nth-child(4)) { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
 }
 
-/* ── Calibration contrast panel ── */
-.calibration-section { padding: 64px 0; border-top: 1px solid var(--border); }
-.calibration-heading {
-  font-family: var(--font-serif), Georgia, serif;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  font-weight: 700; letter-spacing: -0.01em; margin: 8px 0 12px;
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-.calibration-sub { color: var(--muted); max-width: 620px; margin-bottom: 32px; line-height: 1.6; }
-.calibration-panel {
-  display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
-  border: 1px solid var(--border); background: var(--bg);
+
+/* Long source addresses wrap instead of widening the page on a phone. */
+.report-body, .ev-content, .claim-attr { overflow-wrap: anywhere; }
+
+/* ── Example assessment (home page) ── */
+.example-frame {
+  border: 1px solid var(--border-2); background: var(--bg);
+  padding: 28px; margin-top: 8px;
 }
-.calibration-side { padding: 24px 26px; }
-.calibration-worst { background: linear-gradient(180deg, var(--red-dim) 0%, var(--bg) 55%); }
-.calibration-best  { background: linear-gradient(180deg, var(--green-dim) 0%, var(--bg) 55%); }
-.calibration-tag {
-  font-size: 12.5px; font-weight: 700;
-  color: var(--faint); margin-bottom: 16px;
+.example-company {
+  font-family: var(--font-serif), Georgia, serif; font-weight: 700;
+  font-size: 1.75rem; line-height: 1.15; margin: 0 0 6px;
 }
-.calibration-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-.calibration-row { display: flex; align-items: center; gap: 12px; }
-.calibration-co { width: 78px; font-size: 15px; font-weight: 700; color: var(--text); flex-shrink: 0; }
-.calibration-bar-wrap { flex: 1; height: 10px; background: var(--border); overflow: hidden; }
-.calibration-bar { display: block; height: 100%; }
-.calibration-bar.bar-red { background: var(--red); }
-.calibration-bar.bar-green { background: var(--green); }
-.calibration-score {
-  width: 34px; text-align: right; font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 20px; font-weight: 700; letter-spacing: -0.03em; flex-shrink: 0;
+.example-company a { color: inherit; text-decoration: none; }
+.example-company a:hover { text-decoration: underline; }
+.example-details { margin-bottom: 24px; }
+.example-label {
+  font-size: 12.5px; font-weight: 700; color: var(--faint); margin: 0 0 8px;
 }
-.calibration-side .verdict-badge { margin-bottom: 12px; }
-.calibration-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
-.calibration-divider {
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  border-left: 1px solid var(--border); border-right: 1px solid var(--border);
-  padding: 0 18px; background: var(--surface);
-  font-size: 12.5px; font-weight: 600;
-  color: var(--faint); line-height: 1.5; white-space: nowrap;
+.example-gap { margin-top: 28px; }
+.example-verdict { padding: 12px 0; margin-bottom: 0; gap: 16px; flex-wrap: wrap; }
+.example-verdict .verdict-word { font-size: 1.25rem; }
+.example-meta { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 6px 0 0; }
+.example-claims { margin: 0; }
+.example-claims td:last-child { font-size: 12px; }
+.example-claims .example-detail-row { background: var(--surface); }
+.example-claims .example-detail-row td:first-child { font-weight: 700; }
+.example-claim { margin-bottom: 20px; }
+.example-records-caption { margin: 20px 0 8px; }
+.example-records {
+  display: grid; grid-template-columns: max-content 1fr;
+  column-gap: 16px; row-gap: 6px; font-size: 13px; line-height: 1.6; margin: 0;
 }
+.example-records dt { font-weight: 700; color: var(--text); }
+.example-records dd { color: var(--muted); margin: 0; }
+.example-key-finding { margin: 20px 0 0; }
+.example-record {
+  margin-top: 24px; border-top: 1px solid var(--border); padding-top: 16px;
+}
+.example-record summary { cursor: pointer; }
+.example-record summary .example-label { margin: 0; }
+.example-record-topics {
+  display: block; font-size: 13px; color: var(--muted); font-weight: 400; margin-top: 2px;
+}
+.example-record .report-body { font-size: 0.9375rem; margin-top: 12px; }
+.example-foot { margin-top: 28px; }
+.example-btn {
+  display: inline-block; font-size: 13px; font-weight: 600; padding: 9px 18px;
+  background: var(--text); color: var(--bg); text-decoration: none;
+}
+.example-btn:hover { opacity: 0.82; }
+.example-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-top: 14px; }
+
+/* ── Lowest and highest company scores (home page) ── */
+.compare { border: 1px solid var(--border); background: var(--bg); margin-top: 40px; }
+.compare-head {
+  background: var(--surface); padding: 16px 24px; border-bottom: 1px solid var(--border);
+}
+.compare-heading {
+  font-family: var(--font-serif), Georgia, serif; font-weight: 700;
+  font-size: 1.25rem; line-height: 1.2; display: inline; margin: 0 12px 0 0;
+}
+.compare-intro { font-size: 13px; color: var(--muted); line-height: 1.6; margin: 8px 0 0; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.compare-grid-one { grid-template-columns: 1fr; }
+.compare-side { padding: 20px 24px; }
+.compare-side + .compare-side { border-left: 1px solid var(--border); }
+.compare-tag { font-size: 12.5px; font-weight: 700; color: var(--faint); margin: 0 0 8px; }
+.compare-band { margin: 0; }
+.compare-range {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px;
+  color: var(--faint); margin-left: 8px;
+}
+.compare-rows { list-style: none; padding: 0; margin: 0; }
+.compare-rows li { margin-top: 16px; }
+.compare-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.compare-row a { font-size: 15px; font-weight: 600; color: var(--text); text-decoration: none; }
+.compare-row a:hover { text-decoration: underline; }
+.compare-score {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 20px;
+  font-weight: 700; letter-spacing: -0.03em;
+}
+.compare-bar {
+  display: block; position: relative; height: 8px; margin: 6px 0 4px; background: var(--border);
+}
+.compare-fill { display: block; height: 100%; }
+.compare-edge { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--bg); }
+.compare-sub {
+  font-family: var(--font-mono), ui-monospace, monospace; font-size: 12px;
+  color: var(--muted); margin: 0;
+}
+.compare-foot {
+  border-top: 1px solid var(--border); padding: 12px 24px;
+  font-size: 13px; color: var(--muted); line-height: 1.6;
+}
+.compare-foot p { margin: 0; }
+.compare-foot p + p { margin-top: 4px; }
+
 @media (max-width: 640px) {
-  .calibration-panel { grid-template-columns: 1fr; }
-  .calibration-divider {
-    border-left: none; border-right: none;
-    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-    padding: 12px 0;
+  .example-frame { padding: 16px; }
+  .example-company { font-size: 1.5rem; }
+  .example-claims thead { display: none; }
+  .example-claims tr { display: block; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .example-claims td { display: block; border: none; padding: 0; }
+  .example-claims td:nth-child(1),
+  .example-claims td:nth-child(2) { display: inline-block; }
+  .example-claims td:nth-child(1) {
+    font-family: var(--font-mono), ui-monospace, monospace; font-weight: 700; margin-right: 10px;
   }
+  .example-claims td:last-child { font-size: 13px; margin-top: 6px; }
+  .example-claims .example-detail-row { padding-left: 8px; padding-right: 8px; }
+  .example-records { grid-template-columns: 1fr; }
+  .example-records dt { margin-top: 8px; }
+  .example-key-finding { padding: 12px 14px; }
+  .example-btn { display: block; text-align: center; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .compare-side { padding: 16px; }
+  .compare-side + .compare-side { border-left: none; border-top: 1px solid var(--border); }
+  .compare-head { padding: 14px 16px; }
+  .compare-heading { display: block; margin: 0 0 4px; }
+  .compare-foot { padding: 12px 16px; }
 }
+
+/* Links inside running text in the home page sections are underlined, not only darker. */
+.compare-intro a, .example-note a, .example-records a, .claim-attr a { text-decoration: underline; }
+.example-claims .verdict-badge { white-space: nowrap; }

@@ -1,0 +1,6 @@
+# GitHub Pages serves docs/ as a pointer to prasineindex.com. The reports are
+# published on the site and the data-source notes in the repository, so Jekyll
+# leaves both out of the Pages build.
+exclude:
+  - reports
+  - data-sources.md

@@ -14,6 +14,7 @@ export default function ApplyForm() {
   }
 
   return (
+    <>
     <form className="apply-form" onSubmit={handleSubmit}>
       <div className="form-row">
         <label className="form-label" htmlFor="name">Name</label>
@@ -31,7 +32,7 @@ export default function ApplyForm() {
         <ValidationError field="claim_url" errors={state.errors} />
       </div>
       <div className="form-row">
-        <label className="form-label" htmlFor="context">What are you investigating?</label>
+        <label className="form-label" htmlFor="context">Message</label>
         <textarea className="form-textarea" id="context" name="context" rows={4} />
         <ValidationError field="context" errors={state.errors} />
       </div>
@@ -39,5 +40,12 @@ export default function ApplyForm() {
         {state.submitting ? 'Sending…' : 'Send'}
       </button>
     </form>
+    <p className="form-note">
+      Your name, email address, any link and your message go to me through Formspree, a form service, and
+      are used only to reply to you. To have them deleted, write to{' '}
+      <a href="mailto:cm.blomqvist@gmail.com">cm.blomqvist@gmail.com</a>. The{' '}
+      <a href="/about#privacy">privacy note</a> on the About page has the details.
+    </p>
+    </>
   )
 }

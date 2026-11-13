@@ -1,20 +1,22 @@
 # Prasine Index: Web Frontend
 
-Next.js 16 (App Router) frontend for the Prasine Index greenwashing monitoring pipeline. Live at [prasineindex.com](https://prasineindex.com) since late June 2026.
+Next.js 16 (App Router) frontend for Prasine Index, which checks the climate claims of large European companies against public records. Live at [prasineindex.com](https://prasineindex.com) since late June 2026.
 
 ## Routes
 
 | Route | What it renders |
 | ----- | --------------- |
-| `/` | Public index of assessed companies (score, verdict, sector), the featured assessment with its full evidence chain, and the contact form. |
-| `/methodology` | Score bands, evidence weighting, and what each verdict means. |
-| `/reports/[slug]` | One page per published company: aggregate verdict, claim summary table, per-claim evidence and judge reasoning. |
+| `/` | How an assessment works, an example assessment, the published assessments with a score comparison, and the form for requesting an assessment. |
+| `/methodology` | Score bands, evidence weighting, and what each finding means. |
+| `/corrections` | The corrections log: what changed between version 1 and version 2, the prototype scores of June 2026, and the notice of 5 November 2026. |
+| `/about` | Who runs the index, how an assessment is made, corrections, how to cite, the licence, the privacy note and contact details. |
+| `/reports/[slug]` | One page per published company: score, finding, claims table, company record and the evidence for the highest-scoring claim. |
 
 ## Where the data comes from
 
-No database, no API call, no runtime dependency beyond Next.js. `lib/parse-report.ts` reads the canonical Markdown reports the Python pipeline writes to `../docs/reports/<slug>.md` and parses them at build time. Scores, verdicts, and evidence on the site are the pipeline's own output; they cannot drift from the reports.
+No database and no server-side data fetching; the browser loads Vercel Web Analytics, and the request form posts to Formspree. `lib/parse-report.ts` reads the canonical Markdown reports the Python pipeline writes to `../docs/reports/<slug>.md` and parses them at build time. Scores, findings and evidence on the site are read from the reports at build time, so the site cannot drift from them. The reports are the pipeline's output after review; see Published Assessments in the root README.
 
-Index membership is the `SLUGS` array in `app/page.tsx`. To publish a new company: run the pipeline, confirm `docs/reports/<slug>.md` exists, add the slug, push. Verdict labels are derived from the numeric score (`verdictFromScore`), never taken from prose.
+Index membership is `PUBLISHED_SLUGS` in `lib/site.ts`, which also holds `PUBLISHED_ON`, `WITHDRAWN_ON`, `AWAITING_REASSESSMENT` and `UNCOUNTED_CLAIMS` (claims assessed and left out of a company's score, each stated in a note under the report's claims table). The date of the assessments is read from the reports. To publish a new company: run the pipeline, review `docs/reports/<slug>.md`, add the slug to `PUBLISHED_SLUGS` in `lib/site.ts` and the company's sector to `SECTOR_MAP` in `lib/parse-report.ts`, then push. The finding is derived from the numeric score (`verdictFromScore`).
 
 ## Stack
 
@@ -23,9 +25,10 @@ Index membership is the `SLUGS` array in `app/page.tsx`. To publish a new compan
 | Framework | Next.js 16 App Router, React 19 |
 | Styling | plain CSS in `app/globals.css` (no Tailwind) |
 | Forms | Formspree (`app/apply-form.tsx`) |
+| Analytics | Vercel Web Analytics |
 | Hosting | Vercel, auto-deploy on push to `main` |
 
-No authentication. The earlier Clerk-gated dashboard and sign-in routes were removed in July 2026 along with the rest of the commercial framing; the site is public and free.
+No authentication. The Clerk-gated dashboard and sign-in routes were removed in July 2026.
 
 ## Development
 

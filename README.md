@@ -2,29 +2,23 @@
 
 [![CI](https://github.com/MartinBlomqvistDev/prasine-index/actions/workflows/ci.yml/badge.svg)](https://github.com/MartinBlomqvistDev/prasine-index/actions/workflows/ci.yml)
 
-**Automated EU corporate greenwashing monitoring and scoring.**
-
-Every green claim made by an EU-listed company, verified against real emissions data and lobbying records, with a fully-cited evidence chain.
+**Climate claims of large European companies, checked against public records.**
 
 *Prasine*: from Latin/Greek *prasinus* (green).
 
-**Live since late June 2026:** [prasineindex.com](https://prasineindex.com) (full reports) and [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/) (index). 8 companies published, each a 7-claim assessment judged by Claude Opus 4.8.
+**Live at [prasineindex.com](https://www.prasineindex.com)**, with the assessments, the [methodology](https://www.prasineindex.com/methodology) and the [corrections log](https://www.prasineindex.com/corrections). Version 2 of the method was published on 13 November 2026. Seven of the eight assessments were made on 6 November 2026, and IKEA's on 12 November 2026.
 
 ---
 
 ## What It Does
 
-Prasine Index is a live-running AI workflow system that:
+For each company, the pipeline:
 
-1. **Monitors** EU company investor relations pages, press releases, and CSRD reports continuously for new green claims.
-2. **Extracts** every green claim as a structured, attributed record: verbatim text, source URL, page reference, publication date.
-3. **Verifies** each claim against 22 parallel open data sources: EU ETS, SBTi, LobbyMap, enforcement rulings, CA100+, Banking on Climate Chaos, GCEL, EUR-Lex, EU Transparency Register, EEA National, Eurostat, EU Innovation Fund, GOGEL, Climate TRACE, TPI, GCPT, EGT, GOGET, EDGAR JRC, E-PRTR, and the claim's own source document (fetched and analysed via the Anthropic document API).
-4. **Cross-references** the company against the EU Transparency Register. A company claiming climate leadership while lobbying against climate legislation in Brussels is flagged explicitly.
-5. **Scores** each claim 0–100 using an LLM-as-judge with full chain-of-thought reasoning, broken down by dimension: emissions discrepancy, substantiation failure, prior violations, lobbying contradiction, target credibility gap.
-6. **Publishes** a source-chained report in Markdown: every factual assertion is cited, every data gap is disclosed, and the full reasoning is preserved verbatim for audit and citation.
-7. **Monitors over time.** If a company re-makes a previously scored claim without evidence of progress, the system flags it automatically. If a company modifies a claim after Prasine Index published a verdict, that modification is flagged as a primary accountability signal.
-
-Target audience: Greenpeace, WWF, ClientEarth, EU investigative journalists, The Guardian, the EU Commission.
+1. **Collects** up to seven climate claims from the company's own pages or reports, each with its verbatim text, source address and the date it was read. It reads the entry page and up to 20 relevant pages it links to. It ranks the claims it finds by type, with net-zero and carbon-neutrality claims first, and by how specific they are. Up to seven are kept, at most two of each type.
+2. **Checks** each claim against 21 open data sources and the company's own document in parallel: EU ETS, E-PRTR, SBTi, enforcement records, LobbyMap, the EU Transparency Register, Climate Action 100+, TPI, CDP, Banking on Climate Chaos, the Global Oil and Gas Exit List, the Global Coal Exit List, the Global Energy Monitor trackers (GOGET, GCPT, EGT), EUR-Lex, EEA national inventories, Eurostat, EDGAR, Climate TRACE, the EU Innovation Fund, and the claim's own source document with up to two reports it links to. Two of the sources, CDP and the EU Innovation Fund, have no data in the current deployment.
+3. **Scores** each claim from 0 to 100 with a model that reads the claim and the records. Rules in code cap the score: above 60 requires a record about the claim itself, and above 80 an official record that shows the claim to be false.
+4. **Applies** two of the integrity criteria of the UN High-Level Expert Group on net-zero commitments to climate pledges. For a pledge, records of new fossil fuel supply and of lobbying count as evidence against it, and investors' assessments of the pledge count for it or against it. Such records can place a pledge in the 61–80 band, and never above it. New fossil fuel supply means new or expanded oil and gas fields and coal mines, LNG terminals and gas pipelines that are planned or under construction, and new coal plants. New gas-fired power plants are context. A field discovered more than ten years ago with no investment decision recorded is context as well, and so is an LNG terminal still listed as proposed more than ten years after its proposal year.
+5. **Publishes** a report in Markdown with the reasoning, the data gaps that bear on the claim, an evidence list and a company record. The evidence list and the company record are generated by code from the records and checked before publication.
 
 ---
 
@@ -42,7 +36,7 @@ Claim Extraction Agent    ← raw Anthropic SDK
 Context Agent             ← PostgreSQL + pgvector
       │
       ▼
-Verification Agent        ← LangGraph (parallel fan-out, 22 sources)
+Verification Agent        ← LangGraph (parallel fan-out, 21 sources + source document)
       │
       ▼
 Lobbying Agent            ← EU Transparency Register
@@ -54,17 +48,17 @@ Judge Agent               ← raw Anthropic SDK
 Report Agent              ← raw Anthropic SDK
 ```
 
-**Discovery Agent**: monitors company IR pages for content changes via SHA-256 hash comparison. Only changed or new pages trigger the downstream pipeline. This is what makes the system live rather than a manual tool.
+**Discovery Agent**: compares a page's SHA-256 hash with the stored one to find new or changed pages (`Pipeline.run_discovery`). No scheduled job runs it yet; each published assessment was run by hand with `scripts/run_assessment.py` from a given address.
 
-**Claim Extraction Agent**: uses forced tool use to extract every green claim verbatim from the document with source metadata. Returns `List[Claim]`.
+**Claim Extraction Agent**: asks the model, through a tool, for the climate claims on the page with their verbatim text and source, and returns them as `List[Claim]`. The pipeline then removes duplicates and keeps up to seven.
 
-**Context Agent**: queries PostgreSQL for the company's claim history, aggregate scores, score trend, and semantically similar prior claims via pgvector cosine similarity before verification begins.
+**Context Agent**: loads the company's registry data (country, sector, EU ETS installations) for the agents that follow. It also reads earlier claims and scores from PostgreSQL; these are kept out of the judge's and the report's input.
 
-**Verification Agent**: queries 22 parallel sources simultaneously (see Data Sources below), aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
+**Verification Agent**: queries 21 open data sources and reads the claim's own source document, all in parallel (see Data Sources below), aggregating results into a `VerificationResult`. See [Why LangGraph is used here and nowhere else](#why-langgraph-for-the-verification-agent-only) below.
 
-**Lobbying Agent**: retrieves the company's Transparency Register record and classifies whether its lobbying activity contradicts its green claims.
+**Lobbying Agent**: looks the company up in the EU Transparency Register export and passes the registration to the judge as context; the direction of lobbying comes from LobbyMap.
 
-**Judge Agent**: LLM-as-judge. Receives the complete evidence package and produces a calibrated `GreenwashingScore` (0–100) with per-dimension breakdown and full chain-of-thought reasoning.
+**Judge Agent**: reads the claim and the evidence and returns a score from 0 to 100 with a low and high estimate, a confidence, the records it finds contradicting or supporting the claim, a breakdown by dimension and a written explanation. Rules in code then cap the score (`score_cap` in `agents/judge_agent.py`, `core/evidence_scope.py`). The Report Agent writes the report's assessment from that explanation.
 
 **Report Agent**: generates the publication-ready Markdown report with inline source citations.
 
@@ -72,27 +66,25 @@ Report Agent              ← raw Anthropic SDK
 
 ### Why LangGraph for the Verification Agent Only
 
-This is the most important architectural decision in the codebase, and it is deliberate.
-
 **The case for LangGraph at the Verification Agent:**
 
-The Verification Agent queries 22 independent data sources and must:
+The Verification Agent queries 21 independent data sources, reads the company's own document, and must:
 
 - Execute all queries concurrently (never sequentially; latency would compound)
 - Accumulate results from each branch as they complete
-- Handle partial failures gracefully: if one source is down, the pipeline must continue with the evidence that was retrieved, not fail entirely
+- Handle partial failures gracefully: if one source is down, the pipeline must continue with the evidence that was retrieved
 - Merge partial state from concurrent branches into a coherent aggregate
 
 This is exactly the problem that LangGraph's `StateGraph` with `operator.add` reducers solves. The fan-out topology is declared explicitly in the graph; parallel execution is handled by the framework's async runtime; partial state merging is automatic. Writing this coordination logic by hand with `asyncio.gather()` and manual exception handling would produce more code, more bugs, and less readability for the same result.
 
 **The case against LangGraph everywhere else:**
 
-The other six agents are single-step operations:
+Five of the other six agents are single-step operations:
 
-- Extraction: one LLM call with forced tool use, parse the response
+- Extraction: one LLM call through a tool, with a retry if the model answers in text; parse the response
 - Context: four SQL queries, build a Pydantic model
-- Lobbying: one HTTP call, classify the response
-- Judge: one LLM call with forced tool use, parse the response
+- Lobbying: one lookup in the local register export
+- Judge: one LLM call through a tool, with a retry if the model answers in text; parse the response
 - Report: one LLM call, return the text
 
 For single-step agents, introducing a framework means:
@@ -102,9 +94,9 @@ For single-step agents, introducing a framework means:
 - The model's exact inputs and outputs are harder to inspect and log
 - Iteration on prompt changes requires re-learning framework conventions
 
-The Judge Agent is the most sensitive step in the pipeline; its output may be cited in legal proceedings. It needs to be as transparent as possible. A direct Anthropic SDK call with the prompt written as a plain string is auditable; a LangGraph node wrapping a tool call is not. This is not a criticism of LangGraph; it is a recognition that frameworks add value in proportion to the complexity of the orchestration problem they solve.
+The judge's score is what gets published, so its prompt is a plain string sent in a direct Anthropic SDK call, where every input and output can be read and logged.
 
-**The result:** Prasine Index uses LangGraph where it genuinely adds value (22-source parallel fan-out with partial failure tolerance), and raw Anthropic SDK where full control matters (single-step LLM calls with precise prompt requirements). This shows understanding of *when* to use a framework, not just *that* frameworks exist.
+**The result:** Prasine Index uses LangGraph where it adds value (the parallel fan-out over 21 data sources and the source document, with partial failure tolerance), and the raw Anthropic SDK for single-step LLM calls that need precise prompt control.
 
 ---
 
@@ -116,23 +108,21 @@ Every agent communicates exclusively through Pydantic v2 models. No raw strings 
 | ----- | ----------- |
 | `Claim` | Atomic unit of work: a single green claim with full provenance |
 | `ClaimLifecycle` | Immutable status transition record; one row per status change |
-| `Evidence` | A single data point from one of the 22 data sources |
+| `Evidence` | A single data point from one of the data sources or the source document |
 | `VerificationResult` | Aggregated evidence package for a claim |
-| `GreenwashingScore` | Judge verdict: 0–100 index with dimension breakdown and reasoning |
-| `Company` | EU company registry data including LEI and EU ETS installation IDs |
+| `GreenwashingScore` | Judge output: 0–100 score with a range, a confidence, a dimension breakdown and a written explanation |
+| `Company` | Company registry data including LEI and EU ETS installation IDs |
 | `CompanyContext` | Historical claim and score aggregates for a company |
-| `LobbyingRecord` | EU Transparency Register data with contradiction assessment |
+| `LobbyingRecord` | EU Transparency Register registration data |
 | `AgentTrace` | Structured execution log: agent, outcome, duration, tokens |
 
 ### Claim Lifecycle
 
 ```text
-DETECTED → VERIFIED → SCORED → PUBLISHED → MONITORING
+DETECTED → SCORED → PUBLISHED
 ```
 
-Every status transition is recorded as an immutable `ClaimLifecycle` row. The full history of a claim's progression through the pipeline can be reconstructed at any point.
-
-The `MONITORING` state is the system's killer feature: a company that re-makes a previously scored claim without evidence of progress is flagged automatically as a repeat offender. A company that modifies a claim after Prasine Index publishes a verdict has that modification flagged as a primary accountability signal in all subsequent reports.
+Every status transition is recorded as an immutable `ClaimLifecycle` row, and a claim that fails is set to `FAILED`. `PUBLISHED` is set when the report is written; putting it on the site is a separate step. `ClaimStatus` also defines `VERIFIED` and `MONITORING`, which the pipeline does not set yet.
 
 ---
 
@@ -140,11 +130,7 @@ The `MONITORING` state is the system's killer feature: a company that re-makes a
 
 **PostgreSQL 15+ with the pgvector extension.**
 
-pgvector serves two purposes:
-
-1. **Semantic search across historical claims.** The `normalised_text` of each claim is embedded and stored as a pgvector column. When a new claim arrives, the Context Agent queries for prior claims from the same company with cosine similarity above a threshold, surfacing repeat claims automatically.
-
-2. **Operational simplicity.** pgvector runs inside the existing PostgreSQL instance. No additional vector database service to provision, monitor, or pay for.
+The claims table has a pgvector column and the Context Agent has a similarity query, but embeddings are not yet computed, so repeat claims are not detected. pgvector runs inside the existing PostgreSQL instance, so no separate vector database service is needed.
 
 ---
 
@@ -152,7 +138,7 @@ pgvector serves two purposes:
 
 ### 1. Parallel Verification
 
-The Verification Agent never queries data sources sequentially. The LangGraph graph fans out to all 22 sources simultaneously from `START`; the `operator.add` reducer on the `evidence` list merges partial results as each branch completes. A source that takes 8 seconds does not hold up a source that takes 1 second.
+The Verification Agent never queries data sources sequentially. The LangGraph graph fans out to all 21 data sources and the source document simultaneously from `START`; the `operator.add` reducer on the `evidence` list merges partial results as each branch completes. A source that takes 8 seconds does not hold up a source that takes 1 second.
 
 ### 2. Pydantic End-to-End
 
@@ -162,29 +148,29 @@ Every agent input and every agent output is a Pydantic v2 model. `Claim`, `Evide
 
 The `core/retry.py` module provides:
 
-- A typed exception hierarchy (`LLMError`, `DataSourceError`, `ExtractionError`, `RetryExhaustedError`) with retryability expressed as a property, not inferred from the exception type
+- A typed exception hierarchy (`LLMError`, `DataSourceError`, `ExtractionError`, `RetryExhaustedError`) with retryability expressed as a property of each exception
 - Full-jitter exponential backoff via `@retry_async`, with three pre-built configs for LLM calls, HTTP calls, and database queries
 - The `agent_error_boundary` async context manager, which guarantees every unhandled exception is logged with full structured context before re-raising; no failure in the pipeline is silent
 
 ### 4. Golden Eval Dataset
 
-`eval/golden_dataset.py` contains 20 cases drawn from public record (EU regulatory actions, NGO investigations, court rulings), each with an expected verdict and an acceptable score range. The runner executes the full pipeline on all 20 and reports agreement, score spread and per-agent latency. It is a regression check: it shows when a pipeline change moves verdicts. The expected verdicts were adjusted during development, so it does not measure accuracy. Validation against regulators' decisions on claims the pipeline has not seen, and a test of how stable the judge's scores are, will be reported separately.
+`eval/golden_dataset.py` holds 20 cases, each with an expected finding and score range. The expected findings were set during development under version 1, several of them to match the pipeline's own output at the time, and have not been re-set for version 2. The eval is a regression check and does not measure accuracy. The runner reports how many cases match their expected finding and score range, the time per case and the tokens used. Validation against regulators' decisions on claims the pipeline has not seen will be reported separately.
 
 ```bash
 python -m eval.golden_dataset
 ```
 
-This is LLMOps: prompt changes, model upgrades, and architectural changes must not silently regress against known outcomes.
+Run the eval after a prompt change, a model upgrade or a change to an agent, and compare the result with the previous run.
 
 ### 5. Trace IDs Throughout
 
-Every claim is assigned a `trace_id` at creation. It flows through all seven agents unchanged and is written to every `AgentTrace` row, every `Evidence` record, and every log line. To reconstruct the full execution history of any claim:
+Every run is assigned a `trace_id`, and every claim in the run carries it. It flows unchanged through every agent of the run and is written to every `AgentTrace` row, every `Evidence` record, and every log line. To reconstruct the execution history of a run:
 
 ```text
 GET /trace/{trace_id}
 ```
 
-Returns every agent step in chronological order with duration, token count, outcome, and error context. Full pipeline replay is possible for any claim.
+Returns every agent step of the run in chronological order with duration, model, token count, outcome and error context, when the API in `api/main.py` runs against the database.
 
 ---
 
@@ -193,10 +179,10 @@ Returns every agent step in chronological order with duration, token count, outc
 | Component | Technology | Justification |
 | --------- | ---------- | ------------- |
 | Pipeline agents | Python 3.12 + asyncio | Async-first throughout; parallel verification requires it |
-| LLM agents (extraction, judge, report) | Raw Anthropic SDK | Full prompt control; no framework abstraction over legally sensitive LLM calls |
-| Verification orchestration | LangGraph | 22-source parallel fan-out with partial failure tolerance |
+| LLM agents (extraction, judge, report) | Raw Anthropic SDK | Full prompt control; no framework between the prompt and the model |
+| Verification orchestration | LangGraph | Parallel fan-out over 21 sources and the source document, with partial failure tolerance |
 | Data validation | Pydantic v2 | Runtime-validated agent contracts; no untyped data at boundaries |
-| API | FastAPI | Async-native, Pydantic-native, production-grade |
+| API | FastAPI | Async-native, Pydantic-native |
 | Database | PostgreSQL 15 + pgvector | Relational integrity + vector similarity in one service |
 | HTTP client | httpx | Async-native; consistent interface for all external API calls |
 
@@ -204,65 +190,65 @@ Returns every agent step in chronological order with duration, token count, outc
 
 ## Data Sources
 
-22 parallel sources queried per claim. Sources are grouped by evidence type.
+21 open data sources are queried in parallel for each claim, and the claim's own source document is read. Sources are grouped by evidence type. Editions in use for the published assessments: Climate Action 100+ Net Zero Company Benchmark of October 2026 (ten indicators), LobbyMap of 5 November 2026, Global Coal Exit List 2026 and Urgewald GOGEL 2025 V2.
 
 ### Verified Emissions
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| EU ETS EUTL | Verified annual CO₂ per installation, 2005–present. Third-party verified under Regulation 601/2012. | `refresh_eutl.py` |
-| E-PRTR (EEA) | Verified non-CO₂ GHG releases per facility (CH₄, N₂O, HFCs). | `refresh_eprtr.py` |
-| Climate TRACE | Independent facility-level emissions estimates from satellite/ML, not self-reported. | Live API (v7) |
+| EU ETS EUTL | Verified annual emissions per installation, 2005 onwards. Verification follows Implementing Regulation (EU) 2018/2067 for emissions from 2019 and Regulation (EU) No 600/2012 for 2013 to 2018. | `refresh_eutl.py` |
+| E-PRTR (EEA) | Releases to air reported per facility to the EEA's industrial emissions register: CO₂, methane, nitrous oxide, F-gases and major air pollutants. | `refresh_eprtr.py` |
+| Climate TRACE | Facility-level emissions estimates from satellite data and machine learning, produced independently of company reporting. | Live API (v7) |
 | EDGAR JRC (2025) | JRC independent national GHG totals 1970–2024 for all countries. Cross-checks Eurostat and EEA. | Static XLSX (`data/JRC/`) |
 
 ### Targets and Benchmarks
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| SBTi | Science-based targets: validated, committed, removed. Removed = CONFIRMED_GREENWASHING at 0.95. | `refresh_sbti.py` |
-| CA100+ | Net-zero benchmark for 170 largest emitters (700+ investors, $68tn AUM). "Not Aligned" directly contradicts net-zero claims. | `refresh_ca100.py` |
-| TPI | Management quality (0–4) and carbon performance benchmarks for 491 listed companies. | Static CSV (`data/tpi_companies.csv`) |
+| SBTi | Near-term and net-zero target status, temperature classification and the target wording from the register. | `refresh_sbti.py` |
+| CA100+ | The Net Zero Company Benchmark's indicators for the companies it covers, read as the benchmark defines them. | `refresh_ca100.py` |
+| TPI | Management Quality level and Carbon Performance alignment, with the dates of each assessment. | `refresh_tpi.py "Company=slug" ...` (reads TPI's company pages) |
 
 ### Fossil Fuel Expansion
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| GEM Coal Plant Tracker (GCPT) | Every coal power plant worldwide: status, owner, capacity. Expanding coal contradicts clean-energy claims. | Manual form download (GEM reCAPTCHA) |
-| GEM Europe Gas Tracker (EGT) | Gas pipelines, LNG terminals, and gas plants across Europe. New infrastructure in construction contradicts Paris-alignment. | Manual form download (GEM reCAPTCHA) |
-| GEM Oil & Gas Extraction Tracker (GOGET) | Oil and gas fields worldwide. FID-stage fields = capital committed to decades of upstream production. | Manual form download (GEM reCAPTCHA) |
-| Global Coal Exit List (GCEL) | ~1,000 companies in the coal value chain. Standard coal screen under GFANZ/PAII. | `refresh_gcel.py` |
-| Urgewald GOGEL | ~1,000 companies in oil and gas expansion. O&G equivalent of GCEL. | `refresh_gogel.py` |
+| GEM Coal Plant Tracker (GCPT) | Coal power units worldwide, with status, owner and capacity. | Manual form download (GEM reCAPTCHA) |
+| GEM Europe Gas Tracker (EGT) | Gas pipelines, LNG terminals and gas-fired power plants across Europe, with status and each owner's share. Gas-fired power plants, and LNG terminals still proposed more than ten years after their proposal year, are context. | Manual form download (GEM reCAPTCHA) |
+| GEM Oil & Gas Extraction Tracker (GOGET) | Oil and gas fields worldwide, with status: in development after a final investment decision, discovered, or operating. | Manual form download (GEM reCAPTCHA) |
+| Global Coal Exit List (GCEL) | Companies in the coal value chain, with their coal mining and power expansion. | `convert_urgewald_lists.py` |
+| Urgewald GOGEL | Companies in oil and gas, with their upstream and LNG expansion. | `convert_urgewald_lists.py` |
 
 ### Financing
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| Banking on Climate Chaos | Fossil fuel financing by 60 largest banks 2016–present. | `refresh_fossil_finance.py` |
+| Banking on Climate Chaos | Fossil fuel financing by the 65 largest private-sector banks, 2021 to 2025. | `refresh_fossil_finance.py` |
 
 ### Lobbying and Policy
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| LobbyMap | Corporate climate lobbying scores A+ to F. D/E/F company claiming green leadership = textbook greenwashing. | `refresh_lobbymap.py` |
-| EU Transparency Register | Brussels lobbying declarations. Confirms active lobbying; direction requires cross-reference with LobbyMap. | `refresh_eu_transparency_register.py` |
-| Enforcement Rulings | ASA, ACM, AGCM, CMA, EC rulings and court judgments. Prior ruling = strongest evidence category. | Static (embedded in module) |
-| EUR-Lex | The provisions of Directive (EU) 2024/825 on environmental claims (UCPD Annex I points 2a, 4a, 4b and 4c, and Article 6(2)(d)), the CSRD and the EU ETS Directive, quoted as context. | Static (legislation is stable) |
+| LobbyMap | Performance bands A+ to F for corporate climate policy engagement, and the engagement intensity. LobbyMap defines D and below as obstructive. | Saved from LobbyMap's league table; `refresh_lobbymap.py` fetches an older file and would overwrite it |
+| EU Transparency Register | Registration data (number, name, status, category, country) of organisations that lobby the EU institutions. A registration does not show the direction of lobbying; that comes from LobbyMap. | `refresh_eu_transparency_register.py` |
+| Enforcement records | Decisions by advertising regulators, consumer authorities, courts and the European Commission on environmental marketing. Each was checked twice against its official page, in two separate passes made with language-model agents, and carries a verbatim quotation from that page. A decision from the last five years on the same claim is evidence about it; other decisions are context. | Static (embedded in module) |
+| EUR-Lex | The provisions of Directive (EU) 2024/825 on environmental claims (UCPD Annex I points 2a, 4a, 4b and 4c, and Articles 6(1) and 6(2)(d)), quoted verbatim with passages from the Commission services' Questions and Answers on the directive (September 2026), and short summaries of the CSRD and the EU ETS Directive. All are context. | Static (legislation is stable) |
 
 ### Statistical Context
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| Eurostat | Official EU national GHG statistics. Country-level benchmark for company percentage claims. | `refresh_eurostat.py` |
-| EEA National Totals | EEA-verified national inventory totals 1990–present. Standard EU reporting benchmark. | `refresh_eea_national.py` |
-| EU Innovation Fund | EU-funded decarbonisation projects. Context for whether claimed green investments match emissions scale. | `refresh_eu_innovation_fund.py` |
+| Eurostat | Official EU national GHG statistics. Country-level benchmark for company percentage claims. | Live API (`env_air_gge`) |
+| EEA National Totals | EEA-verified national inventory totals 1990 onwards. Standard EU reporting benchmark. | `refresh_eea_national.py` |
+| EU Innovation Fund | EU-funded decarbonisation projects. Context for whether claimed green investments match emissions scale. No data in the current deployment. | `refresh_eu_innovation_fund.py` |
 
 ### Source Documents
 
 | Source | What It Provides | Refresh |
 | ------ | ---------------- | ------- |
-| Source Document (claim URL) | The document explicitly cited by the claim: sustainability reports, CSRD filings, IR pages. Fetched live, analysed with Anthropic document API + forced tool use. Extracts scope 1/2/3 figures, baseline year, interim targets (2030/2035/2040), SAF %, and all EmpCo Directive substantiation gaps. The most direct verification step: a company that points readers to its sustainability report for net-zero goals but whose report lacks EmpCo-required elements is in substantiation failure under binding EU law. | Live fetch per run |
+| Source Document (claim URL) | The page or document the claim comes from, and up to two reports the page links to, such as the newest sustainability report and a transition plan, fetched at run time. Read for scope 1, 2 and 3 figures, baseline year, interim targets and the elements of a transition plan. No legal provision is applied to it. | Live fetch per run |
 
-**Note on CDP:** CDP corporate scores require investor-signatory or paid API access. Not implemented. Self-reported data carries lower evidential weight than verified sources in any case.
+**Note on CDP and the EU Innovation Fund:** both modules read a local bulk file when one is present. The current deployment has neither, so no report carries a record from them; each report's data manifest lists the EU Innovation Fund as not present.
 
 ---
 
@@ -271,7 +257,7 @@ Returns every agent step in chronological order with duration, token count, outc
 The fastest way to run the full pipeline against any company:
 
 ```bash
-# Fetch the sustainability page automatically and assess up to 5 claims:
+# Fetch the page and assess up to seven claims (the default):
 python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability"
 
@@ -280,54 +266,51 @@ python scripts/run_assessment.py --company "Shell plc" \
     --claim "Shell is on track to become net-zero by 2050" \
     --url "https://shell.com/sustainability"
 
-# Refresh all downloadable data sources first:
-python scripts/run_assessment.py --company "Shell plc" \
-    --url "https://shell.com/sustainability" --refresh-data
-
 # Assess up to 10 claims (more thorough, higher token spend):
 python scripts/run_assessment.py --company "Shell plc" \
     --url "https://shell.com/sustainability" --max-claims 10
 
-# Use Opus for judge and report (recommended for citable output):
+# Fetch the page and extract the claims only, without scoring them:
 python scripts/run_assessment.py --company "Shell plc" \
-    --url "https://shell.com/sustainability" \
-    --judge-model claude-opus-4-8 \
-    --report-model claude-opus-4-8
+    --url "https://shell.com/sustainability" --extract-only
 ```
 
-Costs approximately **$0.08–$0.12 per claim** on Haiku defaults; this is the per-claim floor (one claim through all 7 agents, including 22-source verification; source document LLM call adds ~$0.02 when the claim has a fetchable source URL). A full company run with `--max-claims 5` (default) costs ~$0.25–$0.75 depending on page length and report verbosity. Budget $3–$7 for a 10-company sweep. `--max-claims 10` is suitable for a full audit (~$0.50–$1.50/company).
+`--display-name` sets the name the report gives the company when it differs from `--company`.
 
-Saves numbered reports to `docs/reports/<slug>-{n}.md` and a canonical report (highest-scoring claim) to `docs/reports/<slug>.md`.
+Defaults: Claude Opus 5.5 judges (`--judge-model claude-opus-5-5`), Claude Sonnet 5.5 writes the report (`--report-model claude-sonnet-5-5`), and Claude Haiku 5.5 extracts the claims and reads the source documents.
+
+Writes one report per claim to `docs/reports/<slug>-<n>.md`. The company assessment goes to `docs/reports/<slug>.md`: score, range, finding, claims table and company record, then the detailed assessment of the highest-scoring claim and the data manifest. Dataset hashes go to `docs/reports/<slug>-manifest.json`. The last two files, after the review described under Published Assessments, are the ones published.
 
 ---
 
 ## Published Assessments
 
-Current results, as published on [prasineindex.com](https://prasineindex.com) and [martinblomqvistdev.github.io/prasine-index](https://martinblomqvistdev.github.io/prasine-index/). Each is a 7-claim assessment scored by a Claude Opus 4.8 judge; the company verdict derives from the top-3 severity-weighted score, floored at the worst claim's band, so a confirmed finding can never be averaged away.
+Assessed with version 2 of the method and published on [prasineindex.com](https://www.prasineindex.com) on 13 November 2026. BP, Enel, Glencore, H&M, Ørsted, Ryanair and SSAB were assessed on 6 November 2026, and IKEA on 12 November 2026, from Inter IKEA Group's Annual Report FY26. Each assessment covers up to seven claims. A model scores each claim against the records, and rules in code cap the score: above 60 requires a record about the claim itself, and above 80 an official record that shows the claim to be false. Each report includes a company record set beside the claims.
 
-The assessments of Ryanair, Glencore and BP were withdrawn on 5 November 2026: their confirmed verdicts rested on enforcement records that were wrong or could not be found. The five below are under revision. A review on 3 November 2026 found errors in each of them, including statements about EU law. See the [notice](https://prasineindex.com/#notice).
+Each report was reviewed before publication, and errors of fact and wording found in the review were corrected in the report. The judge scored the claims on the records as first written, except two claims, by Ryanair and Enel, that were scored again on corrected records; both reports say so under their tables of claims. One of Enel's claims is not counted: it sets zero emissions “by 2024”, while elsewhere Enel's report gives 2040 for the same targets, so Prasine reads “2024” as a misprint for 2040. Counted, it would have set Enel's score at 61, “Conflicts with records”. Some of the claims that decide a company's band were scored more than once to test the judge's consistency; where the runs fall in two bands, the index publishes the lower band. The [methodology](https://www.prasineindex.com/methodology) gives the runs and names the companies whose claims were not tested.
 
-| Company | Sector | Verdict | Score |
-| ------- | ------ | ------- | ----- |
-| Enel SpA | Energy | MISLEADING_CLAIM | 55/100 |
-| IKEA Group | Retail | MISLEADING_CLAIM | 50/100 |
-| SSAB AB | Steel | MISLEADING_CLAIM | 45/100 |
-| H&M Group | Fashion | MISLEADING_CLAIM | 41/100 |
-| Ørsted A/S | Renewables | SUBSTANTIATED_CLAIM | 18/100 |
+| Company | Sector | Score | Finding |
+| --- | --- | --- | --- |
+| [BP plc](https://www.prasineindex.com/reports/bp-plc) | Oil & Gas | 61/100 | Conflicts with records |
+| [Enel SpA](https://www.prasineindex.com/reports/enel-spa) | Energy | 28/100 | Not covered by public records |
+| [Glencore plc](https://www.prasineindex.com/reports/glencore-plc) | Mining | 61/100 | Conflicts with records |
+| [H&M Group](https://www.prasineindex.com/reports/h-m-group) | Fashion | 18/100 | Supported by records |
+| [IKEA (Inter IKEA Group)](https://www.prasineindex.com/reports/ikea-group) | Retail | 46/100 | Not fully supported |
+| [Ørsted A/S](https://www.prasineindex.com/reports/orsted-a-s) | Renewables | 25/100 | Not covered by public records |
+| [Ryanair Holdings plc](https://www.prasineindex.com/reports/ryanair-holdings-plc) | Aviation | 55/100 | Not fully supported |
+| [SSAB AB](https://www.prasineindex.com/reports/ssab-ab) | Steel | 46/100 | Not fully supported |
 
-Reports are published to `docs/reports/` as Markdown.
+Where a company's score is raised to the lower bound of the band of its highest-scoring claim, the report also gives the mean it was raised from.
 
-An earlier v1 of the index covered 18 companies with single-claim assessments (Haiku judge). Those runs are preserved under `docs/reports/_dev/` as a historical record; they are superseded by the 7-claim, Opus-judged assessments above and are not directly comparable.
+Version 1, published in July 2026, has been replaced. Three of its assessments, of Ryanair, Glencore and BP, were withdrawn on 5 November 2026; the [corrections log](https://www.prasineindex.com/corrections) lists what changed. Reports are published to `docs/reports/` as Markdown.
 
 ---
 
 ## Public Site
 
-Two surfaces publish the same reports, both live since late June 2026.
+**prasineindex.com**: Next.js 16 (App Router) + React 19, deployed on Vercel, auto-deploying on push to `main`. Source in [web/](web/). Routes: `/` (the index), `/methodology`, `/corrections`, `/about` and `/reports/[slug]`. No database and no server-side data fetching: `web/lib/parse-report.ts` parses `docs/reports/<slug>.md` at build time, so the site shows exactly what the reports say. `PUBLISHED_SLUGS` in `web/lib/site.ts` defines index membership.
 
-**prasineindex.com**: Next.js 16 (App Router) + React 19, deployed on Vercel, auto-deploying on push to `main`. Source in [web/](web/). Routes: `/` (index and featured assessment), `/methodology`, `/reports/[slug]`. No database and no API calls at runtime: `web/lib/parse-report.ts` parses `docs/reports/<slug>.md` at build time, so the published scores cannot drift from the pipeline output. The `SLUGS` array in `web/app/page.tsx` defines index membership.
-
-**martinblomqvistdev.github.io/prasine-index**: static GitHub Pages site served from `docs/index.html`. Mini-card summaries linking through to the full reports. Hand-written HTML: card scores and verdicts are updated manually after a re-run.
+**martinblomqvistdev.github.io/prasine-index**: a pointer page to prasineindex.com (`docs/index.html`). `docs/_config.yml` keeps the reports and `docs/data-sources.md` out of GitHub Pages.
 
 ---
 
@@ -354,30 +337,38 @@ cp .env.example .env
 # Edit .env: set DATABASE_URL and ANTHROPIC_API_KEY
 ```
 
+The models are set with `--judge-model` and `--report-model` on `scripts/run_assessment.py`, and their defaults are in `PipelineConfig`.
+
 ### Database Setup
 
 ```bash
 python -c "import asyncio; from core.database import init_db; asyncio.run(init_db())"
+
+python scripts/seed_index_companies.py --apply  # country, sector and EU ETS installations of the eight index companies, from the EUTL snapshot in EUTL24/
 ```
+
+Without the seed step, the runner inserts a company with country `EU`, sector `Corporate` and no EU ETS installations, and the report lacks the EU ETS evidence the published reports carry.
 
 ### Refreshing Data Sources
 
-```bash
-# All downloadable sources at once:
-python scripts/run_assessment.py --company "..." --url "..." --refresh-data
+`run_assessment.py --refresh-data` runs some of these scripts before an assessment, but not `refresh_tpi.py`. It does run `refresh_lobbymap.py`, `refresh_gcel.py` and `refresh_gogel.py`, which can replace the files the published assessments used. Run the scripts below one at a time instead, and compare each report's data manifest with the previous one.
 
-# Individual sources:
+```bash
 python scripts/refresh_eutl.py           # EU ETS daily snapshot
 python scripts/refresh_sbti.py           # SBTi targets
-python scripts/refresh_eprtr.py          # E-PRTR non-CO2 GHG
-python scripts/refresh_lobbymap.py   # LobbyMap lobbying scores
+python scripts/refresh_eprtr.py          # E-PRTR releases to air
 python scripts/refresh_ca100.py          # CA100+ benchmark
+python scripts/refresh_tpi.py "Company=slug" ...  # TPI, from the company pages
 python scripts/refresh_fossil_finance.py # Banking on Climate Chaos
-python scripts/refresh_gcel.py           # Global Coal Exit List
-python scripts/refresh_gogel.py          # Urgewald GOGEL
 python scripts/refresh_eea_national.py   # EEA National totals
+
+# GCEL 2026 and GOGEL 2025 V2 come as Excel workbooks from urgewald:
+python scripts/convert_urgewald_lists.py --gcel <GCEL 2026 xlsx> --gogel <GOGEL 2025 V2 xlsx>
+
+# LobbyMap: save the league table by hand (refresh_lobbymap.py fetches an older file).
+
 python scripts/refresh_eu_transparency_register.py  # EU TR bulk export
-python scripts/refresh_eu_innovation_fund.py        # EU Innovation Fund
+python scripts/refresh_eu_innovation_fund.py        # EU Innovation Fund (no data in the current deployment)
 
 # GEM trackers require manual form download (reCAPTCHA):
 python scripts/refresh_gcpt.py   # Instructions for Coal Plant Tracker
@@ -395,7 +386,7 @@ python -m eval.golden_dataset
 python -m eval.golden_dataset GW-001 GW-003 GW-010
 ```
 
-The runner exits with code 1 below an 80% pass rate. A failure means verdicts have moved since the last run.
+The runner exits with code 1 when fewer than 80% of the cases match both their expected finding and their expected score range. The expected findings date from version 1, so a failure can also come from the change of method.
 
 ### Running the Tests
 
@@ -410,98 +401,89 @@ pytest tests/ -v
 ```text
 prasine-index/
 ├── agents/
-│   ├── discovery_agent.py      # Monitors company sources for new content
-│   ├── extraction_agent.py     # Extracts green claims (raw Anthropic SDK)
-│   ├── context_agent.py        # Retrieves company history from PostgreSQL
-│   ├── verification_agent.py   # 22-source parallel fan-out (LangGraph)
-│   ├── lobbying_agent.py       # EU Transparency Register cross-reference
-│   ├── judge_agent.py          # LLM-as-judge scoring (raw Anthropic SDK)
+│   ├── discovery_agent.py      # Compares page hashes to find new or changed pages
+│   ├── extraction_agent.py     # Extracts climate claims (raw Anthropic SDK)
+│   ├── context_agent.py        # Loads the company's registry data and earlier claims from PostgreSQL
+│   ├── verification_agent.py   # 21-source parallel fan-out plus the source document (LangGraph)
+│   ├── lobbying_agent.py       # EU Transparency Register lookup
+│   ├── judge_agent.py          # Scores a claim and caps the score (raw Anthropic SDK)
 │   └── report_agent.py         # Publication-ready report (raw Anthropic SDK)
 ├── models/
 │   ├── claim.py                # Claim, ClaimStatus, ClaimLifecycle
+│   ├── company_score.py        # Company-level score across claims
 │   ├── evidence.py             # Evidence, VerificationResult, EvidenceSource (22 values)
-│   ├── score.py                # GreenwashingScore, ScoreVerdict
+│   ├── score.py                # GreenwashingScore, ScoreVerdict, finding labels
 │   ├── company.py              # Company, CompanyContext
 │   ├── lobbying.py             # LobbyingRecord
 │   └── trace.py                # AgentTrace
 ├── core/
 │   ├── pipeline.py             # Orchestrates all 7 agents
+│   ├── aggregate.py            # Company score from the claim scores
+│   ├── evidence_scope.py       # Which records count as evidence about a claim
+│   ├── company_record.py       # Company record written into each report
+│   ├── data_manifest.py        # Dataset fingerprints written beside each report
+│   ├── model_requests.py       # Request options shared by every Anthropic call
+│   ├── local_copies.py         # Local copies of documents a site will not serve
+│   ├── textutil.py             # HTML-to-text extraction
 │   ├── database.py             # PostgreSQL + pgvector async connection
 │   ├── logger.py               # Structured JSON logging + ContextVar trace_id
 │   └── retry.py                # Typed exceptions, retry decorator, error boundary
 ├── ingest/
 │   ├── eu_ets.py               # EU ETS EUTL verified emissions (local CSV)
-│   ├── sbti.py                 # SBTi validated/removed targets (local CSV)
-│   ├── eprtr.py                # E-PRTR non-CO2 GHG releases (local CSV)
+│   ├── sbti.py                 # SBTi validated/removed targets (local file)
+│   ├── eprtr.py                # E-PRTR releases to air (local CSV)
 │   ├── lobby_map.py            # LobbyMap lobbying scores (local CSV)
-│   ├── enforcement.py          # ASA/ACM/AGCM/CMA/EC rulings (static, embedded)
+│   ├── enforcement.py          # Lookup over the verified enforcement records
+│   ├── enforcement_records.py  # The verified enforcement decisions (static, embedded)
 │   ├── ca100.py                # CA100+ net-zero benchmark (local CSV)
+│   ├── cdp.py                  # CDP bulk data (local CSV; absent in the current deployment)
 │   ├── fossil_finance.py       # Banking on Climate Chaos fossil financing (local CSV)
 │   ├── coal_exit.py            # Urgewald GCEL coal exposure (local CSV)
+│   ├── gogel.py                # Urgewald GOGEL O&G exit list (local CSV)
 │   ├── eurlex.py               # EUR-Lex legislative context (static, embedded)
 │   ├── eu_transparency_register.py  # EU Transparency Register (local XLSX)
-│   ├── eurostat.py             # Eurostat national GHG statistics (local CSV)
+│   ├── eurostat.py             # Eurostat national GHG statistics (live API)
 │   ├── eea_national.py         # EEA National inventory totals (local CSV)
-│   ├── eu_innovation_fund.py   # EU Innovation Fund projects (local CSV)
-│   ├── gogel.py                # Urgewald GOGEL O&G exit list (local CSV)
+│   ├── eu_innovation_fund.py   # EU Innovation Fund projects (local CSV; absent in the current deployment)
 │   ├── climate_trace.py        # Climate TRACE API v7 (live)
 │   ├── tpi.py                  # TPI benchmarks (local CSV)
 │   ├── gcpt.py                 # GEM Coal Plant Tracker (local XLSX)
 │   ├── egt.py                  # GEM Europe Gas Tracker (local XLSX)
 │   ├── goget.py                # GEM Oil & Gas Extraction Tracker (local XLSX)
 │   ├── edgar.py                # EDGAR JRC GHG booklet (local XLSX)
+│   ├── name_matching.py        # Whole-word company name matching
 │   └── source_document.py      # Claim's source document (Anthropic document API, live fetch)
 ├── api/
 │   └── main.py                 # FastAPI REST API
 ├── eval/
-│   └── golden_dataset.py       # 20 known greenwashing cases + eval runner
+│   └── golden_dataset.py       # 20 regression cases + eval runner
 ├── scripts/
-│   ├── run_assessment.py       # Run full pipeline on any company URL or claim text
-│   ├── refresh_eutl.py         # Download EU ETS daily snapshot
-│   ├── refresh_sbti.py         # Download SBTi CSV
-│   ├── refresh_eprtr.py        # Download E-PRTR CSV
-│   ├── refresh_lobbymap.py     # Download LobbyMap CSV
-│   ├── refresh_ca100.py        # Download CA100+ CSV
-│   ├── refresh_fossil_finance.py  # Download Banking on Climate Chaos CSV
-│   ├── refresh_gcel.py         # Download Urgewald GCEL CSV
-│   ├── refresh_gogel.py        # Download Urgewald GOGEL CSV
-│   ├── refresh_eea_national.py # Download EEA National totals CSV
-│   ├── refresh_eu_transparency_register.py  # Instructions for EU TR bulk export
-│   ├── refresh_eu_innovation_fund.py        # Download EU Innovation Fund CSV
-│   ├── refresh_gcpt.py         # Instructions for GEM GCPT (reCAPTCHA)
-│   ├── refresh_egt.py          # Instructions for GEM EGT (reCAPTCHA)
-│   ├── refresh_goget.py        # Instructions for GEM GOGET (reCAPTCHA)
-│   └── seed_eval_companies.py  # Insert all 20 eval companies with deterministic UUIDs
-├── data/                       # Local bulk datasets (not committed: download via refresh scripts)
-│   ├── sbti_companies.csv
-│   ├── eprtr_releases.csv
-│   ├── lobbymap_companies.csv
-│   ├── ca100_companies.csv
-│   ├── fossil_finance_banks.csv
-│   ├── gcel_companies.csv
-│   ├── gogel_companies.csv
-│   ├── tpi_companies.csv
-│   ├── eea_national_ghg.csv
-│   ├── eu_innovation_fund_projects.csv
-│   ├── EU_Transparency register_searchExport.xlsx
-│   ├── Global-Coal-Plant-Tracker-January-2026.xlsx
-│   ├── Europe-Gas-Tracker-2026-03-02.xlsx
-│   ├── Global-Oil-and-Gas-Extraction-Tracker-March-2026.xlsx
-│   └── JRC/
-│       └── EDGAR_2025_GHG_booklet_2025.xlsx
+│   ├── run_assessment.py       # Run the full pipeline on any company URL or claim text
+│   ├── seed_index_companies.py # Country, sector and EU ETS installations of the index companies
+│   ├── seed_eval_companies.py  # Insert the 20 eval companies with deterministic UUIDs
+│   ├── render_company_records.py  # Rebuild the company record of a report without a model call
+│   ├── check_sources.py        # Check every data source for a company without a model call
+│   ├── check_prose_style.py    # Typography and prose conventions across written surfaces
+│   ├── refresh_all.py          # Run the refresh scripts in sequence
+│   ├── refresh_*.py            # One download or instruction script per data source
+│   ├── refresh_tpi.py          # Read TPI's company pages
+│   └── convert_urgewald_lists.py  # GCEL and GOGEL workbooks to the index's CSVs
+├── data/                       # Local bulk datasets (not committed; see docs/data-sources.md)
 ├── docs/
-│   ├── index.html              # GitHub Pages index (static, hand-written)
+│   ├── index.html              # GitHub Pages pointer to prasineindex.com
+│   ├── _config.yml             # Keeps the reports and data-sources.md out of GitHub Pages
+│   ├── data-sources.md         # State of the local datasets
 │   └── reports/                # Published assessment reports (Markdown)
-│       └── _dev/               # Archived v1 index: 18 single-claim Haiku runs
 ├── web/                        # prasineindex.com (Next.js 16, Vercel)
-│   ├── app/page.tsx            # Index + featured assessment; SLUGS = index membership
+│   ├── app/page.tsx            # Home page: index and example assessment
 │   ├── app/methodology/        # Scoring methodology page
+│   ├── app/corrections/        # Corrections log
+│   ├── app/about/              # About page
 │   ├── app/reports/[slug]/     # One page per published report
+│   ├── lib/site.ts             # PUBLISHED_SLUGS = index membership
 │   └── lib/parse-report.ts     # Parses docs/reports/*.md at build time
-├── tests/
-│   └── test_models.py
+├── tests/                      # 17 test files
 ├── .env.example
-├── DEV_LOG.md                  # Real failures, root causes, and fixes
 └── requirements.txt
 ```
 
@@ -521,23 +503,25 @@ Key operations logged:
 | `pipeline_complete` | End-to-end verdict per claim |
 | `db_init_complete` | Database schema initialisation on startup |
 
-The `/trace/{trace_id}` endpoint returns the structured execution record for any pipeline run: agent names, outcomes, durations, token counts, and error context in chronological order.
+The `/trace/{trace_id}` endpoint of the local FastAPI app in `api/main.py` returns the structured execution record for a pipeline run: agent names, outcomes, durations, token counts and error context in chronological order. prasineindex.com serves no API.
 
 ---
 
 ## Methodology
 
-A score describes how the evidence relates to the claim. EU law enters only as context: the provisions of Directive (EU) 2024/825 that bear on the claim's category, quoted verbatim. The pipeline never concludes that a claim breaches them; that is for national authorities and courts. The score scale:
+A score describes how the records relate to a claim. EU law enters only as context: the provisions of Directive (EU) 2024/825 that bear on the claim's category. The pipeline never concludes that a claim breaches them; that is for national authorities and courts. Directive (EU) 2024/825 applies from 27 September 2026 and only to commercial practices aimed at consumers. The full method is on the [methodology page](https://www.prasineindex.com/methodology). The score scale:
 
-| Range | Verdict | Meaning |
-| ----- | ------- | ------- |
-| 0–20 | `SUBSTANTIATED_CLAIM` | Verified data supports the claim; no material contradiction |
-| 21–40 | `UNVERIFIABLE_CLAIM` | Data gaps prevent assessment either way |
-| 41–60 | `MISLEADING_CLAIM` | Claim misleads through omission, vague framing, or unauditable metrics |
-| 61–80 | `LIKELY_GREENWASHING` | Claim materially contradicted by verified third-party evidence |
-| 81–100 | `CONFIRMED_GREENWASHING` | Binding regulatory ruling or multiple hard triggers (D+ lobbying, active expansion, prior enforcement) |
+| Range | Finding | What it takes |
+| ----- | ------- | ------------- |
+| 0–20 | Supported by records | Records about the claim support it, and nothing material contradicts it |
+| 21–40 | Not covered by public records | The records needed to check the claim are not available |
+| 41–60 | Not fully supported | The claim lacks the specifics needed to check it, leaves out material context, or only company-wide records cut against it |
+| 61–80 | Conflicts with records | A record about the claim's own subject, scope and period contradicts it |
+| 81–100 | Contradicted by records | An official record (EU ETS, E-PRTR or the SBTi register) covering the same quantity, scope and period shows the claim to be false |
 
-Prasine Index does not give legal advice. Published reports are evidence compilations intended to support journalistic investigation and civil society accountability work.
+For a climate pledge, the integrity records described above count as records about the claim. For any claim, a decision from the last five years that found the same claim misleading counts as one too. The company score is the confidence-weighted mean of the company's three highest-scoring claims. When that mean is below the lower bound of the band of the highest-scoring claim, the score is raised to that bound, and the report gives the mean as well. A pledge stated in more than one claim counts once when the claims name the same target years and cover the same emissions. Of two claims tied for third place, the more confident one enters the mean. The range is the same weighted mean over the model's low and high estimates, and it is not raised with the score.
+
+The internal enum names in `models/score.py` date from version 1; the published finding is always derived from the score. Prasine Index does not give legal advice, and a score is not a legal finding.
 
 ---
 
