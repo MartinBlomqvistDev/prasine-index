@@ -312,15 +312,27 @@ class TestComparisonSum:
     def test_one_step_into_the_last_three_years(self) -> None:
         line = _emissions(
             [
-                _installation("IE_1", {2022: 60.0, 2023: 100.0, 2024: 120.0, 2025: 110.0}),
+                _installation("IE_1", {2022: 1500.0, 2023: 2500.0, 2024: 2600.0, 2025: 2700.0}),
                 _installation("IE_2", {2022: 9000.0, 2023: 10000.0, 2024: 12000.0, 2025: 12300.0}),
             ]
         )
         assert (
-            "For comparison, 9,060 t CO2e in 2022; that sum includes IE_1 before the step of "
+            "For comparison, 10,500 t CO2e in 2022; that sum includes IE_1 before the step of "
             "more than half in its series described below, so it is not a like-for-like "
             "comparison with 2023 to 2025." in line
         )
+
+    def test_a_step_in_a_small_part_of_the_sums_leaves_the_comparison(self) -> None:
+        # Ryanair's case: IE_216762 is under a hundredth of either sum.
+        line = _emissions(
+            [
+                _installation("IE_1", {2022: 60.0, 2023: 100.0, 2024: 120.0, 2025: 110.0}),
+                _installation("IE_2", {2022: 9000.0, 2023: 10000.0, 2024: 12000.0, 2025: 12300.0}),
+            ]
+        )
+        assert "For comparison, 9,060 t CO2e in 2022. The series change" in line
+        assert "like-for-like" not in line
+        assert "IE_1 between 2022 and 2023" in line
 
     def test_a_step_within_the_last_three_years_leaves_the_comparison(self) -> None:
         line = _emissions(

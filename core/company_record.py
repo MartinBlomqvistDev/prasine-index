@@ -288,6 +288,10 @@ def _fossil_supply(evidence: list[Evidence]) -> tuple[str, str]:
 
 _PANDEMIC_YEARS = frozenset({2020, 2021})
 
+# The part of a sum that installations with a step must carry before the step is said
+# to change a comparison: a tenth.
+_MATERIAL_SHARE = 0.1
+
 # An installation and the years between which its series changes by more than half.
 _Break = tuple[str, list[tuple[int, int]]]
 
@@ -390,6 +394,18 @@ def _emissions(evidence: list[Evidence]) -> str:
     # the comparison year and the last three years. Those installations are listed first,
     # so that the note below describes the ones the comparison names.
     before = [b for b in breaks if earlier and any(second <= common[0] for _, second in b[1])]
+    # Such a step changes the comparison only when those installations carry a material
+    # part of the sums compared: a tenth of the comparison year's or of the last year's.
+    if before:
+        named = {installation for installation, _pairs in before}
+
+        def share(year: int) -> float:
+            whole = sum(h[year] for _, h in histories)
+            part = sum(h[year] for installation, h in histories if installation in named)
+            return part / whole if whole else 0.0
+
+        if max(share(earlier[0]), share(common[-1])) < _MATERIAL_SHARE:
+            before = []
     breaks.sort(key=lambda b: b not in before)
     if earlier:
         line += f" For comparison, {total(earlier[0])}{_not_like_for_like(before, common)}."
